@@ -1,0 +1,467 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using PathOfTenThousandWays.Demo.Cards;
+using PathOfTenThousandWays.Demo.Map;
+using PathOfTenThousandWays.Demo.Systems;
+
+namespace PathOfTenThousandWays.Demo.Rewards
+{
+    public sealed class DemoRewardService
+    {
+        private readonly Random random = new Random();
+        private readonly List<DemoCard> cardPool = DemoCardLibrary.CreateRewardPool();
+
+        private static readonly Dictionary<DemoSwordStyle, string[]> FocusCardPriority = new Dictionary<DemoSwordStyle, string[]>
+        {
+            [DemoSwordStyle.Wanjian] = new[] { "sword_focus", "summon_sword", "returning_array", "sheathe_edge", "sword_rain", "sword_array", "sword_tide", "heaven_opening", "wanjian_burst" },
+            [DemoSwordStyle.Thunder] = new[] { "thunder_sword", "thunder_chain", "thunder_lead", "thunder_casket", "storm_sword_array", "thunder_prison", "heaven_thunder" },
+            [DemoSwordStyle.Blood] = new[] { "blood_mark", "blood_edge_awakening", "scarlet_feast", "blood_guard", "blood_sword", "blood_tide_array", "blood_execution" },
+            [DemoSwordStyle.General] = new[] { "sword_slash", "guard_step", "cloud_step", "spirit_draw", "meridian_breath", "jade_barrier" }
+        };
+
+        private static readonly Dictionary<DemoSwordStyle, string[]> WildcardCardPriority = new Dictionary<DemoSwordStyle, string[]>
+        {
+            [DemoSwordStyle.Wanjian] = new[] { "sword_array", "sword_rain", "returning_array", "sheathe_edge", "sword_tide", "heaven_opening", "wanjian_burst" },
+            [DemoSwordStyle.Thunder] = new[] { "thunder_chain", "thunder_lead", "thunder_casket", "storm_sword_array", "thunder_prison", "heaven_thunder" },
+            [DemoSwordStyle.Blood] = new[] { "blood_sword", "blood_edge_awakening", "scarlet_feast", "blood_guard", "blood_tide_array", "blood_execution" },
+            [DemoSwordStyle.General] = new[] { "jade_barrier", "sword_array", "thunder_prison", "blood_execution" }
+        };
+
+        private static readonly string[] GeneralUtilityCards =
+        {
+            "guard_step",
+            "cloud_step",
+            "spirit_draw",
+            "meridian_breath",
+            "jade_barrier"
+        };
+
+        public List<DemoReward> CreateChoices(int layer, DemoRunState run)
+        {
+            DemoSwordStyle focusStyle = run.GetBuildStyle();
+            HashSet<string> usedCardIds = new HashSet<string>();
+            HashSet<string> usedRewardNames = new HashSet<string>();
+
+            DemoReward focusReward = CreateFocusReward(layer, focusStyle, run, usedCardIds, usedRewardNames);
+            usedRewardNames.Add(focusReward.Name);
+            if (focusReward.Card != null)
+            {
+                usedCardIds.Add(focusReward.Card.Id);
+            }
+
+            DemoReward utilityReward = CreateUtilityReward(layer, focusStyle, run, usedCardIds, usedRewardNames);
+            usedRewardNames.Add(utilityReward.Name);
+            if (utilityReward.Card != null)
+            {
+                usedCardIds.Add(utilityReward.Card.Id);
+            }
+
+            DemoReward wildcardReward = CreateWildcardReward(layer, focusStyle, run, usedCardIds, usedRewardNames);
+
+            return new List<DemoReward>
+            {
+                focusReward,
+                utilityReward,
+                wildcardReward
+            };
+        }
+
+        private DemoReward CreateFocusReward(
+            int layer,
+            DemoSwordStyle focusStyle,
+            DemoRunState run,
+            HashSet<string> usedCardIds,
+            HashSet<string> usedRewardNames)
+        {
+            string nextRelic = GetNextStyleRelic(run, focusStyle, layer);
+            if (!string.IsNullOrEmpty(nextRelic) && !usedRewardNames.Contains(nextRelic))
+            {
+                return DemoReward.Relic(nextRelic);
+            }
+
+            DemoCard card = PickCardFromPriority(
+                FocusCardPriority.ContainsKey(focusStyle) ? FocusCardPriority[focusStyle] : FocusCardPriority[DemoSwordStyle.General],
+                usedCardIds);
+
+            if (card == null)
+            {
+                card = PickWeightedCard(
+                    layer,
+                    focusStyle,
+                    usedCardIds,
+                    candidate => candidate.Style == focusStyle || candidate.Style == DemoSwordStyle.General);
+            }
+
+            return DemoReward.FromCard(card.Clone());
+        }
+
+        private DemoReward CreateUtilityReward(
+            int layer,
+            DemoSwordStyle focusStyle,
+            DemoRunState run,
+            HashSet<string> usedCardIds,
+            HashSet<string> usedRewardNames)
+        {
+            if (run.CurrentHealth <= run.MaxHealth / 2)
+            {
+                return DemoReward.Heal();
+            }
+
+            int supportCardCount = run.Deck.Count(card => card.Type == DemoCardType.Defense || card.Type == DemoCardType.Resource);
+            if (supportCardCount < 4 || layer == 1)
+            {
+                string[] utilityPriority = focusStyle == DemoSwordStyle.Blood
+                    ? new[] { "blood_guard", "scarlet_feast", "cloud_step", "spirit_draw", "meridian_breath" }
+                    : GeneralUtilityCards;
+
+                DemoCard utilityCard = PickCardFromPriority(utilityPriority, usedCardIds);
+                if (utilityCard != null)
+                {
+                    return DemoReward.FromCard(utilityCard.Clone());
+                }
+            }
+
+            if (layer >= 2 && run.BonusEnergy == 0 && !usedRewardNames.Contains("剑诀精修"))
+            {
+                return DemoReward.Upgrade();
+            }
+
+            if (layer >= 3)
+            {
+                return DemoReward.Heal();
+            }
+
+            DemoCard fallback = PickCardFromPriority(GeneralUtilityCards, usedCardIds)
+                ?? PickWeightedCard(layer, focusStyle, usedCardIds, candidate => candidate.Type == DemoCardType.Defense || candidate.Type == DemoCardType.Resource);
+            return DemoReward.FromCard(fallback.Clone());
+        }
+
+        private DemoReward CreateWildcardReward(
+            int layer,
+            DemoSwordStyle focusStyle,
+            DemoRunState run,
+            HashSet<string> usedCardIds,
+            HashSet<string> usedRewardNames)
+        {
+            string generalRelic = GetNextGeneralRelic(run, layer);
+            if (!string.IsNullOrEmpty(generalRelic) && !usedRewardNames.Contains(generalRelic))
+            {
+                return DemoReward.Relic(generalRelic);
+            }
+
+            DemoCard wildcardCard = PickCardFromPriority(
+                WildcardCardPriority.ContainsKey(focusStyle) ? WildcardCardPriority[focusStyle] : WildcardCardPriority[DemoSwordStyle.General],
+                usedCardIds);
+
+            if (wildcardCard == null)
+            {
+                wildcardCard = PickWeightedCard(
+                    layer,
+                    focusStyle,
+                    usedCardIds,
+                    candidate => candidate.Quality >= DemoQuality.Mysterious || candidate.Type == DemoCardType.FlyingSword || candidate.Type == DemoCardType.Finisher);
+            }
+
+            if (wildcardCard != null)
+            {
+                return DemoReward.FromCard(wildcardCard.Clone());
+            }
+
+            return run.CurrentHealth < run.MaxHealth ? DemoReward.Heal() : DemoReward.Upgrade();
+        }
+
+        private DemoCard PickCardFromPriority(IEnumerable<string> ids, ISet<string> usedCardIds)
+        {
+            if (ids == null)
+            {
+                return null;
+            }
+
+            List<string> candidates = ids
+                .Where(id => !string.IsNullOrEmpty(id) && !usedCardIds.Contains(id))
+                .ToList();
+
+            if (candidates.Count == 0)
+            {
+                return null;
+            }
+
+            return DemoCardLibrary.Create(candidates[random.Next(candidates.Count)]);
+        }
+
+        private DemoCard PickWeightedCard(
+            int layer,
+            DemoSwordStyle focusStyle,
+            ISet<string> usedCardIds,
+            Func<DemoCard, bool> predicate)
+        {
+            List<DemoCard> weighted = new List<DemoCard>();
+
+            foreach (DemoCard card in cardPool)
+            {
+                if (usedCardIds.Contains(card.Id))
+                {
+                    continue;
+                }
+
+                if (predicate != null && !predicate(card))
+                {
+                    continue;
+                }
+
+                weighted.Add(card);
+
+                if (card.Style == focusStyle)
+                {
+                    weighted.Add(card);
+                    weighted.Add(card);
+                }
+
+                if (layer >= 2 && card.Type == DemoCardType.FlyingSword)
+                {
+                    weighted.Add(card);
+                }
+
+                if (layer >= 3 && (card.Type == DemoCardType.Finisher || card.Quality >= DemoQuality.Earth))
+                {
+                    weighted.Add(card);
+                    weighted.Add(card);
+                }
+            }
+
+            return weighted.Count == 0 ? null : weighted[random.Next(weighted.Count)];
+        }
+
+        private static string GetNextStyleRelic(DemoRunState run, DemoSwordStyle focusStyle, int layer)
+        {
+            if (run == null || layer < 2)
+            {
+                return null;
+            }
+
+            string[] relics = GetStyleRelicPriority(focusStyle);
+            int ownedCount = relics.Count(run.HasRelic);
+            int targetCount = Math.Min(layer - 1, relics.Length);
+
+            if (ownedCount >= targetCount)
+            {
+                return null;
+            }
+
+            return relics.FirstOrDefault(relicName => !run.HasRelic(relicName));
+        }
+
+        private static string GetNextGeneralRelic(DemoRunState run, int layer)
+        {
+            if (run == null || layer < 2)
+            {
+                return null;
+            }
+
+            List<string> priority = new List<string>();
+            if (run.HasArtifact(DemoArtifactType.HaotianMirror))
+            {
+                priority.Add("残破古镜");
+            }
+
+            if (run.CurrentHealth <= run.MaxHealth * 2 / 3)
+            {
+                priority.Add("护心镜");
+            }
+
+            priority.Add("聚灵符");
+            priority.Add("护心镜");
+
+            foreach (string relicName in priority)
+            {
+                if (!run.HasRelic(relicName))
+                {
+                    return relicName;
+                }
+            }
+
+            return null;
+        }
+
+        private static string[] GetStyleRelicPriority(DemoSwordStyle focusStyle)
+        {
+            switch (focusStyle)
+            {
+                case DemoSwordStyle.Thunder:
+                    return new[] { "雷心", "九霄雷印" };
+                case DemoSwordStyle.Blood:
+                    return new[] { "血剑胚", "血魔珠" };
+                case DemoSwordStyle.Wanjian:
+                default:
+                    return new[] { "剑骨", "剑冢残碑", "万剑剑匣" };
+            }
+        }
+    }
+
+    public sealed class DemoRouteRewardService
+    {
+        public List<DemoReward> CreateChoices(int layer, DemoRunState run)
+        {
+            DemoSwordStyle focusStyle = run.GetBuildStyle();
+
+            switch (layer)
+            {
+                case 1:
+                    return CreateOpeningChoices(focusStyle);
+                case 2:
+                    return CreateMiddleChoices(focusStyle);
+                default:
+                    return CreateFinalChoices(focusStyle);
+            }
+        }
+
+        private static List<DemoReward> CreateOpeningChoices(DemoSwordStyle focusStyle)
+        {
+            return OrderByFocusStyle(
+                new List<DemoReward>
+                {
+                    DemoReward.Route(
+                        new DemoMapRoutePlan(
+                            "万剑开锋",
+                            "先打一场试锋斗法，再拿第一批飞剑组件，把飞剑数量尽快铺起来。",
+                            new DemoMapNode(1, DemoNodeType.Battle, "云海妖灵"),
+                            new DemoMapNode(1, DemoNodeType.Reward, "第一批飞剑组件"),
+                            new DemoMapNode(2, DemoNodeType.RouteChoice, "第二层路口")),
+                        DemoSwordStyle.Wanjian,
+                        DemoQuality.Earth,
+                        "万",
+                        "首层路线"),
+                    DemoReward.Route(
+                        new DemoMapRoutePlan(
+                            "雷痕试锋",
+                            "先踩进覆雷路口，靠第一批感电组件把后续自动结算提前点亮。",
+                            new DemoMapNode(1, DemoNodeType.Battle, "雷纹妖将"),
+                            new DemoMapNode(1, DemoNodeType.Reward, "雷痕遗藏"),
+                            new DemoMapNode(2, DemoNodeType.RouteChoice, "第二层路口")),
+                        DemoSwordStyle.Thunder,
+                        DemoQuality.Heaven,
+                        "雷",
+                        "首层路线"),
+                    DemoReward.Route(
+                        new DemoMapRoutePlan(
+                            "血祭走锋",
+                            "先闯一场搏命试锋，再拿流血组件，让斩杀压力更早成型。",
+                            new DemoMapNode(1, DemoNodeType.Battle, "血影残魂"),
+                            new DemoMapNode(1, DemoNodeType.Reward, "血煞遗藏"),
+                            new DemoMapNode(2, DemoNodeType.RouteChoice, "第二层路口")),
+                        DemoSwordStyle.Blood,
+                        DemoQuality.Earth,
+                        "血",
+                        "首层路线")
+                },
+                focusStyle);
+        }
+
+        private static List<DemoReward> CreateMiddleChoices(DemoSwordStyle focusStyle)
+        {
+            return new List<DemoReward>
+            {
+                DemoReward.Route(
+                    new DemoMapRoutePlan(
+                        "稳修收束",
+                        $"先用修炼补齐{GetStyleFocusText(focusStyle)}，再打一场常规斗法，让 build 在中段更稳地收束。",
+                        new DemoMapNode(2, DemoNodeType.Training, "法宝与功法补强"),
+                        new DemoMapNode(2, DemoNodeType.Battle, "劫云守卫"),
+                        new DemoMapNode(3, DemoNodeType.RouteChoice, "第三层路口")),
+                    focusStyle,
+                    DemoQuality.Spirit,
+                    "稳",
+                    "稳定路线"),
+                DemoReward.Route(
+                    new DemoMapRoutePlan(
+                        "追锋破阵",
+                        $"连续走两场斗法换一次额外补强，适合把{GetStyleFocusText(focusStyle)}直接压到中段高点。",
+                        new DemoMapNode(2, DemoNodeType.Battle, "裂空剑煞"),
+                        new DemoMapNode(2, DemoNodeType.Reward, "中段补强"),
+                        new DemoMapNode(2, DemoNodeType.Battle, "雷崖执兵"),
+                        new DemoMapNode(3, DemoNodeType.RouteChoice, "第三层路口")),
+                    focusStyle,
+                    DemoQuality.Heaven,
+                    "锋",
+                    "冒险路线"),
+                DemoReward.Route(
+                    new DemoMapRoutePlan(
+                        "秘器共振",
+                        $"先去整备节点改写规则，再打一场试炼，让{GetStyleFocusText(focusStyle)}提前接上法宝与神通。",
+                        new DemoMapNode(2, DemoNodeType.Shop, "秘器整备"),
+                        new DemoMapNode(2, DemoNodeType.Battle, "镜雷试炼"),
+                        new DemoMapNode(3, DemoNodeType.RouteChoice, "第三层路口")),
+                    focusStyle,
+                    DemoQuality.Mysterious,
+                    "器",
+                    "构筑路线")
+            };
+        }
+
+        private static List<DemoReward> CreateFinalChoices(DemoSwordStyle focusStyle)
+        {
+            return new List<DemoReward>
+            {
+                DemoReward.Route(
+                    new DemoMapRoutePlan(
+                        "整备冲劫",
+                        $"先整备再渡劫，让{GetStyleFocusText(focusStyle)}在 Boss 战里稳定落地。",
+                        new DemoMapNode(3, DemoNodeType.Shop, "Boss 前整备"),
+                        new DemoMapNode(3, DemoNodeType.Boss, "天劫化身"),
+                        new DemoMapNode(4, DemoNodeType.Victory, "一世修行完成")),
+                    focusStyle,
+                    DemoQuality.Spirit,
+                    "备",
+                    "稳守路线"),
+                DemoReward.Route(
+                    new DemoMapRoutePlan(
+                        "闭关悟道",
+                        "再闭关一轮补足神通和续航，把爆发窗口完整地留给天劫降临那一刻。",
+                        new DemoMapNode(3, DemoNodeType.Training, "渡劫前闭关"),
+                        new DemoMapNode(3, DemoNodeType.Shop, "Boss 前整备"),
+                        new DemoMapNode(3, DemoNodeType.Boss, "天劫化身"),
+                        new DemoMapNode(4, DemoNodeType.Victory, "一世修行完成")),
+                    focusStyle,
+                    DemoQuality.Mysterious,
+                    "悟",
+                    "爆发路线"),
+                DemoReward.Route(
+                    new DemoMapRoutePlan(
+                        "背水破劫",
+                        "再打一场劫前守门换最后一次补强，用更高的风险把斩杀上限也一并抬上去。",
+                        new DemoMapNode(3, DemoNodeType.Battle, "劫前守门"),
+                        new DemoMapNode(3, DemoNodeType.Reward, "最后补强"),
+                        new DemoMapNode(3, DemoNodeType.Boss, "天劫化身"),
+                        new DemoMapNode(4, DemoNodeType.Victory, "一世修行完成")),
+                    focusStyle,
+                    DemoQuality.Immortal,
+                    "劫",
+                    "背水路线")
+            };
+        }
+
+        private static List<DemoReward> OrderByFocusStyle(List<DemoReward> rewards, DemoSwordStyle focusStyle)
+        {
+            return rewards
+                .OrderByDescending(reward => reward.RouteStyle == focusStyle)
+                .ThenBy(reward => reward.Name)
+                .ToList();
+        }
+
+        private static string GetStyleFocusText(DemoSwordStyle style)
+        {
+            switch (style)
+            {
+                case DemoSwordStyle.Wanjian:
+                    return "飞剑数量和剑潮";
+                case DemoSwordStyle.Thunder:
+                    return "感电连锁和雷击";
+                case DemoSwordStyle.Blood:
+                    return "流血深度和斩杀";
+                default:
+                    return "飞剑与功法联动";
+            }
+        }
+    }
+}

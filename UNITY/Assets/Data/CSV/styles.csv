@@ -1,0 +1,5 @@
+style_id,name,focus_text,basic_path_card_id,theme_tags
+general,通用,飞剑与功法联动,sword_slash,utility|fallback
+wanjian,万剑,飞剑数量和剑潮,sword_focus,flying_sword|sword_intent|burst
+thunder,雷剑,感电连锁和雷击,thunder_chain,shock|thunder_strike|burst
+blood,血剑,流血深度和斩杀,blood_mark,bleed|risk_reward|execution

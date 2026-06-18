@@ -1,0 +1,25 @@
+root_id,target_system,target_key,operation,value,is_visible,notes
+root_servant,node_weight,training,delta_percent,6,true,首层修炼节点权重 +6%
+root_servant,reward_weight,gongfa_candidate,delta_percent,8,false,功法候选权重 +8%
+root_servant,node_weight,shop,delta_percent,-4,false,商店权重 -4%
+root_smith,choice_bonus,artifact_candidate_first_pick,extra_count,1,true,首次法器候选额外 +1 件
+root_smith,reward_weight,artifact_candidate,delta_percent,8,false,法器候选权重 +8%
+root_smith,node_weight,treasure,delta_percent,4,false,秘藏权重 +4%
+root_caravan,resource,starting_stone,delta_flat,20,true,初始灵石 +20
+root_caravan,node_weight,shop,delta_percent,8,false,商店权重 +8%
+root_caravan,reward_weight,resource_reward,delta_percent,8,false,资源奖励权重 +8%
+root_branch,choice_bonus,gongfa_candidate_first_pick,extra_count,1,true,首次功法候选额外 +1 项
+root_branch,node_weight,cave,delta_percent,6,false,洞府权重 +6%
+root_branch,node_weight,treasure,delta_percent,6,false,秘藏权重 +6%
+root_exile,reward_weight,high_variance_reward,delta_percent,8,true,高波动奖励权重 +8%
+root_exile,node_weight,risk_event,delta_percent,8,false,风险事件权重 +8%
+root_exile,reward_weight,defense_tag,delta_percent,6,false,防御标签 +6%
+root_swordtomb,node_weight,normal_battle,delta_percent,6,true,首层普通战斗权重 +6%
+root_swordtomb,reward_weight,flying_sword_tag,delta_percent,8,false,飞剑标签 +8%
+root_swordtomb,reward_weight,attack_tag,delta_percent,8,false,攻击标签 +8%
+root_hostage,resource,free_reroll_count,delta_flat,1,true,每局免费改命 +1
+root_hostage,node_weight,elite_battle,delta_percent,6,false,精英权重 +6%
+root_hostage,reward_weight,high_quality_reward,delta_percent,6,false,高品质奖励 +6%
+root_tianji,info,future_node_preview_count,delta_flat,1,true,启程时额外预览 1 条未来节点
+root_tianji,reward_weight,info_reward_tag,delta_percent,10,false,情报类奖励 +10%
+root_tianji,node_weight,event,delta_percent,6,false,事件权重 +6%

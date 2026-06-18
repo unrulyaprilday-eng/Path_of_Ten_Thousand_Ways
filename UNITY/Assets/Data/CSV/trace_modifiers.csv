@@ -1,0 +1,18 @@
+trace_id,target_system,target_key,operation,value,is_visible,notes
+trace_swordcase,line_generation,flying_sword_line_highlight,guarantee_highlight,1,true,启程候选中若存在飞剑线则额外高亮 1 条
+trace_swordcase,reward_weight,flying_sword_tag,delta_percent,10,false,飞剑奖励 +10%
+trace_swordcase,reward_weight,sword_intent_tag,delta_percent,10,false,剑意奖励 +10%
+trace_thunder,line_generation,thunder_line_guarantee,guarantee_presence,1,true,启程候选中至少出现 1 条雷系起势线
+trace_thunder,reward_weight,shock_tag,delta_percent,10,false,感电奖励 +10%
+trace_thunder,reward_weight,crit_tag,delta_percent,10,false,暴击奖励 +10%
+trace_blood,line_generation,blood_risk_line_guarantee,guarantee_presence,1,true,启程候选中至少出现 1 条风险流起势线
+trace_blood,reward_weight,bleed_tag,delta_percent,10,false,流血奖励 +10%
+trace_blood,reward_weight,low_health_tag,delta_percent,10,false,压血奖励 +10%
+trace_merchant,resource,starting_stone,delta_flat,15,true,初始灵石 +15
+trace_merchant,node_weight,shop,delta_percent,8,false,商店节点权重 +8%
+trace_merchant,node_weight,resource_event,delta_percent,6,false,资源事件权重 +6%
+trace_guard,resource,starting_health,delta_flat,6,true,开局生命 +6
+trace_guard,node_weight,training,delta_percent,8,false,修炼节点权重 +8%
+trace_guard,reward_weight,defense_tag,delta_percent,8,false,防御奖励 +8%
+trace_tianji,line_generation,free_refresh_count,delta_flat,1,true,启程页可免费刷新 1 次
+trace_tianji,info,first_region_preview_count,delta_flat,1,false,首层节点预览 +1

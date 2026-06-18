@@ -1,0 +1,32 @@
+# Unity generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# Unity generated files
+*.csproj
+*.sln
+*.user
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+!UNITY/CompileCheck/CompileCheck.csproj
+
+# Unity cache
+UNITY/Library/
+UNITY/Temp/
+UNITY/Obj/
+UNITY/Build/
+UNITY/Builds/
+UNITY/Logs/
+UNITY/UserSettings/
+
+# Local compile checks
+UNITY/CompileCheck/bin/
+UNITY/CompileCheck/obj/

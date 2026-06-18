@@ -1,0 +1,4 @@
+formula_id,expression,description
+first_region_node_weight,"region_template_weight * (1 + root_modifier) * (1 + trace_modifier) * (1 + journey_modifier) * (1 + state_modifier)",首层节点最终权重
+reward_tag_weight,"base_tag_weight + root_bonus + trace_bonus + journey_bonus + carry_item_bonus + loadout_bonus + pity_bonus",奖励标签最终权重
+line_candidate_generation,"2 regular lines from current root pool + 1 trace-biased line + optional rare line replacement roll",启程候选生成规则

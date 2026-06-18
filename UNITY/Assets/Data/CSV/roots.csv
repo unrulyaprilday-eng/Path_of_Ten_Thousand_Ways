@@ -1,0 +1,9 @@
+root_id,name,rarity,unlock_condition,is_default_pool,summary
+root_servant,山门杂役,common,初始解锁,true,首层修炼偏高的稳健起手
+root_smith,铁坊子,common,初始解锁,true,法器与飞剑更容易起势
+root_caravan,行脚商裔,common,初始解锁,true,资源与商路节点更充裕
+root_branch,世家旁支,common,初始解锁,true,功法与洞府更容易补强
+root_exile,罪臣遗孤,common,通关 3 次后解锁,false,高波动高风险起手
+root_swordtomb,剑冢弃儿,common,击败 10 名精英后解锁,false,飞剑与攻击更容易成形
+root_hostage,王朝质子,rare,达成无伤渡劫后解锁,false,高品质与精英回报更高
+root_tianji,天机遗脉,rare,建成天机阁后解锁,false,情报与未来预览更强

@@ -1,0 +1,44 @@
+group,key,value,value_type,notes
+opening,default_free_reroll_count,1,int,每局默认赠送 1 次免费改命
+opening,max_extra_reroll_count,2,int,单局最多额外改命 2 次
+opening,extra_reroll_currency,改命签,string,额外改命消耗
+opening,line_choice_count,3,int,启程页展示数量
+opening,regular_line_draw_count,2,int,从当前根脚池抽取常规启程线数量
+opening,trace_bonus_line_draw_count,1,int,根据道痕补入偏向启程线数量
+opening,rare_line_replace_chance,0.15,float,已解锁稀有线后的替换概率
+opening,main_reward_bias_percent,25,int,启程线主标签奖励修正
+opening,secondary_reward_bias_percent,12,int,启程线副标签奖励修正
+opening,main_node_bias_percent,12,int,启程线首层节点主修正
+opening,secondary_node_bias_percent,6,int,启程线首层节点副修正
+opening,counter_node_bias_percent,-6,int,启程线反向节点修正
+opening,carry_item_power_reference,0.5,float,携行之物强度约等于 0.5 件普通法器
+manifestation,hint_threshold,40,int,起势提示出现
+manifestation,tilt_threshold,70,int,奖励池开始明显倾斜
+manifestation,lock_threshold,100,int,进入定道状态
+manifestation,root_main,8,int,根脚主标签贡献
+manifestation,root_secondary,4,int,根脚副标签贡献
+manifestation,trace_main,12,int,道痕主标签贡献
+manifestation,trace_secondary,6,int,道痕副标签贡献
+manifestation,journey_main,18,int,启程线主标签贡献
+manifestation,journey_secondary,8,int,启程线副标签贡献
+manifestation,carry_item_main,28,int,携行之物主标签贡献
+manifestation,carry_item_secondary,12,int,携行之物副标签贡献
+manifestation,first_region_main,10,int,首境主标签贡献
+manifestation,first_region_secondary,5,int,首境副标签贡献
+manifestation,core_gongfa_main,35,int,核心功法主标签贡献
+manifestation,core_gongfa_secondary,15,int,核心功法副标签贡献
+manifestation,core_artifact_main,22,int,核心法器主标签贡献
+manifestation,core_artifact_secondary,10,int,核心法器副标签贡献
+manifestation,card_triplet_main,15,int,同标签卡牌达到 3 张后的主标签贡献
+battle,planning_seconds,15,int,规划阶段倒计时
+battle,step_duration_seconds,0.7,float,单个演出步骤的基础时长
+battle,minimum_execution_seconds,2.4,float,演武阶段最小时长
+battle,player_base_max_health,72,int,玩家基础最大生命
+battle,player_base_max_energy,3,int,玩家基础最大灵气
+battle,player_base_permanent_swords,1,int,玩家基础永久飞剑
+battle,boss_extra_permanent_swords,1,int,Boss 战额外永久飞剑
+battle,opening_round_energy,1,int,首战第一回合灵气
+battle,opening_round_hand_size,3,int,首战第一回合手牌数量
+battle,normal_round_hand_size,5,int,常规回合目标手牌数量
+battle,heal_reward_amount,18,int,调息奖励回复生命
+battle,upgrade_reward_energy_bonus,1,int,剑诀精修提升灵气上限

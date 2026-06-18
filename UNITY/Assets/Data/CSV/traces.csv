@@ -1,0 +1,7 @@
+trace_id,name,trace_type,summary
+trace_swordcase,剑匣道痕,path_bias,飞剑启程线更容易出现并高亮
+trace_thunder,雷印道痕,path_bias,至少出现一条雷系起势线
+trace_blood,血玉道痕,path_bias,至少出现一条风险流起势线
+trace_merchant,行商道痕,travel_bias,起手资源更多且商路更顺
+trace_guard,护心道痕,defense_bias,起手更稳健
+trace_tianji,天机道痕,intel_bias,启程刷新与情报更强

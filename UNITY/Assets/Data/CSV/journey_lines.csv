@@ -1,0 +1,19 @@
+line_id,root_id,title,origin_text,carry_item_name,carry_item_effect,first_region_id,risk_level,summary_tags
+line_servant_thunder_delivery,root_servant,替师门送符下山,你的值夜师兄在封库之前把一枚裂痕雷印塞进你袖中催你先把雷符送出山门,裂痕雷印,前 3 场战斗中首次感电触发额外附加 2 层感电,region_thunder_marsh,medium,thunder|shock|opening_pressure
+line_servant_herb_audit,root_servant,奉命清点废药园,外门执事把一柄旧木剑和一沓废药签一并丢给你要你去迷林药谷清点损失,旧木剑,每场战斗第一把飞剑命中后获得 1 层剑意,region_herb_forest,stable,flying_sword|sword_intent|recovery
+line_servant_account_escort,root_servant,护送账册去会馆,管库执事命你把欠货账册送去会馆一块护心古玉被暂时借给你做路引,护心古玉,前 3 场战斗中首次生命低于 50% 时获得 8 护盾,region_trade_road,stable,defense|resource|shop
+line_smith_furnace_caravan,root_smith,随商队押送炉材,你第一次跟着商队出远门师父把一枚百炼剑胚塞进你掌心说它比口头叮嘱更管用,百炼剑胚,前 3 场战斗中第一张飞剑牌费用 -1,region_trade_road,stable,flying_sword|upgrade|resource
+line_smith_lost_sword,root_smith,替父追索失剑,铁坊丢了一柄未成之剑你只拿到一只残鸣剑匣便被催着进了旧矿地窟,残鸣剑匣,每场战斗首次飞剑返回时额外再攻击 1 次,region_old_mine,medium,flying_sword|follow_up|artifact
+line_smith_tower_trial,root_smith,试印入塔,师兄让你把试制失败的雷钉带进妖塔外层说若能活着回来就算它成器,焦痕雷钉,每场战斗第一次暴击触发一段 4 点雷击,region_demon_tower,risky,thunder|crit|high_variance
+line_caravan_trade_road,root_caravan,跟船转陆入荒谷,你替商队记账多年第一次真正押货出远门时只带走了一卷旧商路图,旧商路图,首层商店额外刷新 1 次且初始灵石 +15,region_trade_road,stable,resource|shop|economy
+line_caravan_debt_tower,root_caravan,替东家收债,东家把账房铜印塞进你怀里让你去妖塔脚下把那笔烂账讨回来,账房铜印,击败首个精英后额外获得 20 灵石,region_demon_tower,medium,resource|elite|quality
+line_caravan_lost_goods,root_caravan,追失货入迷林,一批失货在迷林药谷失了踪你带着辨路风铃和剩下的账册追了进去,辨路风铃,首层前 2 个事件可额外查看 1 个隐藏选项,region_herb_forest,stable,event|recovery|encounter
+line_branch_old_vault,root_branch,奉命清查旧库,你被派去清查一座旁支旧库老仆只偷偷把祖纹残匣塞给了你,祖纹残匣,首次获得法器时额外多看 1 件同池候选,region_ancestral_vault,stable,artifact|gongfa|acceleration
+line_branch_baishan_post,root_branch,替族送帖拜山,你奉命送帖拜山临行前只获准带走一块护身古玉,护身古玉,第一场战斗开始获得 6 护盾,region_trade_road,stable,defense|gongfa|event
+line_branch_burned_ancestral_hall,root_branch,祭扫失火家祠,一场家祠火事烧出一卷余烬符函族中无人敢看最后落到了你手中,余烬符函,首次功法候选额外再看 1 项,region_herb_forest,medium,gongfa|status_transition|event
+line_exile_night_marsh,root_exile,夜逃过泽,你夜里逃出旧宅只从暗格里带走一枚血沁剑胚踏进了雷泽险地,血沁剑胚,每场战斗首次飞剑命中附加 2 层流血并回复 1 生命,region_thunder_marsh,risky,bleed|risk_reward|life_steal
+line_exile_case_cellar,root_exile,奔赴旧案地窖,一把断锁钥牌带你回到旧案埋藏的地窖人人都劝你别去,断锁钥牌,首次进入秘藏节点时额外获得 1 个候选,region_ancestral_vault,risky,high_variance|artifact|treasure
+line_exile_fake_name,root_exile,假名混入商队,你用磨损印牌换了个假名跟着商队进入荒谷只求先活下来,磨损印牌,首场战斗结束后回复 8 生命,region_trade_road,stable,resource|defense|survival
+line_swordtomb_rust_blade,root_swordtomb,入冢取锈剑,你在剑冢里长大第一次真正下山时只带走了一只装着残片的旧匣,锈痕旧匣,每场战斗首次飞剑造成伤害后再追加 1 次 50% 伤害的追击,region_old_mine,medium,flying_sword|follow_up|attack
+line_swordtomb_thunder_bone,root_swordtomb,拾雷骨穿塔,一截焦黑雷骨替你换来进塔资格你带着它闯进妖塔外层,雷骨短钉,每场战斗首次暴击额外附加 1 层感电并造成 3 点雷击,region_demon_tower,risky,shock|crit|pressure
+line_swordtomb_blood_forest,root_swordtomb,饮血过林,你把血沁刃胚缠在臂上进了迷林药谷打算一路杀出去,血沁刃胚,每场战斗首次掉血后本场飞剑伤害 +2,region_herb_forest,risky,bleed|risk_reward|survival_to_damage
