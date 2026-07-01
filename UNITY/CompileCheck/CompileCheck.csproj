@@ -10,6 +10,7 @@
     <Compile Include="..\Assets\Scripts\Battle\DemoBattleState.cs" Link="Battle\DemoBattleState.cs" />
     <Compile Include="..\Assets\Scripts\Cards\DemoCard.cs" Link="Cards\DemoCard.cs" />
     <Compile Include="..\Assets\Scripts\Cards\DemoCardLibrary.cs" Link="Cards\DemoCardLibrary.cs" />
+    <Compile Include="..\Assets\Scripts\Common\SimpleJsonParser.cs" Link="Common\SimpleJsonParser.cs" />
     <Compile Include="..\Assets\Scripts\Combatants\DemoCombatant.cs" Link="Combatants\DemoCombatant.cs" />
     <Compile Include="..\Assets\Scripts\Map\DemoMapRun.cs" Link="Map\DemoMapRun.cs" />
     <Compile Include="..\Assets\Scripts\Rewards\DemoArtifactRewardService.cs" Link="Rewards\DemoArtifactRewardService.cs" />
@@ -17,6 +18,8 @@
     <Compile Include="..\Assets\Scripts\Rewards\DemoReward.cs" Link="Rewards\DemoReward.cs" />
     <Compile Include="..\Assets\Scripts\Rewards\DemoRewardService.cs" Link="Rewards\DemoRewardService.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoArtifact.cs" Link="Systems\DemoArtifact.cs" />
+    <Compile Include="..\Assets\Scripts\Systems\DemoConfigData.cs" Link="Systems\DemoConfigData.cs" />
+    <Compile Include="..\Assets\Scripts\Systems\DemoConfigRepository.cs" Link="Systems\DemoConfigRepository.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoGongfa.cs" Link="Systems\DemoGongfa.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoQuality.cs" Link="Systems\DemoQuality.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoRelic.cs" Link="Systems\DemoRelic.cs" />

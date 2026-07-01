@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using PathOfTenThousandWays.Demo.Cards;
@@ -55,6 +56,24 @@ namespace PathOfTenThousandWays.Demo.Rewards
 
         private static IEnumerable<DemoArtifactType> GetArtifactPriority(DemoSwordStyle style)
         {
+            IReadOnlyList<string> configuredIds = DemoConfigRepository.GetRewardPriorityRefs("artifact_priority", style, "artifact");
+            if (configuredIds.Count > 0)
+            {
+                List<DemoArtifactType> configured = new List<DemoArtifactType>();
+                for (int i = 0; i < configuredIds.Count; i++)
+                {
+                    if (Enum.TryParse(configuredIds[i], true, out DemoArtifactType artifactType))
+                    {
+                        configured.Add(artifactType);
+                    }
+                }
+
+                if (configured.Count > 0)
+                {
+                    return configured;
+                }
+            }
+
             switch (style)
             {
                 case DemoSwordStyle.Thunder:
@@ -88,6 +107,11 @@ namespace PathOfTenThousandWays.Demo.Rewards
         private static IEnumerable<string> GetFallbackRelicPriority(DemoRunState run)
         {
             DemoSwordStyle style = run?.GetBuildStyle() ?? DemoSwordStyle.General;
+            IReadOnlyList<string> configuredIds = DemoConfigRepository.GetRewardPriorityRefs("artifact_fallback_relics", style, "relic");
+            if (configuredIds.Count > 0)
+            {
+                return configuredIds;
+            }
 
             switch (style)
             {

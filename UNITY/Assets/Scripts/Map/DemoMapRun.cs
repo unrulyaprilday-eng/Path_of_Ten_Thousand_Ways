@@ -70,7 +70,7 @@ namespace PathOfTenThousandWays.Demo.Map
 
         public DemoMapRun()
         {
-            Nodes.Add(new DemoMapNode(0, DemoNodeType.Start, "选择剑道"));
+            Nodes.Add(new DemoMapNode(0, DemoNodeType.Start, "定根脚"));
             Nodes.Add(new DemoMapNode(1, DemoNodeType.RouteChoice, "第一层路口"));
         }
 

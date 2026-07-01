@@ -1,0 +1,10 @@
+enemy_id,name,battle_role,is_boss,max_health,base_damage_profile,notes
+enemy_cloud_spirit,云海妖灵,normal,false,46,normal_layer_1,首层普通敌人模板
+enemy_thunder_general,雷纹妖将,normal,false,46,normal_layer_1,首层普通敌人模板
+enemy_blood_wraith,血影残魂,normal,false,46,normal_layer_1,首层普通敌人模板
+enemy_calamity_guard,劫云守卫,normal,false,64,normal_layer_2,第二层普通敌人模板
+enemy_rift_sword_fiend,裂空剑煞,elite,false,64,normal_layer_2,第二层高压战斗模板
+enemy_thunder_cliff_guard,雷崖执兵,elite,false,64,normal_layer_2,第二层高压战斗模板
+enemy_mirror_thunder_trial,镜雷试炼,elite,false,64,normal_layer_2,第二层法器试炼模板
+enemy_calamity_gatekeeper,劫前守门,elite,false,78,normal_layer_3,第三层高压战斗模板
+enemy_tianjie_avatar,天劫化身,boss,true,150,boss_tianjie,终局 Boss

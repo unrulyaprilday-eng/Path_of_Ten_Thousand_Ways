@@ -12,7 +12,11 @@ namespace PathOfTenThousandWays.Demo.UI
     public sealed class DemoBattleSceneView : MonoBehaviour
     {
         private const string BattleBackgroundResourcePath = "Art/Scenes/scene_battle_cloudsea_001";
+        private const string BattleFarSceneResourcePath = "Art/Scenes/scene_cloudsea_far_001";
+        private const string BattleMidSceneResourcePath = "Art/Scenes/scene_battle_cloudsea_mid_001";
+        private const string BattleNearSceneResourcePath = "Art/Scenes/scene_battle_cloudsea_near_001";
         private const string BossPortraitResourcePath = "Art/Boss/boss_tianjie_halfbody_001";
+        private const string BossPortraitFallbackResourcePath = "Art/Boss/boss_tianjie_halfbody_002";
         private static readonly Color HudPaper = new Color(0.94f, 0.93f, 0.89f, 1f);
         private static readonly Color HudMist = new Color(0.63f, 0.67f, 0.72f, 1f);
         private static readonly Color HudGold = new Color(0.85f, 0.72f, 0.44f, 1f);
@@ -21,6 +25,9 @@ namespace PathOfTenThousandWays.Demo.UI
         private static readonly Color HudJade = new Color(0.43f, 0.63f, 0.72f, 1f);
         private static readonly Color HudCrimson = new Color(0.74f, 0.34f, 0.31f, 1f);
         private static Sprite cachedBattleBackgroundSprite;
+        private static Sprite cachedBattleFarSceneSprite;
+        private static Sprite cachedBattleMidSceneSprite;
+        private static Sprite cachedBattleNearSceneSprite;
         private static Sprite cachedBossPortraitSprite;
 
         private sealed class AmbientDrift
@@ -45,10 +52,20 @@ namespace PathOfTenThousandWays.Demo.UI
             public Color BaseColor;
         }
 
-        private DemoGameController controller;
+        
+        private enum EncounterVisualTier
+        {
+            Minor,
+            Elite,
+            MiniBoss,
+            FinalBoss
+        }private DemoGameController controller;
         private Font uiFont;
         private Sprite whiteSprite;
         private Sprite battleBackgroundSprite;
+        private Sprite battleFarSceneSprite;
+        private Sprite battleMidSceneSprite;
+        private Sprite battleNearSceneSprite;
         private Sprite bossPortraitSprite;
 
         private RectTransform rootRect;
@@ -77,7 +94,11 @@ namespace PathOfTenThousandWays.Demo.UI
         private RectTransform enemyRoot;
         private RectTransform enemySword;
         private RectTransform enemyBody;
-        private RectTransform playerStatusPanel;
+                private Image enemyAuraImage;
+        private Image enemySwordImage;
+        private Image enemySwordTrailImage;
+        private Image enemyBodyImage;
+        private Text enemyLabelText;private RectTransform playerStatusPanel;
         private RectTransform enemyStatusPanel;
         private RectTransform roundStatusPanel;
         private RectTransform intentPanel;
@@ -108,6 +129,9 @@ namespace PathOfTenThousandWays.Demo.UI
             uiFont = font;
             whiteSprite = CreateWhiteSprite();
             battleBackgroundSprite = LoadBattleBackgroundSprite();
+            battleFarSceneSprite = LoadSceneLayerSprite(ref cachedBattleFarSceneSprite, BattleFarSceneResourcePath);
+            battleMidSceneSprite = LoadSceneLayerSprite(ref cachedBattleMidSceneSprite, BattleMidSceneResourcePath);
+            battleNearSceneSprite = LoadSceneLayerSprite(ref cachedBattleNearSceneSprite, BattleNearSceneResourcePath);
             bossPortraitSprite = LoadBossPortraitSprite();
             BuildScene();
         }
@@ -166,6 +190,7 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             UpdateBossAtmosphere();
+            UpdateEncounterPresentation();
             UpdateHudPanels();
         }
 
@@ -181,6 +206,10 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private void CreateBackground()
         {
+            bool hasFarSceneArt = battleFarSceneSprite != null;
+            bool hasMidSceneArt = battleMidSceneSprite != null;
+            bool hasNearSceneArt = battleNearSceneSprite != null;
+
             Image backdrop = CreateImage("Backdrop", rootRect, battleBackgroundSprite != null
                 ? new Color(0.86f, 0.88f, 0.90f, 1f)
                 : new Color(0.90f, 0.90f, 0.88f, 1f));
@@ -193,40 +222,53 @@ namespace PathOfTenThousandWays.Demo.UI
 
             CreatePanel("BackdropPaper", rootRect, new Color(1f, 1f, 1f, battleBackgroundSprite != null ? 0.16f : 0.24f), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             CreatePanel("BackdropShade", rootRect, new Color(0.05f, 0.06f, 0.07f, battleBackgroundSprite != null ? 0.18f : 0.06f), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            if (hasFarSceneArt)
+            {
+                CreateSceneLayer("FarSceneArt", battleFarSceneSprite, new Color(1f, 1f, 1f, 0.56f), new Vector2(0f, 0.18f), new Vector2(1f, 1f), Vector2.zero, Vector2.zero);
+            }
+
             skyGlow = CreatePanelRect("GlowTop", rootRect, new Color(0.78f, 0.82f, 0.84f, 0.32f), new Vector2(0f, 0.58f), new Vector2(1f, 1f), Vector2.zero, Vector2.zero);
             horizonGlow = CreatePanelRect("HorizonGlow", rootRect, new Color(0.22f, 0.20f, 0.18f, 0.06f), new Vector2(0f, 0.08f), new Vector2(1f, 0.34f), Vector2.zero, Vector2.zero);
+            if (hasMidSceneArt)
+            {
+                CreateSceneLayer("MidSceneArt", battleMidSceneSprite, new Color(1f, 1f, 1f, 0.72f), new Vector2(0f, 0.08f), new Vector2(1f, 0.94f), Vector2.zero, Vector2.zero);
+            }
 
             // Far scene: distant ridges and high cloud flow.
-            farCloudA = CreateBand("FarCloudA", new Color(0.28f, 0.31f, 0.34f, 0.10f), 0.76f, 1.25f, 86f);
-            farCloudB = CreateBand("FarCloudB", new Color(0.36f, 0.38f, 0.40f, 0.09f), 0.63f, 1.10f, 64f);
-            farRidgeA = CreateBand("FarRidgeA", new Color(0.14f, 0.15f, 0.17f, 0.16f), 0.45f, 1.12f, 94f);
-            farRidgeB = CreateBand("FarRidgeB", new Color(0.18f, 0.19f, 0.21f, 0.12f), 0.39f, 1.04f, 68f);
+            farCloudA = CreateBand("FarCloudA", new Color(0.28f, 0.31f, 0.34f, hasFarSceneArt ? 0.05f : 0.10f), 0.76f, 1.25f, 86f);
+            farCloudB = CreateBand("FarCloudB", new Color(0.36f, 0.38f, 0.40f, hasFarSceneArt ? 0.04f : 0.09f), 0.63f, 1.10f, 64f);
+            farRidgeA = CreateBand("FarRidgeA", new Color(0.14f, 0.15f, 0.17f, hasFarSceneArt ? 0.08f : 0.16f), 0.45f, 1.12f, 94f);
+            farRidgeB = CreateBand("FarRidgeB", new Color(0.18f, 0.19f, 0.21f, hasFarSceneArt ? 0.06f : 0.12f), 0.39f, 1.04f, 68f);
 
             // Mid scene: floating shelves and cloud band where projectiles travel.
-            mistBand = CreateBand("MistBand", new Color(0.62f, 0.65f, 0.68f, 0.07f), 0.20f, 1.16f, 60f);
-            midCloudShelf = CreateBand("MidCloudShelf", new Color(0.24f, 0.26f, 0.28f, 0.10f), 0.56f, 1.08f, 126f);
-            midRuinBand = CreateBand("MidRuinBand", new Color(0.11f, 0.12f, 0.13f, 0.10f), 0.30f, 1.08f, 42f);
-            midIslandLeft = CreateBand("MidIslandLeft", new Color(0.10f, 0.10f, 0.11f, 0.24f), 0.35f, 0.28f, 28f);
+            mistBand = CreateBand("MistBand", new Color(0.62f, 0.65f, 0.68f, hasMidSceneArt ? 0.04f : 0.07f), 0.20f, 1.16f, 60f);
+            midCloudShelf = CreateBand("MidCloudShelf", new Color(0.24f, 0.26f, 0.28f, hasMidSceneArt ? 0.05f : 0.10f), 0.56f, 1.08f, 126f);
+            midRuinBand = CreateBand("MidRuinBand", new Color(0.11f, 0.12f, 0.13f, hasMidSceneArt ? 0.05f : 0.10f), 0.30f, 1.08f, 42f);
+            midIslandLeft = CreateBand("MidIslandLeft", new Color(0.10f, 0.10f, 0.11f, hasMidSceneArt ? 0.12f : 0.24f), 0.35f, 0.28f, 28f);
             midIslandLeft.anchoredPosition += new Vector2(-420f, 0f);
             midIslandLeft.localRotation = Quaternion.Euler(0f, 0f, -5f);
-            midIslandRight = CreateBand("MidIslandRight", new Color(0.10f, 0.10f, 0.11f, 0.28f), 0.58f, 0.28f, 30f);
+            midIslandRight = CreateBand("MidIslandRight", new Color(0.10f, 0.10f, 0.11f, hasMidSceneArt ? 0.14f : 0.28f), 0.58f, 0.28f, 30f);
             midIslandRight.anchoredPosition += new Vector2(450f, 0f);
             midIslandRight.localRotation = Quaternion.Euler(0f, 0f, 7f);
+            if (hasNearSceneArt)
+            {
+                CreateSceneLayer("NearSceneArt", battleNearSceneSprite, new Color(1f, 1f, 1f, 0.82f), new Vector2(0f, 0f), new Vector2(1f, 0.74f), Vector2.zero, Vector2.zero);
+            }
 
             // Near scene: front mist and cliff lips framing the duel.
-            foregroundMist = CreateBand("ForegroundMist", new Color(0.54f, 0.58f, 0.60f, 0.05f), 0.27f, 1.06f, 64f);
-            frontFogA = CreateBand("FrontFogA", new Color(0.72f, 0.74f, 0.76f, 0.08f), 0.12f, 1.22f, 92f);
-            frontFogB = CreateBand("FrontFogB", new Color(0.26f, 0.27f, 0.28f, 0.08f), 0.17f, 1.08f, 52f);
-            inkVeil = CreateBand("InkVeil", new Color(0.05f, 0.05f, 0.06f, 0.05f), 0.58f, 1.26f, 160f);
-            nearCliffLeft = CreateBand("NearCliffLeft", new Color(0.08f, 0.08f, 0.09f, 0.44f), 0.03f, 0.28f, 118f);
+            foregroundMist = CreateBand("ForegroundMist", new Color(0.54f, 0.58f, 0.60f, hasNearSceneArt ? 0.03f : 0.05f), 0.27f, 1.06f, 64f);
+            frontFogA = CreateBand("FrontFogA", new Color(0.72f, 0.74f, 0.76f, hasNearSceneArt ? 0.04f : 0.08f), 0.12f, 1.22f, 92f);
+            frontFogB = CreateBand("FrontFogB", new Color(0.26f, 0.27f, 0.28f, hasNearSceneArt ? 0.04f : 0.08f), 0.17f, 1.08f, 52f);
+            inkVeil = CreateBand("InkVeil", new Color(0.05f, 0.05f, 0.06f, hasNearSceneArt ? 0.03f : 0.05f), 0.58f, 1.26f, 160f);
+            nearCliffLeft = CreateBand("NearCliffLeft", new Color(0.08f, 0.08f, 0.09f, hasNearSceneArt ? 0.18f : 0.44f), 0.03f, 0.28f, 118f);
             nearCliffLeft.anchoredPosition += new Vector2(-560f, 0f);
             nearCliffLeft.localRotation = Quaternion.Euler(0f, 0f, 12f);
-            nearCliffRight = CreateBand("NearCliffRight", new Color(0.08f, 0.08f, 0.09f, 0.46f), 0.05f, 0.30f, 126f);
+            nearCliffRight = CreateBand("NearCliffRight", new Color(0.08f, 0.08f, 0.09f, hasNearSceneArt ? 0.20f : 0.46f), 0.05f, 0.30f, 126f);
             nearCliffRight.anchoredPosition += new Vector2(586f, 0f);
             nearCliffRight.localRotation = Quaternion.Euler(0f, 0f, -12f);
-            nearPlatformGlowLeft = CreateBand("NearPlatformGlowLeft", new Color(0.78f, 0.60f, 0.32f, 0.05f), 0.09f, 0.18f, 18f);
+            nearPlatformGlowLeft = CreateBand("NearPlatformGlowLeft", new Color(0.78f, 0.60f, 0.32f, hasNearSceneArt ? 0.03f : 0.05f), 0.09f, 0.18f, 18f);
             nearPlatformGlowLeft.anchoredPosition += new Vector2(-472f, 0f);
-            nearPlatformGlowRight = CreateBand("NearPlatformGlowRight", new Color(0.78f, 0.60f, 0.32f, 0.05f), 0.09f, 0.18f, 18f);
+            nearPlatformGlowRight = CreateBand("NearPlatformGlowRight", new Color(0.78f, 0.60f, 0.32f, hasNearSceneArt ? 0.03f : 0.05f), 0.09f, 0.18f, 18f);
             nearPlatformGlowRight.anchoredPosition += new Vector2(482f, 0f);
 
             if (bossPortraitSprite != null)
@@ -927,10 +969,17 @@ namespace PathOfTenThousandWays.Demo.UI
             playerRoot.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(elapsed * 1.4f) * 2.6f - 4f);
             playerSword.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(elapsed * 2.1f) * 4f - 7f);
 
+            EncounterVisualTier encounterTier = GetEncounterVisualTier();
             Vector2 enemyAnchor = GetEnemyAnchor();
-            enemyRoot.anchoredPosition = ScenePoint(enemyAnchor.x, enemyAnchor.y) + new Vector2(Mathf.Sin(elapsed * 1.0f + 0.7f) * 11f, Mathf.Sin(elapsed * 1.6f + 0.2f) * 10f);
-            enemyRoot.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(elapsed * 1.1f + 0.2f) * 2.2f + 5f);
-            enemySword.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(elapsed * 2.0f + 0.8f) * 3f + 8f);
+            float enemyHorizontalDrift = encounterTier == EncounterVisualTier.FinalBoss ? 11f : encounterTier == EncounterVisualTier.MiniBoss ? 9f : encounterTier == EncounterVisualTier.Elite ? 8f : 6f;
+            float enemyVerticalDrift = encounterTier == EncounterVisualTier.FinalBoss ? 10f : encounterTier == EncounterVisualTier.MiniBoss ? 8f : encounterTier == EncounterVisualTier.Elite ? 7f : 5f;
+            float enemyTiltWave = encounterTier == EncounterVisualTier.FinalBoss ? 2.2f : encounterTier == EncounterVisualTier.MiniBoss ? 1.8f : encounterTier == EncounterVisualTier.Elite ? 1.4f : 1.0f;
+            float enemyTiltBase = encounterTier == EncounterVisualTier.FinalBoss ? 5f : encounterTier == EncounterVisualTier.MiniBoss ? 3.2f : encounterTier == EncounterVisualTier.Elite ? 1.7f : 0.8f;
+            float enemySwordWave = encounterTier == EncounterVisualTier.FinalBoss ? 3f : encounterTier == EncounterVisualTier.MiniBoss ? 2.6f : encounterTier == EncounterVisualTier.Elite ? 2.2f : 1.8f;
+            float enemySwordBase = encounterTier == EncounterVisualTier.FinalBoss ? 8f : encounterTier == EncounterVisualTier.MiniBoss ? 6f : encounterTier == EncounterVisualTier.Elite ? 4.5f : 3f;
+            enemyRoot.anchoredPosition = ScenePoint(enemyAnchor.x, enemyAnchor.y) + new Vector2(Mathf.Sin(elapsed * 1.0f + 0.7f) * enemyHorizontalDrift, Mathf.Sin(elapsed * 1.6f + 0.2f) * enemyVerticalDrift);
+            enemyRoot.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(elapsed * 1.1f + 0.2f) * enemyTiltWave + enemyTiltBase);
+            enemySword.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(elapsed * 2.0f + 0.8f) * enemySwordWave + enemySwordBase);
 
             for (int i = 0; i < ambientDrifts.Count; i++)
             {
@@ -950,8 +999,26 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (!controller.Battle.IsBossBattle)
             {
-                intentText.text = "当前斗法暂无天机预警。";
-                thunderOverlay.color = new Color(0.36f, 0.48f, 0.70f, 0f);
+                EncounterVisualTier encounterTier = GetEncounterVisualTier();
+                switch (encounterTier)
+                {
+                    case EncounterVisualTier.Elite:
+                        intentText.text = "精英斗法：敌势更稳，先拆压制，再把连锁收束出来。";
+                        thunderOverlay.color = new Color(0.28f, 0.38f, 0.48f, 0.028f + Mathf.Sin(elapsed * 1.1f) * 0.008f);
+                        brushOverlay.color = new Color(0.07f, 0.08f, 0.10f, 0.025f);
+                        break;
+                    case EncounterVisualTier.MiniBoss:
+                        intentText.text = "守关小 Boss：压迫感已经抬起来了，但还没到终局天劫。";
+                        thunderOverlay.color = new Color(0.40f, 0.38f, 0.26f, 0.045f + Mathf.Sin(elapsed * 1.0f) * 0.012f);
+                        brushOverlay.color = new Color(0.08f, 0.07f, 0.06f, 0.045f);
+                        break;
+                    default:
+                        intentText.text = "常规斗法：先试锋，再看这一段真正缺什么。";
+                        thunderOverlay.color = new Color(0.36f, 0.48f, 0.70f, 0f);
+                        brushOverlay.color = new Color(0.07f, 0.08f, 0.10f, 0f);
+                        break;
+                }
+
                 if (bossPortrait != null)
                 {
                     bossPortrait.color = new Color(0.74f, 0.80f, 0.92f, 0f);
@@ -979,6 +1046,7 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             thunderOverlay.color = new Color(0.34f, 0.46f, 0.68f, alpha + Mathf.Sin(elapsed * 1.3f) * 0.015f);
+            brushOverlay.color = new Color(0.08f, 0.09f, 0.12f, alpha * 0.38f);
 
             if (bossPortrait != null)
             {
@@ -993,6 +1061,53 @@ namespace PathOfTenThousandWays.Demo.UI
                 bossPortrait.color = new Color(0.74f, 0.80f, 0.92f, portraitAlpha + Mathf.Sin(elapsed * 0.9f) * 0.02f);
                 bossPortrait.rectTransform.anchoredPosition = new Vector2(Mathf.Sin(elapsed * 0.42f) * 8f, Mathf.Cos(elapsed * 0.33f) * 6f);
             }
+        }
+
+        private void UpdateEncounterPresentation()
+        {
+            if (controller == null || !controller.HasBattle || enemyRoot == null)
+            {
+                return;
+            }
+
+            EncounterVisualTier encounterTier = GetEncounterVisualTier();
+            if (enemyLabelText != null)
+            {
+                enemyLabelText.text = GetEncounterTierLabel(encounterTier);
+                enemyLabelText.color = GetEncounterLabelColor(encounterTier);
+            }
+
+            if (enemyAuraImage != null)
+            {
+                enemyAuraImage.color = GetEncounterAuraColor(encounterTier);
+            }
+
+            if (enemyBodyImage != null)
+            {
+                enemyBodyImage.color = GetEncounterRobeColor(encounterTier);
+            }
+
+            if (enemySwordImage != null)
+            {
+                enemySwordImage.color = GetEncounterSwordColor(encounterTier);
+            }
+
+            if (enemySwordTrailImage != null)
+            {
+                Color swordColor = GetEncounterSwordColor(encounterTier);
+                enemySwordTrailImage.color = new Color(swordColor.r, swordColor.g, swordColor.b, GetEncounterTrailAlpha(encounterTier));
+            }
+
+            if (enemyStatusPanel != null)
+            {
+                Image enemyPanelImage = enemyStatusPanel.GetComponent<Image>();
+                if (enemyPanelImage != null)
+                {
+                    enemyPanelImage.color = GetEncounterPanelColor(encounterTier);
+                }
+            }
+
+            enemyRoot.localScale = Vector3.one * GetEncounterScale(encounterTier);
         }
 
         private void UpdateHudPanels()
@@ -1270,6 +1385,21 @@ namespace PathOfTenThousandWays.Demo.UI
             return band;
         }
 
+        private Image CreateSceneLayer(string name, Sprite sprite, Color color, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
+        {
+            Image image = CreateImage(name, rootRect, color);
+            image.type = Image.Type.Simple;
+            image.sprite = sprite != null ? sprite : whiteSprite;
+            image.preserveAspect = false;
+
+            RectTransform rect = image.rectTransform;
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = offsetMin;
+            rect.offsetMax = offsetMax;
+            return image;
+        }
+
         private RectTransform CreateRect(string name, Transform parent, Color color, Vector2 size)
         {
             Image image = CreateImage(name, parent, color);
@@ -1362,6 +1492,27 @@ namespace PathOfTenThousandWays.Demo.UI
             return cachedBattleBackgroundSprite;
         }
 
+        private Sprite LoadSceneLayerSprite(ref Sprite cache, string resourcePath)
+        {
+            if (cache != null)
+            {
+                return cache;
+            }
+
+            Texture2D texture = Resources.Load<Texture2D>(resourcePath);
+            if (texture == null)
+            {
+                return null;
+            }
+
+            cache = Sprite.Create(
+                texture,
+                new Rect(0f, 0f, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f),
+                100f);
+            return cache;
+        }
+
         private Sprite LoadBossPortraitSprite()
         {
             if (cachedBossPortraitSprite != null)
@@ -1369,7 +1520,12 @@ namespace PathOfTenThousandWays.Demo.UI
                 return cachedBossPortraitSprite;
             }
 
-            Texture2D texture = Resources.Load<Texture2D>(BossPortraitResourcePath);
+            Texture2D texture = Resources.Load<Texture2D>(BossPortraitFallbackResourcePath);
+            if (texture == null)
+            {
+                texture = Resources.Load<Texture2D>(BossPortraitResourcePath);
+            }
+
             if (texture == null)
             {
                 return null;
@@ -1821,6 +1977,161 @@ namespace PathOfTenThousandWays.Demo.UI
             }
         }
 
+        private EncounterVisualTier GetEncounterVisualTier()
+        {
+            if (controller == null || !controller.HasBattle)
+            {
+                return EncounterVisualTier.Minor;
+            }
+
+            if (controller.Battle.IsBossBattle || controller.Run.Map.CurrentNode.Type == DemoNodeType.Boss)
+            {
+                return EncounterVisualTier.FinalBoss;
+            }
+
+            DemoMapNode currentNode = controller.Run.Map.CurrentNode;
+            if (currentNode.Type != DemoNodeType.Battle)
+            {
+                return EncounterVisualTier.Minor;
+            }
+
+            if (currentNode.Layer >= 3 || IsMiniBossNodeName(currentNode.Name))
+            {
+                return EncounterVisualTier.MiniBoss;
+            }
+
+            if (currentNode.Layer >= 2)
+            {
+                return EncounterVisualTier.Elite;
+            }
+
+            return EncounterVisualTier.Minor;
+        }
+
+        private static bool IsMiniBossNodeName(string nodeName)
+        {
+            return !string.IsNullOrEmpty(nodeName)
+                && (nodeName.Contains("瀹堥棬") || nodeName.Contains("瀹堝崼") || nodeName.Contains("鎵у叺") || nodeName.Contains("璇曠偧"));
+        }
+
+        private static string GetEncounterTierLabel(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return "当前为精英斗法";
+                case EncounterVisualTier.MiniBoss:
+                    return "褰撳墠涓哄畧鍏冲皬Boss";
+                case EncounterVisualTier.FinalBoss:
+                    return "褰撳墠涓虹粓灞€Boss";
+                default:
+                    return "当前为常规斗法";
+            }
+        }
+
+        private static float GetEncounterScale(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return 1.05f;
+                case EncounterVisualTier.MiniBoss:
+                    return 1.12f;
+                case EncounterVisualTier.FinalBoss:
+                    return 1.20f;
+                default:
+                    return 0.96f;
+            }
+        }
+
+        private static Color GetEncounterAuraColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.48f, 0.56f, 0.62f, 0.11f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.56f, 0.48f, 0.32f, 0.14f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.58f, 0.66f, 0.76f, 0.16f);
+                default:
+                    return new Color(0.34f, 0.40f, 0.46f, 0.08f);
+            }
+        }
+
+        private static Color GetEncounterRobeColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.86f, 0.90f, 0.94f, 1f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.92f, 0.88f, 0.82f, 1f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.92f, 0.93f, 0.96f, 1f);
+                default:
+                    return new Color(0.78f, 0.82f, 0.86f, 1f);
+            }
+        }
+
+        private static Color GetEncounterSwordColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.54f, 0.72f, 0.84f, 1f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.78f, 0.66f, 0.46f, 1f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.64f, 0.82f, 0.96f, 1f);
+                default:
+                    return new Color(0.42f, 0.58f, 0.70f, 1f);
+            }
+        }
+
+        private static float GetEncounterTrailAlpha(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return 0.28f;
+                case EncounterVisualTier.MiniBoss:
+                    return 0.24f;
+                case EncounterVisualTier.FinalBoss:
+                    return 0.30f;
+                default:
+                    return 0.18f;
+            }
+        }
+
+        private static Color GetEncounterLabelColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.95f, 0.86f, 0.70f, 1f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.90f, 0.92f, 0.96f, 1f);
+                default:
+                    return new Color(0.90f, 0.89f, 0.84f, 1f);
+            }
+        }
+
+        private static Color GetEncounterPanelColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.11f, 0.13f, 0.16f, 0.76f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.16f, 0.12f, 0.09f, 0.78f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.12f, 0.10f, 0.10f, 0.72f);
+                default:
+                    return new Color(0.10f, 0.11f, 0.13f, 0.72f);
+            }
+        }
+
         private static string GetBossPhaseLabel(DemoBossPhase phase)
         {
             switch (phase)
@@ -1852,3 +2163,5 @@ namespace PathOfTenThousandWays.Demo.UI
         }
     }
 }
+
+

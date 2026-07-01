@@ -1,0 +1,11 @@
+gongfa_id,runtime_enum,slot,style,name,icon_glyph,title,quality,description
+gongfa_none,None,main,general,未悟功法,空,空位,mortal,尚未选择
+gongfa_sword_control_art,SwordControlArt,main,wanjian,御剑诀,剑,主修剑诀,earth,每回合第一张飞剑牌额外生成 1 把临时飞剑让演武从起手就进入剑势
+gongfa_thunder_scripture,ThunderScripture,main,thunder,九霄神雷诀,雷,主修雷法,heaven,感电被飞剑引爆时追加雷击让伤害高点留在演武结算而不是多出牌
+gongfa_blood_fiend_canon,BloodFiendCanon,main,blood,血煞经,煞,主修血法,heaven,敌人带有流血时飞剑齐发追加伤害并回补气血越打越凶
+gongfa_sword_heart_resonance,SwordHeartResonance,support,wanjian,剑心通明,心,辅修心法,spirit,每回合开始获得 1 点剑意若本回合只规划 2 张以内牌飞剑演武获得额外增伤
+gongfa_lightning_meridians,LightningMeridians,support,thunder,引雷入窍,窍,辅修心法,mysterious,飞剑齐发前先灌入 2 层感电让雷击伤害更多在自动结算里爆开
+gongfa_blood_refining_body,BloodRefiningBody,support,blood,血炼归元,血,辅修心法,mysterious,流血结算会回复少量生命并凝聚剑意让血剑流在演武中持续滚起
+gongfa_wanjian_return,WanjianReturn,divine,wanjian,万剑归宗,宗,神通,immortal,当剑意或飞剑规模成型时演武阶段追加一轮剑阵归潮
+gongfa_heavenly_thunder_edict,HeavenlyThunderEdict,divine,thunder,九天引雷,霆,神通,immortal,感电引爆后召来天雷追击把 Build 的高点集中到自动收尾
+gongfa_blood_prison_execution,BloodPrisonExecution,divine,blood,血狱断生,狱,神通,immortal,敌人流血足够深时在演武阶段触发血狱斩杀并回复生命

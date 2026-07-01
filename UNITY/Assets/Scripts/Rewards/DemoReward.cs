@@ -7,6 +7,9 @@ namespace PathOfTenThousandWays.Demo.Rewards
 {
     public enum DemoRewardType
     {
+        Root,
+        Journey,
+        OpeningScene,
         Route,
         Card,
         Gongfa,
@@ -22,6 +25,7 @@ namespace PathOfTenThousandWays.Demo.Rewards
         public DemoRewardType Type;
         public string Name;
         public string Description;
+        public string Summary;
         public DemoCard Card;
         public DemoGongfaType GongfaType;
         public DemoArtifactType ArtifactType;
@@ -30,6 +34,9 @@ namespace PathOfTenThousandWays.Demo.Rewards
         public DemoQuality RouteQuality;
         public string RouteGlyph;
         public string RouteTag;
+        public DemoRootDefinition Root;
+        public DemoJourneyLineDefinition JourneyLine;
+        public DemoRegionDefinition Region;
 
         public static DemoReward Route(DemoMapRoutePlan routePlan, DemoSwordStyle style, DemoQuality quality, string glyph, string tag)
         {
@@ -46,6 +53,55 @@ namespace PathOfTenThousandWays.Demo.Rewards
             };
         }
 
+        public static DemoReward FromRoot(DemoRootDefinition root)
+        {
+            return new DemoReward
+            {
+                Type = DemoRewardType.Root,
+                Name = root.Name,
+                Description = root.Summary,
+                Summary = root.UnlockCondition,
+                Root = root
+            };
+        }
+
+        public static DemoReward Journey(DemoJourneyLineDefinition line, DemoRootDefinition root)
+        {
+            string summary = string.IsNullOrEmpty(line.CarryItemEffect)
+                ? $"携行之物：{line.CarryItemName}"
+                : $"携行之物：{line.CarryItemName} | {line.CarryItemEffect}";
+
+            return new DemoReward
+            {
+                Type = DemoRewardType.Journey,
+                Name = line.Title,
+                Description = line.OriginText,
+                Summary = $"{(root == null ? "未知根脚" : root.Name)} | {summary}",
+                Root = root,
+                JourneyLine = line
+            };
+        }
+
+        public static DemoReward OpeningScene(DemoRegionDefinition region, DemoJourneyLineDefinition line)
+        {
+            string carryText = line == null || string.IsNullOrEmpty(line.CarryItemName)
+                ? "携行之物待定"
+                : $"携行之物：{line.CarryItemName}";
+            string riskText = line == null || string.IsNullOrEmpty(line.RiskLevel)
+                ? "首境择路"
+                : $"首境气口：{line.RiskLevel}";
+
+            return new DemoReward
+            {
+                Type = DemoRewardType.OpeningScene,
+                Name = region.Name,
+                Description = region.Description,
+                Summary = $"{carryText} | {riskText}",
+                JourneyLine = line,
+                Region = region
+            };
+        }
+
         public static DemoReward FromCard(DemoCard card)
         {
             return new DemoReward
@@ -59,21 +115,23 @@ namespace PathOfTenThousandWays.Demo.Rewards
 
         public static DemoReward Heal()
         {
+            int healAmount = DemoConfigRepository.GetIntConstant("battle", "heal_reward_amount", 18);
             return new DemoReward
             {
                 Type = DemoRewardType.Heal,
                 Name = "调息",
-                Description = "恢复 18 点生命。"
+                Description = $"恢复 {healAmount} 点生命。"
             };
         }
 
         public static DemoReward Upgrade()
         {
+            int energyGain = DemoConfigRepository.GetIntConstant("battle", "upgrade_reward_energy_bonus", 1);
             return new DemoReward
             {
                 Type = DemoRewardType.Upgrade,
                 Name = "剑诀精修",
-                Description = "最大灵气 +1。"
+                Description = $"最大灵气 +{energyGain}。"
             };
         }
 

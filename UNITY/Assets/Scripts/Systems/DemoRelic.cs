@@ -99,6 +99,11 @@ namespace PathOfTenThousandWays.Demo.Systems
 
         public static DemoRelicDefinition Get(string relicName)
         {
+            if (DemoConfigRepository.TryGetRelic(relicName, out DemoRelicDefinition configured))
+            {
+                return configured;
+            }
+
             if (!string.IsNullOrEmpty(relicName) && Definitions.TryGetValue(relicName, out DemoRelicDefinition definition))
             {
                 return definition;
@@ -116,6 +121,11 @@ namespace PathOfTenThousandWays.Demo.Systems
 
         public static bool TryGet(string relicName, out DemoRelicDefinition definition)
         {
+            if (DemoConfigRepository.TryGetRelic(relicName, out definition))
+            {
+                return true;
+            }
+
             return Definitions.TryGetValue(relicName, out definition);
         }
     }

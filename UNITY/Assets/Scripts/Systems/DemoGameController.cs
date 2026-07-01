@@ -10,6 +10,14 @@ namespace PathOfTenThousandWays.Demo.Systems
 {
     public sealed class DemoGameController : MonoBehaviour
     {
+        private enum DemoOpeningStage
+        {
+            SelectRoot,
+            SelectOpeningItem,
+            SelectOpeningScene,
+            Complete
+        }
+
         private readonly DemoRunState run = new DemoRunState();
         private readonly DemoBattleState battle = new DemoBattleState();
         private readonly DemoRewardService rewards = new DemoRewardService();
@@ -18,6 +26,7 @@ namespace PathOfTenThousandWays.Demo.Systems
         private readonly DemoArtifactRewardService artifactRewards = new DemoArtifactRewardService();
         private List<DemoReward> currentRewards = new List<DemoReward>();
         private bool battleResultHandled;
+        private DemoOpeningStage openingStage = DemoOpeningStage.SelectRoot;
 
         public DemoRunState Run => run;
         public DemoBattleState Battle => battle;
@@ -123,7 +132,13 @@ namespace PathOfTenThousandWays.Demo.Systems
                 switch (run.Map.CurrentNode.Type)
                 {
                     case DemoNodeType.Start:
-                        return "当前位于起点。先择定主修方向，再踏入第一场云海斗法。";
+                        return openingStage == DemoOpeningStage.SelectRoot
+                            ? "当前位于起点。先定根脚，确认这一世从哪里来。"
+                            : openingStage == DemoOpeningStage.SelectOpeningItem
+                                ? "当前位于起点。再选携行之物，确认为何出山、带什么上路。"
+                                : openingStage == DemoOpeningStage.SelectOpeningScene
+                                    ? "当前位于起点。再定首境，确认你先去哪里、第一段历练从哪片气口展开。"
+                                    : "当前位于起点。首境已定，接下来直接踏入第一段历练。";
                     case DemoNodeType.RouteChoice:
                         return "当前位于路线分叉。挑出下一段历练，把风险、补强和 Boss 节奏握在自己手里。";
                     case DemoNodeType.Reward:
@@ -162,7 +177,13 @@ namespace PathOfTenThousandWays.Demo.Systems
                 switch (run.Map.CurrentNode.Type)
                 {
                     case DemoNodeType.Start:
-                        return "当前不是战斗节点，先确定主修。";
+                        return openingStage == DemoOpeningStage.SelectRoot
+                            ? "当前不是战斗节点，先定根脚。"
+                            : openingStage == DemoOpeningStage.SelectOpeningItem
+                                ? "当前不是战斗节点，先选择携行之物。"
+                                : openingStage == DemoOpeningStage.SelectOpeningScene
+                                    ? "当前不是战斗节点，先确认首境。"
+                                    : "当前不是战斗节点，首境确定后会直接进入历练。";
                     case DemoNodeType.RouteChoice:
                         return "当前不是战斗节点，先决定下一段路线。";
                     case DemoNodeType.Reward:
@@ -223,15 +244,20 @@ namespace PathOfTenThousandWays.Demo.Systems
 
             if (node.Type == DemoNodeType.Battle)
             {
-                int health = node.Layer == 1 ? 46 : node.Layer == 2 ? 64 : 78;
+                int health = DemoConfigRepository.TryGetEnemyByName(node.Name, out DemoEnemyDefinition configuredEnemy)
+                    ? configuredEnemy.MaxHealth
+                    : node.Layer == 1 ? 46 : node.Layer == 2 ? 64 : 78;
                 battleResultHandled = false;
                 bool openingBattle = node.Layer == 1 && run.Map.CurrentIndex <= 2;
                 battle.StartBattle(run.Deck, run.Artifacts, run.GetLearnedGongfas().ToList(), node.Name, health, false, run.CurrentHealth, run.BonusEnergy, run.BonusPermanentSwords, run.Relics, openingBattle);
             }
             else if (node.Type == DemoNodeType.Boss)
             {
+                int bossHealth = DemoConfigRepository.TryGetEnemyByName("天劫化身", out DemoEnemyDefinition configuredBoss)
+                    ? configuredBoss.MaxHealth
+                    : 150;
                 battleResultHandled = false;
-                battle.StartBattle(run.Deck, run.Artifacts, run.GetLearnedGongfas().ToList(), "天劫化身", 150, true, run.CurrentHealth, run.BonusEnergy, run.BonusPermanentSwords, run.Relics);
+                battle.StartBattle(run.Deck, run.Artifacts, run.GetLearnedGongfas().ToList(), "天劫化身", bossHealth, true, run.CurrentHealth, run.BonusEnergy, run.BonusPermanentSwords, run.Relics);
             }
             else if (node.Type == DemoNodeType.RouteChoice)
             {
@@ -247,10 +273,43 @@ namespace PathOfTenThousandWays.Demo.Systems
             {
                 battle.ClearBattle(node.Type == DemoNodeType.Start);
             }
+
         }
 
         private void ClaimReward(DemoReward reward)
         {
+            if (reward.Type == DemoRewardType.Root && reward.Root != null)
+            {
+                run.SetRoot(reward.Root);
+                openingStage = DemoOpeningStage.SelectOpeningItem;
+                PrepareOpeningChoices();
+                return;
+            }
+
+            if (reward.Type == DemoRewardType.Journey && reward.JourneyLine != null)
+            {
+                run.SetJourneyLine(reward.JourneyLine);
+                openingStage = DemoOpeningStage.SelectOpeningScene;
+                PrepareOpeningChoices();
+                return;
+            }
+
+            if (reward.Type == DemoRewardType.OpeningScene && reward.Region != null)
+            {
+                if (reward.JourneyLine != null && run.OpeningSelection.JourneyLine == null)
+                {
+                    run.SetJourneyLine(reward.JourneyLine);
+                }
+
+                run.SetFirstRegion(reward.Region);
+                ApplyJourneyStartingDirection(run.OpeningSelection.JourneyLine);
+                openingStage = DemoOpeningStage.Complete;
+                currentRewards.Clear();
+                run.Map.CompleteCurrentNode();
+                EnterCurrentNode();
+                return;
+            }
+
             if (reward.Type == DemoRewardType.Route && reward.RoutePlan != null)
             {
                 currentRewards.Clear();
@@ -277,7 +336,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
             else if (reward.Type == DemoRewardType.Heal)
             {
-                run.Heal(18);
+                run.Heal(DemoConfigRepository.GetIntConstant("battle", "heal_reward_amount", 18));
             }
             else if (reward.Type == DemoRewardType.Upgrade)
             {
@@ -293,7 +352,7 @@ namespace PathOfTenThousandWays.Demo.Systems
         {
             if (run.Map.CurrentNode.Type == DemoNodeType.Start)
             {
-                currentRewards = gongfaRewards.CreateMainChoices();
+                PrepareOpeningChoices();
                 return;
             }
 
@@ -400,7 +459,22 @@ namespace PathOfTenThousandWays.Demo.Systems
             switch (type)
             {
                 case DemoNodeType.Start:
-                    return "踏上剑道";
+                    if (openingStage == DemoOpeningStage.SelectRoot)
+                    {
+                        return "定下根脚";
+                    }
+
+                    if (openingStage == DemoOpeningStage.SelectOpeningItem)
+                    {
+                        return "带此物上路";
+                    }
+
+                    if (openingStage == DemoOpeningStage.SelectOpeningScene)
+                    {
+                        return "定下首境";
+                    }
+
+                    return "踏入历练";
                 case DemoNodeType.Training:
                     return "接受补强";
                 case DemoNodeType.Shop:
@@ -440,6 +514,325 @@ namespace PathOfTenThousandWays.Demo.Systems
             yield return run.MainGongfa != DemoGongfaType.None ? DemoGongfaLibrary.Get(run.MainGongfa).Name : "未定主修";
             yield return run.SupportGongfa != DemoGongfaType.None ? DemoGongfaLibrary.Get(run.SupportGongfa).Name : "未定辅修";
             yield return run.DivineGongfa != DemoGongfaType.None ? DemoGongfaLibrary.Get(run.DivineGongfa).Name : "未悟神通";
+        }
+
+        private void PrepareOpeningChoices()
+        {
+            currentRewards.Clear();
+
+            if (run.Map.CurrentNode.Type != DemoNodeType.Start)
+            {
+                return;
+            }
+
+            if (openingStage == DemoOpeningStage.Complete)
+            {
+                run.Map.CompleteCurrentNode();
+                EnterCurrentNode();
+                return;
+            }
+
+            if (openingStage == DemoOpeningStage.SelectRoot)
+            {
+                List<DemoRootDefinition> roots = DemoConfigRepository.GetDefaultRoots(4);
+                if (roots.Count == 0)
+                {
+                    currentRewards = BuildFallbackRootChoices();
+                    return;
+                }
+
+                for (int i = 0; i < roots.Count; i++)
+                {
+                    currentRewards.Add(DemoReward.FromRoot(roots[i]));
+                }
+
+                return;
+            }
+
+            if (openingStage == DemoOpeningStage.SelectOpeningItem && run.OpeningSelection.Root != null)
+            {
+                List<DemoJourneyLineDefinition> journeyLines = DemoConfigRepository.GetJourneyLinesForRoot(run.OpeningSelection.Root.Id, 3);
+                if (journeyLines.Count == 0)
+                {
+                    currentRewards = BuildFallbackJourneyChoices(run.OpeningSelection.Root);
+                    return;
+                }
+
+                for (int i = 0; i < journeyLines.Count; i++)
+                {
+                    DemoJourneyLineDefinition line = journeyLines[i];
+                    currentRewards.Add(DemoReward.Journey(line, run.OpeningSelection.Root));
+                }
+
+                return;
+            }
+
+            if (openingStage == DemoOpeningStage.SelectOpeningScene && run.OpeningSelection.JourneyLine != null)
+            {
+                currentRewards = BuildOpeningSceneChoices(run.OpeningSelection.JourneyLine);
+                return;
+            }
+
+            if (run.OpeningSelection.Root == null)
+            {
+                openingStage = DemoOpeningStage.SelectRoot;
+                currentRewards = BuildFallbackRootChoices();
+                return;
+            }
+
+            if (run.OpeningSelection.JourneyLine == null)
+            {
+                openingStage = DemoOpeningStage.SelectOpeningItem;
+                currentRewards = BuildFallbackJourneyChoices(run.OpeningSelection.Root);
+                return;
+            }
+
+            if (run.OpeningSelection.FirstRegion == null)
+            {
+                openingStage = DemoOpeningStage.SelectOpeningScene;
+                currentRewards = BuildOpeningSceneChoices(run.OpeningSelection.JourneyLine);
+                return;
+            }
+
+            openingStage = DemoOpeningStage.Complete;
+            ApplyJourneyStartingDirection(run.OpeningSelection.JourneyLine);
+            run.Map.CompleteCurrentNode();
+            EnterCurrentNode();
+        }
+
+        private List<DemoReward> BuildOpeningSceneChoices(DemoJourneyLineDefinition line)
+        {
+            List<DemoReward> rewards = GetOpeningSceneCandidates(line)
+                .Take(4)
+                .Select(region => DemoReward.OpeningScene(region, line))
+                .ToList();
+
+            if (rewards.Count > 0)
+            {
+                return rewards;
+            }
+
+            DemoRegionDefinition fallbackRegion = ResolveJourneyFirstRegion(line);
+            if (fallbackRegion != null)
+            {
+                rewards.Add(DemoReward.OpeningScene(fallbackRegion, line));
+            }
+
+            return rewards;
+        }
+
+        private DemoRegionDefinition ResolveJourneyFirstRegion(DemoJourneyLineDefinition line)
+        {
+            return GetOpeningSceneCandidates(line).FirstOrDefault() ?? BuildFallbackTradeRoadRegion();
+        }
+
+        private IEnumerable<DemoRegionDefinition> GetOpeningSceneCandidates(DemoJourneyLineDefinition line)
+        {
+            if (line == null)
+            {
+                yield break;
+            }
+
+            HashSet<string> yieldedIds = new HashSet<string>();
+
+            if (TryGetRegion(line.FirstRegionId, yieldedIds, out DemoRegionDefinition primaryRegion))
+            {
+                yield return primaryRegion;
+            }
+
+            foreach (DemoRegionDefinition region in GetFallbackOpeningRegions(line))
+            {
+                if (region != null && yieldedIds.Add(region.Id))
+                {
+                    yield return region;
+                }
+            }
+        }
+
+        private IEnumerable<DemoRegionDefinition> GetFallbackOpeningRegions(DemoJourneyLineDefinition line)
+        {
+            string[] candidateIds;
+            DemoSwordStyle style = ResolveJourneyStyle(line);
+            switch (style)
+            {
+                case DemoSwordStyle.Thunder:
+                    candidateIds = new[] { "region_thunder_marsh", "region_demon_tower", "region_old_mine" };
+                    break;
+                case DemoSwordStyle.Blood:
+                    candidateIds = new[] { "region_herb_forest", "region_thunder_marsh", "region_trade_road", "region_old_mine" };
+                    break;
+                case DemoSwordStyle.Wanjian:
+                    candidateIds = new[] { "region_old_mine", "region_trade_road", "region_ancestral_vault" };
+                    break;
+                default:
+                    candidateIds = new[] { "region_trade_road", "region_herb_forest", "region_old_mine" };
+                    break;
+            }
+
+            for (int i = 0; i < candidateIds.Length; i++)
+            {
+                if (DemoConfigRepository.TryGetRegion(candidateIds[i], out DemoRegionDefinition region))
+                {
+                    yield return region;
+                }
+            }
+        }
+
+        private static bool TryGetRegion(string regionId, ISet<string> yieldedIds, out DemoRegionDefinition region)
+        {
+            region = null;
+            if (string.IsNullOrEmpty(regionId) || yieldedIds == null || yieldedIds.Contains(regionId))
+            {
+                return false;
+            }
+
+            if (!DemoConfigRepository.TryGetRegion(regionId, out DemoRegionDefinition found))
+            {
+                return false;
+            }
+
+            yieldedIds.Add(regionId);
+            region = found;
+            return true;
+        }
+
+        private static DemoRegionDefinition BuildFallbackTradeRoadRegion()
+        {
+            return new DemoRegionDefinition
+            {
+                Id = "fallback_region_trade_road",
+                Name = "商路荒谷",
+                RewardFocus = "资源|商店|稳健补强",
+                Description = "先沿着更稳的商路试锋，让这一局从可控的补强和缓冲里起势。",
+                NodeWeights = new Dictionary<string, int>
+                {
+                    ["normal_battle"] = 42,
+                    ["shop"] = 24,
+                    ["event"] = 20,
+                    ["training"] = 14
+                }
+            };
+        }
+
+        private List<DemoReward> BuildFallbackRootChoices()
+        {
+            return new List<DemoReward>
+            {
+                DemoReward.FromRoot(new DemoRootDefinition
+                {
+                    Id = "fallback_root_menial",
+                    Name = "山门杂役",
+                    Rarity = "common",
+                    UnlockCondition = "默认开放",
+                    IsDefaultPool = true,
+                    Summary = "在山门最底层长大，起手更稳，也更知道如何从碎活里找出自己的第一条路。"
+                }),
+                DemoReward.FromRoot(new DemoRootDefinition
+                {
+                    Id = "fallback_root_smith",
+                    Name = "铁坊子",
+                    Rarity = "common",
+                    UnlockCondition = "默认开放",
+                    IsDefaultPool = true,
+                    Summary = "看着炉火与兵刃长大，对器物和飞剑更敏感，容易在前期抓到能起势的那一件。"
+                }),
+                DemoReward.FromRoot(new DemoRootDefinition
+                {
+                    Id = "fallback_root_branch",
+                    Name = "世家旁支",
+                    Rarity = "common",
+                    UnlockCondition = "默认开放",
+                    IsDefaultPool = true,
+                    Summary = "出身不高不低，却见过不少规矩与门道，起手选择更容易往完整构筑收束。"
+                })
+            };
+        }
+
+        private List<DemoReward> BuildFallbackJourneyChoices(DemoRootDefinition root)
+        {
+            List<DemoJourneyLineDefinition> lines = new List<DemoJourneyLineDefinition>
+            {
+                new DemoJourneyLineDefinition
+                {
+                    Id = "fallback_journey_old_sword_case",
+                    RootId = root?.Id,
+                    Title = "带旧匣下山",
+                    OriginText = "临行前，有人把一只旧剑匣塞进你手里，只说路上若真有风雷，它自会先替你应一声。",
+                    CarryItemName = "旧剑匣",
+                    CarryItemEffect = "每场战斗首次飞剑返回时额外追击 1 次",
+                    FirstRegionId = "region_old_mine",
+                    RiskLevel = "medium",
+                    SummaryTags = new List<string> { "flying_sword", "follow_up", "artifact" }
+                },
+                new DemoJourneyLineDefinition
+                {
+                    Id = "fallback_journey_thunder_bone",
+                    RootId = root?.Id,
+                    Title = "携雷骨启程",
+                    OriginText = "你还没真正见过天雷，却先带上了一截焦黑雷骨。它不安分，像是在催你早点走进更险的地方。",
+                    CarryItemName = "雷骨短钉",
+                    CarryItemEffect = "首轮额外施加 2 层感电",
+                    FirstRegionId = "region_thunder_marsh",
+                    RiskLevel = "risky",
+                    SummaryTags = new List<string> { "thunder", "shock", "opening_pressure" }
+                },
+                new DemoJourneyLineDefinition
+                {
+                    Id = "fallback_journey_blood_jade",
+                    RootId = root?.Id,
+                    Title = "怀血玉远行",
+                    OriginText = "旧识把一块温热血玉按进你掌心，说若真要闯出去，就别怕先把自己逼到边上。",
+                    CarryItemName = "温养血玉",
+                    CarryItemEffect = "生命低于一半时飞剑伤害提高",
+                    FirstRegionId = "region_herb_forest",
+                    RiskLevel = "risky",
+                    SummaryTags = new List<string> { "bleed", "risk_reward", "survival_to_damage" }
+                }
+            };
+
+            return lines.Select(line => DemoReward.Journey(line, root)).ToList();
+        }
+
+        private void ApplyJourneyStartingDirection(DemoJourneyLineDefinition line)
+        {
+            DemoSwordStyle style = ResolveJourneyStyle(line);
+            DemoGongfaType mainGongfa = GetMainGongfaForStyle(style);
+            if (mainGongfa != DemoGongfaType.None)
+            {
+                run.LearnGongfa(mainGongfa);
+            }
+        }
+
+        private static DemoSwordStyle ResolveJourneyStyle(DemoJourneyLineDefinition line)
+        {
+            if (line?.SummaryTags != null)
+            {
+                if (line.SummaryTags.Any(tag => tag == "thunder" || tag == "shock"))
+                {
+                    return DemoSwordStyle.Thunder;
+                }
+
+                if (line.SummaryTags.Any(tag => tag == "bleed" || tag == "risk_reward"))
+                {
+                    return DemoSwordStyle.Blood;
+                }
+            }
+
+            return DemoSwordStyle.Wanjian;
+        }
+
+        private static DemoGongfaType GetMainGongfaForStyle(DemoSwordStyle style)
+        {
+            switch (style)
+            {
+                case DemoSwordStyle.Thunder:
+                    return DemoGongfaType.ThunderScripture;
+                case DemoSwordStyle.Blood:
+                    return DemoGongfaType.BloodFiendCanon;
+                case DemoSwordStyle.Wanjian:
+                default:
+                    return DemoGongfaType.SwordControlArt;
+            }
         }
     }
 }

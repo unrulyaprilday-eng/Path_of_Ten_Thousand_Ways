@@ -22,6 +22,11 @@ namespace PathOfTenThousandWays.Demo.Systems
     {
         public static DemoArtifactDefinition Get(DemoArtifactType type)
         {
+            if (DemoConfigRepository.TryGetArtifact(type, out DemoArtifactDefinition configured))
+            {
+                return configured;
+            }
+
             switch (type)
             {
                 case DemoArtifactType.SwordBox:

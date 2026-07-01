@@ -40,6 +40,11 @@ namespace PathOfTenThousandWays.Demo.Systems
     {
         public static DemoGongfaDefinition Get(DemoGongfaType type)
         {
+            if (DemoConfigRepository.TryGetGongfa(type, out DemoGongfaDefinition configured))
+            {
+                return configured;
+            }
+
             switch (type)
             {
                 case DemoGongfaType.SwordControlArt:
@@ -167,6 +172,12 @@ namespace PathOfTenThousandWays.Demo.Systems
 
         public static List<DemoGongfaType> GetTypesForSlot(DemoGongfaSlot slot)
         {
+            List<DemoGongfaType> configuredTypes = DemoConfigRepository.GetGongfaTypesForSlot(slot);
+            if (configuredTypes.Count > 0)
+            {
+                return configuredTypes;
+            }
+
             switch (slot)
             {
                 case DemoGongfaSlot.Main:

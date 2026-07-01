@@ -33,17 +33,18 @@
 ## 统一风格约束
 
 ```text
-暗黑水墨修仙 + 卷轴式商业化 UI + 可读性优先的 2.5D 横版斗法舞台
+高留白写意水墨修仙 + 器物化卷轴 UI + 可读性优先的 2.5D 横版斗法舞台
 ```
 
 统一要求：
 
-- 国风、修仙、水墨、暗黑奇幻。
+- 国风、修仙、水墨、写意留白。
 - 不做二次元萌系，不做页游金闪闪。
 - 中央演出区必须留空，不能堵住飞剑轨迹和伤害字。
 - 图层应服务景深和舞台 framing，不抢 UI。
 - 同一批资源要保持同一时辰、同一气候体系和同一色温逻辑。
 - 整体画风以黑白水墨和淡墨灰阶为主，雷电或血煞只做局部点色。
+- 点色优先使用点翠青、石青和微朱砂，不做整层高饱和泛光。
 - 不做高饱和蓝绿大光效覆盖整场。
 
 ## 透明输出要求
@@ -83,10 +84,10 @@ Asset type: game parallax background far layer
 Primary request: create the far background layer for a Chinese cultivation air-duel game scene
 Scene/backdrop: high-altitude moonlit cloud sea, distant mountains, storm sky, open horizon
 Subject: only the far layer elements, including sky, far cloud sea, distant mountain silhouettes, remote floating landforms, no foreground cliffs
-Style/medium: dark Chinese fantasy environment art, ink wash painting blended with premium 2.5D game background rendering
-Composition/framing: wide 16:9 side-view layer for parallax, center kept open, strong readable horizon line, no large foreground silhouettes
-Lighting/mood: cold moonlit storm atmosphere, mysterious, solemn, slightly oppressive
-Color palette: black, deep blue-gray, ink green, moon silver, restrained warm mist near the lower horizon
+Style/medium: refined Chinese ink wash environment art blended with premium 2.5D game background rendering
+Composition/framing: wide 16:9 side-view layer for parallax, center kept open, strong readable horizon line, generous negative space, no large foreground silhouettes
+Lighting/mood: pale moonlit storm atmosphere, mysterious, solemn, elegant, not muddy
+Color palette: paper white mist, charcoal ink, stone gray, moon silver, restrained jade accents near the lower horizon
 Materials/textures: layered ink clouds, distant ridges, atmospheric haze, subtle lightning glow, brush-textured sky
 Constraints: no characters, no UI, no text, no watermark, no near objects, no giant structures covering the center
 Avoid: bright daytime landscape, photoreal western fantasy look, heavy foreground framing, cluttered composition
@@ -120,10 +121,10 @@ Asset type: game parallax background mid layer
 Primary request: create the combat midground layer for a Chinese cultivation air-duel battle scene on a removable chroma-key background
 Scene/backdrop: perfectly flat solid #00ff00 chroma-key background for background removal
 Subject: only midground elements such as floating mountain shelves, broken immortal platforms, storm-torn cloud bands, distant ruined pavilions, and aerial duel structures
-Style/medium: dark Chinese fantasy environment layer art, ink wash painting blended with premium game scene rendering
+Style/medium: refined Chinese ink wash environment layer art blended with premium game scene rendering
 Composition/framing: wide 16:9 side-view parallax layer, leave the center combat lane readable, stronger structures on the left and right, enough negative space for sword trails
-Lighting/mood: cold storm light, dangerous, tense, active combat atmosphere
-Color palette: charcoal, storm blue, ink cyan, muted stone gray, tiny restrained gold traces
+Lighting/mood: cold storm light, dangerous, tense, active combat atmosphere, but still airy
+Color palette: charcoal, stone gray, ink cyan, pale paper white, tiny restrained gold traces
 Materials/textures: cracked stone platforms, ink clouds, Taoist ruins, torn mist ribbons, subtle lightning illumination
 Constraints: perfectly flat solid #00ff00 background only, no gradients in the background, no characters, no UI, no text, no watermark
 Avoid: full scenic painting, near-camera cliffs, giant centered palace, green elements that match the key color
@@ -152,11 +153,11 @@ Use case: stylized-concept
 Asset type: game parallax background near layer
 Primary request: create the foreground framing layer for a Chinese cultivation air-duel battle scene on a removable chroma-key background
 Scene/backdrop: perfectly flat solid #00ff00 chroma-key background for background removal
-Subject: only near foreground elements, including dark cliff lips, hanging stone ledges, dense foreground mist, torn ink fog, and subtle platform edge glow framing the left and right sides
-Style/medium: premium dark Chinese fantasy layer art, ink wash plus atmospheric 2.5D game foreground
+Subject: only near foreground elements, including cliff lips, hanging stone ledges, dense foreground mist, torn ink fog, and subtle platform edge glow framing the left and right sides
+Style/medium: premium Chinese ink wash layer art with atmospheric 2.5D game foreground
 Composition/framing: wide 16:9 side-view layer, heavy framing on left and right lower corners, center lower area partially open for units and damage numbers
-Lighting/mood: oppressive, heavy, cinematic, foreground silhouettes with slight rim lighting
-Color palette: near-black, deep blue-gray, ash gray mist, tiny warm gold ember traces
+Lighting/mood: oppressive, cinematic, foreground silhouettes with slight rim lighting, but still breathable
+Color palette: charcoal, ash gray mist, soft stone gray, tiny warm gold ember traces
 Materials/textures: wet stone, brush-ink fog, broken cliff edges, worn ancient platform surfaces
 Constraints: perfectly flat solid #00ff00 background only, no characters, no UI, no text, no watermark
 Avoid: full environment background, bright saturation, symmetrical toy-like staging, green subject matter
@@ -185,10 +186,10 @@ Asset type: game parallax background mid layer
 Primary request: create the utility-node midground layer for a Chinese cultivation reward and preparation scene on a removable chroma-key background
 Scene/backdrop: perfectly flat solid #00ff00 chroma-key background for background removal
 Subject: only midground elements such as suspended stone altars, sword tomb silhouettes, ritual platforms, incense haze, distant Taoist pavilion fragments, calmer than battle but still solemn
-Style/medium: dark Chinese fantasy environment layer art, ink wash painting with premium UI scene sensibility
+Style/medium: refined Chinese ink wash environment layer art with premium UI scene sensibility
 Composition/framing: wide 16:9 side-view parallax layer, center readable for reward cards and text, structures slightly lower and calmer than the combat version
 Lighting/mood: quieter, contemplative, post-battle, mysterious, restrained sacred atmosphere
-Color palette: charcoal, ink blue, desaturated jade, muted warm lantern gold, ash mist
+Color palette: charcoal, pale jade, desaturated stone blue, muted warm lantern gold, ash mist
 Materials/textures: carved stone altars, ancient sword racks, cloud wisps, faint talisman smoke, worn ritual architecture
 Constraints: perfectly flat solid #00ff00 background only, no characters, no UI, no text, no watermark
 Avoid: active combat lightning, giant centered building, crowded scene, green subject matter
@@ -217,10 +218,10 @@ Asset type: game parallax background near layer
 Primary request: create the foreground framing layer for a Chinese cultivation reward and preparation scene on a removable chroma-key background
 Scene/backdrop: perfectly flat solid #00ff00 chroma-key background for background removal
 Subject: only near foreground elements such as ritual stone edges, low cloud rolls, incense smoke, hanging talisman fragments, and soft framing masses along the lower left and lower right
-Style/medium: premium dark Chinese fantasy foreground layer, ink wash plus atmospheric game rendering
+Style/medium: premium Chinese ink wash foreground layer with atmospheric game rendering
 Composition/framing: wide 16:9 side-view layer, center kept open for reward cards, quieter and cleaner than the battle foreground
 Lighting/mood: contemplative, dim, sacred, after-battle stillness
-Color palette: near-black, smoke gray, muted jade, old bronze, tiny warm paper-gold accents
+Color palette: charcoal, smoke gray, muted jade, old bronze, tiny warm paper-gold accents
 Materials/textures: aged stone, scroll smoke, talisman ash, carved ritual edges
 Constraints: perfectly flat solid #00ff00 background only, no characters, no UI, no text, no watermark
 Avoid: battle cliffs, huge weapon silhouettes in center, bright glow overload, green subject matter

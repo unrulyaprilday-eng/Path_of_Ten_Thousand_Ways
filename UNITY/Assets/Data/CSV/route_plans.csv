@@ -1,0 +1,10 @@
+route_plan_id,layer,name,description,route_style,route_quality,route_glyph,route_tag
+route_opening_wanjian,1,万剑开锋,先打一场试锋斗法再拿第一批飞剑组件把飞剑数量尽快铺起来,wanjian,earth,万,首层路线
+route_opening_thunder,1,雷痕试锋,先踩进覆雷路口靠第一批感电组件把后续自动结算提前点亮,thunder,heaven,雷,首层路线
+route_opening_blood,1,血祭走锋,先闯一场搏命试锋再拿流血组件让斩杀压力更早成型,blood,earth,血,首层路线
+route_middle_stable,2,稳修收束,先用修炼补齐当前流派再打一场常规斗法让 build 在中段更稳地收束,general,spirit,稳,稳定路线
+route_middle_aggressive,2,追锋破阵,连续走两场斗法换一次额外补强适合把流派高点直接压到中段,general,heaven,锋,冒险路线
+route_middle_artifact,2,秘器共振,先去整备节点改写规则再打一场试炼让流派提前接上法器与神通,general,mysterious,器,构筑路线
+route_final_stable,3,整备冲劫,先整备再渡劫让当前流派在 Boss 战里稳定落地,general,spirit,备,稳守路线
+route_final_seclusion,3,闭关悟道,再闭关一轮补足神通和续航把爆发窗口完整地留给天劫降临那一刻,general,mysterious,悟,爆发路线
+route_final_desperate,3,背水破劫,再打一场劫前守门换最后一次补强用更高风险把斩杀上限抬上去,general,immortal,劫,背水路线

@@ -1,0 +1,11 @@
+relic_id,name,icon_glyph,style,quality,description
+relic_sword_bone,剑骨,骨,万剑组件,spirit,永久飞剑 +1 让演武高点更早成形
+relic_sword_tomb_stele,剑冢残碑,碑,万剑引擎,earth,每次消耗至少 6 点剑意时额外凝成临时飞剑
+relic_wanjian_sword_box,万剑剑匣,匣,万剑爆发,heaven,飞剑齐发后有概率再追斩一轮剑潮
+relic_thunder_heart,雷心,心,雷剑组件,spirit,飞剑引爆感电时额外追加 3 点雷击伤害
+relic_nine_heavens_thunder_seal,九霄雷印,印,雷剑爆发,earth,引爆 6 层以上感电时再降下 6 点雷击
+relic_blood_demon_orb,血魔珠,珠,血剑爆发,earth,生命每失去 10% 造成的伤害提高 8%
+relic_blood_sword_embryo,血剑胚,胚,血剑组件,mysterious,飞剑演武附加 2 层流血让斩杀越滚越深
+relic_heart_mirror,护心镜,护,生存结构,earth,Boss 战首次致死伤害会被截停在 1 点生命前
+relic_spirit_talisman,聚灵符,符,规则修改,spirit,每回合第一张 1 费牌改为免费
+relic_broken_ancient_mirror,残破古镜,镜,复制强化,heaven,每场战斗第一次复制效果会额外强化

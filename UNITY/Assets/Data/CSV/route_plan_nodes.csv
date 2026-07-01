@@ -1,0 +1,31 @@
+route_plan_id,seq,layer,node_type,node_name
+route_opening_wanjian,1,1,battle,云海妖灵
+route_opening_wanjian,2,1,reward,第一批飞剑组件
+route_opening_wanjian,3,2,route_choice,第二层路口
+route_opening_thunder,1,1,battle,雷纹妖将
+route_opening_thunder,2,1,reward,雷痕遗藏
+route_opening_thunder,3,2,route_choice,第二层路口
+route_opening_blood,1,1,battle,血影残魂
+route_opening_blood,2,1,reward,血煞遗藏
+route_opening_blood,3,2,route_choice,第二层路口
+route_middle_stable,1,2,training,法宝与功法补强
+route_middle_stable,2,2,battle,劫云守卫
+route_middle_stable,3,3,route_choice,第三层路口
+route_middle_aggressive,1,2,battle,裂空剑煞
+route_middle_aggressive,2,2,reward,中段补强
+route_middle_aggressive,3,2,battle,雷崖执兵
+route_middle_aggressive,4,3,route_choice,第三层路口
+route_middle_artifact,1,2,shop,秘器整备
+route_middle_artifact,2,2,battle,镜雷试炼
+route_middle_artifact,3,3,route_choice,第三层路口
+route_final_stable,1,3,shop,Boss 前整备
+route_final_stable,2,3,boss,天劫化身
+route_final_stable,3,4,victory,一世修行完成
+route_final_seclusion,1,3,training,渡劫前闭关
+route_final_seclusion,2,3,shop,Boss 前整备
+route_final_seclusion,3,3,boss,天劫化身
+route_final_seclusion,4,4,victory,一世修行完成
+route_final_desperate,1,3,battle,劫前守门
+route_final_desperate,2,3,reward,最后补强
+route_final_desperate,3,3,boss,天劫化身
+route_final_desperate,4,4,victory,一世修行完成

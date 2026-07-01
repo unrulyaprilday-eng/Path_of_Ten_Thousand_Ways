@@ -25,9 +25,6 @@ namespace PathOfTenThousandWays.Demo.Battle
 
     public sealed class DemoBattleState
     {
-        private const int PlanningSeconds = 15;
-        private const float StepDurationSeconds = 0.7f;
-        private const float MinimumExecutionSeconds = 2.4f;
         private readonly Random random = new Random();
         private DemoBattlePhase? pendingResult;
         private bool isBossBattle;
@@ -76,6 +73,16 @@ namespace PathOfTenThousandWays.Demo.Battle
         public IReadOnlyList<DemoGongfaType> ActiveGongfas => activeGongfas;
 
         public int TotalSwords => PermanentSwords + TemporarySwords;
+        private int PlanningSeconds => DemoConfigRepository.GetIntConstant("battle", "planning_seconds", 15);
+        private float StepDurationSeconds => DemoConfigRepository.GetFloatConstant("battle", "step_duration_seconds", 0.7f);
+        private float MinimumExecutionSeconds => DemoConfigRepository.GetFloatConstant("battle", "minimum_execution_seconds", 2.4f);
+        private int BasePlayerMaxHealth => DemoConfigRepository.GetIntConstant("battle", "player_base_max_health", 72);
+        private int BasePlayerMaxEnergy => DemoConfigRepository.GetIntConstant("battle", "player_base_max_energy", 3);
+        private int BasePermanentSwords => DemoConfigRepository.GetIntConstant("battle", "player_base_permanent_swords", 1);
+        private int BossExtraPermanentSwords => DemoConfigRepository.GetIntConstant("battle", "boss_extra_permanent_swords", 1);
+        private int OpeningRoundEnergy => DemoConfigRepository.GetIntConstant("battle", "opening_round_energy", 1);
+        private int OpeningRoundHandSize => DemoConfigRepository.GetIntConstant("battle", "opening_round_hand_size", 3);
+        private int NormalRoundHandSize => DemoConfigRepository.GetIntConstant("battle", "normal_round_hand_size", 5);
 
         public void ClearBattle(bool clearLog = false)
         {
@@ -117,6 +124,9 @@ namespace PathOfTenThousandWays.Demo.Battle
             {
                 Log.Clear();
             }
+
+            MaxEnergy = BasePlayerMaxEnergy;
+            PermanentSwords = BasePermanentSwords;
         }
 
         public void StartBattle(
@@ -132,7 +142,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             IReadOnlyCollection<string> relics = null,
             bool openingBattle = false)
         {
-            Player = new DemoCombatant("剑修", 72);
+            Player = new DemoCombatant("剑修", BasePlayerMaxHealth);
             Player.Health = Math.Min(Player.MaxHealth, Math.Max(1, playerHealth));
             Enemy = new DemoCombatant(enemyName, enemyHealth);
             Deck.Clear();
@@ -174,9 +184,9 @@ namespace PathOfTenThousandWays.Demo.Battle
 
             Shuffle(DrawPile);
             Round = 0;
-            MaxEnergy = 3 + bonusEnergy;
+            MaxEnergy = BasePlayerMaxEnergy + bonusEnergy;
             Energy = MaxEnergy;
-            PermanentSwords = (boss ? 2 : 1) + bonusSwords;
+            PermanentSwords = BasePermanentSwords + (boss ? BossExtraPermanentSwords : 0) + bonusSwords;
             if (HasArtifact(DemoArtifactType.SwordBox))
             {
                 PermanentSwords += 1;
@@ -303,7 +313,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             Round++;
             Phase = DemoBattlePhase.Planning;
             PhaseTimer = PlanningSeconds;
-            int baseEnergy = openingBattlePacing && Round == 1 ? 1 : MaxEnergy;
+            int baseEnergy = openingBattlePacing && Round == 1 ? OpeningRoundEnergy : MaxEnergy;
             Energy = baseEnergy + storedGourdEnergy;
             if (storedGourdEnergy > 0)
             {
@@ -347,7 +357,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             thunderSealActive = false;
             lastHeavenOpeningMomentum = 0;
             lastHeavenOpeningIntent = 0;
-            int targetHandCount = openingBattlePacing && Round == 1 ? 3 : 5;
+            int targetHandCount = openingBattlePacing && Round == 1 ? OpeningRoundHandSize : NormalRoundHandSize;
             DrawCards(targetHandCount - Hand.Count);
             if (openingBattlePacing && Round == 1)
             {

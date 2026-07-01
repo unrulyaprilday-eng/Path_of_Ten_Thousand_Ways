@@ -7,6 +7,11 @@ namespace PathOfTenThousandWays.Demo.Cards
     {
         public static List<DemoCard> CreateStarterDeck()
         {
+            if (DemoConfigRepository.TryCreateDeckFromPool("starter_general", out List<DemoCard> configuredDeck))
+            {
+                return configuredDeck;
+            }
+
             return new List<DemoCard>
             {
                 Create("sword_slash").Clone(),
@@ -20,6 +25,11 @@ namespace PathOfTenThousandWays.Demo.Cards
 
         public static List<DemoCard> CreateStarterDeck(DemoSwordStyle style)
         {
+            if (DemoConfigRepository.TryCreateDeckFromPool($"starter_{style.ToString().ToLowerInvariant()}", out List<DemoCard> configuredDeck))
+            {
+                return configuredDeck;
+            }
+
             switch (style)
             {
                 case DemoSwordStyle.Wanjian:
@@ -62,6 +72,11 @@ namespace PathOfTenThousandWays.Demo.Cards
 
         public static string GetBasicPathCardId(DemoSwordStyle style)
         {
+            if (DemoConfigRepository.TryGetBasicPathCardId(style, out string configuredCardId))
+            {
+                return configuredCardId;
+            }
+
             switch (style)
             {
                 case DemoSwordStyle.Wanjian:
@@ -77,6 +92,11 @@ namespace PathOfTenThousandWays.Demo.Cards
 
         public static List<DemoCard> CreateRewardPool()
         {
+            if (DemoConfigRepository.TryCreateDeckFromPool("reward_pool", out List<DemoCard> configuredPool))
+            {
+                return configuredPool;
+            }
+
             return new List<DemoCard>
             {
                 Create("sword_slash"),
@@ -113,6 +133,11 @@ namespace PathOfTenThousandWays.Demo.Cards
 
         public static DemoCard Create(string id)
         {
+            if (DemoConfigRepository.TryCreateCard(id, out DemoCard configuredCard))
+            {
+                return configuredCard;
+            }
+
             switch (id)
             {
                 case "sword_slash":
@@ -506,8 +531,24 @@ namespace PathOfTenThousandWays.Demo.Cards
                         Bleed = 8
                     };
                 default:
-                    return Create("sword_slash");
+                    return CreateFallbackBasicCard();
             }
+        }
+
+        private static DemoCard CreateFallbackBasicCard()
+        {
+            return new DemoCard
+            {
+                Id = "sword_slash",
+                Name = "剑气斩",
+                IconGlyph = "斩",
+                Type = DemoCardType.Attack,
+                Style = DemoSwordStyle.General,
+                Quality = DemoQuality.Mortal,
+                Cost = 1,
+                Damage = 8,
+                SwordIntent = 1
+            };
         }
     }
 }

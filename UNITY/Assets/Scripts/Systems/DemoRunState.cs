@@ -7,10 +7,17 @@ namespace PathOfTenThousandWays.Demo.Systems
 {
     public sealed class DemoRunState
     {
+        public sealed class DemoOpeningSelection
+        {
+            public DemoRootDefinition Root;
+            public DemoJourneyLineDefinition JourneyLine;
+            public DemoRegionDefinition FirstRegion;
+        }
+
         public DemoMapRun Map { get; } = new DemoMapRun();
-        public List<DemoCard> Deck { get; } = DemoCardLibrary.CreateStarterDeck();
-        public int MaxHealth = 72;
-        public int CurrentHealth = 72;
+        public List<DemoCard> Deck { get; } = new List<DemoCard>();
+        public int MaxHealth;
+        public int CurrentHealth;
         public int BonusEnergy;
         public int BonusPermanentSwords;
         public readonly List<string> Relics = new List<string>();
@@ -18,6 +25,14 @@ namespace PathOfTenThousandWays.Demo.Systems
         public DemoGongfaType MainGongfa = DemoGongfaType.None;
         public DemoGongfaType SupportGongfa = DemoGongfaType.None;
         public DemoGongfaType DivineGongfa = DemoGongfaType.None;
+        public DemoOpeningSelection OpeningSelection { get; } = new DemoOpeningSelection();
+
+        public DemoRunState()
+        {
+            MaxHealth = DemoConfigRepository.GetIntConstant("battle", "player_base_max_health", 72);
+            CurrentHealth = MaxHealth;
+            Deck.AddRange(DemoCardLibrary.CreateStarterDeck());
+        }
 
         public void AddCard(DemoCard card)
         {
@@ -27,6 +42,24 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
 
             Deck.Add(card.Clone());
+        }
+
+        public void SetRoot(DemoRootDefinition root)
+        {
+            OpeningSelection.Root = root;
+            OpeningSelection.JourneyLine = null;
+            OpeningSelection.FirstRegion = null;
+        }
+
+        public void SetJourneyLine(DemoJourneyLineDefinition line)
+        {
+            OpeningSelection.JourneyLine = line;
+            OpeningSelection.FirstRegion = null;
+        }
+
+        public void SetFirstRegion(DemoRegionDefinition region)
+        {
+            OpeningSelection.FirstRegion = region;
         }
 
         public void AddRelic(string relicName)

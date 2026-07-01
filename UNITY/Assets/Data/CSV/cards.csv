@@ -1,0 +1,30 @@
+card_id,name,icon_glyph,type,style,quality,cost,damage,block,draw,energy_gain,sword_intent,shock,bleed,temporary_swords,permanent_sword,consume_all_sword_intent,self_damage,special_effect,rules_override
+sword_slash,剑气斩,斩,attack,general,mortal,1,8,0,0,0,1,0,0,0,false,false,0,none,
+guard_step,剑遁,遁,defense,general,mortal,1,0,8,0,0,0,0,0,0,false,false,0,none,
+cloud_step,踏云遁,踏,defense,general,spirit,1,0,6,1,0,0,0,0,0,false,false,0,none,
+sword_focus,凝剑诀,凝,status,wanjian,spirit,1,0,0,0,0,3,0,0,0,false,false,0,none,
+summon_sword,御剑诀,御,flying_sword,wanjian,spirit,1,0,0,0,0,1,0,0,2,false,false,0,none,
+sword_rain,剑雨横空,雨,flying_sword,wanjian,earth,2,5,0,0,0,1,0,0,2,false,false,0,none,
+returning_array,回锋剑阵,回,flying_sword,wanjian,mysterious,1,0,0,1,0,2,0,0,1,false,false,0,none,
+sword_array,小诛仙剑阵,阵,flying_sword,wanjian,mysterious,2,0,0,0,0,0,0,0,3,true,false,0,none,
+sheathe_edge,藏锋诀,藏,status,wanjian,earth,1,0,0,0,0,0,0,0,0,false,false,0,sheathe_edge,本回合飞剑不自动攻击改为把当前飞剑化为剑意并积蓄锋势为下一次斩击收束伤害
+sword_tide,剑潮叠浪,潮,finisher,wanjian,heaven,2,10,0,0,0,0,0,0,2,false,true,0,none,
+heaven_opening,开天一剑,开,finisher,wanjian,immortal,3,14,0,0,0,0,0,0,0,false,false,0,heaven_opening,消耗全部剑意与已积蓄的锋势打出极高单体斩击若被镜像复制复制体沿用本次消耗的锋势
+thunder_sword,雷剑,雷,flying_sword,thunder,spirit,1,5,0,0,0,0,3,0,1,false,false,0,none,
+thunder_chain,引雷诀,引,status,thunder,mysterious,1,4,0,0,0,0,5,0,0,false,false,0,none,
+thunder_lead,引雷入刃,引,status,thunder,mysterious,1,6,0,1,0,0,4,0,0,false,false,0,none,
+thunder_casket,封雷匣,匣,status,thunder,earth,1,0,0,0,0,0,4,0,0,false,false,0,thunder_seal,施加 4 感电本回合感电不引爆改为继续蓄存并让下一次雷击额外增强
+storm_sword_array,奔雷剑阵,霆,flying_sword,thunder,earth,2,8,0,0,0,0,4,0,2,false,false,0,none,
+thunder_prison,雷狱镇压,狱,finisher,thunder,heaven,2,12,6,0,0,0,6,0,0,false,false,0,none,
+blood_mark,血痕,痕,status,blood,spirit,1,4,0,0,0,0,0,4,0,false,false,0,none,
+blood_sword,血剑胚,胚,flying_sword,blood,mysterious,2,6,0,0,0,0,0,6,0,true,false,0,none,
+blood_edge_awakening,噬命开锋,噬,resource,blood,earth,0,0,0,0,2,2,0,0,2,false,false,6,none,失去 6 点生命获得 2 灵气 2 剑意并备好 2 把临时飞剑
+scarlet_feast,血祭养锋,祭,status,blood,mysterious,1,5,0,0,1,0,0,3,0,false,false,0,none,
+blood_guard,煞气护体,煞,defense,blood,spirit,1,0,8,0,0,0,0,2,0,false,false,0,none,
+blood_tide_array,血潮剑阵,潮,flying_sword,blood,earth,2,8,0,0,0,0,0,5,1,false,false,0,none,
+spirit_draw,聚灵换息,灵,resource,general,spirit,0,0,0,1,1,0,0,0,0,false,false,0,none,
+meridian_breath,引气归元,归,resource,general,spirit,0,0,0,0,1,1,0,0,0,false,false,0,none,
+jade_barrier,玄门护身,护,defense,general,mysterious,2,0,14,1,0,0,0,0,0,false,false,0,none,
+wanjian_burst,万剑诀,万,finisher,wanjian,earth,3,12,0,0,0,0,0,0,0,false,true,0,none,
+heaven_thunder,九霄雷剑,霄,finisher,thunder,heaven,3,16,0,0,0,0,8,0,0,false,false,0,none,
+blood_execution,血祭斩,祭,finisher,blood,heaven,2,10,0,0,0,0,0,8,0,false,false,0,none
