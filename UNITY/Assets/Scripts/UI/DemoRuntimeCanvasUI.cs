@@ -610,10 +610,10 @@ namespace PathOfTenThousandWays.Demo.UI
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     new Vector2(-34f, -50f),
-                    new Vector2(828f, 226f),
+                    new Vector2(680f, 226f),
                     Color.white);
                 homeTitleCalligraphyRoot = titleMark;
-                ApplySpriteToImage(titleMark, titleCalligraphy, Color.white, true);
+                ApplySpriteToImage(titleMark, titleCalligraphy, Color.white, false);
                 titleMark.GetComponent<Image>().raycastTarget = false;
 
                 Shadow titleShadow = titleMark.gameObject.AddComponent<Shadow>();
@@ -758,44 +758,69 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private Text CreateHomeStatusStrip(Transform parent)
         {
+            Color cinnabar = new Color(0.50f, 0.13f, 0.08f, 0.68f);
+
             RectTransform strip = CreateFixedPanel(
                 parent,
                 "HomeStatusStrip",
-                new Vector2(1f, 0f),
-                new Vector2(1f, 0f),
-                new Vector2(-46f, 34f),
-                new Vector2(410f, 92f),
-                new Color(0.86f, 0.82f, 0.72f, 0.46f));
+                new Vector2(0.66f, 0f),
+                new Vector2(0.5f, 0f),
+                new Vector2(-24f, 106f),
+                new Vector2(236f, 202f),
+                new Color(0.88f, 0.84f, 0.73f, 0.52f));
             strip.GetComponent<Image>().raycastTarget = false;
-            DecorateFrame(strip, new Color(0.55f, 0.43f, 0.23f, 0.30f), new Color(0f, 0f, 0f, 0f), 1.0f, false);
+            DecorateFrame(strip, new Color(0.55f, 0.43f, 0.23f, 0.34f), new Color(0f, 0f, 0f, 0f), 1.0f, false);
 
             RectTransform statusTopLine = CreateStretchPanel(
                 strip,
                 "StatusTopLine",
                 new Vector2(0f, 1f),
                 new Vector2(1f, 1f),
-                new Vector2(24f, -8f),
-                new Vector2(-24f, -6f),
-                new Color(0.80f, 0.63f, 0.34f, 0.10f));
+                new Vector2(22f, -10f),
+                new Vector2(-22f, -8f),
+                new Color(0.80f, 0.63f, 0.34f, 0.12f));
             statusTopLine.GetComponent<Image>().raycastTarget = false;
             IgnoreLayout(statusTopLine.gameObject);
 
             RectTransform statusSeal = CreateFixedPanel(
                 strip,
                 "StatusSeal",
-                new Vector2(0f, 0.5f),
-                new Vector2(0f, 0.5f),
-                new Vector2(18f, 0f),
-                new Vector2(26f, 54f),
-                new Color(0.45f, 0.13f, 0.09f, 0.62f));
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(18f, -18f),
+                new Vector2(30f, 72f),
+                cinnabar);
             IgnoreLayout(statusSeal.gameObject);
             statusSeal.GetComponent<Image>().raycastTarget = false;
 
             Text sealText = CreateText(statusSeal, "SealText", "命\n签", 12, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.96f, 0.86f, 0.70f, 0.98f));
             StretchText(sealText.rectTransform, new Vector2(2f, 3f), new Vector2(-2f, -3f));
 
-            Text bodyText = CreateText(strip, "StatusBody", string.Empty, 13, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.12f, 0.13f, 0.11f, 0.84f));
-            StretchText(bodyText.rectTransform, new Vector2(60f, 14f), new Vector2(-24f, -12f));
+            RectTransform statusDivider = CreateFixedPanel(
+                strip,
+                "StatusDivider",
+                new Vector2(0f, 1f),
+                new Vector2(0.5f, 1f),
+                new Vector2(58f, -18f),
+                new Vector2(2f, 126f),
+                new Color(cinnabar.r, cinnabar.g, cinnabar.b, 0.50f));
+            statusDivider.GetComponent<Image>().raycastTarget = false;
+            IgnoreLayout(statusDivider.gameObject);
+
+            RectTransform bodyPaper = CreateStretchPanel(
+                strip,
+                "StatusBodyPaper",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(68f, 16f),
+                new Vector2(-12f, -18f),
+                new Color(0.96f, 0.91f, 0.76f, 0.12f));
+            bodyPaper.GetComponent<Image>().raycastTarget = false;
+            IgnoreLayout(bodyPaper.gameObject);
+
+            Text bodyText = CreateText(strip, "StatusBody", string.Empty, 16, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.08f, 0.09f, 0.08f, 0.98f));
+            bodyText.lineSpacing = 1.22f;
+            StretchText(bodyText.rectTransform, new Vector2(72f, 18f), new Vector2(-14f, -22f));
             return bodyText;
         }
 
@@ -2347,13 +2372,22 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (controller.IsRunComplete)
             {
-                return "天劫已渡   可再证新道\n最近道途已收束，下一世仍从根脚与携行重新起势";
+                return
+                    "道劫　天劫已渡\n" +
+                    "证道　可再证新道\n" +
+                    "回看　道途已收束\n" +
+                    "起势　根脚再定\n" +
+                    "携行　重新上路";
             }
 
             string mainGongfa = GetGongfaName(controller.Run.MainGongfa, "未定");
             return
-                $"本世道基  气血 {controller.Run.CurrentHealth}/{controller.Run.MaxHealth}   灵气 {3 + controller.Run.BonusEnergy}\n" +
-                $"命剑 {1 + controller.Run.BonusPermanentSwords}   起手 {controller.Run.Deck.Count} 张   主修 {mainGongfa}";
+                "道基　本世道基\n" +
+                $"气血　{controller.Run.CurrentHealth}/{controller.Run.MaxHealth}\n" +
+                $"灵气　{3 + controller.Run.BonusEnergy}\n" +
+                $"命剑　{1 + controller.Run.BonusPermanentSwords}\n" +
+                $"起手　{controller.Run.Deck.Count} 张\n" +
+                $"主修　{mainGongfa}";
         }
 
         private string BuildStartInheritanceScrollText()
@@ -3250,6 +3284,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Color(0f, 0f, 0f, 0.16f));
             topWash.GetComponent<Image>().raycastTarget = false;
 
+            Color itemOverlayColor = new Color(0.025f, 0.027f, 0.030f, 0.78f);
             RectTransform bottomWash = CreateStretchPanel(
                 cardObject.transform,
                 "OpeningItemBottomWash",
@@ -3257,8 +3292,10 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(1f, 0.43f),
                 new Vector2(8f, 8f),
                 new Vector2(-8f, 0f),
-                new Color(0.025f, 0.027f, 0.030f, 0.78f));
+                itemOverlayColor);
             bottomWash.GetComponent<Image>().raycastTarget = false;
+            button.targetGraphic = bottomWash.GetComponent<Image>();
+            button.colors = CreateButtonColors(itemOverlayColor);
             DecorateFrame(bottomWash, new Color(accent.r, accent.g, accent.b, 0.26f), new Color(1f, 1f, 1f, 0.012f), 1f, false);
 
             RectTransform typeBadge = CreateFixedPanel(
@@ -3287,10 +3324,10 @@ namespace PathOfTenThousandWays.Demo.UI
             Text riskText = CreateText(riskBadge, "OpeningItemRiskText", GetJourneyRiskLabel(line), 13, FontStyle.Bold, TextAnchor.MiddleCenter, ColorPaper);
             StretchText(riskText.rectTransform, new Vector2(6f, 2f), new Vector2(-6f, -2f));
 
-            string journeyTitle = line == null ? reward.Name : line.Title;
-            string itemName = line == null ? reward.Name : line.CarryItemName;
-            string effect = line == null ? reward.Description : line.CarryItemEffect;
-            string origin = line == null ? reward.Description : line.OriginText;
+            string journeyTitle = string.IsNullOrEmpty(line?.Title) ? reward.Name : line.Title;
+            string itemName = string.IsNullOrEmpty(line?.CarryItemName) ? reward.Name : line.CarryItemName;
+            string effect = string.IsNullOrEmpty(line?.CarryItemEffect) ? reward.Description ?? string.Empty : line.CarryItemEffect;
+            string origin = string.IsNullOrEmpty(line?.OriginText) ? reward.Description ?? string.Empty : line.OriginText;
 
             Text titleText = CreateText(bottomWash, "OpeningItemJourneyTitle", TrimSentence(journeyTitle, 16), 16, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.88f, 0.78f, 0.52f, 0.98f));
             titleText.rectTransform.anchorMin = new Vector2(0f, 1f);
