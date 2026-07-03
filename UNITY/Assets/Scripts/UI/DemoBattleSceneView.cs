@@ -52,14 +52,15 @@ namespace PathOfTenThousandWays.Demo.UI
             public Color BaseColor;
         }
 
-        
         private enum EncounterVisualTier
         {
             Minor,
             Elite,
             MiniBoss,
             FinalBoss
-        }private DemoGameController controller;
+        }
+
+        private DemoGameController controller;
         private Font uiFont;
         private Sprite whiteSprite;
         private Sprite battleBackgroundSprite;
@@ -94,11 +95,12 @@ namespace PathOfTenThousandWays.Demo.UI
         private RectTransform enemyRoot;
         private RectTransform enemySword;
         private RectTransform enemyBody;
-                private Image enemyAuraImage;
+        private Image enemyAuraImage;
         private Image enemySwordImage;
         private Image enemySwordTrailImage;
         private Image enemyBodyImage;
-        private Text enemyLabelText;private RectTransform playerStatusPanel;
+        private Text enemyLabelText;
+        private RectTransform playerStatusPanel;
         private RectTransform enemyStatusPanel;
         private RectTransform roundStatusPanel;
         private RectTransform intentPanel;
@@ -150,6 +152,7 @@ namespace PathOfTenThousandWays.Demo.UI
             if (!controller.HasBattle)
             {
                 UpdateIdleStage();
+                UpdateEncounterPresentation();
                 return;
             }
 
@@ -970,6 +973,7 @@ namespace PathOfTenThousandWays.Demo.UI
             playerSword.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(elapsed * 2.1f) * 4f - 7f);
 
             EncounterVisualTier encounterTier = GetEncounterVisualTier();
+            ApplyEncounterLayerMotion(encounterTier);
             Vector2 enemyAnchor = GetEnemyAnchor();
             float enemyHorizontalDrift = encounterTier == EncounterVisualTier.FinalBoss ? 11f : encounterTier == EncounterVisualTier.MiniBoss ? 9f : encounterTier == EncounterVisualTier.Elite ? 8f : 6f;
             float enemyVerticalDrift = encounterTier == EncounterVisualTier.FinalBoss ? 10f : encounterTier == EncounterVisualTier.MiniBoss ? 8f : encounterTier == EncounterVisualTier.Elite ? 7f : 5f;
@@ -995,25 +999,242 @@ namespace PathOfTenThousandWays.Demo.UI
             }
         }
 
+        private void ApplyEncounterLayerMotion(EncounterVisualTier tier)
+        {
+            float pulse = Mathf.Sin(elapsed * 0.9f) * 0.5f + 0.5f;
+
+            SetLayerColor(skyGlow, GetSkyGlowColor(tier, pulse));
+            SetLayerColor(horizonGlow, GetHorizonGlowColor(tier, pulse));
+            SetLayerColor(mistBand, GetMistBandColor(tier));
+            SetLayerColor(midCloudShelf, GetMidCloudColor(tier));
+            SetLayerColor(midRuinBand, GetMidRuinColor(tier));
+            SetLayerColor(foregroundMist, GetForegroundMistColor(tier));
+            SetLayerColor(frontFogA, GetFrontFogAColor(tier));
+            SetLayerColor(frontFogB, GetFrontFogBColor(tier));
+            SetLayerColor(inkVeil, GetInkVeilColor(tier));
+            SetLayerColor(nearCliffLeft, GetNearCliffColor(tier));
+            SetLayerColor(nearCliffRight, GetNearCliffColor(tier));
+            SetLayerColor(nearPlatformGlowLeft, GetPlatformGlowColor(tier, pulse));
+            SetLayerColor(nearPlatformGlowRight, GetPlatformGlowColor(tier, pulse));
+
+            float pressure = GetEncounterPressure(tier);
+            float cliffScale = 1f + pressure * 0.08f;
+            nearCliffLeft.localScale = new Vector3(cliffScale, 1f + pressure * 0.04f, 1f);
+            nearCliffRight.localScale = new Vector3(cliffScale, 1f + pressure * 0.05f, 1f);
+            inkVeil.localScale = new Vector3(1f + pressure * 0.05f, 1f + pressure * 0.02f, 1f);
+        }
+
+        private static void SetLayerColor(RectTransform rect, Color color)
+        {
+            if (rect == null)
+            {
+                return;
+            }
+
+            Image image = rect.GetComponent<Image>();
+            if (image != null)
+            {
+                image.color = color;
+            }
+        }
+
+        private static float GetEncounterPressure(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return 0.35f;
+                case EncounterVisualTier.MiniBoss:
+                    return 0.62f;
+                case EncounterVisualTier.FinalBoss:
+                    return 1f;
+                default:
+                    return 0f;
+            }
+        }
+
+        private static Color GetSkyGlowColor(EncounterVisualTier tier, float pulse)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.66f, 0.72f, 0.78f, 0.26f + pulse * 0.02f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.70f, 0.66f, 0.55f, 0.24f + pulse * 0.03f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.56f, 0.66f, 0.78f, 0.30f + pulse * 0.04f);
+                default:
+                    return new Color(0.78f, 0.82f, 0.84f, 0.32f);
+            }
+        }
+
+        private static Color GetHorizonGlowColor(EncounterVisualTier tier, float pulse)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.18f, 0.23f, 0.28f, 0.08f + pulse * 0.02f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.28f, 0.22f, 0.14f, 0.10f + pulse * 0.02f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.20f, 0.28f, 0.38f, 0.12f + pulse * 0.03f);
+                default:
+                    return new Color(0.22f, 0.20f, 0.18f, 0.06f);
+            }
+        }
+
+        private static Color GetMistBandColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.56f, 0.61f, 0.66f, 0.08f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.62f, 0.58f, 0.50f, 0.10f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.54f, 0.64f, 0.74f, 0.12f);
+                default:
+                    return new Color(0.62f, 0.65f, 0.68f, 0.07f);
+            }
+        }
+
+        private static Color GetMidCloudColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.20f, 0.24f, 0.28f, 0.13f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.23f, 0.20f, 0.17f, 0.15f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.18f, 0.23f, 0.30f, 0.17f);
+                default:
+                    return new Color(0.24f, 0.26f, 0.28f, 0.10f);
+            }
+        }
+
+        private static Color GetMidRuinColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.10f, 0.12f, 0.15f, 0.13f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.15f, 0.12f, 0.09f, 0.17f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.08f, 0.10f, 0.14f, 0.19f);
+                default:
+                    return new Color(0.11f, 0.12f, 0.13f, 0.10f);
+            }
+        }
+
+        private static Color GetForegroundMistColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.50f, 0.56f, 0.62f, 0.07f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.55f, 0.52f, 0.46f, 0.08f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.48f, 0.58f, 0.68f, 0.10f);
+                default:
+                    return new Color(0.54f, 0.58f, 0.60f, 0.05f);
+            }
+        }
+
+        private static Color GetFrontFogAColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.64f, 0.68f, 0.74f, 0.09f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.66f, 0.61f, 0.52f, 0.11f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.58f, 0.68f, 0.80f, 0.13f);
+                default:
+                    return new Color(0.72f, 0.74f, 0.76f, 0.08f);
+            }
+        }
+
+        private static Color GetFrontFogBColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.22f, 0.25f, 0.29f, 0.10f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.26f, 0.22f, 0.18f, 0.12f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.18f, 0.22f, 0.28f, 0.14f);
+                default:
+                    return new Color(0.26f, 0.27f, 0.28f, 0.08f);
+            }
+        }
+
+        private static Color GetInkVeilColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.05f, 0.06f, 0.08f, 0.07f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.07f, 0.06f, 0.05f, 0.10f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.04f, 0.05f, 0.07f, 0.13f);
+                default:
+                    return new Color(0.05f, 0.05f, 0.06f, 0.05f);
+            }
+        }
+
+        private static Color GetNearCliffColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.07f, 0.08f, 0.10f, 0.48f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.09f, 0.08f, 0.06f, 0.54f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.06f, 0.07f, 0.09f, 0.60f);
+                default:
+                    return new Color(0.08f, 0.08f, 0.09f, 0.42f);
+            }
+        }
+
+        private static Color GetPlatformGlowColor(EncounterVisualTier tier, float pulse)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.50f, 0.68f, 0.78f, 0.05f + pulse * 0.02f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.82f, 0.62f, 0.32f, 0.07f + pulse * 0.02f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.54f, 0.76f, 0.96f, 0.08f + pulse * 0.03f);
+                default:
+                    return new Color(0.78f, 0.60f, 0.32f, 0.05f);
+            }
+        }
+
         private void UpdateBossAtmosphere()
         {
             if (!controller.Battle.IsBossBattle)
             {
                 EncounterVisualTier encounterTier = GetEncounterVisualTier();
+                intentText.text = GetEncounterIntentText(encounterTier);
                 switch (encounterTier)
                 {
                     case EncounterVisualTier.Elite:
-                        intentText.text = "精英斗法：敌势更稳，先拆压制，再把连锁收束出来。";
                         thunderOverlay.color = new Color(0.28f, 0.38f, 0.48f, 0.028f + Mathf.Sin(elapsed * 1.1f) * 0.008f);
                         brushOverlay.color = new Color(0.07f, 0.08f, 0.10f, 0.025f);
                         break;
                     case EncounterVisualTier.MiniBoss:
-                        intentText.text = "守关小 Boss：压迫感已经抬起来了，但还没到终局天劫。";
                         thunderOverlay.color = new Color(0.40f, 0.38f, 0.26f, 0.045f + Mathf.Sin(elapsed * 1.0f) * 0.012f);
                         brushOverlay.color = new Color(0.08f, 0.07f, 0.06f, 0.045f);
                         break;
                     default:
-                        intentText.text = "常规斗法：先试锋，再看这一段真正缺什么。";
                         thunderOverlay.color = new Color(0.36f, 0.48f, 0.70f, 0f);
                         brushOverlay.color = new Color(0.07f, 0.08f, 0.10f, 0f);
                         break;
@@ -1107,6 +1328,15 @@ namespace PathOfTenThousandWays.Demo.UI
                 }
             }
 
+            if (intentPanel != null)
+            {
+                Image intentPanelImage = intentPanel.GetComponent<Image>();
+                if (intentPanelImage != null)
+                {
+                    intentPanelImage.color = GetEncounterIntentPanelColor(encounterTier);
+                }
+            }
+
             enemyRoot.localScale = Vector3.one * GetEncounterScale(encounterTier);
         }
 
@@ -1129,7 +1359,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 $"感电 {controller.Battle.Enemy.Shock}  流血 {controller.Battle.Enemy.Bleed}\n" +
                 (controller.Battle.IsBossBattle
                     ? $"阶段 {GetBossPhaseLabel(controller.Battle.BossPhase)}"
-                    : "当前为常规斗法");
+                    : GetEncounterStatusLine(GetEncounterVisualTier()));
 
             roundStatusText.text = $"第 {controller.Battle.Round} 回合";
         }
@@ -2011,7 +2241,10 @@ namespace PathOfTenThousandWays.Demo.UI
         private static bool IsMiniBossNodeName(string nodeName)
         {
             return !string.IsNullOrEmpty(nodeName)
-                && (nodeName.Contains("瀹堥棬") || nodeName.Contains("瀹堝崼") || nodeName.Contains("鎵у叺") || nodeName.Contains("璇曠偧"));
+                && (nodeName.Contains("守门")
+                    || nodeName.Contains("守卫")
+                    || nodeName.Contains("执兵")
+                    || nodeName.Contains("试炼"));
         }
 
         private static string GetEncounterTierLabel(EncounterVisualTier tier)
@@ -2021,11 +2254,41 @@ namespace PathOfTenThousandWays.Demo.UI
                 case EncounterVisualTier.Elite:
                     return "当前为精英斗法";
                 case EncounterVisualTier.MiniBoss:
-                    return "褰撳墠涓哄畧鍏冲皬Boss";
+                    return "当前为守关小 Boss";
                 case EncounterVisualTier.FinalBoss:
-                    return "褰撳墠涓虹粓灞€Boss";
+                    return "当前为终局 Boss";
                 default:
                     return "当前为常规斗法";
+            }
+        }
+
+        private static string GetEncounterStatusLine(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return "精英压制：敌势更稳";
+                case EncounterVisualTier.MiniBoss:
+                    return "守关压迫：先破势再爆发";
+                case EncounterVisualTier.FinalBoss:
+                    return "天劫压境：检验整局构筑";
+                default:
+                    return "常规斗法：试锋与补节奏";
+            }
+        }
+
+        private static string GetEncounterIntentText(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return "精英斗法：敌势更稳，先拆压制，再把连锁收束出来。";
+                case EncounterVisualTier.MiniBoss:
+                    return "守关小 Boss：这一战开始检验构筑成型度，别只靠单张高伤牌硬顶。";
+                case EncounterVisualTier.FinalBoss:
+                    return "终局 Boss：天劫会逼出爆发窗口，飞剑、法宝和神通都要接上。";
+                default:
+                    return "常规斗法：先试锋，再看这一段真正缺什么。";
             }
         }
 
@@ -2132,6 +2395,21 @@ namespace PathOfTenThousandWays.Demo.UI
             }
         }
 
+        private static Color GetEncounterIntentPanelColor(EncounterVisualTier tier)
+        {
+            switch (tier)
+            {
+                case EncounterVisualTier.Elite:
+                    return new Color(0.10f, 0.13f, 0.16f, 0.80f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Color(0.16f, 0.12f, 0.08f, 0.82f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Color(0.10f, 0.11f, 0.16f, 0.84f);
+                default:
+                    return new Color(0.11f, 0.11f, 0.14f, 0.78f);
+            }
+        }
+
         private static string GetBossPhaseLabel(DemoBossPhase phase)
         {
             switch (phase)
@@ -2154,12 +2432,18 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private Vector2 GetEnemyAnchor()
         {
-            if (controller != null && controller.HasBattle && controller.Battle.IsBossBattle)
+            EncounterVisualTier tier = GetEncounterVisualTier();
+            switch (tier)
             {
-                return new Vector2(0.74f, 0.70f);
+                case EncounterVisualTier.FinalBoss:
+                    return new Vector2(0.74f, 0.70f);
+                case EncounterVisualTier.MiniBoss:
+                    return new Vector2(0.80f, 0.61f);
+                case EncounterVisualTier.Elite:
+                    return new Vector2(0.82f, 0.57f);
+                default:
+                    return new Vector2(0.84f, 0.54f);
             }
-
-            return new Vector2(0.84f, 0.54f);
         }
     }
 }
