@@ -21,6 +21,12 @@ namespace PathOfTenThousandWays.Demo.UI
         private static readonly Color ColorJade = new Color(0.37f, 0.66f, 0.74f, 1f);
         private static readonly Color ColorPaper = new Color(0.93f, 0.90f, 0.82f, 1f);
         private static readonly Color ColorMist = new Color(0.72f, 0.77f, 0.82f, 1f);
+        private static readonly Color HomeButtonInk = new Color(0.16f, 0.15f, 0.12f, 0.98f);
+        private static readonly Color HomeButtonInkMuted = new Color(0.31f, 0.30f, 0.25f, 0.86f);
+        private static readonly Color HomeButtonPrimaryBase = new Color(0.91f, 0.83f, 0.63f, 0.62f);
+        private static readonly Color HomeButtonSecondaryBase = new Color(0.88f, 0.84f, 0.73f, 0.34f);
+        private static readonly Color HomeButtonPrimaryEdge = new Color(0.56f, 0.39f, 0.17f, 0.50f);
+        private static readonly Color HomeButtonSecondaryEdge = new Color(0.38f, 0.43f, 0.36f, 0.22f);
         private const string HeaderCloudBandResourcePath = "Art/UI/ui_header_cloudband_001";
         private const string PathChoiceWanjianResourcePath = "Art/UI/ui_path_wanjian_001";
         private const string PathChoiceWanjianFallbackResourcePath = "Art/UI/ui_path_wanjian_002";
@@ -30,6 +36,9 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string OpeningItemSwordcaseResourcePath = "Art/UI/ui_opening_item_swordcase_001";
         private const string OpeningItemThunderboneResourcePath = "Art/UI/ui_opening_item_thunderbone_001";
         private const string OpeningItemBloodjadeResourcePath = "Art/UI/ui_opening_item_bloodjade_001";
+        private const string OpeningItemProtectiveJadeResourcePath = "Art/UI/ui_opening_item_protective_jade_001";
+        private const string OpeningItemEmberTalismanCaseResourcePath = "Art/UI/ui_opening_item_ember_talisman_case_001";
+        private const string OpeningItemAncestralCasketResourcePath = "Art/UI/ui_opening_item_ancestral_casket_001";
         private const string OpeningSceneTradeRoadResourcePath = "Art/UI/ui_opening_scene_trade_road_001";
         private const string OpeningSceneOldMineResourcePath = "Art/UI/ui_opening_scene_old_mine_001";
         private const string OpeningSceneThunderMarshResourcePath = "Art/UI/ui_opening_scene_thunder_marsh_001";
@@ -40,6 +49,9 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string HomeTitleCalligraphyResourcePath = "Art/UI/ui_home_title_calligraphy_001";
         private const string HomeLogoSealResourcePath = "Art/UI/ui_home_logo_seal_001";
         private const string HomeInfoTagResourcePath = "Art/UI/ui_home_info_tag_001";
+        private const string HomeIconCodexResourcePath = "Art/UI/ui_icon_codex_001";
+        private const string HomeIconSettingsResourcePath = "Art/UI/ui_icon_settings_001";
+        private const string HomeIconExitResourcePath = "Art/UI/ui_icon_exit_001";
         private const string PanelScrollDarkResourcePath = "Art/UI/ui_panel_scroll_dark_001";
         private const string PanelScrollDarkTransparentResourcePath = "Art/UI/ui_panel_scroll_dark_001_transparent";
         private const string RootDestinyDeskResourcePath = "Art/UI/ui_root_destiny_desk_bg_001";
@@ -76,6 +88,9 @@ namespace PathOfTenThousandWays.Demo.UI
         private static Sprite cachedOpeningItemSwordcaseSprite;
         private static Sprite cachedOpeningItemThunderboneSprite;
         private static Sprite cachedOpeningItemBloodjadeSprite;
+        private static Sprite cachedOpeningItemProtectiveJadeSprite;
+        private static Sprite cachedOpeningItemEmberTalismanCaseSprite;
+        private static Sprite cachedOpeningItemAncestralCasketSprite;
         private static Sprite cachedOpeningSceneTradeRoadSprite;
         private static Sprite cachedOpeningSceneOldMineSprite;
         private static Sprite cachedOpeningSceneThunderMarshSprite;
@@ -85,6 +100,9 @@ namespace PathOfTenThousandWays.Demo.UI
         private static Sprite cachedHomeTitleCalligraphySprite;
         private static Sprite cachedHomeLogoSealSprite;
         private static Sprite cachedHomeInfoTagSprite;
+        private static Sprite cachedHomeIconCodexSprite;
+        private static Sprite cachedHomeIconSettingsSprite;
+        private static Sprite cachedHomeIconExitSprite;
         private static Font cachedHomeTitleFont;
         private static Sprite cachedPanelScrollDarkSprite;
         private static Sprite cachedRootDestinyDeskSprite;
@@ -101,6 +119,8 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private readonly List<GameObject> handEntries = new List<GameObject>();
         private readonly List<GameObject> rewardEntries = new List<GameObject>();
+        private readonly List<RectTransform> homeMistThreads = new List<RectTransform>();
+        private readonly List<RectTransform> homeLightningStrokes = new List<RectTransform>();
 
         private DemoGameController controller;
         private Font uiFont;
@@ -157,6 +177,21 @@ namespace PathOfTenThousandWays.Demo.UI
         private Text nodeStartInheritanceText;
         private Button homeStartButton;
         private Text homeStartButtonText;
+        private Button homeContinueButton;
+        private Button homeCodexButton;
+        private Button homeSettingsButton;
+        private Text homeContinueButtonText;
+        private Text homeCodexButtonText;
+        private Text homeSettingsButtonText;
+        private GameObject homeTopActionRoot;
+        private GameObject homeModalRoot;
+        private Text homeModalTitleText;
+        private Text homeModalBodyText;
+        private RectTransform homeTitleRoot;
+        private RectTransform homeTitleCalligraphyRoot;
+        private RectTransform homeTitleRule;
+        private RectTransform homeStartButtonShimmer;
+        private RectTransform homeGoldCrack;
 
         private Text nodeTitleText;
         private Text nodeBodyText;
@@ -199,6 +234,7 @@ namespace PathOfTenThousandWays.Demo.UI
             RefreshContextPanel();
             RefreshHand();
             RefreshRewards();
+            UpdateHomePresentation(Time.time);
         }
 
         private void EnsureEventSystem()
@@ -504,6 +540,13 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             Sprite homeHero = LoadHomeHeroSprite();
             Sprite cloudsea = LoadSpriteResource(SceneCloudseaFarResourcePath, SceneBattleCloudseaResourcePath);
+            homeTitleRoot = null;
+            homeTitleCalligraphyRoot = null;
+            homeTitleRule = null;
+            homeStartButtonShimmer = null;
+            homeGoldCrack = null;
+            homeMistThreads.Clear();
+            homeLightningStrokes.Clear();
 
             CreateStretchPanel(
                 parent,
@@ -540,21 +583,23 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             CreateStretchPanel(parent, "HomeFullPaperLift", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0.96f, 0.93f, 0.86f, 0.035f));
+            CreateHomeAtmosphereLayers(parent, headerCloudBand);
 
             RectTransform titleRoot = CreateFixedPanel(
                 parent,
                 "HomeTitleRoot",
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(112f, -106f),
-                new Vector2(780f, 286f),
+                new Vector2(106f, -100f),
+                new Vector2(1120f, 298f),
                 new Color(0f, 0f, 0f, 0f));
+            homeTitleRoot = titleRoot;
 
-            Text eyebrowText = CreateText(titleRoot, "HomeEyebrow", "PATH OF TEN THOUSAND WAYS", 15, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.28f, 0.42f, 0.42f, 0.92f));
+            Text eyebrowText = CreateText(titleRoot, "HomeEyebrow", "PATH  OF  TEN  THOUSAND  WAYS", 13, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.30f, 0.40f, 0.38f, 0.76f));
             eyebrowText.rectTransform.anchorMin = new Vector2(0f, 1f);
             eyebrowText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            eyebrowText.rectTransform.offsetMin = new Vector2(4f, -28f);
-            eyebrowText.rectTransform.offsetMax = new Vector2(-4f, -4f);
+            eyebrowText.rectTransform.offsetMin = new Vector2(6f, -27f);
+            eyebrowText.rectTransform.offsetMax = new Vector2(-4f, -5f);
 
             Sprite titleCalligraphy = LoadHomeTitleCalligraphySprite();
             if (titleCalligraphy != null)
@@ -564,9 +609,10 @@ namespace PathOfTenThousandWays.Demo.UI
                     "HomeTitleCalligraphy",
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
-                    new Vector2(-8f, -38f),
-                    new Vector2(542f, 206f),
+                    new Vector2(-34f, -50f),
+                    new Vector2(828f, 226f),
                     Color.white);
+                homeTitleCalligraphyRoot = titleMark;
                 ApplySpriteToImage(titleMark, titleCalligraphy, Color.white, true);
                 titleMark.GetComponent<Image>().raycastTarget = false;
 
@@ -596,41 +642,57 @@ namespace PathOfTenThousandWays.Demo.UI
                 "HomeTitleRule",
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(4f, -171f),
-                new Vector2(454f, -167f),
-                new Color(0.58f, 0.45f, 0.21f, 0.62f));
+                new Vector2(6f, -38f),
+                new Vector2(346f, -36f),
+                new Color(0.58f, 0.45f, 0.21f, 0.34f));
+            homeTitleRule = titleRule;
             IgnoreLayout(titleRule.gameObject);
 
-            Text subtitleText = CreateText(titleRoot, "HomeSubtitle", "修仙不是打怪升级，而是构筑一条属于自己的道途。", 20, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.22f, 0.24f, 0.22f, 0.92f));
+            Text subtitleText = CreateText(titleRoot, "HomeSubtitle", "修仙不是打怪升级，而是构筑一条属于自己的道途。", 18, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.22f, 0.24f, 0.22f, 0.74f));
             subtitleText.rectTransform.anchorMin = new Vector2(0f, 0f);
             subtitleText.rectTransform.anchorMax = new Vector2(1f, 0f);
-            subtitleText.rectTransform.offsetMin = new Vector2(2f, 42f);
-            subtitleText.rectTransform.offsetMax = new Vector2(-42f, 90f);
+            subtitleText.rectTransform.offsetMin = new Vector2(4f, 18f);
+            subtitleText.rectTransform.offsetMax = new Vector2(-80f, 62f);
 
             nodeStartInheritanceText = null;
             nodeStartBaseText = CreateHomeStatusStrip(parent);
 
-            homeStartButton = CreateActionButton(parent, "HomeStartButton", out homeStartButtonText, new Color(0.23f, 0.18f, 0.11f, 0.98f), ColorPaper);
+            homeStartButton = CreateActionButton(parent, "HomeStartButton", out homeStartButtonText, HomeButtonPrimaryBase, HomeButtonInk);
             RectTransform startRect = homeStartButton.GetComponent<RectTransform>();
             startRect.anchorMin = new Vector2(0f, 0.5f);
             startRect.anchorMax = new Vector2(0f, 0.5f);
             startRect.pivot = new Vector2(0f, 0.5f);
             startRect.anchoredPosition = new Vector2(112f, -58f);
             startRect.sizeDelta = new Vector2(392f, 86f);
-            ApplySpriteToImage(startRect, LoadHomePrimaryButtonSprite(), Color.white);
             HideFrameDecorations(startRect);
+            ApplyHomeButtonSurface(startRect, true);
             AddHomeButtonSoftEdge(startRect, true);
-            homeStartButton.colors = CreateHomeButtonColors(new Color(0.23f, 0.18f, 0.11f, 0.98f));
-            homeStartButtonText.fontSize = 21;
+            homeStartButtonShimmer = CreateFixedPanel(
+                startRect,
+                "HomeButtonShimmer",
+                new Vector2(0f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(68f, 0f),
+                new Vector2(126f, 3f),
+                new Color(0.68f, 0.47f, 0.17f, 0f));
+            homeStartButtonShimmer.GetComponent<Image>().raycastTarget = false;
+            IgnoreLayout(homeStartButtonShimmer.gameObject);
+            homeStartButton.colors = CreateHomeButtonColors(HomeButtonPrimaryBase);
+            homeStartButtonText.fontSize = 22;
+            homeStartButtonText.color = HomeButtonInk;
             homeStartButtonText.text = "开始新局";
             homeStartButtonText.transform.SetAsLastSibling();
             homeStartButton.onClick.AddListener(OnUtilityButtonClicked);
 
-            CreateHomeSecondaryMenuItem(parent, "HomeContinueEntry", "继续悟道", new Vector2(112f, -156f));
-            CreateHomeSecondaryMenuItem(parent, "HomeCodexEntry", "流派图鉴", new Vector2(112f, -224f));
-            CreateHomeSecondaryMenuItem(parent, "HomeSettingsEntry", "设置", new Vector2(112f, -292f));
+            homeContinueButton = CreateHomeSecondaryMenuItem(parent, "HomeContinueEntry", "尚未立道", new Vector2(112f, -156f), out homeContinueButtonText);
+            homeCodexButton = CreateHomeSecondaryMenuItem(parent, "HomeCodexEntry", "流派图鉴", new Vector2(112f, -224f), out homeCodexButtonText);
+            homeSettingsButton = CreateHomeSecondaryMenuItem(parent, "HomeSettingsEntry", "设置", new Vector2(112f, -292f), out homeSettingsButtonText);
+            homeCodexButton.onClick.AddListener(() => ShowHomeModal("流派图鉴", BuildHomeCodexText()));
+            homeSettingsButton.onClick.AddListener(() => ShowHomeModal("设置", BuildHomeSettingsText()));
 
+            CreateHomeTopActionBar(parent);
             CreateHomeActionHint(parent);
+            CreateHomeModal(parent);
         }
 
         private void CreateHomeActionHint(Transform parent)
@@ -701,11 +763,11 @@ namespace PathOfTenThousandWays.Demo.UI
                 "HomeStatusStrip",
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(-52f, 34f),
-                new Vector2(456f, 104f),
-                new Color(0.86f, 0.82f, 0.72f, 0.66f));
+                new Vector2(-46f, 34f),
+                new Vector2(410f, 92f),
+                new Color(0.86f, 0.82f, 0.72f, 0.46f));
             strip.GetComponent<Image>().raycastTarget = false;
-            DecorateFrame(strip, new Color(0.55f, 0.43f, 0.23f, 0.48f), new Color(0f, 0f, 0f, 0f), 1.2f, false);
+            DecorateFrame(strip, new Color(0.55f, 0.43f, 0.23f, 0.30f), new Color(0f, 0f, 0f, 0f), 1.0f, false);
 
             RectTransform statusTopLine = CreateStretchPanel(
                 strip,
@@ -714,7 +776,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(1f, 1f),
                 new Vector2(24f, -8f),
                 new Vector2(-24f, -6f),
-                new Color(0.80f, 0.63f, 0.34f, 0.18f));
+                new Color(0.80f, 0.63f, 0.34f, 0.10f));
             statusTopLine.GetComponent<Image>().raycastTarget = false;
             IgnoreLayout(statusTopLine.gameObject);
 
@@ -724,20 +786,65 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(0f, 0.5f),
                 new Vector2(0f, 0.5f),
                 new Vector2(18f, 0f),
-                new Vector2(28f, 62f),
-                new Color(0.45f, 0.13f, 0.09f, 0.76f));
+                new Vector2(26f, 54f),
+                new Color(0.45f, 0.13f, 0.09f, 0.62f));
             IgnoreLayout(statusSeal.gameObject);
             statusSeal.GetComponent<Image>().raycastTarget = false;
 
             Text sealText = CreateText(statusSeal, "SealText", "命\n签", 12, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.96f, 0.86f, 0.70f, 0.98f));
             StretchText(sealText.rectTransform, new Vector2(2f, 3f), new Vector2(-2f, -3f));
 
-            Text bodyText = CreateText(strip, "StatusBody", string.Empty, 14, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.12f, 0.13f, 0.11f, 0.94f));
-            StretchText(bodyText.rectTransform, new Vector2(64f, 16f), new Vector2(-28f, -14f));
+            Text bodyText = CreateText(strip, "StatusBody", string.Empty, 13, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.12f, 0.13f, 0.11f, 0.84f));
+            StretchText(bodyText.rectTransform, new Vector2(60f, 14f), new Vector2(-24f, -12f));
             return bodyText;
         }
 
-        private void CreateHomeSecondaryMenuItem(Transform parent, string name, string label, Vector2 anchoredPosition)
+        private void CreateHomeAtmosphereLayers(Transform parent, Sprite headerCloudBand)
+        {
+            for (int i = 0; i < 7; i++)
+            {
+                float width = 160f + (i % 4) * 54f;
+                RectTransform thread = CreateFixedPanel(
+                    parent,
+                    "HomeMistThread_" + i,
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(-300f + i * 128f, -92f + (i % 3) * 34f),
+                    new Vector2(width, i % 2 == 0 ? 1.6f : 1.1f),
+                    new Color(0.82f, 0.84f, 0.80f, 0.040f + (i % 3) * 0.010f));
+                thread.localEulerAngles = new Vector3(0f, 0f, -2.4f + i * 0.7f);
+                thread.GetComponent<Image>().raycastTarget = false;
+                homeMistThreads.Add(thread);
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                RectTransform stroke = CreateFixedPanel(
+                    parent,
+                    "HomeLightningStroke_" + i,
+                    new Vector2(0.72f, 0.72f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(66f + i * 34f, 68f - i * 26f),
+                    new Vector2(2.0f, 86f - i * 10f),
+                    new Color(0.78f, 0.86f, 0.86f, 0f));
+                stroke.localEulerAngles = new Vector3(0f, 0f, i % 2 == 0 ? -26f : 18f);
+                stroke.GetComponent<Image>().raycastTarget = false;
+                homeLightningStrokes.Add(stroke);
+            }
+
+            homeGoldCrack = CreateFixedPanel(
+                parent,
+                "HomeGoldCrackAfterVictory",
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0.5f),
+                new Vector2(-78f, 138f),
+                new Vector2(410f, 3f),
+                new Color(0.80f, 0.60f, 0.24f, 0f));
+            homeGoldCrack.localEulerAngles = new Vector3(0f, 0f, -2f);
+            homeGoldCrack.GetComponent<Image>().raycastTarget = false;
+        }
+
+        private Button CreateHomeSecondaryMenuItem(Transform parent, string name, string label, Vector2 anchoredPosition, out Text itemText)
         {
             RectTransform item = CreateFixedPanel(
                 parent,
@@ -746,14 +853,138 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(0f, 0.5f),
                 anchoredPosition,
                 new Vector2(318f, 56f),
-                new Color(0.11f, 0.10f, 0.085f, 0.42f));
-            ApplySpriteToImage(item, LoadHomePrimaryButtonSprite(), new Color(1f, 1f, 1f, 0.56f));
-            HideFrameDecorations(item);
+                HomeButtonSecondaryBase);
+            ApplyHomeButtonSurface(item, false);
             AddHomeButtonSoftEdge(item, false);
 
-            Text itemText = CreateText(item, "Label", label, 16, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.88f, 0.79f, 0.58f, 0.95f));
+            Button button = item.gameObject.AddComponent<Button>();
+            button.targetGraphic = item.GetComponent<Image>();
+            button.colors = CreateHomeButtonColors(HomeButtonSecondaryBase);
+
+            itemText = CreateText(item, "Label", label, 16, FontStyle.Bold, TextAnchor.MiddleCenter, HomeButtonInkMuted);
             StretchText(itemText.rectTransform, new Vector2(20f, 6f), new Vector2(-20f, -6f));
             itemText.transform.SetAsLastSibling();
+            return button;
+        }
+
+        private void CreateHomeTopActionBar(Transform parent)
+        {
+            homeTopActionRoot = new GameObject("HomeTopActionRoot", typeof(RectTransform));
+            homeTopActionRoot.transform.SetParent(parent, false);
+
+            RectTransform root = homeTopActionRoot.GetComponent<RectTransform>();
+            root.anchorMin = new Vector2(1f, 1f);
+            root.anchorMax = new Vector2(1f, 1f);
+            root.pivot = new Vector2(1f, 1f);
+            root.anchoredPosition = new Vector2(-52f, -38f);
+            root.sizeDelta = new Vector2(176f, 44f);
+
+            CreateHomeTopActionButton(root, "HomeTopCodex", null, "鉴", new Vector2(-104f, -22f), () => ShowHomeModal("流派图鉴", BuildHomeCodexText()));
+            CreateHomeTopActionButton(root, "HomeTopSettings", null, "设", new Vector2(-52f, -22f), () => ShowHomeModal("设置", BuildHomeSettingsText()));
+            CreateHomeTopActionButton(root, "HomeTopExit", null, "离", new Vector2(0f, -22f), () => ShowHomeModal("退出", BuildHomeExitText()));
+        }
+
+        private Button CreateHomeTopActionButton(Transform parent, string name, Sprite sprite, string fallbackGlyph, Vector2 anchoredPosition, UnityEngine.Events.UnityAction onClick)
+        {
+            RectTransform buttonRect = CreateFixedPanel(
+                parent,
+                name,
+                new Vector2(1f, 1f),
+                new Vector2(0.5f, 0.5f),
+                anchoredPosition,
+                new Vector2(38f, 38f),
+                new Color(0.90f, 0.86f, 0.74f, 0.42f));
+            ApplyHomeButtonSurface(buttonRect, false);
+
+            Button button = buttonRect.gameObject.AddComponent<Button>();
+            button.targetGraphic = buttonRect.GetComponent<Image>();
+            button.colors = CreateHomeButtonColors(HomeButtonSecondaryBase);
+            button.onClick.AddListener(onClick);
+
+            if (sprite != null)
+            {
+                RectTransform iconRect = CreateStretchPanel(buttonRect, "Icon", Vector2.zero, Vector2.one, new Vector2(8f, 8f), new Vector2(-8f, -8f), Color.white);
+                ApplySpriteToImage(iconRect, sprite, new Color(0.20f, 0.21f, 0.18f, 0.84f), true);
+                iconRect.GetComponent<Image>().raycastTarget = false;
+            }
+            else
+            {
+                Text glyphText = CreateText(buttonRect, "Glyph", fallbackGlyph, 15, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.20f, 0.21f, 0.18f, 0.86f));
+                StretchText(glyphText.rectTransform, new Vector2(4f, 3f), new Vector2(-4f, -3f));
+            }
+
+            return button;
+        }
+
+        private void CreateHomeModal(Transform parent)
+        {
+            RectTransform modalRoot = CreateStretchPanel(
+                parent,
+                "HomeModalRoot",
+                Vector2.zero,
+                Vector2.one,
+                Vector2.zero,
+                Vector2.zero,
+                new Color(0.20f, 0.19f, 0.16f, 0.16f));
+            homeModalRoot = modalRoot.gameObject;
+
+            RectTransform panel = CreateFixedPanel(
+                modalRoot,
+                "HomeModalPanel",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -18f),
+                new Vector2(680f, 360f),
+                new Color(0.88f, 0.84f, 0.73f, 0.88f));
+            DecorateFrame(panel, new Color(0.54f, 0.40f, 0.20f, 0.50f), new Color(1f, 0.98f, 0.90f, 0.08f), 1.2f, false);
+
+            homeModalTitleText = CreateText(panel, "HomeModalTitle", string.Empty, 24, FontStyle.Bold, TextAnchor.UpperLeft, HomeButtonInk);
+            homeModalTitleText.rectTransform.anchorMin = new Vector2(0f, 1f);
+            homeModalTitleText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            homeModalTitleText.rectTransform.offsetMin = new Vector2(34f, -58f);
+            homeModalTitleText.rectTransform.offsetMax = new Vector2(-98f, -20f);
+
+            RectTransform rule = CreateStretchPanel(
+                panel,
+                "HomeModalRule",
+                new Vector2(0f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(34f, -74f),
+                new Vector2(-34f, -72f),
+                new Color(0.54f, 0.40f, 0.20f, 0.22f));
+            rule.GetComponent<Image>().raycastTarget = false;
+
+            homeModalBodyText = CreateText(panel, "HomeModalBody", string.Empty, 16, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.20f, 0.20f, 0.17f, 0.90f));
+            homeModalBodyText.rectTransform.anchorMin = Vector2.zero;
+            homeModalBodyText.rectTransform.anchorMax = Vector2.one;
+            homeModalBodyText.rectTransform.offsetMin = new Vector2(34f, 76f);
+            homeModalBodyText.rectTransform.offsetMax = new Vector2(-34f, -92f);
+
+            Button closeButton = CreateHomeModalCloseButton(panel);
+            closeButton.onClick.AddListener(HideHomeModal);
+            homeModalRoot.SetActive(false);
+        }
+
+        private Button CreateHomeModalCloseButton(Transform parent)
+        {
+            RectTransform closeRect = CreateFixedPanel(
+                parent,
+                "HomeModalClose",
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(-30f, -24f),
+                new Vector2(76f, 34f),
+                new Color(0.89f, 0.82f, 0.64f, 0.72f));
+            ApplyHomeButtonSurface(closeRect, false);
+
+            Button button = closeRect.gameObject.AddComponent<Button>();
+            button.targetGraphic = closeRect.GetComponent<Image>();
+            button.colors = CreateHomeButtonColors(HomeButtonSecondaryBase);
+
+            Text text = CreateText(closeRect, "Label", "收起", 14, FontStyle.Bold, TextAnchor.MiddleCenter, HomeButtonInkMuted);
+            StretchText(text.rectTransform, new Vector2(8f, 3f), new Vector2(-8f, -3f));
+            text.transform.SetAsLastSibling();
+            return button;
         }
 
         private void CreateHomeFocusRelic(Transform parent, Sprite itemSprite, Sprite headerCloudBand)
@@ -1363,6 +1594,53 @@ namespace PathOfTenThousandWays.Demo.UI
                 homeStartButtonText.text = "开始新局";
             }
 
+            bool hasContinuableRun = HasContinuableRun();
+            if (homeContinueButton != null)
+            {
+                homeContinueButton.gameObject.SetActive(showStartHome);
+                homeContinueButton.interactable = hasContinuableRun;
+            }
+
+            if (homeContinueButtonText != null)
+            {
+                homeContinueButtonText.text = hasContinuableRun ? "继续悟道" : "尚未立道";
+                homeContinueButtonText.color = hasContinuableRun
+                    ? new Color(0.24f, 0.23f, 0.19f, 0.88f)
+                    : new Color(0.46f, 0.44f, 0.38f, 0.54f);
+            }
+
+            if (homeCodexButton != null)
+            {
+                homeCodexButton.gameObject.SetActive(showStartHome);
+                homeCodexButton.interactable = true;
+            }
+
+            if (homeSettingsButton != null)
+            {
+                homeSettingsButton.gameObject.SetActive(showStartHome);
+                homeSettingsButton.interactable = true;
+            }
+
+            if (homeCodexButtonText != null)
+            {
+                homeCodexButtonText.color = new Color(0.24f, 0.23f, 0.19f, 0.88f);
+            }
+
+            if (homeSettingsButtonText != null)
+            {
+                homeSettingsButtonText.color = new Color(0.24f, 0.23f, 0.19f, 0.88f);
+            }
+
+            if (homeTopActionRoot != null)
+            {
+                homeTopActionRoot.SetActive(showStartHome);
+            }
+
+            if (homeModalRoot != null && !showStartHome)
+            {
+                homeModalRoot.SetActive(false);
+            }
+
             if (utilityButtonRect != null)
             {
                 utilityButtonRect.anchoredPosition = showStartHome
@@ -1398,6 +1676,15 @@ namespace PathOfTenThousandWays.Demo.UI
                 rewardContainer.sizeDelta = new Vector2(1450f, 650f);
                 rewardLayoutGroup.spacing = 0f;
                 rewardLayoutGroup.padding = new RectOffset(12, 12, 0, 0);
+                return;
+            }
+
+            if (IsStartOpeningItemScreen())
+            {
+                rewardContainer.anchoredPosition = new Vector2(0f, 10f);
+                rewardContainer.sizeDelta = new Vector2(1450f, 648f);
+                rewardLayoutGroup.spacing = 28f;
+                rewardLayoutGroup.padding = new RectOffset(20, 20, 0, 0);
                 return;
             }
 
@@ -1598,6 +1885,132 @@ namespace PathOfTenThousandWays.Demo.UI
         private void OnBattleActionClicked()
         {
             controller.TriggerBattleAction();
+        }
+
+        private bool HasContinuableRun()
+        {
+            return controller != null
+                && controller.Run != null
+                && controller.Run.Map != null
+                && controller.Run.Map.CurrentNode.Type != DemoNodeType.Start
+                && !controller.IsRunComplete;
+        }
+
+        private void ShowHomeModal(string title, string body)
+        {
+            if (homeModalRoot == null)
+            {
+                return;
+            }
+
+            if (homeModalTitleText != null)
+            {
+                homeModalTitleText.text = title;
+            }
+
+            if (homeModalBodyText != null)
+            {
+                homeModalBodyText.text = body;
+            }
+
+            homeModalRoot.SetActive(true);
+        }
+
+        private void HideHomeModal()
+        {
+            if (homeModalRoot != null)
+            {
+                homeModalRoot.SetActive(false);
+            }
+        }
+
+        private string BuildHomeCodexText()
+        {
+            return
+                "当前 DEMO 已开放三条起势方向：万剑、雷、血。\n\n" +
+                "图鉴页先作为轻量入口保留，后续会记录已见功法、法器、Boss 与通关流派。";
+        }
+
+        private string BuildHomeSettingsText()
+        {
+            return
+                "设置页先保留为轻量入口。\n\n" +
+                "后续优先接入音量、窗口模式、画面震动与战斗演出强度，不在首页扩成复杂大厅。";
+        }
+
+        private string BuildHomeExitText()
+        {
+            return
+                "当前在编辑器或 DEMO 环境中不会强制关闭进程。\n\n" +
+                "正式包中，这个入口会退出游戏或返回平台桌面。";
+        }
+
+        private void UpdateHomePresentation(float time)
+        {
+            bool showStartHome = IsStartHomeScreen();
+
+            if (homeTitleRoot != null)
+            {
+                float titleBreath = showStartHome ? 1f + Mathf.Sin(time * 0.72f) * 0.009f : 1f;
+                homeTitleRoot.localScale = new Vector3(titleBreath, titleBreath, 1f);
+            }
+
+            for (int i = 0; i < homeMistThreads.Count; i++)
+            {
+                RectTransform thread = homeMistThreads[i];
+                if (thread == null)
+                {
+                    continue;
+                }
+
+                float drift = Mathf.Sin(time * (0.11f + i * 0.012f) + i * 1.7f);
+                float rise = Mathf.Sin(time * (0.17f + i * 0.01f) + i * 0.8f);
+                thread.anchoredPosition = new Vector2(-300f + i * 128f + drift * 32f, -92f + (i % 3) * 34f + rise * 4f);
+            }
+
+            float flashPhase = Mathf.Repeat(time + 1.7f, 8.6f);
+            float flashAlpha = 0f;
+            if (flashPhase < 0.14f)
+            {
+                flashAlpha = Mathf.Lerp(0.34f, 0f, flashPhase / 0.14f);
+            }
+            else if (flashPhase > 0.24f && flashPhase < 0.34f)
+            {
+                flashAlpha = Mathf.Lerp(0.22f, 0f, (flashPhase - 0.24f) / 0.10f);
+            }
+
+            for (int i = 0; i < homeLightningStrokes.Count; i++)
+            {
+                RectTransform stroke = homeLightningStrokes[i];
+                if (stroke == null)
+                {
+                    continue;
+                }
+
+                stroke.GetComponent<Image>().color = new Color(0.78f, 0.86f, 0.86f, showStartHome ? flashAlpha * (0.55f + i * 0.12f) : 0f);
+            }
+
+            if (homeStartButtonShimmer != null)
+            {
+                float sweep = Mathf.Repeat(time * 0.42f, 1f);
+                float shimmerAlpha = sweep < 0.42f
+                    ? Mathf.Sin((sweep / 0.42f) * Mathf.PI) * 0.36f
+                    : 0f;
+                homeStartButtonShimmer.anchoredPosition = new Vector2(54f + Mathf.Min(sweep, 0.42f) / 0.42f * 276f, 0f);
+                homeStartButtonShimmer.GetComponent<Image>().color = new Color(0.62f, 0.42f, 0.16f, showStartHome ? shimmerAlpha : 0f);
+            }
+
+            if (homeTitleRule != null)
+            {
+                float ruleAlpha = showStartHome ? 0.30f + Mathf.Sin(time * 0.58f + 0.6f) * 0.030f : 0f;
+                homeTitleRule.GetComponent<Image>().color = new Color(0.58f, 0.45f, 0.21f, ruleAlpha);
+            }
+
+            if (homeGoldCrack != null)
+            {
+                float crackAlpha = controller != null && controller.IsRunComplete ? 0.56f : 0f;
+                homeGoldCrack.GetComponent<Image>().color = new Color(0.80f, 0.60f, 0.24f, showStartHome ? crackAlpha : 0f);
+            }
         }
 
         private string GetHeaderChipText()
@@ -1932,6 +2345,11 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private string BuildStartBaseScrollText()
         {
+            if (controller.IsRunComplete)
+            {
+                return "天劫已渡   可再证新道\n最近道途已收束，下一世仍从根脚与携行重新起势";
+            }
+
             string mainGongfa = GetGongfaName(controller.Run.MainGongfa, "未定");
             return
                 $"本世道基  气血 {controller.Run.CurrentHealth}/{controller.Run.MaxHealth}   灵气 {3 + controller.Run.BonusEnergy}\n" +
@@ -2780,11 +3198,178 @@ namespace PathOfTenThousandWays.Demo.UI
             return deskObject;
         }
 
+        private GameObject CreateOpeningItemChoiceEntry(Transform parent, DemoReward reward)
+        {
+            DemoJourneyLineDefinition line = reward.JourneyLine;
+            Color accent = GetRewardAccentColor(reward);
+            Sprite heroSprite = LoadOpeningSprite(reward);
+
+            GameObject cardObject = new GameObject("OpeningItemChoice_" + reward.Name, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+            cardObject.transform.SetParent(parent, false);
+
+            RectTransform cardRect = cardObject.GetComponent<RectTransform>();
+            cardRect.sizeDelta = new Vector2(376f, 604f);
+
+            LayoutElement layout = cardObject.GetComponent<LayoutElement>();
+            layout.preferredWidth = 376f;
+            layout.minWidth = 376f;
+            layout.preferredHeight = 604f;
+            layout.minHeight = 604f;
+
+            Image cardImage = cardObject.GetComponent<Image>();
+            cardImage.color = new Color(0.055f, 0.060f, 0.065f, 0.96f);
+
+            Button button = cardObject.GetComponent<Button>();
+            button.targetGraphic = cardImage;
+            button.colors = CreateButtonColors(new Color(0.18f, 0.17f, 0.14f, 1f));
+
+            DecorateFrame(cardRect, new Color(accent.r, accent.g, accent.b, 0.86f), new Color(1f, 0.95f, 0.82f, 0.018f), 2f, true);
+
+            RectTransform artRoot = CreateStretchPanel(
+                cardObject.transform,
+                "OpeningItemArt",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(8f, 8f),
+                new Vector2(-8f, -8f),
+                GetRewardPanelColor(reward));
+            artRoot.GetComponent<Image>().raycastTarget = false;
+
+            if (heroSprite != null)
+            {
+                ApplySpriteToImage(artRoot, heroSprite, Color.white);
+            }
+
+            RectTransform topWash = CreateStretchPanel(
+                cardObject.transform,
+                "OpeningItemTopWash",
+                new Vector2(0f, 0.74f),
+                new Vector2(1f, 1f),
+                new Vector2(8f, -8f),
+                new Vector2(-8f, -8f),
+                new Color(0f, 0f, 0f, 0.16f));
+            topWash.GetComponent<Image>().raycastTarget = false;
+
+            RectTransform bottomWash = CreateStretchPanel(
+                cardObject.transform,
+                "OpeningItemBottomWash",
+                new Vector2(0f, 0f),
+                new Vector2(1f, 0.43f),
+                new Vector2(8f, 8f),
+                new Vector2(-8f, 0f),
+                new Color(0.025f, 0.027f, 0.030f, 0.78f));
+            bottomWash.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(bottomWash, new Color(accent.r, accent.g, accent.b, 0.26f), new Color(1f, 1f, 1f, 0.012f), 1f, false);
+
+            RectTransform typeBadge = CreateFixedPanel(
+                cardObject.transform,
+                "OpeningItemTypeBadge",
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(22f, -22f),
+                new Vector2(74f, 34f),
+                new Color(0.07f, 0.075f, 0.080f, 0.82f));
+            typeBadge.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(typeBadge, accent, new Color(0f, 0f, 0f, 0f), 1f, false);
+            Text typeText = CreateText(typeBadge, "OpeningItemTypeText", "携行", 13, FontStyle.Bold, TextAnchor.MiddleCenter, accent);
+            StretchText(typeText.rectTransform, new Vector2(6f, 2f), new Vector2(-6f, -2f));
+
+            RectTransform riskBadge = CreateFixedPanel(
+                cardObject.transform,
+                "OpeningItemRiskBadge",
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(-22f, -22f),
+                new Vector2(86f, 34f),
+                new Color(0.07f, 0.075f, 0.080f, 0.72f));
+            riskBadge.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(riskBadge, new Color(accent.r, accent.g, accent.b, 0.76f), new Color(0f, 0f, 0f, 0f), 1f, false);
+            Text riskText = CreateText(riskBadge, "OpeningItemRiskText", GetJourneyRiskLabel(line), 13, FontStyle.Bold, TextAnchor.MiddleCenter, ColorPaper);
+            StretchText(riskText.rectTransform, new Vector2(6f, 2f), new Vector2(-6f, -2f));
+
+            string journeyTitle = line == null ? reward.Name : line.Title;
+            string itemName = line == null ? reward.Name : line.CarryItemName;
+            string effect = line == null ? reward.Description : line.CarryItemEffect;
+            string origin = line == null ? reward.Description : line.OriginText;
+
+            Text titleText = CreateText(bottomWash, "OpeningItemJourneyTitle", TrimSentence(journeyTitle, 16), 16, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.88f, 0.78f, 0.52f, 0.98f));
+            titleText.rectTransform.anchorMin = new Vector2(0f, 1f);
+            titleText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            titleText.rectTransform.offsetMin = new Vector2(20f, -48f);
+            titleText.rectTransform.offsetMax = new Vector2(-20f, -20f);
+
+            Text itemText = CreateText(bottomWash, "OpeningItemName", itemName, 28, FontStyle.Bold, TextAnchor.UpperLeft, ColorPaper);
+            itemText.rectTransform.anchorMin = new Vector2(0f, 1f);
+            itemText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            itemText.rectTransform.offsetMin = new Vector2(20f, -86f);
+            itemText.rectTransform.offsetMax = new Vector2(-20f, -48f);
+
+            Text effectText = CreateText(bottomWash, "OpeningItemEffect", BuildCompactLine(TrimSentence(effect, 24)), 14, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.92f, 0.93f, 0.89f, 0.96f));
+            effectText.rectTransform.anchorMin = new Vector2(0f, 1f);
+            effectText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            effectText.rectTransform.offsetMin = new Vector2(20f, -116f);
+            effectText.rectTransform.offsetMax = new Vector2(-20f, -88f);
+
+            Text originText = CreateText(bottomWash, "OpeningItemOrigin", TrimSentence(origin, 30), 12, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.78f, 0.80f, 0.78f, 0.92f));
+            originText.rectTransform.anchorMin = new Vector2(0f, 1f);
+            originText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            originText.rectTransform.offsetMin = new Vector2(20f, -148f);
+            originText.rectTransform.offsetMax = new Vector2(-20f, -120f);
+
+            string[] tags = GetOpeningItemTags(line);
+            for (int i = 0; i < tags.Length; i++)
+            {
+                CreateOpeningItemChip(bottomWash, "OpeningItemTag_" + i, tags[i], new Vector2(20f + i * 86f, 54f), 78f, accent);
+            }
+
+            RectTransform actionLine = CreateStretchPanel(
+                bottomWash,
+                "OpeningItemActionLine",
+                new Vector2(0f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(22f, 20f),
+                new Vector2(-22f, 23f),
+                accent);
+            actionLine.GetComponent<Image>().raycastTarget = false;
+
+            Text actionText = CreateText(bottomWash, "OpeningItemAction", "携此物上路", 16, FontStyle.Bold, TextAnchor.LowerRight, new Color(0.96f, 0.88f, 0.66f, 0.98f));
+            actionText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            actionText.rectTransform.anchorMax = new Vector2(1f, 0f);
+            actionText.rectTransform.offsetMin = new Vector2(20f, 22f);
+            actionText.rectTransform.offsetMax = new Vector2(-22f, 50f);
+
+            AddRewardHoverEvents(cardObject, reward);
+            return cardObject;
+        }
+
+        private RectTransform CreateOpeningItemChip(Transform parent, string name, string label, Vector2 anchoredPosition, float width, Color accent)
+        {
+            RectTransform chip = CreateFixedPanel(
+                parent,
+                name,
+                new Vector2(0f, 0f),
+                new Vector2(0f, 0f),
+                anchoredPosition,
+                new Vector2(width, 24f),
+                new Color(0.10f, 0.105f, 0.110f, 0.82f));
+            chip.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(chip, new Color(accent.r, accent.g, accent.b, 0.62f), new Color(0f, 0f, 0f, 0f), 1f, false);
+
+            Text text = CreateText(chip, "OpeningItemChipText", label, 11, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.90f, 0.88f, 0.78f, 0.96f));
+            StretchText(text.rectTransform, new Vector2(5f, 2f), new Vector2(-5f, -2f));
+            return chip;
+        }
+
         private GameObject CreateOpeningChoiceEntry(Transform parent, DemoReward reward)
         {
             bool isRoot = reward.Type == DemoRewardType.Root;
             bool isItem = reward.Type == DemoRewardType.Journey;
             bool isScene = reward.Type == DemoRewardType.OpeningScene;
+            if (isItem)
+            {
+                return CreateOpeningItemChoiceEntry(parent, reward);
+            }
+
             Color accent = GetRewardAccentColor(reward);
             Color panelColor = GetRewardPanelColor(reward);
             Sprite heroSprite = LoadOpeningSprite(reward);
@@ -3484,33 +4069,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (reward.Type == DemoRewardType.Journey && reward.JourneyLine != null)
             {
-                string itemName = reward.JourneyLine.CarryItemName ?? string.Empty;
-                if (itemName.Contains("雷"))
-                {
-                    if (cachedOpeningItemThunderboneSprite == null)
-                    {
-                        cachedOpeningItemThunderboneSprite = LoadSpriteResource(OpeningItemThunderboneResourcePath, PathChoiceThunderResourcePath, PathChoiceThunderFallbackResourcePath);
-                    }
-
-                    return cachedOpeningItemThunderboneSprite;
-                }
-
-                if (itemName.Contains("血"))
-                {
-                    if (cachedOpeningItemBloodjadeSprite == null)
-                    {
-                        cachedOpeningItemBloodjadeSprite = LoadSpriteResource(OpeningItemBloodjadeResourcePath, PathChoiceBloodResourcePath);
-                    }
-
-                    return cachedOpeningItemBloodjadeSprite;
-                }
-
-                if (cachedOpeningItemSwordcaseSprite == null)
-                {
-                    cachedOpeningItemSwordcaseSprite = LoadSpriteResource(OpeningItemSwordcaseResourcePath, PathChoiceWanjianResourcePath, PathChoiceWanjianFallbackResourcePath);
-                }
-
-                return cachedOpeningItemSwordcaseSprite;
+                return LoadOpeningItemSprite(reward.JourneyLine);
             }
 
             if (reward.Type == DemoRewardType.OpeningScene && reward.Region != null)
@@ -3545,6 +4104,95 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             return null;
+        }
+
+        private static Sprite LoadOpeningItemSprite(DemoJourneyLineDefinition line)
+        {
+            string itemName = line?.CarryItemName ?? string.Empty;
+            string lineId = line?.Id ?? itemName;
+
+            if (ContainsAny(itemName, "护身古玉", "护心古玉", "古玉"))
+            {
+                return LoadOpeningItemProtectiveJadeSprite();
+            }
+
+            if (ContainsAny(itemName, "余烬符函", "余烬", "符函"))
+            {
+                return LoadOpeningItemEmberTalismanCaseSprite();
+            }
+
+            if (ContainsAny(itemName, "祖纹残匣", "祖纹", "残匣"))
+            {
+                return LoadOpeningItemAncestralCasketSprite();
+            }
+
+            if (ContainsAny(itemName, "雷骨", "雷钉", "雷印", "雷"))
+            {
+                return LoadOpeningItemThunderboneSprite();
+            }
+
+            if (ContainsAny(itemName, "血玉", "血沁", "血胚", "血"))
+            {
+                return LoadOpeningItemBloodjadeSprite();
+            }
+
+            if (ContainsAny(itemName, "剑匣", "旧匣", "剑胚", "旧木剑", "木剑"))
+            {
+                return LoadOpeningItemSwordcaseSprite();
+            }
+
+            return LoadOpeningItemExtensionSprite(GetStableChoiceIndex(lineId, 3));
+        }
+
+        private static Sprite LoadOpeningItemExtensionSprite(int index)
+        {
+            switch (index)
+            {
+                case 1:
+                    return LoadOpeningItemThunderboneSprite();
+                case 2:
+                    return LoadOpeningItemBloodjadeSprite();
+                default:
+                    return LoadOpeningItemSwordcaseSprite();
+            }
+        }
+
+        private static bool ContainsAny(string value, params string[] needles)
+        {
+            if (string.IsNullOrEmpty(value) || needles == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < needles.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(needles[i]) && value.Contains(needles[i]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static int GetStableChoiceIndex(string seed, int count)
+        {
+            if (count <= 0)
+            {
+                return 0;
+            }
+
+            unchecked
+            {
+                int hash = 23;
+                string safeSeed = string.IsNullOrEmpty(seed) ? "opening_item_extension" : seed;
+                for (int i = 0; i < safeSeed.Length; i++)
+                {
+                    hash = hash * 31 + safeSeed[i];
+                }
+
+                return (hash & int.MaxValue) % count;
+            }
         }
 
         private static Sprite LoadRouteChoiceSprite(DemoReward reward)
@@ -3640,6 +4288,36 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             return cachedHomeInfoTagSprite;
+        }
+
+        private static Sprite LoadHomeIconCodexSprite()
+        {
+            if (cachedHomeIconCodexSprite == null)
+            {
+                cachedHomeIconCodexSprite = LoadSpriteResource(HomeIconCodexResourcePath);
+            }
+
+            return cachedHomeIconCodexSprite;
+        }
+
+        private static Sprite LoadHomeIconSettingsSprite()
+        {
+            if (cachedHomeIconSettingsSprite == null)
+            {
+                cachedHomeIconSettingsSprite = LoadSpriteResource(HomeIconSettingsResourcePath);
+            }
+
+            return cachedHomeIconSettingsSprite;
+        }
+
+        private static Sprite LoadHomeIconExitSprite()
+        {
+            if (cachedHomeIconExitSprite == null)
+            {
+                cachedHomeIconExitSprite = LoadSpriteResource(HomeIconExitResourcePath);
+            }
+
+            return cachedHomeIconExitSprite;
         }
 
         private static Sprite LoadPanelScrollDarkSprite()
@@ -3773,6 +4451,36 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             return cachedOpeningItemBloodjadeSprite;
+        }
+
+        private static Sprite LoadOpeningItemProtectiveJadeSprite()
+        {
+            if (cachedOpeningItemProtectiveJadeSprite == null)
+            {
+                cachedOpeningItemProtectiveJadeSprite = LoadSpriteResource(OpeningItemProtectiveJadeResourcePath, OpeningItemSwordcaseResourcePath, PathChoiceWanjianResourcePath);
+            }
+
+            return cachedOpeningItemProtectiveJadeSprite;
+        }
+
+        private static Sprite LoadOpeningItemEmberTalismanCaseSprite()
+        {
+            if (cachedOpeningItemEmberTalismanCaseSprite == null)
+            {
+                cachedOpeningItemEmberTalismanCaseSprite = LoadSpriteResource(OpeningItemEmberTalismanCaseResourcePath, OpeningItemBloodjadeResourcePath, PathChoiceBloodResourcePath);
+            }
+
+            return cachedOpeningItemEmberTalismanCaseSprite;
+        }
+
+        private static Sprite LoadOpeningItemAncestralCasketSprite()
+        {
+            if (cachedOpeningItemAncestralCasketSprite == null)
+            {
+                cachedOpeningItemAncestralCasketSprite = LoadSpriteResource(OpeningItemAncestralCasketResourcePath, OpeningItemSwordcaseResourcePath, PathChoiceWanjianResourcePath);
+            }
+
+            return cachedOpeningItemAncestralCasketSprite;
         }
 
         private static Sprite LoadSpriteResource(params string[] resourcePaths)
@@ -4640,11 +5348,33 @@ namespace PathOfTenThousandWays.Demo.UI
                 string childName = child.name;
                 if (childName.StartsWith("Border")
                     || childName.StartsWith("CornerH")
-                    || childName.StartsWith("CornerV"))
+                    || childName.StartsWith("CornerV")
+                    || childName == "InnerWash"
+                    || childName == "ButtonGlow")
                 {
                     child.gameObject.SetActive(false);
                 }
             }
+        }
+
+        private void ApplyHomeButtonSurface(RectTransform root, bool primary)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            Image image = root.GetComponent<Image>();
+            if (image != null)
+            {
+                image.sprite = null;
+                image.type = Image.Type.Simple;
+                image.preserveAspect = false;
+                image.color = primary ? HomeButtonPrimaryBase : HomeButtonSecondaryBase;
+            }
+
+            Color borderColor = primary ? HomeButtonPrimaryEdge : HomeButtonSecondaryEdge;
+            DecorateFrame(root, borderColor, new Color(0f, 0f, 0f, 0f), primary ? 1.2f : 0.8f, false);
         }
 
         private void AddHomeButtonSoftEdge(RectTransform root, bool primary)
@@ -4654,58 +5384,41 @@ namespace PathOfTenThousandWays.Demo.UI
                 return;
             }
 
-            Color veilColor = primary
-                ? new Color(0.03f, 0.025f, 0.018f, 0.24f)
-                : new Color(0.03f, 0.025f, 0.018f, 0.14f);
-            Color breathColor = primary
-                ? new Color(0.86f, 0.72f, 0.42f, 0.24f)
-                : new Color(0.70f, 0.58f, 0.34f, 0.15f);
-            Color edgeColor = primary
-                ? new Color(0.88f, 0.72f, 0.42f, 0.42f)
-                : new Color(0.72f, 0.58f, 0.34f, 0.26f);
+            Color lowerLineColor = primary
+                ? new Color(0.45f, 0.31f, 0.12f, 0.24f)
+                : new Color(0.25f, 0.28f, 0.24f, 0.11f);
 
-            RectTransform veil = CreateStretchPanel(
+            RectTransform lowerLine = CreateStretchPanel(
                 root,
-                "HomeButtonInkVeil",
-                Vector2.zero,
-                Vector2.one,
-                new Vector2(12f, 10f),
-                new Vector2(-12f, -10f),
-                veilColor);
-            veil.GetComponent<Image>().raycastTarget = false;
-            IgnoreLayout(veil.gameObject);
-
-            RectTransform breath = CreateStretchPanel(
-                root,
-                "HomeButtonGoldBreath",
-                new Vector2(0f, 0.62f),
-                new Vector2(1f, 1f),
-                new Vector2(primary ? 28f : 24f, -10f),
-                new Vector2(primary ? -28f : -24f, -14f),
-                breathColor);
-            breath.GetComponent<Image>().raycastTarget = false;
-            IgnoreLayout(breath.gameObject);
-
-            RectTransform lowerEdge = CreateStretchPanel(
-                root,
-                "HomeButtonSoftEdge",
+                "HomeButtonLowerThread",
                 new Vector2(0f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(primary ? 24f : 20f, primary ? 13f : 10f),
-                new Vector2(primary ? -24f : -20f, primary ? 15f : 12f),
-                edgeColor);
-            lowerEdge.GetComponent<Image>().raycastTarget = false;
-            IgnoreLayout(lowerEdge.gameObject);
+                new Vector2(primary ? 42f : 36f, primary ? 17f : 13f),
+                new Vector2(primary ? -42f : -36f, primary ? 18.2f : 14f),
+                lowerLineColor);
+            lowerLine.GetComponent<Image>().raycastTarget = false;
+            IgnoreLayout(lowerLine.gameObject);
+
+            RectTransform sealTick = CreateFixedPanel(
+                root,
+                "HomeButtonSealTick",
+                new Vector2(0f, 0.5f),
+                new Vector2(0f, 0.5f),
+                new Vector2(primary ? 20f : 18f, 0f),
+                new Vector2(3f, primary ? 28f : 20f),
+                primary ? new Color(0.56f, 0.17f, 0.10f, 0.32f) : new Color(0.38f, 0.13f, 0.09f, 0.13f));
+            sealTick.GetComponent<Image>().raycastTarget = false;
+            IgnoreLayout(sealTick.gameObject);
         }
 
         private static ColorBlock CreateHomeButtonColors(Color baseColor)
         {
             ColorBlock colors = ColorBlock.defaultColorBlock;
             colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(1f, 0.96f, 0.82f, 1f);
-            colors.pressedColor = new Color(0.82f, 0.76f, 0.62f, 1f);
-            colors.selectedColor = Color.white;
-            colors.disabledColor = new Color(baseColor.r, baseColor.g, baseColor.b, 0.56f);
+            colors.highlightedColor = new Color(1.00f, 0.97f, 0.86f, 1f);
+            colors.pressedColor = new Color(0.88f, 0.82f, 0.68f, 1f);
+            colors.selectedColor = new Color(0.98f, 0.94f, 0.82f, 1f);
+            colors.disabledColor = new Color(baseColor.r, baseColor.g, baseColor.b, 0.34f);
             colors.colorMultiplier = 1f;
             colors.fadeDuration = 0.10f;
             return colors;
@@ -5299,6 +6012,38 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             return new[] { "开局信息", "待补充" };
+        }
+
+        private static string[] GetOpeningItemTags(DemoJourneyLineDefinition line)
+        {
+            List<string> labels = new List<string>
+            {
+                GetJourneyRiskLabel(line)
+            };
+
+            if (line?.SummaryTags != null)
+            {
+                foreach (string tag in line.SummaryTags)
+                {
+                    string label = GetRewardTagLabel(tag);
+                    if (!string.IsNullOrEmpty(label) && !labels.Contains(label))
+                    {
+                        labels.Add(label);
+                    }
+
+                    if (labels.Count >= 3)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            while (labels.Count < 3)
+            {
+                labels.Add(labels.Count == 1 ? "起势" : "线索");
+            }
+
+            return labels.Take(3).ToArray();
         }
 
         private static string BuildOpeningFooterHint(DemoReward reward)
