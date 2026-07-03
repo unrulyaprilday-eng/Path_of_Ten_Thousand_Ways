@@ -43,6 +43,26 @@
 高留白写意水墨修仙 + 器物化卷轴 UI + 天威压境 + 高级商业化游戏界面质感
 ```
 
+### 文件
+
+`UNITY/Assets/Art/UI/ui_home_title_calligraphy_001.png`
+
+### Prompt
+
+```text
+Use case: logo-brand
+Asset type: transparent home screen title calligraphy logo
+Primary request: create a game title logo asset for a Chinese xianxia roguelike UI
+Reference style: heavy wild Chinese ink brush title logo, similar energy to the user-provided “端午” reference: bold black ink masses, dry-brush flying white gaps, sharp broken edges, dramatic long stroke endings
+Text (verbatim): "万道归途"
+Style/medium: expressive hand-painted Chinese ink calligraphy, black ink only, aggressive brush texture, readable but not regular font
+Composition/framing: horizontal left-to-right four-character title mark, generous padding, produced on flat #00ff00 chroma-key background then locally removed to transparent PNG
+Color palette: pure deep black ink with subtle natural density variation, transparent background
+Constraints: exact text must be 万道归途, no other characters, no English letters, no red seal, no watermark, no frame, no landscape, no paper texture baked behind the letters
+Avoid: neat KaiTi font look, printed typography, thin strokes, grey background, shadows, decorative objects
+Post-processing: green chroma key removed locally; cropped with padding; final asset saved to both Art/UI and Resources/Art/UI.
+```
+
 统一要求：
 
 - 国风、修仙、水墨、写意、留白、点翠

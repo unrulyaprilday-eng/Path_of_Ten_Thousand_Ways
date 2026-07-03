@@ -37,11 +37,13 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string HomeHeroInkFallbackResourcePath = "Art/UI/ui_home_hero_ink_001";
         private const string HomePrimaryButtonResourcePath = "Art/UI/ui_btn_home_primary_001";
         private const string HomeSecondaryButtonResourcePath = "Art/UI/ui_btn_home_secondary_001";
+        private const string HomeTitleCalligraphyResourcePath = "Art/UI/ui_home_title_calligraphy_001";
         private const string HomeLogoSealResourcePath = "Art/UI/ui_home_logo_seal_001";
         private const string HomeInfoTagResourcePath = "Art/UI/ui_home_info_tag_001";
         private const string PanelScrollDarkResourcePath = "Art/UI/ui_panel_scroll_dark_001";
         private const string PanelScrollDarkTransparentResourcePath = "Art/UI/ui_panel_scroll_dark_001_transparent";
         private const string RootDestinyDeskResourcePath = "Art/UI/ui_root_destiny_desk_bg_001";
+        private const string RootDestinyBackdropResourcePath = "Art/UI/ui_root_destiny_backdrop_001";
         private const string RootObjectServantResourcePath = "Art/UI/ui_root_object_servant_001";
         private const string RootObjectSmithResourcePath = "Art/UI/ui_root_object_smith_001";
         private const string RootObjectCaravanResourcePath = "Art/UI/ui_root_object_caravan_001";
@@ -80,11 +82,13 @@ namespace PathOfTenThousandWays.Demo.UI
         private static Sprite cachedHomeHeroInkSprite;
         private static Sprite cachedHomePrimaryButtonSprite;
         private static Sprite cachedHomeSecondaryButtonSprite;
+        private static Sprite cachedHomeTitleCalligraphySprite;
         private static Sprite cachedHomeLogoSealSprite;
         private static Sprite cachedHomeInfoTagSprite;
         private static Font cachedHomeTitleFont;
         private static Sprite cachedPanelScrollDarkSprite;
         private static Sprite cachedRootDestinyDeskSprite;
+        private static Sprite cachedRootDestinyBackdropSprite;
         private static Sprite cachedRootObjectServantSprite;
         private static Sprite cachedRootObjectSmithSprite;
         private static Sprite cachedRootObjectCaravanSprite;
@@ -136,6 +140,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private GameObject buildPanelBody;
         private GameObject nodeOverlayRoot;
         private GameObject rewardOverlayRoot;
+        private GameObject rootDestinyBackdropRoot;
         private GameObject battleHudRoot;
         private GameObject nodeOverlayPanelRoot;
         private GameObject nodeMapPanelRoot;
@@ -541,8 +546,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 "HomeTitleRoot",
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(112f, -118f),
-                new Vector2(700f, 250f),
+                new Vector2(112f, -106f),
+                new Vector2(780f, 286f),
                 new Color(0f, 0f, 0f, 0f));
 
             Text eyebrowText = CreateText(titleRoot, "HomeEyebrow", "PATH OF TEN THOUSAND WAYS", 15, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.28f, 0.42f, 0.42f, 0.92f));
@@ -551,32 +556,56 @@ namespace PathOfTenThousandWays.Demo.UI
             eyebrowText.rectTransform.offsetMin = new Vector2(4f, -28f);
             eyebrowText.rectTransform.offsetMax = new Vector2(-4f, -4f);
 
-            Text titleText = CreateText(titleRoot, "HomeTitle", "万道归途", 88, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.08f, 0.085f, 0.075f, 0.98f));
-            titleText.font = GetHomeTitleFont();
-            titleText.horizontalOverflow = HorizontalWrapMode.Overflow;
-            Shadow titleShadow = titleText.gameObject.AddComponent<Shadow>();
-            titleShadow.effectColor = new Color(0.58f, 0.45f, 0.21f, 0.20f);
-            titleShadow.effectDistance = new Vector2(2f, -2f);
-            titleText.rectTransform.anchorMin = new Vector2(0f, 1f);
-            titleText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            titleText.rectTransform.offsetMin = new Vector2(-2f, -126f);
-            titleText.rectTransform.offsetMax = new Vector2(-4f, -26f);
+            Sprite titleCalligraphy = LoadHomeTitleCalligraphySprite();
+            if (titleCalligraphy != null)
+            {
+                RectTransform titleMark = CreateFixedPanel(
+                    titleRoot,
+                    "HomeTitleCalligraphy",
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    new Vector2(-8f, -38f),
+                    new Vector2(542f, 206f),
+                    Color.white);
+                ApplySpriteToImage(titleMark, titleCalligraphy, Color.white, true);
+                titleMark.GetComponent<Image>().raycastTarget = false;
+
+                Shadow titleShadow = titleMark.gameObject.AddComponent<Shadow>();
+                titleShadow.effectColor = new Color(0.58f, 0.45f, 0.21f, 0.10f);
+                titleShadow.effectDistance = new Vector2(2f, -2f);
+            }
+            else
+            {
+                Text titleText = CreateText(titleRoot, "HomeTitle", "万道归途", 118, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.045f, 0.050f, 0.043f, 0.99f));
+                titleText.font = GetHomeTitleFont();
+                titleText.horizontalOverflow = HorizontalWrapMode.Overflow;
+                Outline titleWeight = titleText.gameObject.AddComponent<Outline>();
+                titleWeight.effectColor = new Color(0.045f, 0.050f, 0.043f, 0.42f);
+                titleWeight.effectDistance = new Vector2(0.75f, -0.75f);
+                Shadow titleShadow = titleText.gameObject.AddComponent<Shadow>();
+                titleShadow.effectColor = new Color(0.58f, 0.45f, 0.21f, 0.11f);
+                titleShadow.effectDistance = new Vector2(1.6f, -1.6f);
+                titleText.rectTransform.anchorMin = new Vector2(0f, 1f);
+                titleText.rectTransform.anchorMax = new Vector2(1f, 1f);
+                titleText.rectTransform.offsetMin = new Vector2(-4f, -156f);
+                titleText.rectTransform.offsetMax = new Vector2(-4f, -24f);
+            }
 
             RectTransform titleRule = CreateStretchPanel(
                 titleRoot,
                 "HomeTitleRule",
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f),
-                new Vector2(4f, -142f),
-                new Vector2(392f, -138f),
-                new Color(0.58f, 0.45f, 0.21f, 0.66f));
+                new Vector2(4f, -171f),
+                new Vector2(454f, -167f),
+                new Color(0.58f, 0.45f, 0.21f, 0.62f));
             IgnoreLayout(titleRule.gameObject);
 
             Text subtitleText = CreateText(titleRoot, "HomeSubtitle", "修仙不是打怪升级，而是构筑一条属于自己的道途。", 20, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.22f, 0.24f, 0.22f, 0.92f));
             subtitleText.rectTransform.anchorMin = new Vector2(0f, 0f);
             subtitleText.rectTransform.anchorMax = new Vector2(1f, 0f);
-            subtitleText.rectTransform.offsetMin = new Vector2(2f, 54f);
-            subtitleText.rectTransform.offsetMax = new Vector2(-42f, 102f);
+            subtitleText.rectTransform.offsetMin = new Vector2(2f, 42f);
+            subtitleText.rectTransform.offsetMax = new Vector2(-42f, 90f);
 
             nodeStartInheritanceText = null;
             nodeStartBaseText = CreateHomeStatusStrip(parent);
@@ -589,20 +618,47 @@ namespace PathOfTenThousandWays.Demo.UI
             startRect.anchoredPosition = new Vector2(112f, -58f);
             startRect.sizeDelta = new Vector2(392f, 86f);
             ApplySpriteToImage(startRect, LoadHomePrimaryButtonSprite(), Color.white);
+            HideFrameDecorations(startRect);
+            AddHomeButtonSoftEdge(startRect, true);
+            homeStartButton.colors = CreateHomeButtonColors(new Color(0.23f, 0.18f, 0.11f, 0.98f));
             homeStartButtonText.fontSize = 21;
             homeStartButtonText.text = "开始新局";
+            homeStartButtonText.transform.SetAsLastSibling();
             homeStartButton.onClick.AddListener(OnUtilityButtonClicked);
 
             CreateHomeSecondaryMenuItem(parent, "HomeContinueEntry", "继续悟道", new Vector2(112f, -156f));
             CreateHomeSecondaryMenuItem(parent, "HomeCodexEntry", "流派图鉴", new Vector2(112f, -224f));
             CreateHomeSecondaryMenuItem(parent, "HomeSettingsEntry", "设置", new Vector2(112f, -292f));
 
-            Text actionHint = CreateText(parent, "HomeActionHint", "从根脚、携行之物与首境开始这一世", 14, FontStyle.Normal, TextAnchor.MiddleLeft, new Color(0.25f, 0.28f, 0.27f, 0.82f));
-            actionHint.rectTransform.anchorMin = Vector2.zero;
-            actionHint.rectTransform.anchorMax = Vector2.zero;
-            actionHint.rectTransform.pivot = Vector2.zero;
-            actionHint.rectTransform.anchoredPosition = new Vector2(116f, 168f);
-            actionHint.rectTransform.sizeDelta = new Vector2(420f, 28f);
+            CreateHomeActionHint(parent);
+        }
+
+        private void CreateHomeActionHint(Transform parent)
+        {
+            RectTransform hintRoot = CreateFixedPanel(
+                parent,
+                "HomeActionHintTag",
+                Vector2.zero,
+                Vector2.zero,
+                new Vector2(112f, 158f),
+                new Vector2(430f, 34f),
+                new Color(0.88f, 0.84f, 0.74f, 0.12f));
+            hintRoot.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(hintRoot, new Color(0.55f, 0.43f, 0.23f, 0.16f), new Color(0f, 0f, 0f, 0f), 1f, false);
+
+            RectTransform hintSeal = CreateFixedPanel(
+                hintRoot,
+                "HintSeal",
+                new Vector2(0f, 0.5f),
+                new Vector2(0f, 0.5f),
+                new Vector2(16f, 0f),
+                new Vector2(4f, 20f),
+                new Color(0.45f, 0.13f, 0.09f, 0.54f));
+            hintSeal.GetComponent<Image>().raycastTarget = false;
+            IgnoreLayout(hintSeal.gameObject);
+
+            Text actionHint = CreateText(hintRoot, "HomeActionHint", "从根脚、携行之物与首境开始这一世", 14, FontStyle.Normal, TextAnchor.MiddleLeft, new Color(0.23f, 0.25f, 0.22f, 0.86f));
+            StretchText(actionHint.rectTransform, new Vector2(30f, 4f), new Vector2(-14f, -4f));
         }
 
         private Text CreateHomeOpeningTrail(Transform parent)
@@ -646,10 +702,21 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
                 new Vector2(-52f, 34f),
-                new Vector2(430f, 112f),
-                new Color(0.86f, 0.82f, 0.72f, 0.72f));
+                new Vector2(456f, 104f),
+                new Color(0.86f, 0.82f, 0.72f, 0.66f));
             strip.GetComponent<Image>().raycastTarget = false;
-            DecorateFrame(strip, new Color(0.55f, 0.43f, 0.23f, 0.62f), new Color(0f, 0f, 0f, 0f), 1.2f, false);
+            DecorateFrame(strip, new Color(0.55f, 0.43f, 0.23f, 0.48f), new Color(0f, 0f, 0f, 0f), 1.2f, false);
+
+            RectTransform statusTopLine = CreateStretchPanel(
+                strip,
+                "StatusTopLine",
+                new Vector2(0f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(24f, -8f),
+                new Vector2(-24f, -6f),
+                new Color(0.80f, 0.63f, 0.34f, 0.18f));
+            statusTopLine.GetComponent<Image>().raycastTarget = false;
+            IgnoreLayout(statusTopLine.gameObject);
 
             RectTransform statusSeal = CreateFixedPanel(
                 strip,
@@ -665,8 +732,8 @@ namespace PathOfTenThousandWays.Demo.UI
             Text sealText = CreateText(statusSeal, "SealText", "命\n签", 12, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.96f, 0.86f, 0.70f, 0.98f));
             StretchText(sealText.rectTransform, new Vector2(2f, 3f), new Vector2(-2f, -3f));
 
-            Text bodyText = CreateText(strip, "StatusBody", string.Empty, 15, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.12f, 0.13f, 0.11f, 0.94f));
-            StretchText(bodyText.rectTransform, new Vector2(64f, 18f), new Vector2(-28f, -16f));
+            Text bodyText = CreateText(strip, "StatusBody", string.Empty, 14, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.12f, 0.13f, 0.11f, 0.94f));
+            StretchText(bodyText.rectTransform, new Vector2(64f, 16f), new Vector2(-28f, -14f));
             return bodyText;
         }
 
@@ -679,11 +746,14 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(0f, 0.5f),
                 anchoredPosition,
                 new Vector2(318f, 56f),
-                new Color(0.10f, 0.10f, 0.09f, 0.50f));
-            ApplySpriteToImage(item, LoadHomeSecondaryButtonSprite(), new Color(1f, 1f, 1f, 0.68f));
+                new Color(0.11f, 0.10f, 0.085f, 0.42f));
+            ApplySpriteToImage(item, LoadHomePrimaryButtonSprite(), new Color(1f, 1f, 1f, 0.56f));
+            HideFrameDecorations(item);
+            AddHomeButtonSoftEdge(item, false);
 
-            Text itemText = CreateText(item, "Label", label, 16, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.92f, 0.86f, 0.68f, 0.90f));
+            Text itemText = CreateText(item, "Label", label, 16, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.88f, 0.79f, 0.58f, 0.95f));
             StretchText(itemText.rectTransform, new Vector2(20f, 6f), new Vector2(-20f, -6f));
+            itemText.transform.SetAsLastSibling();
         }
 
         private void CreateHomeFocusRelic(Transform parent, Sprite itemSprite, Sprite headerCloudBand)
@@ -900,6 +970,30 @@ namespace PathOfTenThousandWays.Demo.UI
 
             Image overlayImage = rewardOverlayRoot.GetComponent<Image>();
             overlayImage.color = new Color(0.04f, 0.05f, 0.06f, 0.36f);
+
+            RectTransform rootBackdrop = CreateStretchPanel(
+                rewardOverlayRoot.transform,
+                "RootDestinyBackdrop",
+                Vector2.zero,
+                Vector2.one,
+                Vector2.zero,
+                Vector2.zero,
+                Color.white);
+            ApplySpriteToImage(rootBackdrop, LoadRootDestinyBackdropSprite(), Color.white);
+            Image rootBackdropImage = rootBackdrop.GetComponent<Image>();
+            rootBackdropImage.raycastTarget = false;
+            rootDestinyBackdropRoot = rootBackdrop.gameObject;
+            rootDestinyBackdropRoot.SetActive(false);
+
+            RectTransform rootBackdropVeil = CreateStretchPanel(
+                rootBackdrop,
+                "RootDestinyBackdropVeil",
+                Vector2.zero,
+                Vector2.one,
+                Vector2.zero,
+                Vector2.zero,
+                new Color(0.015f, 0.018f, 0.018f, 0.34f));
+            rootBackdropVeil.GetComponent<Image>().raycastTarget = false;
 
             rewardTitleText = CreateText(rewardOverlayRoot.transform, "RewardTitle", string.Empty, 40, FontStyle.Bold, TextAnchor.UpperCenter, ColorPaper);
             rewardTitleText.rectTransform.anchorMin = new Vector2(0.5f, 1f);
@@ -1194,6 +1288,7 @@ namespace PathOfTenThousandWays.Demo.UI
             bool showingBattle = controller.HasBattle;
             bool showStartHome = IsStartHomeScreen();
             bool hideTopHud = IsStartPresentationScreen();
+            bool showRootOpeningRewards = AreStartRewardsOfType(DemoRewardType.Root);
             bool showStartOpeningRewards = IsStartOpeningScreen();
             bool showRouteChoiceRewards = IsRouteChoiceScreen();
             bool showMinimalRewardPanels = showStartOpeningRewards || showRouteChoiceRewards;
@@ -1219,6 +1314,19 @@ namespace PathOfTenThousandWays.Demo.UI
             if (rewardOverlayRoot != null)
             {
                 rewardOverlayRoot.SetActive(showingRewards);
+
+                Image rewardOverlayImage = rewardOverlayRoot.GetComponent<Image>();
+                if (rewardOverlayImage != null)
+                {
+                    rewardOverlayImage.color = showRootOpeningRewards
+                        ? new Color(0.018f, 0.020f, 0.020f, 0.08f)
+                        : new Color(0.04f, 0.05f, 0.06f, 0.36f);
+                }
+            }
+
+            if (rootDestinyBackdropRoot != null)
+            {
+                rootDestinyBackdropRoot.SetActive(showingRewards && showRootOpeningRewards);
             }
 
             if (battleHudRoot != null)
@@ -1824,11 +1932,10 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private string BuildStartBaseScrollText()
         {
+            string mainGongfa = GetGongfaName(controller.Run.MainGongfa, "未定");
             return
-                $"气血 {controller.Run.CurrentHealth}/{controller.Run.MaxHealth}   " +
-                $"灵气 {3 + controller.Run.BonusEnergy}   " +
-                $"本命飞剑 {1 + controller.Run.BonusPermanentSwords}\n" +
-                $"起始牌组 {controller.Run.Deck.Count} 张   主修 {GetGongfaName(controller.Run.MainGongfa, "未定")}";
+                $"本世道基  气血 {controller.Run.CurrentHealth}/{controller.Run.MaxHealth}   灵气 {3 + controller.Run.BonusEnergy}\n" +
+                $"命剑 {1 + controller.Run.BonusPermanentSwords}   起手 {controller.Run.Deck.Count} 张   主修 {mainGongfa}";
         }
 
         private string BuildStartInheritanceScrollText()
@@ -2439,9 +2546,9 @@ namespace PathOfTenThousandWays.Demo.UI
             deskImage.color = new Color(0.94f, 0.90f, 0.80f, 1f);
             deskImage.raycastTarget = false;
             ApplySpriteToImage(deskRect, LoadRootDestinyDeskSprite(), Color.white);
-            DecorateFrame(deskRect, new Color(0.70f, 0.55f, 0.28f, 0.82f), new Color(1f, 0.96f, 0.84f, 0.03f), 2f, true);
+            DecorateFrame(deskRect, new Color(0.70f, 0.55f, 0.28f, 0.34f), new Color(1f, 0.96f, 0.84f, 0.012f), 1.3f, true);
 
-            RectTransform deskVeil = CreateStretchPanel(deskObject.transform, "RootDeskSoftVeil", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0.02f, 0.02f, 0.018f, 0.03f));
+            RectTransform deskVeil = CreateStretchPanel(deskObject.transform, "RootDeskSoftVeil", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0.02f, 0.02f, 0.018f, 0.012f));
             deskVeil.GetComponent<Image>().raycastTarget = false;
 
             RectTransform ledgerPanel = CreateFixedPanel(
@@ -2451,9 +2558,9 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(0.5f, 0.5f),
                 new Vector2(-238f, 12f),
                 new Vector2(780f, 500f),
-                new Color(1f, 0.95f, 0.78f, 0.08f));
+                new Color(1f, 0.95f, 0.78f, 0.045f));
             ledgerPanel.GetComponent<Image>().raycastTarget = false;
-            DecorateFrame(ledgerPanel, new Color(0.74f, 0.61f, 0.36f, 0.34f), new Color(1f, 0.96f, 0.86f, 0.035f), 1.4f, false);
+            DecorateFrame(ledgerPanel, new Color(0.74f, 0.61f, 0.36f, 0.18f), new Color(1f, 0.96f, 0.86f, 0.018f), 1.0f, false);
 
             Text deskLabel = CreateText(ledgerPanel, "RootDeskLabel", "命案台", 18, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.46f, 0.34f, 0.18f, 0.90f));
             deskLabel.rectTransform.anchorMin = new Vector2(0f, 1f);
@@ -2486,10 +2593,10 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(0f, 0f),
                 new Vector2(40f, 104f),
                 new Vector2(388f, 92f),
-                new Color(0.16f, 0.12f, 0.07f, 0.48f));
+                new Color(0.96f, 0.86f, 0.62f, 0.28f));
             effectPanel.GetComponent<Image>().raycastTarget = false;
-            DecorateFrame(effectPanel, new Color(0.68f, 0.52f, 0.26f, 0.72f), new Color(1f, 0.84f, 0.48f, 0.04f), 1.2f, false);
-            Text effectText = CreateText(effectPanel, "RootEffectText", string.Empty, 17, FontStyle.Bold, TextAnchor.MiddleLeft, ColorPaper);
+            DecorateFrame(effectPanel, new Color(0.68f, 0.52f, 0.26f, 0.34f), new Color(1f, 0.84f, 0.48f, 0.025f), 1.0f, false);
+            Text effectText = CreateText(effectPanel, "RootEffectText", string.Empty, 17, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.22f, 0.16f, 0.08f, 0.94f));
             StretchText(effectText.rectTransform, new Vector2(18f, 10f), new Vector2(-18f, -10f));
 
             RectTransform objectFrame = CreateFixedPanel(
@@ -2540,7 +2647,7 @@ namespace PathOfTenThousandWays.Demo.UI
             confirmButton.targetGraphic = confirmRect.GetComponent<Image>();
             confirmButton.colors = CreateButtonColors(new Color(1f, 1f, 1f, 0.98f));
 
-            Text confirmText = CreateText(confirmRect, "RootConfirmText", "定此身", 22, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.96f, 0.88f, 0.76f, 0.98f));
+            Text confirmText = CreateText(confirmRect, "RootConfirmText", "落印定身", 21, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.96f, 0.88f, 0.76f, 0.98f));
             StretchText(confirmText.rectTransform, new Vector2(10f, 20f), new Vector2(-10f, -14f));
 
             Text footerText = CreateText(ledgerPanel, "RootFooter", "落印之后，再定为何出山与携何物上路。", 14, FontStyle.Normal, TextAnchor.LowerLeft, new Color(0.38f, 0.29f, 0.16f, 0.84f));
@@ -2556,9 +2663,9 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(0.5f, 0.5f),
                 new Vector2(466f, 6f),
                 new Vector2(370f, 504f),
-                new Color(0.10f, 0.08f, 0.05f, 0.16f));
+                new Color(0.96f, 0.88f, 0.66f, 0.055f));
             lotRack.GetComponent<Image>().raycastTarget = false;
-            DecorateFrame(lotRack, new Color(0.68f, 0.52f, 0.28f, 0.34f), new Color(0f, 0f, 0f, 0.015f), 1.2f, false);
+            DecorateFrame(lotRack, new Color(0.68f, 0.52f, 0.28f, 0.18f), new Color(1f, 0.90f, 0.62f, 0.012f), 1.0f, false);
 
             Text rackTitle = CreateText(lotRack, "RootLotRackTitle", "命签匣", 18, FontStyle.Bold, TextAnchor.UpperCenter, new Color(0.46f, 0.33f, 0.17f, 0.92f));
             rackTitle.rectTransform.anchorMin = new Vector2(0f, 1f);
@@ -2584,10 +2691,10 @@ namespace PathOfTenThousandWays.Demo.UI
                     new Vector2(0f, -68f - i * 100f),
                     new Vector2(312f, 78f),
                     Color.white);
-                ApplySpriteToImage(lotRect, LoadRootLotTagSprite(), Color.white, false);
+                ApplySpriteToImage(lotRect, LoadRootLotTagSprite(), new Color(1f, 0.95f, 0.84f, 0.86f), false);
                 Button lotButton = lotRect.gameObject.AddComponent<Button>();
                 lotButton.targetGraphic = lotRect.GetComponent<Image>();
-                lotButton.colors = CreateButtonColors(new Color(1f, 1f, 1f, 0.96f));
+                lotButton.colors = CreateButtonColors(new Color(1f, 0.95f, 0.84f, 0.84f));
 
                 RectTransform lotGlow = CreateStretchPanel(lotRect, "RootLotGlow", Vector2.zero, Vector2.one, new Vector2(5f, 5f), new Vector2(-5f, -5f), new Color(0.75f, 0.56f, 0.26f, 0f));
                 lotGlowImages[i] = lotGlow.GetComponent<Image>();
@@ -2613,7 +2720,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             List<RectTransform> idleSmokeRects = new List<RectTransform>();
             List<Image> idleSmokeImages = new List<Image>();
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 3; i++)
             {
                 RectTransform smoke = CreateFixedPanel(
                     deskObject.transform,
@@ -2622,8 +2729,8 @@ namespace PathOfTenThousandWays.Demo.UI
                     new Vector2(0.5f, 0.5f),
                     new Vector2(-610f + i * 18f, -238f + i * 12f),
                     new Vector2(120f + i * 10f, 178f + i * 16f),
-                    new Color(1f, 1f, 1f, 0.10f));
-                ApplySpriteToImage(smoke, LoadRootSmokeWispSprite(), new Color(0.86f, 0.90f, 0.88f, 0.12f), true);
+                    new Color(1f, 1f, 1f, 0.04f));
+                ApplySpriteToImage(smoke, LoadRootSmokeWispSprite(), new Color(0.86f, 0.90f, 0.88f, 0.045f), true);
                 idleSmokeRects.Add(smoke);
                 idleSmokeImages.Add(smoke.GetComponent<Image>());
                 idleSmokeImages[idleSmokeImages.Count - 1].raycastTarget = false;
@@ -3505,6 +3612,16 @@ namespace PathOfTenThousandWays.Demo.UI
             return cachedHomeSecondaryButtonSprite;
         }
 
+        private static Sprite LoadHomeTitleCalligraphySprite()
+        {
+            if (cachedHomeTitleCalligraphySprite == null)
+            {
+                cachedHomeTitleCalligraphySprite = LoadSpriteResource(HomeTitleCalligraphyResourcePath);
+            }
+
+            return cachedHomeTitleCalligraphySprite;
+        }
+
         private static Sprite LoadHomeLogoSealSprite()
         {
             if (cachedHomeLogoSealSprite == null)
@@ -3543,6 +3660,16 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             return cachedRootDestinyDeskSprite;
+        }
+
+        private static Sprite LoadRootDestinyBackdropSprite()
+        {
+            if (cachedRootDestinyBackdropSprite == null)
+            {
+                cachedRootDestinyBackdropSprite = LoadSpriteResource(RootDestinyBackdropResourcePath, SceneCloudseaFarResourcePath, RootDestinyDeskResourcePath);
+            }
+
+            return cachedRootDestinyBackdropSprite;
         }
 
         private static Sprite LoadRootObjectSprite(DemoRootDefinition root)
@@ -4498,6 +4625,90 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             return cachedHomeTitleFont != null ? cachedHomeTitleFont : uiFont;
+        }
+
+        private void HideFrameDecorations(RectTransform root)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < root.childCount; i++)
+            {
+                Transform child = root.GetChild(i);
+                string childName = child.name;
+                if (childName.StartsWith("Border")
+                    || childName.StartsWith("CornerH")
+                    || childName.StartsWith("CornerV"))
+                {
+                    child.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        private void AddHomeButtonSoftEdge(RectTransform root, bool primary)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            Color veilColor = primary
+                ? new Color(0.03f, 0.025f, 0.018f, 0.24f)
+                : new Color(0.03f, 0.025f, 0.018f, 0.14f);
+            Color breathColor = primary
+                ? new Color(0.86f, 0.72f, 0.42f, 0.24f)
+                : new Color(0.70f, 0.58f, 0.34f, 0.15f);
+            Color edgeColor = primary
+                ? new Color(0.88f, 0.72f, 0.42f, 0.42f)
+                : new Color(0.72f, 0.58f, 0.34f, 0.26f);
+
+            RectTransform veil = CreateStretchPanel(
+                root,
+                "HomeButtonInkVeil",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(12f, 10f),
+                new Vector2(-12f, -10f),
+                veilColor);
+            veil.GetComponent<Image>().raycastTarget = false;
+            IgnoreLayout(veil.gameObject);
+
+            RectTransform breath = CreateStretchPanel(
+                root,
+                "HomeButtonGoldBreath",
+                new Vector2(0f, 0.62f),
+                new Vector2(1f, 1f),
+                new Vector2(primary ? 28f : 24f, -10f),
+                new Vector2(primary ? -28f : -24f, -14f),
+                breathColor);
+            breath.GetComponent<Image>().raycastTarget = false;
+            IgnoreLayout(breath.gameObject);
+
+            RectTransform lowerEdge = CreateStretchPanel(
+                root,
+                "HomeButtonSoftEdge",
+                new Vector2(0f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(primary ? 24f : 20f, primary ? 13f : 10f),
+                new Vector2(primary ? -24f : -20f, primary ? 15f : 12f),
+                edgeColor);
+            lowerEdge.GetComponent<Image>().raycastTarget = false;
+            IgnoreLayout(lowerEdge.gameObject);
+        }
+
+        private static ColorBlock CreateHomeButtonColors(Color baseColor)
+        {
+            ColorBlock colors = ColorBlock.defaultColorBlock;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1f, 0.96f, 0.82f, 1f);
+            colors.pressedColor = new Color(0.82f, 0.76f, 0.62f, 1f);
+            colors.selectedColor = Color.white;
+            colors.disabledColor = new Color(baseColor.r, baseColor.g, baseColor.b, 0.56f);
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.10f;
+            return colors;
         }
 
         private static void ApplySpriteToImage(RectTransform rect, Sprite sprite, Color color, bool preserveAspect = false)
