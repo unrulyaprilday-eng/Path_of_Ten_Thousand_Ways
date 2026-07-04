@@ -1,114 +1,100 @@
 using System;
-using System.Reflection;
+using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
+using UnityEngine;
 
 namespace PathOfTenThousandWays.Editor
 {
     [InitializeOnLoad]
     public static class DisableUnityConnectOnLoad
     {
+        private const string ProjectSettingsDirectory = "ProjectSettings";
+        private const string UnityConnectSettingsFile = "UnityConnectSettings.asset";
+        private const string ProjectSettingsFile = "ProjectSettings.asset";
+
+        private static readonly Dictionary<string, string> UnityConnectOfflineScalars = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            { "m_Enabled", "0" },
+            { "m_TestMode", "0" },
+            { "m_InitializeOnStartup", "0" },
+            { "m_EnableCloudDiagnosticsReporting", "0" },
+            { "m_CaptureEditorExceptions", "0" },
+            { "m_PackageRequiringCoreStatsPresent", "0" }
+        };
+
+        private static readonly Dictionary<string, string> ProjectOfflineScalars = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            { "submitAnalytics", "0" },
+            { "cloudServicesEnabled", "{}" },
+            { "cloudProjectId", string.Empty },
+            { "organizationId", string.Empty },
+            { "cloudEnabled", "0" }
+        };
+
         static DisableUnityConnectOnLoad()
         {
-            EditorApplication.delayCall += TryDisableUnityConnect;
+            EditorApplication.delayCall += EnforceOfflineUnityConnectSettings;
         }
 
-        private static void TryDisableUnityConnect()
+        private static void EnforceOfflineUnityConnectSettings()
         {
-            TrySetUnityConnectFlag("UnityEditor.Connect.UnityConnect", "enabled", false);
-            TryInvokeStatic("UnityEditor.Connect.UnityConnect", "RequestDisableServiceWindow");
-            TryInvokeInstanceMethod("UnityEditor.Connect.UnityConnect", "DisableServices");
-        }
-
-        private static void TrySetUnityConnectFlag(string typeName, string propertyName, bool value)
-        {
-            object instance = GetUnityConnectInstance(typeName);
-            if (instance == null)
+            string projectRoot = Path.GetDirectoryName(Application.dataPath);
+            if (string.IsNullOrEmpty(projectRoot))
             {
                 return;
             }
 
-            PropertyInfo property = instance.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            if (property == null || !property.CanWrite)
+            TrySetYamlScalars(Path.Combine(projectRoot, ProjectSettingsDirectory, UnityConnectSettingsFile), UnityConnectOfflineScalars);
+            TrySetYamlScalars(Path.Combine(projectRoot, ProjectSettingsDirectory, ProjectSettingsFile), ProjectOfflineScalars);
+        }
+
+        private static void TrySetYamlScalars(string path, IReadOnlyDictionary<string, string> scalarValues)
+        {
+            if (!File.Exists(path))
             {
                 return;
             }
 
             try
             {
-                property.SetValue(instance, value, null);
-            }
-            catch
-            {
-            }
-        }
+                string[] lines = File.ReadAllLines(path);
+                bool changed = false;
 
-        private static void TryInvokeInstanceMethod(string typeName, string methodName)
-        {
-            object instance = GetUnityConnectInstance(typeName);
-            if (instance == null)
-            {
-                return;
-            }
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string trimmed = lines[i].TrimStart();
+                    int colonIndex = trimmed.IndexOf(':');
+                    if (colonIndex <= 0)
+                    {
+                        continue;
+                    }
 
-            MethodInfo method = instance.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            if (method == null)
-            {
-                return;
-            }
+                    string key = trimmed.Substring(0, colonIndex);
+                    if (!scalarValues.TryGetValue(key, out string value))
+                    {
+                        continue;
+                    }
 
-            try
-            {
-                method.Invoke(instance, null);
-            }
-            catch
-            {
-            }
-        }
+                    string indent = lines[i].Substring(0, lines[i].Length - trimmed.Length);
+                    string nextLine = indent + key + ": " + value;
+                    if (string.Equals(lines[i], nextLine, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
 
-        private static void TryInvokeStatic(string typeName, string methodName)
-        {
-            Type type = Type.GetType(typeName + ", UnityEditor");
-            if (type == null)
-            {
-                return;
-            }
+                    lines[i] = nextLine;
+                    changed = true;
+                }
 
-            MethodInfo method = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-            if (method == null)
-            {
-                return;
+                if (changed)
+                {
+                    File.WriteAllLines(path, lines);
+                }
             }
-
-            try
+            catch (Exception exception)
             {
-                method.Invoke(null, null);
-            }
-            catch
-            {
-            }
-        }
-
-        private static object GetUnityConnectInstance(string typeName)
-        {
-            Type type = Type.GetType(typeName + ", UnityEditor");
-            if (type == null)
-            {
-                return null;
-            }
-
-            PropertyInfo instanceProperty = type.GetProperty("instance", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-            if (instanceProperty == null)
-            {
-                return null;
-            }
-
-            try
-            {
-                return instanceProperty.GetValue(null, null);
-            }
-            catch
-            {
-                return null;
+                Debug.LogWarning("Could not enforce local UnityConnect settings: " + exception.Message);
             }
         }
     }

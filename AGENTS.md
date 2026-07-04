@@ -171,8 +171,14 @@ UNITY/
 1. 先读 `Doc/README.md`，确认文档入口。
 2. 明确本次改动服务于 DEMO 的哪个核心目标。
 3. 小步实现，保持可运行。
-4. 完成后验证 Unity 场景、控制台错误和核心交互。
+4. 完成后按当前验证约定检查构建和改动质量。
 5. 更新必要的文档或开发备注。
+
+当前常规验证约定：
+
+- 默认不必每次启动 Unity Editor 或通过批处理打开工程验证。
+- 常规代码 / 配置改动完成后，以 `dotnet build UNITY\CompileCheck\CompileCheck.csproj` 通过且 `0 警告 0 错误`、`git diff --check` 通过为主要验收口径；`git diff --check` 仅出现 Git 的 CRLF 提示可以接受。
+- 只有用户明确要求，或改动依赖 Unity 实际导入、场景播放、资源序列化、Package Manager 解析、控制台运行时日志时，才额外调用 Unity Editor 验证。
 
 如果本次任务包含视觉资源生产：
 
