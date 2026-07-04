@@ -60,6 +60,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string HomeIconExitResourcePath = "Art/UI/ui_icon_exit_001";
         private const string PanelScrollDarkResourcePath = "Art/UI/ui_panel_scroll_dark_001";
         private const string PanelScrollDarkTransparentResourcePath = "Art/UI/ui_panel_scroll_dark_001_transparent";
+        private const string RootDestinySceneTeaDeskResourcePath = "Art/UI/ui_root_destiny_scene_tea_desk_002";
         private const string RootDestinyDeskResourcePath = "Art/UI/ui_root_destiny_desk_bg_001";
         private const string RootDestinyBackdropResourcePath = "Art/UI/ui_root_destiny_backdrop_001";
         private const string RootObjectServantResourcePath = "Art/UI/ui_root_object_servant_001";
@@ -1294,7 +1295,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 Vector2.one,
                 Vector2.zero,
                 Vector2.zero,
-                new Color(0.015f, 0.018f, 0.018f, 0.20f));
+                new Color(0.015f, 0.018f, 0.018f, 0.06f));
             rootBackdropVeil.GetComponent<Image>().raycastTarget = false;
 
             rewardTitleText = CreateText(rewardOverlayRoot.transform, "RewardTitle", string.Empty, 40, FontStyle.Bold, TextAnchor.UpperCenter, ColorPaper);
@@ -1552,6 +1553,7 @@ namespace PathOfTenThousandWays.Demo.UI
             RefreshRewardLayout();
             rewardSectionTitleText.text = BuildRewardSectionTitle();
             rewardSectionHintText.text = BuildRewardSectionHint();
+            RefreshRewardHeaderStyle();
 
             handInfoText.text = controller.GetHandStatus();
             handEmptyText.text = BuildHandHint();
@@ -1743,8 +1745,8 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (AreStartRewardsOfType(DemoRewardType.Root))
             {
-                rewardContainer.anchoredPosition = new Vector2(0f, -58f);
-                rewardContainer.sizeDelta = new Vector2(1580f, 856f);
+                rewardContainer.anchoredPosition = Vector2.zero;
+                rewardContainer.sizeDelta = new Vector2(1920f, 1080f);
                 rewardLayoutGroup.spacing = 0f;
                 rewardLayoutGroup.padding = new RectOffset(0, 0, 0, 0);
                 return;
@@ -1781,6 +1783,39 @@ namespace PathOfTenThousandWays.Demo.UI
             rewardContainer.sizeDelta = new Vector2(1460f, 592f);
             rewardLayoutGroup.spacing = 36f;
             rewardLayoutGroup.padding = new RectOffset(24, 24, 12, 12);
+        }
+
+        private void RefreshRewardHeaderStyle()
+        {
+            bool showingRootDestiny = AreStartRewardsOfType(DemoRewardType.Root);
+
+            if (rewardTitleText != null)
+            {
+                rewardTitleText.color = showingRootDestiny
+                    ? new Color(0.15f, 0.11f, 0.07f, 0.96f)
+                    : new Color(0.95f, 0.94f, 0.90f, 1f);
+            }
+
+            if (rewardBodyText != null)
+            {
+                rewardBodyText.color = showingRootDestiny
+                    ? new Color(0.24f, 0.18f, 0.11f, 0.90f)
+                    : new Color(0.90f, 0.92f, 0.95f, 0.98f);
+            }
+
+            if (rewardSectionTitleText != null)
+            {
+                rewardSectionTitleText.color = showingRootDestiny
+                    ? new Color(0.48f, 0.31f, 0.13f, 0.94f)
+                    : new Color(0.97f, 0.87f, 0.56f, 1f);
+            }
+
+            if (rewardSectionHintText != null)
+            {
+                rewardSectionHintText.color = showingRootDestiny
+                    ? new Color(0.34f, 0.27f, 0.18f, 0.86f)
+                    : new Color(0.86f, 0.89f, 0.93f, 0.98f);
+            }
         }
 
         private void RefreshNodeChoiceStage()
@@ -3032,20 +3067,19 @@ namespace PathOfTenThousandWays.Demo.UI
             deskObject.transform.SetParent(parent, false);
 
             RectTransform deskRect = deskObject.GetComponent<RectTransform>();
-            deskRect.sizeDelta = new Vector2(1540f, 866f);
+            deskRect.sizeDelta = new Vector2(1920f, 1080f);
 
             LayoutElement layout = deskObject.GetComponent<LayoutElement>();
-            layout.preferredWidth = 1540f;
-            layout.minWidth = 1540f;
-            layout.preferredHeight = 866f;
-            layout.minHeight = 866f;
+            layout.preferredWidth = 1920f;
+            layout.minWidth = 1920f;
+            layout.preferredHeight = 1080f;
+            layout.minHeight = 1080f;
 
             Image deskImage = deskObject.GetComponent<Image>();
-            deskImage.color = new Color(1f, 1f, 1f, 0.97f);
+            deskImage.color = new Color(1f, 1f, 1f, 0f);
             deskImage.raycastTarget = false;
-            ApplySpriteToImage(deskRect, LoadRootDestinyDeskSprite(), Color.white);
 
-            RectTransform deskVeil = CreateStretchPanel(deskObject.transform, "RootDeskSoftVeil", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0.98f, 0.93f, 0.82f, 0.018f));
+            RectTransform deskVeil = CreateStretchPanel(deskObject.transform, "RootDeskSoftVeil", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0.98f, 0.93f, 0.82f, 0.010f));
             deskVeil.GetComponent<Image>().raycastTarget = false;
 
             RectTransform ledgerPanel = CreateFixedPanel(
@@ -3053,78 +3087,55 @@ namespace PathOfTenThousandWays.Demo.UI
                 "RootLedgerPanel",
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
-                new Vector2(-292f, -28f),
-                new Vector2(704f, 446f),
-                new Color(1f, 0.95f, 0.78f, 0.020f));
+                new Vector2(-240f, -296f),
+                new Vector2(790f, 356f),
+                new Color(1f, 0.95f, 0.78f, 0.040f));
             ledgerPanel.GetComponent<Image>().raycastTarget = false;
 
             Text deskLabel = CreateText(ledgerPanel, "RootDeskLabel", "签落案前，先认此身来处。", 17, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.46f, 0.34f, 0.18f, 0.88f));
             deskLabel.rectTransform.anchorMin = new Vector2(0f, 1f);
             deskLabel.rectTransform.anchorMax = new Vector2(1f, 1f);
-            deskLabel.rectTransform.offsetMin = new Vector2(34f, -42f);
-            deskLabel.rectTransform.offsetMax = new Vector2(-34f, -14f);
+            deskLabel.rectTransform.offsetMin = new Vector2(42f, -40f);
+            deskLabel.rectTransform.offsetMax = new Vector2(-42f, -12f);
 
             Text rootNameText = CreateText(ledgerPanel, "RootName", string.Empty, 52, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.14f, 0.10f, 0.07f, 0.98f));
             rootNameText.rectTransform.anchorMin = new Vector2(0f, 1f);
             rootNameText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            rootNameText.rectTransform.offsetMin = new Vector2(34f, -112f);
-            rootNameText.rectTransform.offsetMax = new Vector2(-318f, -52f);
+            rootNameText.rectTransform.offsetMin = new Vector2(42f, -104f);
+            rootNameText.rectTransform.offsetMax = new Vector2(-278f, -44f);
 
             Text rarityText = CreateText(ledgerPanel, "RootRarity", string.Empty, 15, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.58f, 0.42f, 0.20f, 0.90f));
             rarityText.rectTransform.anchorMin = new Vector2(0f, 1f);
             rarityText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            rarityText.rectTransform.offsetMin = new Vector2(38f, -144f);
-            rarityText.rectTransform.offsetMax = new Vector2(-340f, -118f);
+            rarityText.rectTransform.offsetMin = new Vector2(46f, -136f);
+            rarityText.rectTransform.offsetMax = new Vector2(-292f, -110f);
 
             Text identityText = CreateText(ledgerPanel, "RootIdentity", string.Empty, 19, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.21f, 0.18f, 0.13f, 0.96f));
             identityText.rectTransform.anchorMin = new Vector2(0f, 1f);
             identityText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            identityText.rectTransform.offsetMin = new Vector2(38f, -224f);
-            identityText.rectTransform.offsetMax = new Vector2(-330f, -154f);
+            identityText.rectTransform.offsetMin = new Vector2(46f, -210f);
+            identityText.rectTransform.offsetMax = new Vector2(-264f, -148f);
 
             RectTransform effectPanel = CreateFixedPanel(
                 ledgerPanel,
                 "RootEffectPanel",
                 new Vector2(0f, 0f),
                 new Vector2(0f, 0f),
-                new Vector2(38f, 88f),
-                new Vector2(354f, 76f),
+                new Vector2(46f, 82f),
+                new Vector2(394f, 72f),
                 new Color(0.96f, 0.84f, 0.56f, 0.18f));
             effectPanel.GetComponent<Image>().raycastTarget = false;
             DecorateFrame(effectPanel, new Color(0.68f, 0.50f, 0.24f, 0.24f), new Color(1f, 0.84f, 0.48f, 0.018f), 1.0f, false);
             Text effectText = CreateText(effectPanel, "RootEffectText", string.Empty, 16, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.22f, 0.15f, 0.07f, 0.94f));
             StretchText(effectText.rectTransform, new Vector2(16f, 8f), new Vector2(-16f, -8f));
 
-            RectTransform objectFrame = CreateFixedPanel(
-                ledgerPanel,
-                "RootObjectFrame",
-                new Vector2(1f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(-154f, 12f),
-                new Vector2(276f, 276f),
-                new Color(0.96f, 0.91f, 0.78f, 0.075f));
-            objectFrame.GetComponent<Image>().raycastTarget = false;
-            DecorateFrame(objectFrame, new Color(0.70f, 0.55f, 0.30f, 0.18f), new Color(1f, 1f, 1f, 0.016f), 1.0f, false);
-
-            RectTransform rootObjectRect = CreateStretchPanel(
-                objectFrame,
-                "RootObjectImage",
-                Vector2.zero,
-                Vector2.one,
-                new Vector2(12f, 12f),
-                new Vector2(-12f, -12f),
-                Color.white);
-            Image rootObjectImage = rootObjectRect.GetComponent<Image>();
-            rootObjectImage.preserveAspect = true;
-            rootObjectImage.raycastTarget = false;
-
             RectTransform pageSmokeRect = CreateFixedPanel(
                 ledgerPanel,
                 "RootPageSmoke",
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
-                new Vector2(38f, 0f),
-                new Vector2(540f, 360f),
+                new Vector2(54f, -8f),
+                new Vector2(560f, 300f),
                 new Color(1f, 1f, 1f, 0f));
             ApplySpriteToImage(pageSmokeRect, LoadRootSmokeWispSprite(), new Color(0.90f, 0.92f, 0.90f, 0f), true);
             Image pageSmokeImage = pageSmokeRect.GetComponent<Image>();
