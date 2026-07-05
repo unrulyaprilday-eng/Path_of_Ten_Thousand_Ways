@@ -67,8 +67,11 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string RootObjectSmithResourcePath = "Art/UI/ui_root_object_smith_001";
         private const string RootObjectCaravanResourcePath = "Art/UI/ui_root_object_caravan_001";
         private const string RootObjectBranchResourcePath = "Art/UI/ui_root_object_branch_001";
+        private const string RootLotTagPaperResourcePath = "Art/UI/ui_root_lot_tag_002";
         private const string RootLotTagResourcePath = "Art/UI/ui_root_lot_tag_001";
+        private const string RootConfirmSealCinnabarResourcePath = "Art/UI/ui_root_confirm_seal_002";
         private const string RootConfirmSealResourcePath = "Art/UI/ui_root_confirm_seal_001";
+        private const string RootSmokeWispSoftResourcePath = "Art/UI/ui_root_smoke_wisp_002";
         private const string RootSmokeWispResourcePath = "Art/UI/ui_root_smoke_wisp_001";
         private const string SceneBattleCloudseaResourcePath = "Art/Scenes/scene_battle_cloudsea_001";
         private const string SceneCloudseaFarResourcePath = "Art/Scenes/scene_cloudsea_far_001";
@@ -3087,9 +3090,9 @@ namespace PathOfTenThousandWays.Demo.UI
                 "RootLedgerPanel",
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
-                new Vector2(-240f, -296f),
+                new Vector2(-100f, -296f),
                 new Vector2(790f, 356f),
-                new Color(1f, 0.95f, 0.78f, 0.040f));
+                new Color(1f, 0.95f, 0.78f, 0f));
             ledgerPanel.GetComponent<Image>().raycastTarget = false;
 
             Text deskLabel = CreateText(ledgerPanel, "RootDeskLabel", "签落案前，先认此身来处。", 17, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.46f, 0.34f, 0.18f, 0.88f));
@@ -3121,11 +3124,11 @@ namespace PathOfTenThousandWays.Demo.UI
                 "RootEffectPanel",
                 new Vector2(0f, 0f),
                 new Vector2(0f, 0f),
-                new Vector2(46f, 82f),
-                new Vector2(394f, 72f),
-                new Color(0.96f, 0.84f, 0.56f, 0.18f));
+                new Vector2(46f, 88f),
+                new Vector2(368f, 58f),
+                new Color(0.96f, 0.84f, 0.56f, 0.075f));
             effectPanel.GetComponent<Image>().raycastTarget = false;
-            DecorateFrame(effectPanel, new Color(0.68f, 0.50f, 0.24f, 0.24f), new Color(1f, 0.84f, 0.48f, 0.018f), 1.0f, false);
+            DecorateFrame(effectPanel, new Color(0.68f, 0.50f, 0.24f, 0.15f), new Color(1f, 0.84f, 0.48f, 0.010f), 1.0f, false);
             Text effectText = CreateText(effectPanel, "RootEffectText", string.Empty, 16, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.22f, 0.15f, 0.07f, 0.94f));
             StretchText(effectText.rectTransform, new Vector2(16f, 8f), new Vector2(-16f, -8f));
 
@@ -3141,21 +3144,45 @@ namespace PathOfTenThousandWays.Demo.UI
             Image pageSmokeImage = pageSmokeRect.GetComponent<Image>();
             pageSmokeImage.raycastTarget = false;
 
+            RectTransform inkSweepRect = CreateFixedPanel(
+                ledgerPanel,
+                "RootInkSweep",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(-310f, -4f),
+                new Vector2(220f, 3f),
+                new Color(0.86f, 0.62f, 0.22f, 0f));
+            inkSweepRect.GetComponent<Image>().raycastTarget = false;
+
             RectTransform confirmRect = CreateFixedPanel(
                 ledgerPanel,
-                "RootConfirmSeal",
+                "RootConfirmSealHitArea",
                 new Vector2(1f, 0f),
                 new Vector2(0.5f, 0.5f),
                 new Vector2(-136f, 62f),
-                new Vector2(178f, 110f),
-                Color.white);
-            ApplySpriteToImage(confirmRect, LoadRootConfirmSealSprite(), Color.white, true);
+                new Vector2(164f, 104f),
+                new Color(1f, 1f, 1f, 0f));
+            confirmRect.GetComponent<Image>().raycastTarget = true;
             Button confirmButton = confirmRect.gameObject.AddComponent<Button>();
             confirmButton.targetGraphic = confirmRect.GetComponent<Image>();
-            confirmButton.colors = CreateButtonColors(new Color(1f, 1f, 1f, 0.98f));
+            confirmButton.transition = Selectable.Transition.None;
 
-            Text confirmText = CreateText(confirmRect, "RootConfirmText", "落印定身", 20, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.96f, 0.88f, 0.76f, 0.98f));
-            StretchText(confirmText.rectTransform, new Vector2(10f, 20f), new Vector2(-10f, -14f));
+            RectTransform confirmSealRect = CreateFixedPanel(
+                confirmRect,
+                "RootConfirmSealImage",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, 0f),
+                new Vector2(150f, 94f),
+                Color.white);
+            ApplySpriteToImage(confirmSealRect, LoadRootConfirmSealSprite(), Color.white, true);
+            confirmSealRect.localRotation = Quaternion.Euler(0f, 0f, -4.5f);
+            Image confirmSealImage = confirmSealRect.GetComponent<Image>();
+            confirmSealImage.raycastTarget = false;
+
+            Text confirmText = CreateText(confirmRect, "RootConfirmText", "落印定身", 18, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1.00f, 0.88f, 0.74f, 0.98f));
+            StretchText(confirmText.rectTransform, new Vector2(10f, 23f), new Vector2(-10f, -18f));
+            confirmText.raycastTarget = false;
 
             Text footerText = CreateText(ledgerPanel, "RootFooter", "印成之后，自有人递来临行之物。", 14, FontStyle.Normal, TextAnchor.LowerLeft, new Color(0.38f, 0.29f, 0.16f, 0.84f));
             footerText.rectTransform.anchorMin = new Vector2(0f, 0f);
@@ -3168,16 +3195,26 @@ namespace PathOfTenThousandWays.Demo.UI
                 "RootLotRack",
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
-                new Vector2(508f, -22f),
-                new Vector2(338f, 454f),
+                new Vector2(572f, -138f),
+                new Vector2(338f, 392f),
                 new Color(0.96f, 0.88f, 0.66f, 0.010f));
             lotRack.GetComponent<Image>().raycastTarget = false;
 
-            Text rackTitle = CreateText(lotRack, "RootLotRackTitle", "命签匣", 18, FontStyle.Bold, TextAnchor.UpperCenter, new Color(0.46f, 0.33f, 0.17f, 0.92f));
-            rackTitle.rectTransform.anchorMin = new Vector2(0f, 1f);
-            rackTitle.rectTransform.anchorMax = new Vector2(1f, 1f);
-            rackTitle.rectTransform.offsetMin = new Vector2(18f, -42f);
-            rackTitle.rectTransform.offsetMax = new Vector2(-18f, -14f);
+            RectTransform rackTitlePlate = CreateFixedPanel(
+                lotRack,
+                "RootLotRackTitlePlate",
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f),
+                new Vector2(-4f, -20f),
+                new Vector2(194f, 44f),
+                Color.white);
+            ApplySpriteToImage(rackTitlePlate, LoadRootLotTagSprite(), new Color(0.96f, 0.88f, 0.66f, 0.92f), false);
+            rackTitlePlate.localRotation = Quaternion.Euler(0f, 0f, -1.2f);
+            rackTitlePlate.GetComponent<Image>().raycastTarget = false;
+
+            Text rackTitle = CreateText(rackTitlePlate, "RootLotRackTitle", "命签匣", 17, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.30f, 0.20f, 0.10f, 0.98f));
+            StretchText(rackTitle.rectTransform, new Vector2(26f, 6f), new Vector2(-42f, -6f));
+            rackTitle.raycastTarget = false;
 
             int count = Mathf.Min(4, rewards.Count);
             RectTransform[] lotRects = new RectTransform[count];
@@ -3190,20 +3227,31 @@ namespace PathOfTenThousandWays.Demo.UI
             {
                 int capturedIndex = i;
                 DemoReward reward = rewards[i];
+                RectTransform lotShadow = CreateFixedPanel(
+                    lotRack,
+                    "RootLotShadow_" + i,
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(14f, -60f - i * 76f),
+                    new Vector2(292f, 66f),
+                    new Color(0.18f, 0.12f, 0.06f, 0.18f));
+                lotShadow.localRotation = Quaternion.Euler(0f, 0f, -2.0f + i * 0.9f);
+                lotShadow.GetComponent<Image>().raycastTarget = false;
+
                 RectTransform lotRect = CreateFixedPanel(
                     lotRack,
                     "RootLot_" + i,
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
-                    new Vector2(8f, -58f - i * 84f),
-                    new Vector2(288f, 70f),
+                    new Vector2(6f, -56f - i * 76f),
+                    new Vector2(292f, 66f),
                     Color.white);
                 lotRect.localRotation = Quaternion.Euler(0f, 0f, -2.0f + i * 0.9f);
                 lotRects[i] = lotRect;
-                ApplySpriteToImage(lotRect, LoadRootLotTagSprite(), new Color(1f, 0.95f, 0.84f, 0.80f), false);
+                ApplySpriteToImage(lotRect, LoadRootLotTagSprite(), IsRootClaimable(reward) ? new Color(1f, 1f, 1f, 0.96f) : new Color(0.90f, 0.86f, 0.76f, 0.88f), false);
                 Button lotButton = lotRect.gameObject.AddComponent<Button>();
                 lotButton.targetGraphic = lotRect.GetComponent<Image>();
-                lotButton.colors = CreateButtonColors(new Color(1f, 0.95f, 0.84f, 0.80f));
+                lotButton.colors = CreateButtonColors(new Color(1f, 0.96f, 0.86f, 0.94f));
 
                 RectTransform lotGlow = CreateStretchPanel(lotRect, "RootLotGlow", Vector2.zero, Vector2.one, new Vector2(5f, 5f), new Vector2(-5f, -5f), new Color(0.75f, 0.56f, 0.26f, 0f));
                 lotGlowImages[i] = lotGlow.GetComponent<Image>();
@@ -3216,7 +3264,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 lotName.rectTransform.offsetMax = new Vector2(-26f, -8f);
                 lotNameTexts[i] = lotName;
 
-                Text lotHint = CreateText(lotRect, "RootLotHint", BuildRootLotHint(reward.Root), 12, FontStyle.Bold, TextAnchor.LowerLeft, new Color(0.58f, 0.42f, 0.20f, 0.86f));
+                Text lotHint = CreateText(lotRect, "RootLotHint", IsRootClaimable(reward) ? BuildRootLotHint(reward.Root) : "命数未显", 12, FontStyle.Bold, TextAnchor.LowerLeft, new Color(0.58f, 0.42f, 0.20f, 0.86f));
                 lotHint.rectTransform.anchorMin = new Vector2(0f, 0f);
                 lotHint.rectTransform.anchorMax = new Vector2(1f, 0f);
                 lotHint.rectTransform.offsetMin = new Vector2(32f, 6f);
@@ -3236,10 +3284,10 @@ namespace PathOfTenThousandWays.Demo.UI
                     "RootIdleSmoke_" + i,
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
-                    new Vector2(-610f + i * 18f, -238f + i * 12f),
-                    new Vector2(120f + i * 10f, 178f + i * 16f),
+                    new Vector2(-656f + i * 6f, -148f + i * 2f),
+                    new Vector2(82f + i * 8f, 152f + i * 16f),
                     new Color(1f, 1f, 1f, 0.04f));
-                ApplySpriteToImage(smoke, LoadRootSmokeWispSprite(), new Color(0.86f, 0.90f, 0.88f, 0.045f), true);
+                ApplySpriteToImage(smoke, LoadRootSmokeWispSprite(), new Color(0.86f, 0.90f, 0.88f, 0.10f), true);
                 idleSmokeRects.Add(smoke);
                 idleSmokeImages.Add(smoke.GetComponent<Image>());
                 idleSmokeImages[idleSmokeImages.Count - 1].raycastTarget = false;
@@ -3267,8 +3315,8 @@ namespace PathOfTenThousandWays.Demo.UI
             fx.Configure(
                 rewards.ToArray(),
                 rootSprites,
-                rootObjectImage,
-                objectFrame,
+                null,
+                null,
                 rootNameText,
                 rarityText,
                 identityText,
@@ -3283,9 +3331,19 @@ namespace PathOfTenThousandWays.Demo.UI
                 burstSmokeRects.ToArray(),
                 burstSmokeImages.ToArray(),
                 pageSmokeImage,
-                confirmRect);
+                confirmRect,
+                confirmButton,
+                confirmSealImage,
+                confirmText,
+                inkSweepRect);
             fx.SelectImmediate(0);
-            confirmButton.onClick.AddListener(() => controller.ClaimRewardAt(fx.SelectedIndex));
+            confirmButton.onClick.AddListener(() =>
+            {
+                if (fx.CanClaimSelected)
+                {
+                    controller.ClaimRewardAt(fx.SelectedIndex);
+                }
+            });
 
             return deskObject;
         }
@@ -4439,7 +4497,11 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (cachedRootDestinyBackdropSprite == null)
             {
-                cachedRootDestinyBackdropSprite = LoadSpriteResource(RootDestinyBackdropResourcePath, SceneCloudseaFarResourcePath, RootDestinyDeskResourcePath);
+                cachedRootDestinyBackdropSprite = LoadSpriteResource(
+                    RootDestinySceneTeaDeskResourcePath,
+                    RootDestinyBackdropResourcePath,
+                    SceneCloudseaFarResourcePath,
+                    RootDestinyDeskResourcePath);
             }
 
             return cachedRootDestinyBackdropSprite;
@@ -4492,7 +4554,7 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (cachedRootLotTagSprite == null)
             {
-                cachedRootLotTagSprite = LoadSpriteResource(RootLotTagResourcePath, HomeSecondaryButtonResourcePath, HeaderCloudBandResourcePath);
+                cachedRootLotTagSprite = LoadSpriteResource(RootLotTagPaperResourcePath, RootLotTagResourcePath, HomeSecondaryButtonResourcePath, HeaderCloudBandResourcePath);
             }
 
             return cachedRootLotTagSprite;
@@ -4502,7 +4564,7 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (cachedRootConfirmSealSprite == null)
             {
-                cachedRootConfirmSealSprite = LoadSpriteResource(RootConfirmSealResourcePath, HomePrimaryButtonResourcePath, HeaderCloudBandResourcePath);
+                cachedRootConfirmSealSprite = LoadSpriteResource(RootConfirmSealCinnabarResourcePath, RootConfirmSealResourcePath, HomePrimaryButtonResourcePath, HeaderCloudBandResourcePath);
             }
 
             return cachedRootConfirmSealSprite;
@@ -4512,7 +4574,7 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (cachedRootSmokeWispSprite == null)
             {
-                cachedRootSmokeWispSprite = LoadSpriteResource(RootSmokeWispResourcePath, HeaderCloudBandResourcePath);
+                cachedRootSmokeWispSprite = LoadSpriteResource(RootSmokeWispSoftResourcePath, RootSmokeWispResourcePath, HeaderCloudBandResourcePath);
             }
 
             return cachedRootSmokeWispSprite;
@@ -4868,6 +4930,12 @@ namespace PathOfTenThousandWays.Demo.UI
                 default:
                     return string.IsNullOrEmpty(root?.Summary) ? "命签未明" : TrimSentence(root.Summary, 8);
             }
+        }
+
+        private static bool IsRootClaimable(DemoReward reward)
+        {
+            string id = (reward?.Root?.Id ?? string.Empty).Trim().ToLowerInvariant();
+            return id == "root_branch" || id == "fallback_root_branch";
         }
 
         private void AddRewardHoverEvents(GameObject rewardObject, DemoReward reward)
@@ -6584,10 +6652,16 @@ namespace PathOfTenThousandWays.Demo.UI
             private Image[] burstSmokeImages;
             private Image pageSmokeImage;
             private RectTransform confirmRect;
+            private Button confirmButton;
+            private Image confirmSealImage;
+            private Text confirmText;
+            private RectTransform inkSweepRect;
+            private Image inkSweepImage;
             private Vector2[] idleSmokeBasePositions;
             private Vector2[] burstSmokeBasePositions;
             private Vector2[] burstSmokeDirections;
             private float[] idleSmokePhases;
+            private float[] idleSmokePeriods;
             private int selectedIndex;
             private int pendingIndex = -1;
             private float transitionTimer;
@@ -6597,6 +6671,11 @@ namespace PathOfTenThousandWays.Demo.UI
             public int SelectedIndex
             {
                 get { return pendingIndex >= 0 ? pendingIndex : selectedIndex; }
+            }
+
+            public bool CanClaimSelected
+            {
+                get { return rewards != null && selectedIndex >= 0 && selectedIndex < rewards.Length && DemoRuntimeCanvasUI.IsRootClaimable(rewards[selectedIndex]); }
             }
 
             public void Configure(
@@ -6618,7 +6697,11 @@ namespace PathOfTenThousandWays.Demo.UI
                 RectTransform[] burstSmokeRects,
                 Image[] burstSmokeImages,
                 Image pageSmokeImage,
-                RectTransform confirmRect)
+                RectTransform confirmRect,
+                Button confirmButton,
+                Image confirmSealImage,
+                Text confirmText,
+                RectTransform inkSweepRect)
             {
                 this.rewards = rewards ?? new DemoReward[0];
                 this.rootSprites = rootSprites ?? new Sprite[0];
@@ -6639,6 +6722,11 @@ namespace PathOfTenThousandWays.Demo.UI
                 this.burstSmokeImages = burstSmokeImages ?? new Image[0];
                 this.pageSmokeImage = pageSmokeImage;
                 this.confirmRect = confirmRect;
+                this.confirmButton = confirmButton;
+                this.confirmSealImage = confirmSealImage;
+                this.confirmText = confirmText;
+                this.inkSweepRect = inkSweepRect;
+                inkSweepImage = inkSweepRect != null ? inkSweepRect.GetComponent<Image>() : null;
 
                 lotBasePositions = new Vector2[this.lotRects.Length];
                 lotBaseRotations = new Quaternion[this.lotRects.Length];
@@ -6655,10 +6743,12 @@ namespace PathOfTenThousandWays.Demo.UI
 
                 idleSmokeBasePositions = new Vector2[this.idleSmokeRects.Length];
                 idleSmokePhases = new float[this.idleSmokeRects.Length];
+                idleSmokePeriods = new float[this.idleSmokeRects.Length];
                 for (int i = 0; i < this.idleSmokeRects.Length; i++)
                 {
                     idleSmokeBasePositions[i] = this.idleSmokeRects[i].anchoredPosition;
-                    idleSmokePhases[i] = i * 0.83f;
+                    idleSmokePhases[i] = i * 0.27f;
+                    idleSmokePeriods[i] = 13.5f + i * 2.25f;
                 }
 
                 burstSmokeBasePositions = new Vector2[this.burstSmokeRects.Length];
@@ -6700,6 +6790,11 @@ namespace PathOfTenThousandWays.Demo.UI
                 transitionActive = true;
                 pendingApplied = false;
                 HighlightLots(index);
+                SetLedgerTextAlpha(1f);
+                if (confirmButton != null)
+                {
+                    confirmButton.interactable = false;
+                }
             }
 
             private void Update()
@@ -6712,21 +6807,20 @@ namespace PathOfTenThousandWays.Demo.UI
                 }
 
                 transitionTimer += Time.unscaledDeltaTime;
-                float progress = Mathf.Clamp01(transitionTimer / 0.68f);
-                float smokeAmount = Mathf.Sin(progress * Mathf.PI);
+                float progress = Mathf.Clamp01(transitionTimer / 0.44f);
 
-                if (!pendingApplied && progress >= 0.42f)
+                if (!pendingApplied && progress >= 0.36f)
                 {
                     ApplyIndex(pendingIndex);
                     pendingApplied = true;
                 }
 
-                UpdateTransitionSmoke(progress, smokeAmount);
+                UpdateTransitionSweep(progress);
 
                 if (rootObjectImage != null)
                 {
-                    float fadeOut = Mathf.Clamp01(progress / 0.42f);
-                    float fadeIn = Mathf.Clamp01((progress - 0.42f) / 0.58f);
+                    float fadeOut = Mathf.Clamp01(progress / 0.28f);
+                    float fadeIn = Mathf.Clamp01((progress - 0.36f) / 0.64f);
                     float alpha = progress < 0.42f
                         ? Mathf.Lerp(1f, 0.20f, fadeOut)
                         : Mathf.Lerp(0.20f, 1f, fadeIn);
@@ -6735,12 +6829,14 @@ namespace PathOfTenThousandWays.Demo.UI
 
                 if (objectFrame != null)
                 {
-                    objectFrame.localScale = Vector3.one * (1f + smokeAmount * 0.035f);
+                    objectFrame.localScale = Vector3.one;
                 }
 
                 if (confirmRect != null)
                 {
-                    confirmRect.localScale = Vector3.one * (1f + smokeAmount * 0.012f);
+                    bool targetClaimable = rewards != null && pendingIndex >= 0 && pendingIndex < rewards.Length && DemoRuntimeCanvasUI.IsRootClaimable(rewards[pendingIndex]);
+                    float pulse = targetClaimable ? Mathf.Sin(progress * Mathf.PI) * 0.012f : 0f;
+                    confirmRect.localScale = Vector3.one * (1f + pulse);
                 }
 
                 if (progress >= 1f)
@@ -6756,6 +6852,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 selectedIndex = Mathf.Clamp(index, 0, Mathf.Max(0, rewards.Length - 1));
                 DemoReward reward = rewards[selectedIndex];
                 DemoRootDefinition root = reward.Root;
+                bool claimable = DemoRuntimeCanvasUI.IsRootClaimable(reward);
 
                 if (rootNameText != null)
                 {
@@ -6764,7 +6861,9 @@ namespace PathOfTenThousandWays.Demo.UI
 
                 if (rarityText != null)
                 {
-                    rarityText.text = $"{DemoRuntimeCanvasUI.GetRootRarityLabel(root?.Rarity)}根脚 · 此身来处";
+                    rarityText.text = claimable
+                        ? $"{DemoRuntimeCanvasUI.GetRootRarityLabel(root?.Rarity)}根脚 · 此身来处"
+                        : "命数未显 · 可观不可落";
                 }
 
                 if (identityText != null)
@@ -6774,12 +6873,36 @@ namespace PathOfTenThousandWays.Demo.UI
 
                 if (effectText != null)
                 {
-                    effectText.text = DemoRuntimeCanvasUI.BuildRootEffectText(root);
+                    effectText.text = claimable
+                        ? DemoRuntimeCanvasUI.BuildRootEffectText(root)
+                        : "命数未显：此根脚尚未入命案";
                 }
 
                 if (footerText != null)
                 {
-                    footerText.text = "印成之后，自有人递来临行之物。";
+                    footerText.text = claimable
+                        ? "印成之后，自有人递来临行之物。"
+                        : "此根脚尚未入命案，待后续开放。";
+                }
+
+                if (confirmButton != null)
+                {
+                    confirmButton.interactable = claimable;
+                }
+
+                if (confirmSealImage != null)
+                {
+                    confirmSealImage.color = claimable
+                        ? Color.white
+                        : new Color(0.56f, 0.48f, 0.36f, 0.24f);
+                }
+
+                if (confirmText != null)
+                {
+                    confirmText.text = claimable ? "落印定身" : "未入命案";
+                    confirmText.color = claimable
+                        ? new Color(1.00f, 0.88f, 0.74f, 0.98f)
+                        : new Color(0.34f, 0.26f, 0.16f, 0.76f);
                 }
 
                 if (rootObjectImage != null)
@@ -6797,10 +6920,19 @@ namespace PathOfTenThousandWays.Demo.UI
                 for (int i = 0; i < lotGlowImages.Length; i++)
                 {
                     bool active = i == activeIndex;
+                    bool claimable = rewards != null && i >= 0 && i < rewards.Length && DemoRuntimeCanvasUI.IsRootClaimable(rewards[i]);
+                    Image lotImage = i < lotRects.Length && lotRects[i] != null ? lotRects[i].GetComponent<Image>() : null;
+                    if (lotImage != null)
+                    {
+                        lotImage.color = claimable
+                            ? (active ? new Color(1f, 0.92f, 0.72f, 0.96f) : new Color(1f, 0.94f, 0.80f, 0.88f))
+                            : (active ? new Color(0.94f, 0.88f, 0.76f, 0.88f) : new Color(0.92f, 0.86f, 0.74f, 0.80f));
+                    }
+
                     if (lotGlowImages[i] != null)
                     {
                         lotGlowImages[i].color = active
-                            ? new Color(0.82f, 0.58f, 0.25f, 0.22f)
+                            ? (claimable ? new Color(0.82f, 0.58f, 0.25f, 0.24f) : new Color(0.58f, 0.44f, 0.25f, 0.12f))
                             : new Color(0.82f, 0.58f, 0.25f, 0f);
                     }
 
@@ -6818,15 +6950,15 @@ namespace PathOfTenThousandWays.Demo.UI
                     if (i < lotNameTexts.Length && lotNameTexts[i] != null)
                     {
                         lotNameTexts[i].color = active
-                            ? new Color(0.12f, 0.08f, 0.04f, 0.98f)
-                            : new Color(0.24f, 0.17f, 0.09f, 0.84f);
+                            ? (claimable ? new Color(0.12f, 0.08f, 0.04f, 0.98f) : new Color(0.20f, 0.15f, 0.10f, 0.90f))
+                            : (claimable ? new Color(0.22f, 0.15f, 0.08f, 0.90f) : new Color(0.30f, 0.24f, 0.16f, 0.82f));
                     }
 
                     if (i < lotHintTexts.Length && lotHintTexts[i] != null)
                     {
                         lotHintTexts[i].color = active
-                            ? new Color(0.58f, 0.28f, 0.16f, 0.92f)
-                            : new Color(0.58f, 0.42f, 0.20f, 0.72f);
+                            ? (claimable ? new Color(0.58f, 0.28f, 0.16f, 0.92f) : new Color(0.46f, 0.30f, 0.18f, 0.90f))
+                            : (claimable ? new Color(0.58f, 0.42f, 0.20f, 0.80f) : new Color(0.54f, 0.42f, 0.28f, 0.76f));
                     }
                 }
             }
@@ -6841,16 +6973,42 @@ namespace PathOfTenThousandWays.Demo.UI
                     }
 
                     float phase = i < idleSmokePhases.Length ? idleSmokePhases[i] : i;
-                    float rise = Mathf.Repeat(time * (18f + i * 3f) + i * 31f, 128f) - 36f;
-                    float sway = Mathf.Sin(time * (0.75f + i * 0.09f) + phase) * (9f + i * 2f);
-                    idleSmokeRects[i].anchoredPosition = idleSmokeBasePositions[i] + new Vector2(sway, rise);
-                    idleSmokeRects[i].localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(time * 0.62f + phase) * 5f);
-                    idleSmokeRects[i].localScale = Vector3.one * (0.86f + Mathf.Sin(time * 0.54f + phase) * 0.06f);
+                    float period = i < idleSmokePeriods.Length ? idleSmokePeriods[i] : 11f;
+                    float loop = Mathf.Repeat(time / Mathf.Max(0.01f, period) + phase, 1f);
+                    float arc = Mathf.Sin(loop * Mathf.PI);
+                    float drift = loop * (12f + i * 3f) + Mathf.Sin(loop * Mathf.PI * 2f + phase) * (5f + i * 1.5f);
+                    float rise = loop * (76f + i * 12f);
+                    idleSmokeRects[i].anchoredPosition = idleSmokeBasePositions[i] + new Vector2(drift, rise);
+                    idleSmokeRects[i].localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(loop * Mathf.PI * 2f + i * 0.4f) * 3.2f);
+                    idleSmokeRects[i].localScale = Vector3.one * (0.50f + loop * 0.32f);
 
                     if (i < idleSmokeImages.Length && idleSmokeImages[i] != null)
                     {
-                        float alpha = 0.07f + Mathf.Sin(time * 0.82f + phase) * 0.025f;
-                        idleSmokeImages[i].color = new Color(0.86f, 0.90f, 0.88f, Mathf.Clamp(alpha, 0.035f, 0.13f));
+                        float alpha = arc * (0.055f + i * 0.012f);
+                        idleSmokeImages[i].color = new Color(0.86f, 0.90f, 0.88f, Mathf.Clamp(alpha, 0f, 0.095f));
+                    }
+                }
+            }
+
+            private void UpdateTransitionSweep(float progress)
+            {
+                float fadeOut = Mathf.Clamp01(progress / 0.22f);
+                float fadeIn = Mathf.Clamp01((progress - 0.36f) / 0.44f);
+                float textAlpha = progress < 0.36f
+                    ? Mathf.Lerp(1f, 0.08f, fadeOut)
+                    : Mathf.Lerp(0.08f, 1f, fadeIn);
+                SetLedgerTextAlpha(textAlpha);
+
+                if (inkSweepRect != null)
+                {
+                    float eased = Mathf.SmoothStep(0f, 1f, progress);
+                    float sweepAlpha = Mathf.Sin(progress * Mathf.PI) * 0.42f;
+                    inkSweepRect.anchoredPosition = new Vector2(Mathf.Lerp(-330f, 330f, eased), -8f);
+                    inkSweepRect.sizeDelta = new Vector2(Mathf.Lerp(160f, 430f, Mathf.Sin(progress * Mathf.PI)), 3f);
+
+                    if (inkSweepImage != null)
+                    {
+                        inkSweepImage.color = new Color(0.86f, 0.62f, 0.22f, sweepAlpha);
                     }
                 }
             }
@@ -6883,6 +7041,41 @@ namespace PathOfTenThousandWays.Demo.UI
                 }
             }
 
+            private void SetLedgerTextAlpha(float alpha)
+            {
+                SetTextAlpha(rootNameText, alpha);
+                SetTextAlpha(rarityText, alpha);
+                SetTextAlpha(identityText, alpha);
+                SetTextAlpha(effectText, alpha);
+                SetTextAlpha(footerText, alpha);
+                SetTextAlpha(confirmText, alpha);
+                SetImageAlpha(confirmSealImage, alpha);
+            }
+
+            private static void SetTextAlpha(Text text, float alpha)
+            {
+                if (text == null)
+                {
+                    return;
+                }
+
+                Color color = text.color;
+                color.a = Mathf.Clamp01(alpha);
+                text.color = color;
+            }
+
+            private static void SetImageAlpha(Image image, float alpha)
+            {
+                if (image == null)
+                {
+                    return;
+                }
+
+                Color color = image.color;
+                color.a = Mathf.Clamp01(alpha);
+                image.color = color;
+            }
+
             private void ResetTransitionVisuals()
             {
                 if (pageSmokeImage != null)
@@ -6905,12 +7098,49 @@ namespace PathOfTenThousandWays.Demo.UI
                     confirmRect.localScale = Vector3.one;
                 }
 
+                if (inkSweepImage != null)
+                {
+                    inkSweepImage.color = new Color(0.86f, 0.62f, 0.22f, 0f);
+                }
+
+                SetLedgerTextAlpha(1f);
+                RefreshConfirmState();
+
                 for (int i = 0; i < burstSmokeImages.Length; i++)
                 {
                     if (burstSmokeImages[i] != null)
                     {
                         burstSmokeImages[i].color = new Color(0.86f, 0.90f, 0.88f, 0f);
                     }
+                }
+            }
+
+            private void RefreshConfirmState()
+            {
+                if (rewards == null || selectedIndex < 0 || selectedIndex >= rewards.Length)
+                {
+                    return;
+                }
+
+                bool claimable = DemoRuntimeCanvasUI.IsRootClaimable(rewards[selectedIndex]);
+                if (confirmButton != null)
+                {
+                    confirmButton.interactable = claimable;
+                }
+
+                if (confirmSealImage != null)
+                {
+                    confirmSealImage.color = claimable
+                        ? Color.white
+                        : new Color(0.56f, 0.48f, 0.36f, 0.24f);
+                }
+
+                if (confirmText != null)
+                {
+                    confirmText.text = claimable ? "落印定身" : "未入命案";
+                    confirmText.color = claimable
+                        ? new Color(1.00f, 0.88f, 0.74f, 0.98f)
+                        : new Color(0.34f, 0.26f, 0.16f, 0.76f);
                 }
             }
         }
