@@ -635,16 +635,30 @@ namespace PathOfTenThousandWays.Demo.Systems
 
             HashSet<string> yieldedIds = new HashSet<string>();
 
-            if (TryGetRegion(line.FirstRegionId, yieldedIds, out DemoRegionDefinition primaryRegion))
+            if (line.RegionCandidateIds != null && line.RegionCandidateIds.Count > 0)
+            {
+                for (int i = 0; i < line.RegionCandidateIds.Count; i++)
+                {
+                    if (TryGetRegion(line.RegionCandidateIds[i], yieldedIds, out DemoRegionDefinition configuredRegion))
+                    {
+                        yield return configuredRegion;
+                    }
+                }
+            }
+
+            if (yieldedIds.Count == 0 && TryGetRegion(line.FirstRegionId, yieldedIds, out DemoRegionDefinition primaryRegion))
             {
                 yield return primaryRegion;
             }
 
-            foreach (DemoRegionDefinition region in GetFallbackOpeningRegions(line))
+            if (yieldedIds.Count < 2)
             {
-                if (region != null && yieldedIds.Add(region.Id))
+                foreach (DemoRegionDefinition region in GetFallbackOpeningRegions(line))
                 {
-                    yield return region;
+                    if (region != null && yieldedIds.Add(region.Id))
+                    {
+                        yield return region;
+                    }
                 }
             }
         }

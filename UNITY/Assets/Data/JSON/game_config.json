@@ -1,6 +1,6 @@
 {
     "meta":  {
-                 "generatedAt":  "2026-06-18T18:42:09+08:00",
+                 "generatedAt":  "2026-07-05T17:30:03+08:00",
                  "source":  "UNITY/Assets/Data/CSV",
                  "purpose":  "Program-readable complete config tables for opening system and current Unity DEMO runtime content."
              },
@@ -1165,16 +1165,16 @@
                                          "line_branch_old_vault":  {
                                                                        "id":  "line_branch_old_vault",
                                                                        "rootId":  "root_branch",
-                                                                       "title":  "奉命清查旧库",
-                                                                       "originText":  "你被派去清查一座旁支旧库老仆只偷偷把祖纹残匣塞给了你",
-                                                                       "carryItemName":  "祖纹残匣",
+                                                                       "title":  "祖龛残匣",
+                                                                       "originText":  "祖龛塌落时，只有这只封死的小匣没有碎。",
+                                                                       "carryItemName":  "祖龛残匣",
                                                                        "carryItemEffect":  "首次获得法器时额外多看 1 件同池候选",
-                                                                       "firstRegionId":  "region_ancestral_vault",
+                                                                       "firstRegionId":  "region_old_mine",
                                                                        "riskLevel":  "stable",
                                                                        "summaryTags":  [
                                                                                            "artifact",
                                                                                            "gongfa",
-                                                                                           "acceleration"
+                                                                                           "treasure"
                                                                                        ],
                                                                        "nodeBiases":  [
                                                                                           {
@@ -1252,16 +1252,16 @@
                                          "line_branch_baishan_post":  {
                                                                           "id":  "line_branch_baishan_post",
                                                                           "rootId":  "root_branch",
-                                                                          "title":  "替族送帖拜山",
-                                                                          "originText":  "你奉命送帖拜山临行前只获准带走一块护身古玉",
-                                                                          "carryItemName":  "护身古玉",
-                                                                          "carryItemEffect":  "第一场战斗开始获得 6 护盾",
-                                                                          "firstRegionId":  "region_trade_road",
+                                                                          "title":  "祠堂夜雨",
+                                                                          "originText":  "族中大乱后，叔父把一枚护身旧玉塞进你袖中。",
+                                                                          "carryItemName":  "护身旧玉",
+                                                                          "carryItemEffect":  "第一场斗法开始时获得 6 护盾",
+                                                                          "firstRegionId":  "region_old_mine",
                                                                           "riskLevel":  "stable",
                                                                           "summaryTags":  [
                                                                                               "defense",
-                                                                                              "gongfa",
-                                                                                              "event"
+                                                                                              "sword_intent",
+                                                                                              "stable"
                                                                                           ],
                                                                           "nodeBiases":  [
                                                                                              {
@@ -1421,16 +1421,16 @@
                                          "line_branch_burned_ancestral_hall":  {
                                                                                    "id":  "line_branch_burned_ancestral_hall",
                                                                                    "rootId":  "root_branch",
-                                                                                   "title":  "祭扫失火家祠",
-                                                                                   "originText":  "一场家祠火事烧出一卷余烬符函族中无人敢看最后落到了你手中",
-                                                                                   "carryItemName":  "余烬符函",
+                                                                                   "title":  "灰烬符匣",
+                                                                                   "originText":  "旧宅焚毁后，你从灰里捡出一只仍有余温的符匣。",
+                                                                                   "carryItemName":  "余烬符匣",
                                                                                    "carryItemEffect":  "首次功法候选额外再看 1 项",
-                                                                                   "firstRegionId":  "region_herb_forest",
+                                                                                   "firstRegionId":  "region_old_mine",
                                                                                    "riskLevel":  "medium",
                                                                                    "summaryTags":  [
                                                                                                        "gongfa",
                                                                                                        "status_transition",
-                                                                                                       "event"
+                                                                                                       "risk_reward"
                                                                                                    ],
                                                                                    "nodeBiases":  [
                                                                                                       {

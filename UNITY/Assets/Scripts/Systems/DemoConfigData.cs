@@ -84,6 +84,7 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string CarryItemName { get; set; }
         public string CarryItemEffect { get; set; }
         public string FirstRegionId { get; set; }
+        public List<string> RegionCandidateIds { get; set; } = new List<string>();
         public string RiskLevel { get; set; }
         public List<string> SummaryTags { get; set; } = new List<string>();
         public List<DemoJourneyNodeBiasConfig> NodeBiases { get; set; } = new List<DemoJourneyNodeBiasConfig>();
@@ -274,6 +275,7 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string CarryItemName;
         public string CarryItemEffect;
         public string FirstRegionId;
+        public List<string> RegionCandidateIds = new List<string>();
         public string RiskLevel;
         public List<string> SummaryTags = new List<string>();
         public List<DemoJourneyNodeBiasConfig> NodeBiases = new List<DemoJourneyNodeBiasConfig>();

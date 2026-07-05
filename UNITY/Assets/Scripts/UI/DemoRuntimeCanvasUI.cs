@@ -48,6 +48,9 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string OpeningSceneTradeRoadResourcePath = "Art/UI/ui_opening_scene_trade_road_001";
         private const string OpeningSceneOldMineResourcePath = "Art/UI/ui_opening_scene_old_mine_001";
         private const string OpeningSceneThunderMarshResourcePath = "Art/UI/ui_opening_scene_thunder_marsh_001";
+        private const string OpeningSceneHerbForestResourcePath = "Art/UI/ui_opening_scene_herb_forest_001";
+        private const string OpeningSceneAncestralVaultResourcePath = "Art/UI/ui_opening_scene_ancestral_vault_001";
+        private const string OpeningSceneDemonTowerResourcePath = "Art/UI/ui_opening_scene_demon_tower_001";
         private const string HomeHeroInkResourcePath = "Art/UI/ui_home_hero_ink_002";
         private const string HomeHeroInkFallbackResourcePath = "Art/UI/ui_home_hero_ink_001";
         private const string HomePrimaryButtonResourcePath = "Art/UI/ui_btn_home_primary_001";
@@ -104,6 +107,9 @@ namespace PathOfTenThousandWays.Demo.UI
         private static Sprite cachedOpeningSceneTradeRoadSprite;
         private static Sprite cachedOpeningSceneOldMineSprite;
         private static Sprite cachedOpeningSceneThunderMarshSprite;
+        private static Sprite cachedOpeningSceneHerbForestSprite;
+        private static Sprite cachedOpeningSceneAncestralVaultSprite;
+        private static Sprite cachedOpeningSceneDemonTowerSprite;
         private static Sprite cachedHomeHeroInkSprite;
         private static Sprite cachedHomePrimaryButtonSprite;
         private static Sprite cachedHomeSecondaryButtonSprite;
@@ -171,6 +177,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private GameObject nodeOverlayRoot;
         private GameObject rewardOverlayRoot;
         private GameObject rootDestinyBackdropRoot;
+        private Image rootDestinyBackdropVeilImage;
         private GameObject battleHudRoot;
         private GameObject nodeOverlayPanelRoot;
         private GameObject nodeMapPanelRoot;
@@ -1299,7 +1306,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 Vector2.zero,
                 Vector2.zero,
                 new Color(0.015f, 0.018f, 0.018f, 0.06f));
-            rootBackdropVeil.GetComponent<Image>().raycastTarget = false;
+            rootDestinyBackdropVeilImage = rootBackdropVeil.GetComponent<Image>();
+            rootDestinyBackdropVeilImage.raycastTarget = false;
 
             rewardTitleText = CreateText(rewardOverlayRoot.transform, "RewardTitle", string.Empty, 40, FontStyle.Bold, TextAnchor.UpperCenter, ColorPaper);
             rewardTitleText.rectTransform.anchorMin = new Vector2(0.5f, 1f);
@@ -1596,6 +1604,7 @@ namespace PathOfTenThousandWays.Demo.UI
             bool showStartHome = IsStartHomeScreen();
             bool hideTopHud = IsStartPresentationScreen();
             bool showRootOpeningRewards = AreStartRewardsOfType(DemoRewardType.Root);
+            bool showOpeningItemRewards = IsStartOpeningItemScreen();
             bool showStartOpeningRewards = IsStartOpeningScreen();
             bool showRouteChoiceRewards = IsRouteChoiceScreen();
             bool showMinimalRewardPanels = showStartOpeningRewards || showRouteChoiceRewards;
@@ -1625,7 +1634,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 Image rewardOverlayImage = rewardOverlayRoot.GetComponent<Image>();
                 if (rewardOverlayImage != null)
                 {
-                    rewardOverlayImage.color = showRootOpeningRewards
+                    rewardOverlayImage.color = showRootOpeningRewards || showOpeningItemRewards
                         ? new Color(0.018f, 0.020f, 0.020f, 0.03f)
                         : new Color(0.04f, 0.05f, 0.06f, 0.36f);
                 }
@@ -1633,7 +1642,12 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (rootDestinyBackdropRoot != null)
             {
-                rootDestinyBackdropRoot.SetActive(showingRewards && showRootOpeningRewards);
+                rootDestinyBackdropRoot.SetActive(showingRewards && (showRootOpeningRewards || showOpeningItemRewards));
+            }
+
+            if (rootDestinyBackdropVeilImage != null)
+            {
+                rootDestinyBackdropVeilImage.color = new Color(0.015f, 0.018f, 0.018f, 0.06f);
             }
 
             if (battleHudRoot != null)
@@ -1757,10 +1771,19 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningItemScreen())
             {
-                rewardContainer.anchoredPosition = new Vector2(0f, 10f);
-                rewardContainer.sizeDelta = new Vector2(1450f, 648f);
-                rewardLayoutGroup.spacing = 28f;
-                rewardLayoutGroup.padding = new RectOffset(20, 20, 0, 0);
+                rewardContainer.anchoredPosition = new Vector2(0f, 18f);
+                rewardContainer.sizeDelta = new Vector2(1360f, 600f);
+                rewardLayoutGroup.spacing = 30f;
+                rewardLayoutGroup.padding = new RectOffset(24, 24, 0, 0);
+                return;
+            }
+
+            if (IsStartOpeningSceneScreen())
+            {
+                rewardContainer.anchoredPosition = new Vector2(0f, 6f);
+                rewardContainer.sizeDelta = new Vector2(1760f, 700f);
+                rewardLayoutGroup.spacing = 30f;
+                rewardLayoutGroup.padding = new RectOffset(26, 26, 8, 8);
                 return;
             }
 
@@ -1791,32 +1814,86 @@ namespace PathOfTenThousandWays.Demo.UI
         private void RefreshRewardHeaderStyle()
         {
             bool showingRootDestiny = AreStartRewardsOfType(DemoRewardType.Root);
+            bool showingOpeningItem = IsStartOpeningItemScreen();
 
             if (rewardTitleText != null)
             {
+                rewardTitleText.fontSize = showingRootDestiny ? 30 : showingOpeningItem ? 38 : 40;
+                rewardTitleText.alignment = TextAnchor.UpperCenter;
+                rewardTitleText.rectTransform.anchoredPosition = showingRootDestiny
+                    ? new Vector2(0f, -86f)
+                    : showingOpeningItem
+                        ? new Vector2(0f, -72f)
+                    : new Vector2(0f, -118f);
+                rewardTitleText.rectTransform.sizeDelta = showingRootDestiny
+                    ? new Vector2(720f, 40f)
+                    : showingOpeningItem
+                        ? new Vector2(760f, 48f)
+                    : new Vector2(980f, 50f);
                 rewardTitleText.color = showingRootDestiny
-                    ? new Color(0.15f, 0.11f, 0.07f, 0.96f)
+                    ? new Color(0.17f, 0.12f, 0.08f, 0.86f)
+                    : showingOpeningItem
+                        ? new Color(0.17f, 0.12f, 0.08f, 0.94f)
                     : new Color(0.95f, 0.94f, 0.90f, 1f);
             }
 
             if (rewardBodyText != null)
             {
+                rewardBodyText.fontSize = showingRootDestiny ? 15 : showingOpeningItem ? 16 : 18;
+                rewardBodyText.rectTransform.anchoredPosition = showingRootDestiny
+                    ? new Vector2(0f, -124f)
+                    : showingOpeningItem
+                        ? new Vector2(0f, -118f)
+                    : new Vector2(0f, -172f);
+                rewardBodyText.rectTransform.sizeDelta = showingRootDestiny
+                    ? new Vector2(880f, 34f)
+                    : showingOpeningItem
+                        ? new Vector2(920f, 34f)
+                    : new Vector2(1160f, 56f);
                 rewardBodyText.color = showingRootDestiny
-                    ? new Color(0.24f, 0.18f, 0.11f, 0.90f)
+                    ? new Color(0.25f, 0.18f, 0.12f, 0.68f)
+                    : showingOpeningItem
+                        ? new Color(0.27f, 0.20f, 0.13f, 0.72f)
                     : new Color(0.90f, 0.92f, 0.95f, 0.98f);
             }
 
             if (rewardSectionTitleText != null)
             {
+                rewardSectionTitleText.fontSize = showingRootDestiny ? 15 : showingOpeningItem ? 19 : 22;
+                rewardSectionTitleText.rectTransform.anchoredPosition = showingRootDestiny
+                    ? new Vector2(0f, -158f)
+                    : showingOpeningItem
+                        ? new Vector2(0f, -154f)
+                    : new Vector2(0f, -228f);
+                rewardSectionTitleText.rectTransform.sizeDelta = showingRootDestiny
+                    ? new Vector2(560f, 24f)
+                    : showingOpeningItem
+                        ? new Vector2(620f, 28f)
+                    : new Vector2(840f, 34f);
                 rewardSectionTitleText.color = showingRootDestiny
-                    ? new Color(0.48f, 0.31f, 0.13f, 0.94f)
+                    ? new Color(0.50f, 0.31f, 0.14f, 0.72f)
+                    : showingOpeningItem
+                        ? new Color(0.53f, 0.35f, 0.15f, 0.82f)
                     : new Color(0.97f, 0.87f, 0.56f, 1f);
             }
 
             if (rewardSectionHintText != null)
             {
+                rewardSectionHintText.fontSize = showingRootDestiny ? 12 : showingOpeningItem ? 14 : 14;
+                rewardSectionHintText.rectTransform.anchoredPosition = showingRootDestiny
+                    ? new Vector2(0f, -181f)
+                    : showingOpeningItem
+                        ? new Vector2(0f, -181f)
+                    : new Vector2(0f, -256f);
+                rewardSectionHintText.rectTransform.sizeDelta = showingRootDestiny
+                    ? new Vector2(660f, 22f)
+                    : showingOpeningItem
+                        ? new Vector2(840f, 24f)
+                    : new Vector2(980f, 28f);
                 rewardSectionHintText.color = showingRootDestiny
-                    ? new Color(0.34f, 0.27f, 0.18f, 0.86f)
+                    ? new Color(0.34f, 0.27f, 0.18f, 0.52f)
+                    : showingOpeningItem
+                        ? new Color(0.34f, 0.27f, 0.18f, 0.60f)
                     : new Color(0.86f, 0.89f, 0.93f, 0.98f);
             }
         }
@@ -2182,12 +2259,12 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (AreStartRewardsOfType(DemoRewardType.Root))
             {
-                return "命案已开";
+                return string.Empty;
             }
 
             if (IsStartOpeningItemScreen())
             {
-                return "受信物";
+                return string.Empty;
             }
 
             if (IsStartOpeningSceneScreen())
@@ -2207,12 +2284,12 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (AreStartRewardsOfType(DemoRewardType.Root))
             {
-                return "签落案前，先认此身来处";
+                return string.Empty;
             }
 
             if (IsStartOpeningItemScreen())
             {
-                return "先让为何出山、带什么上路成立，再去定第一段要走进哪片天地";
+                return string.Empty;
             }
 
             if (IsStartOpeningSceneScreen())
@@ -2404,12 +2481,12 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (AreStartRewardsOfType(DemoRewardType.Root))
             {
-                return "案上命书未干，先从诸签里认下这一世的来处。";
+                return string.Empty;
             }
 
             if (IsStartOpeningItemScreen())
             {
-                return "先拿定一路带着什么上路，让这一局为什么离山先成立。";
+                return "从案上三件临行旧物中择一件，作为这一世的启程信物。";
             }
 
             if (IsStartOpeningSceneScreen())
@@ -2511,7 +2588,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningItemScreen())
             {
-                return "再选为何出山、带什么上路。这里先把开场缘由与器物定下来。";
+                return "案上三物，背后是三条出山缘由。先承一物，再入首境。";
             }
 
             if (IsStartOpeningSceneScreen())
@@ -2531,7 +2608,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningItemScreen())
             {
-                return "· 看为何出山\n· 看带什么上路\n· 先定起手器物";
+                return "· 读一段来历\n· 承一件旧物\n· 定一口起势";
             }
 
             if (IsStartOpeningSceneScreen())
@@ -2551,7 +2628,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningItemScreen())
             {
-                return "再受信物，把来历与临行一物先说清楚，让这一世为何上路先成立。";
+                return "受信物：案上三物各牵一条命运，先把为何离山与带什么上路定清楚。";
             }
 
             if (IsStartOpeningSceneScreen())
@@ -3159,8 +3236,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 "RootConfirmSealHitArea",
                 new Vector2(1f, 0f),
                 new Vector2(0.5f, 0.5f),
-                new Vector2(-136f, 62f),
-                new Vector2(164f, 104f),
+                new Vector2(-142f, 76f),
+                new Vector2(204f, 128f),
                 new Color(1f, 1f, 1f, 0f));
             confirmRect.GetComponent<Image>().raycastTarget = true;
             Button confirmButton = confirmRect.gameObject.AddComponent<Button>();
@@ -3173,15 +3250,15 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0f, 0f),
-                new Vector2(150f, 94f),
+                new Vector2(188f, 118f),
                 Color.white);
             ApplySpriteToImage(confirmSealRect, LoadRootConfirmSealSprite(), Color.white, true);
             confirmSealRect.localRotation = Quaternion.Euler(0f, 0f, -4.5f);
             Image confirmSealImage = confirmSealRect.GetComponent<Image>();
             confirmSealImage.raycastTarget = false;
 
-            Text confirmText = CreateText(confirmRect, "RootConfirmText", "落印定身", 18, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1.00f, 0.88f, 0.74f, 0.98f));
-            StretchText(confirmText.rectTransform, new Vector2(10f, 23f), new Vector2(-10f, -18f));
+            Text confirmText = CreateText(confirmRect, "RootConfirmText", "落印定身", 20, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1.00f, 0.88f, 0.74f, 0.98f));
+            StretchText(confirmText.rectTransform, new Vector2(14f, 29f), new Vector2(-14f, -24f));
             confirmText.raycastTarget = false;
 
             Text footerText = CreateText(ledgerPanel, "RootFooter", "印成之后，自有人递来临行之物。", 14, FontStyle.Normal, TextAnchor.LowerLeft, new Color(0.38f, 0.29f, 0.16f, 0.84f));
@@ -3195,10 +3272,31 @@ namespace PathOfTenThousandWays.Demo.UI
                 "RootLotRack",
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
-                new Vector2(572f, -138f),
-                new Vector2(338f, 392f),
+                new Vector2(560f, -140f),
+                new Vector2(390f, 430f),
                 new Color(0.96f, 0.88f, 0.66f, 0.010f));
             lotRack.GetComponent<Image>().raycastTarget = false;
+
+            RectTransform lotRackWash = CreateStretchPanel(
+                lotRack,
+                "RootLotRackPaperWash",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(8f, 12f),
+                new Vector2(-18f, -18f),
+                new Color(0.86f, 0.72f, 0.42f, 0.095f));
+            lotRackWash.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(lotRackWash, new Color(0.62f, 0.44f, 0.20f, 0.12f), new Color(1f, 0.96f, 0.82f, 0.016f), 1.2f, false);
+
+            RectTransform rackInkVeil = CreateStretchPanel(
+                lotRack,
+                "RootLotRackInkVeil",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(20f, 34f),
+                new Vector2(-30f, -38f),
+                new Color(0.12f, 0.08f, 0.04f, 0.035f));
+            rackInkVeil.GetComponent<Image>().raycastTarget = false;
 
             RectTransform rackTitlePlate = CreateFixedPanel(
                 lotRack,
@@ -3206,7 +3304,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f),
                 new Vector2(-4f, -20f),
-                new Vector2(194f, 44f),
+                new Vector2(216f, 46f),
                 Color.white);
             ApplySpriteToImage(rackTitlePlate, LoadRootLotTagSprite(), new Color(0.96f, 0.88f, 0.66f, 0.92f), false);
             rackTitlePlate.localRotation = Quaternion.Euler(0f, 0f, -1.2f);
@@ -3219,6 +3317,8 @@ namespace PathOfTenThousandWays.Demo.UI
             int count = Mathf.Min(4, rewards.Count);
             RectTransform[] lotRects = new RectTransform[count];
             Image[] lotGlowImages = new Image[count];
+            Image[] lotSelectedSealImages = new Image[count];
+            Text[] lotSelectedSealTexts = new Text[count];
             Text[] lotNameTexts = new Text[count];
             Text[] lotHintTexts = new Text[count];
             Sprite[] rootSprites = new Sprite[count];
@@ -3232,8 +3332,8 @@ namespace PathOfTenThousandWays.Demo.UI
                     "RootLotShadow_" + i,
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
-                    new Vector2(14f, -60f - i * 76f),
-                    new Vector2(292f, 66f),
+                    new Vector2(18f, -64f - i * 84f),
+                    new Vector2(326f, 74f),
                     new Color(0.18f, 0.12f, 0.06f, 0.18f));
                 lotShadow.localRotation = Quaternion.Euler(0f, 0f, -2.0f + i * 0.9f);
                 lotShadow.GetComponent<Image>().raycastTarget = false;
@@ -3243,8 +3343,8 @@ namespace PathOfTenThousandWays.Demo.UI
                     "RootLot_" + i,
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
-                    new Vector2(6f, -56f - i * 76f),
-                    new Vector2(292f, 66f),
+                    new Vector2(8f, -60f - i * 84f),
+                    new Vector2(326f, 74f),
                     Color.white);
                 lotRect.localRotation = Quaternion.Euler(0f, 0f, -2.0f + i * 0.9f);
                 lotRects[i] = lotRect;
@@ -3257,18 +3357,35 @@ namespace PathOfTenThousandWays.Demo.UI
                 lotGlowImages[i] = lotGlow.GetComponent<Image>();
                 lotGlowImages[i].raycastTarget = false;
 
+                RectTransform lotSelectedSeal = CreateFixedPanel(
+                    lotRect,
+                    "RootLotSelectedSeal",
+                    new Vector2(1f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(-34f, 0f),
+                    new Vector2(46f, 32f),
+                    new Color(1f, 1f, 1f, 0f));
+                ApplySpriteToImage(lotSelectedSeal, LoadRootConfirmSealSprite(), new Color(0.78f, 0.18f, 0.12f, 0f), true);
+                lotSelectedSeal.localRotation = Quaternion.Euler(0f, 0f, -8f + i * 1.2f);
+                lotSelectedSealImages[i] = lotSelectedSeal.GetComponent<Image>();
+                lotSelectedSealImages[i].raycastTarget = false;
+
+                Text lotSelectedText = CreateText(lotSelectedSeal, "RootLotSelectedText", "选", 13, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1.0f, 0.86f, 0.70f, 0f));
+                StretchText(lotSelectedText.rectTransform, new Vector2(5f, 5f), new Vector2(-5f, -5f));
+                lotSelectedSealTexts[i] = lotSelectedText;
+
                 Text lotName = CreateText(lotRect, "RootLotName", reward.Name, 18, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.18f, 0.13f, 0.08f, 0.96f));
                 lotName.rectTransform.anchorMin = new Vector2(0f, 0f);
                 lotName.rectTransform.anchorMax = new Vector2(1f, 1f);
-                lotName.rectTransform.offsetMin = new Vector2(30f, 16f);
-                lotName.rectTransform.offsetMax = new Vector2(-26f, -8f);
+                lotName.rectTransform.offsetMin = new Vector2(34f, 18f);
+                lotName.rectTransform.offsetMax = new Vector2(-66f, -8f);
                 lotNameTexts[i] = lotName;
 
                 Text lotHint = CreateText(lotRect, "RootLotHint", IsRootClaimable(reward) ? BuildRootLotHint(reward.Root) : "命数未显", 12, FontStyle.Bold, TextAnchor.LowerLeft, new Color(0.58f, 0.42f, 0.20f, 0.86f));
                 lotHint.rectTransform.anchorMin = new Vector2(0f, 0f);
                 lotHint.rectTransform.anchorMax = new Vector2(1f, 0f);
-                lotHint.rectTransform.offsetMin = new Vector2(32f, 6f);
-                lotHint.rectTransform.offsetMax = new Vector2(-24f, 24f);
+                lotHint.rectTransform.offsetMin = new Vector2(36f, 7f);
+                lotHint.rectTransform.offsetMax = new Vector2(-70f, 25f);
                 lotHintTexts[i] = lotHint;
 
                 rootSprites[i] = LoadRootObjectSprite(reward.Root);
@@ -3324,6 +3441,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 footerText,
                 lotRects,
                 lotGlowImages,
+                lotSelectedSealImages,
+                lotSelectedSealTexts,
                 lotNameTexts,
                 lotHintTexts,
                 idleSmokeRects.ToArray(),
@@ -3337,6 +3456,41 @@ namespace PathOfTenThousandWays.Demo.UI
                 confirmText,
                 inkSweepRect);
             fx.SelectImmediate(0);
+            EventTrigger confirmTrigger = confirmRect.gameObject.AddComponent<EventTrigger>();
+            confirmTrigger.triggers = new List<EventTrigger.Entry>();
+
+            EventTrigger.Entry confirmEnter = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerEnter
+            };
+            confirmEnter.callback.AddListener(_ => fx.SetConfirmHover(true));
+            confirmTrigger.triggers.Add(confirmEnter);
+
+            EventTrigger.Entry confirmExit = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerExit
+            };
+            confirmExit.callback.AddListener(_ =>
+            {
+                fx.SetConfirmHover(false);
+                fx.SetConfirmPressed(false);
+            });
+            confirmTrigger.triggers.Add(confirmExit);
+
+            EventTrigger.Entry confirmDown = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerDown
+            };
+            confirmDown.callback.AddListener(_ => fx.SetConfirmPressed(true));
+            confirmTrigger.triggers.Add(confirmDown);
+
+            EventTrigger.Entry confirmUp = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerUp
+            };
+            confirmUp.callback.AddListener(_ => fx.SetConfirmPressed(false));
+            confirmTrigger.triggers.Add(confirmUp);
+
             confirmButton.onClick.AddListener(() =>
             {
                 if (fx.CanClaimSelected)
@@ -3358,121 +3512,166 @@ namespace PathOfTenThousandWays.Demo.UI
             cardObject.transform.SetParent(parent, false);
 
             RectTransform cardRect = cardObject.GetComponent<RectTransform>();
-            cardRect.sizeDelta = new Vector2(376f, 604f);
+            cardRect.sizeDelta = new Vector2(368f, 584f);
 
             LayoutElement layout = cardObject.GetComponent<LayoutElement>();
-            layout.preferredWidth = 376f;
-            layout.minWidth = 376f;
-            layout.preferredHeight = 604f;
-            layout.minHeight = 604f;
+            layout.preferredWidth = 368f;
+            layout.minWidth = 368f;
+            layout.preferredHeight = 584f;
+            layout.minHeight = 584f;
 
             Image cardImage = cardObject.GetComponent<Image>();
-            cardImage.color = new Color(0.055f, 0.060f, 0.065f, 0.96f);
+            cardImage.color = new Color(0.92f, 0.84f, 0.66f, 0.24f);
+            cardImage.raycastTarget = true;
 
             Button button = cardObject.GetComponent<Button>();
             button.targetGraphic = cardImage;
-            button.colors = CreateButtonColors(new Color(0.18f, 0.17f, 0.14f, 1f));
+            button.colors = CreateButtonColors(new Color(0.95f, 0.90f, 0.78f, 0.98f));
 
-            DecorateFrame(cardRect, new Color(accent.r, accent.g, accent.b, 0.86f), new Color(1f, 0.95f, 0.82f, 0.018f), 2f, true);
+            Color frameAccent = GetOpeningItemFrameAccent(accent);
+            DecorateFrame(cardRect, new Color(frameAccent.r, frameAccent.g, frameAccent.b, 0.50f), new Color(1f, 0.96f, 0.84f, 0.045f), 1.2f, true);
 
-            RectTransform artRoot = CreateStretchPanel(
+            RectTransform innerShadow = CreateStretchPanel(
                 cardObject.transform,
-                "OpeningItemArt",
+                "OpeningItemInnerShadow",
                 Vector2.zero,
                 Vector2.one,
-                new Vector2(8f, 8f),
-                new Vector2(-8f, -8f),
-                GetRewardPanelColor(reward));
+                new Vector2(12f, 10f),
+                new Vector2(-12f, -12f),
+                new Color(0.11f, 0.07f, 0.03f, 0.095f));
+            innerShadow.GetComponent<Image>().raycastTarget = false;
+
+            RectTransform artViewport = CreateStretchPanel(
+                cardObject.transform,
+                "OpeningItemArtViewport",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(12f, 12f),
+                new Vector2(-12f, -12f),
+                new Color(0.90f, 0.84f, 0.71f, 0.66f));
+            artViewport.GetComponent<Image>().raycastTarget = false;
+            artViewport.gameObject.AddComponent<RectMask2D>();
+
+            RectTransform artRoot = CreateFixedPanel(
+                artViewport,
+                "OpeningItemArt",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                GetOpeningItemArtOffset(line),
+                GetOpeningItemArtSize(line),
+                Color.white);
             artRoot.GetComponent<Image>().raycastTarget = false;
 
             if (heroSprite != null)
             {
-                ApplySpriteToImage(artRoot, heroSprite, Color.white);
+                ApplySpriteToImage(artRoot, heroSprite, Color.white, true);
             }
+
+            RectTransform inkVeil = CreateStretchPanel(
+                cardObject.transform,
+                "OpeningItemInkVeil",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(12f, 12f),
+                new Vector2(-12f, -12f),
+                new Color(0.08f, 0.06f, 0.03f, 0.020f));
+            inkVeil.GetComponent<Image>().raycastTarget = false;
+
+            RectTransform artLight = CreateStretchPanel(
+                cardObject.transform,
+                "OpeningItemLocalLight",
+                new Vector2(0f, 0.50f),
+                new Vector2(1f, 1f),
+                new Vector2(18f, 14f),
+                new Vector2(-18f, -18f),
+                GetOpeningItemLightColor(line, accent));
+            artLight.GetComponent<Image>().raycastTarget = false;
 
             RectTransform topWash = CreateStretchPanel(
                 cardObject.transform,
                 "OpeningItemTopWash",
-                new Vector2(0f, 0.74f),
+                new Vector2(0f, 0.78f),
                 new Vector2(1f, 1f),
-                new Vector2(8f, -8f),
-                new Vector2(-8f, -8f),
-                new Color(0f, 0f, 0f, 0.16f));
+                new Vector2(10f, -10f),
+                new Vector2(-10f, -10f),
+                new Color(0.95f, 0.88f, 0.70f, 0.045f));
             topWash.GetComponent<Image>().raycastTarget = false;
 
-            Color itemOverlayColor = new Color(0.025f, 0.027f, 0.030f, 0.78f);
+            Color itemOverlayColor = new Color(0.91f, 0.82f, 0.62f, 0.93f);
             RectTransform bottomWash = CreateStretchPanel(
                 cardObject.transform,
                 "OpeningItemBottomWash",
                 new Vector2(0f, 0f),
-                new Vector2(1f, 0.43f),
-                new Vector2(8f, 8f),
-                new Vector2(-8f, 0f),
+                new Vector2(1f, 0.48f),
+                new Vector2(10f, 10f),
+                new Vector2(-10f, 0f),
                 itemOverlayColor);
             bottomWash.GetComponent<Image>().raycastTarget = false;
-            button.targetGraphic = bottomWash.GetComponent<Image>();
-            button.colors = CreateButtonColors(itemOverlayColor);
-            DecorateFrame(bottomWash, new Color(accent.r, accent.g, accent.b, 0.26f), new Color(1f, 1f, 1f, 0.012f), 1f, false);
+            button.targetGraphic = cardImage;
+            button.colors = CreateButtonColors(new Color(0.95f, 0.90f, 0.78f, 0.98f));
+            DecorateFrame(bottomWash, new Color(accent.r, accent.g, accent.b, 0.32f), new Color(1f, 1f, 1f, 0.06f), 1f, false);
 
-            RectTransform typeBadge = CreateFixedPanel(
+            RectTransform transitionWash = CreateStretchPanel(
                 cardObject.transform,
-                "OpeningItemTypeBadge",
-                new Vector2(0f, 1f),
-                new Vector2(0f, 1f),
-                new Vector2(22f, -22f),
-                new Vector2(74f, 34f),
-                new Color(0.07f, 0.075f, 0.080f, 0.82f));
-            typeBadge.GetComponent<Image>().raycastTarget = false;
-            DecorateFrame(typeBadge, accent, new Color(0f, 0f, 0f, 0f), 1f, false);
-            Text typeText = CreateText(typeBadge, "OpeningItemTypeText", "携行", 13, FontStyle.Bold, TextAnchor.MiddleCenter, accent);
-            StretchText(typeText.rectTransform, new Vector2(6f, 2f), new Vector2(-6f, -2f));
+                "OpeningItemPaperTransition",
+                new Vector2(0f, 0.455f),
+                new Vector2(1f, 0.495f),
+                new Vector2(10f, 0f),
+                new Vector2(-10f, 0f),
+                new Color(0.91f, 0.82f, 0.62f, 0.20f));
+            transitionWash.GetComponent<Image>().raycastTarget = false;
 
-            RectTransform riskBadge = CreateFixedPanel(
-                cardObject.transform,
-                "OpeningItemRiskBadge",
-                new Vector2(1f, 1f),
-                new Vector2(1f, 1f),
-                new Vector2(-22f, -22f),
-                new Vector2(86f, 34f),
-                new Color(0.07f, 0.075f, 0.080f, 0.72f));
-            riskBadge.GetComponent<Image>().raycastTarget = false;
-            DecorateFrame(riskBadge, new Color(accent.r, accent.g, accent.b, 0.76f), new Color(0f, 0f, 0f, 0f), 1f, false);
-            Text riskText = CreateText(riskBadge, "OpeningItemRiskText", GetJourneyRiskLabel(line), 13, FontStyle.Bold, TextAnchor.MiddleCenter, ColorPaper);
-            StretchText(riskText.rectTransform, new Vector2(6f, 2f), new Vector2(-6f, -2f));
+            RectTransform bottomInk = CreateStretchPanel(
+                bottomWash,
+                "OpeningItemBottomInk",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(8f, 8f),
+                new Vector2(-8f, -8f),
+                new Color(0.17f, 0.10f, 0.04f, 0.055f));
+            bottomInk.GetComponent<Image>().raycastTarget = false;
 
             string journeyTitle = string.IsNullOrEmpty(line?.Title) ? reward.Name : line.Title;
             string itemName = string.IsNullOrEmpty(line?.CarryItemName) ? reward.Name : line.CarryItemName;
             string effect = string.IsNullOrEmpty(line?.CarryItemEffect) ? reward.Description ?? string.Empty : line.CarryItemEffect;
             string origin = string.IsNullOrEmpty(line?.OriginText) ? reward.Description ?? string.Empty : line.OriginText;
 
-            Text titleText = CreateText(bottomWash, "OpeningItemJourneyTitle", TrimSentence(journeyTitle, 16), 16, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.88f, 0.78f, 0.52f, 0.98f));
+            Text titleText = CreateText(bottomWash, "OpeningItemJourneyTitle", TrimSentence(journeyTitle, 18), 20, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.45f, 0.27f, 0.09f, 0.98f));
             titleText.rectTransform.anchorMin = new Vector2(0f, 1f);
             titleText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            titleText.rectTransform.offsetMin = new Vector2(20f, -48f);
-            titleText.rectTransform.offsetMax = new Vector2(-20f, -20f);
+            titleText.rectTransform.offsetMin = new Vector2(22f, -44f);
+            titleText.rectTransform.offsetMax = new Vector2(-22f, -16f);
 
-            Text itemText = CreateText(bottomWash, "OpeningItemName", itemName, 28, FontStyle.Bold, TextAnchor.UpperLeft, ColorPaper);
+            Text itemText = CreateText(bottomWash, "OpeningItemName", itemName, 31, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.14f, 0.10f, 0.06f, 0.98f));
             itemText.rectTransform.anchorMin = new Vector2(0f, 1f);
             itemText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            itemText.rectTransform.offsetMin = new Vector2(20f, -86f);
-            itemText.rectTransform.offsetMax = new Vector2(-20f, -48f);
+            itemText.rectTransform.offsetMin = new Vector2(22f, -82f);
+            itemText.rectTransform.offsetMax = new Vector2(-22f, -43f);
 
-            Text effectText = CreateText(bottomWash, "OpeningItemEffect", BuildCompactLine(TrimSentence(effect, 24)), 14, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.92f, 0.93f, 0.89f, 0.96f));
-            effectText.rectTransform.anchorMin = new Vector2(0f, 1f);
-            effectText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            effectText.rectTransform.offsetMin = new Vector2(20f, -116f);
-            effectText.rectTransform.offsetMax = new Vector2(-20f, -88f);
-
-            Text originText = CreateText(bottomWash, "OpeningItemOrigin", TrimSentence(origin, 30), 12, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.78f, 0.80f, 0.78f, 0.92f));
+            Text originText = CreateText(bottomWash, "OpeningItemOrigin", TrimSentence(origin, 34), 16, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.22f, 0.16f, 0.10f, 0.92f));
             originText.rectTransform.anchorMin = new Vector2(0f, 1f);
             originText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            originText.rectTransform.offsetMin = new Vector2(20f, -148f);
-            originText.rectTransform.offsetMax = new Vector2(-20f, -120f);
+            originText.rectTransform.offsetMin = new Vector2(22f, -130f);
+            originText.rectTransform.offsetMax = new Vector2(-22f, -86f);
+
+            RectTransform effectPlate = CreateFixedPanel(
+                bottomWash,
+                "OpeningItemEffectPlate",
+                new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f),
+                new Vector2(0f, 92f),
+                new Vector2(320f, 34f),
+                new Color(0.25f, 0.16f, 0.08f, 0.78f));
+            effectPlate.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(effectPlate, new Color(frameAccent.r, frameAccent.g, frameAccent.b, 0.32f), new Color(1f, 0.92f, 0.68f, 0.024f), 1f, false);
+
+            Text effectText = CreateText(effectPlate, "OpeningItemEffect", "起势：" + BuildCompactLine(TrimSentence(effect, 22)), 15, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(1f, 0.88f, 0.62f, 0.98f));
+            StretchText(effectText.rectTransform, new Vector2(13f, 3f), new Vector2(-13f, -3f));
 
             string[] tags = GetOpeningItemTags(line);
             for (int i = 0; i < tags.Length; i++)
             {
-                CreateOpeningItemChip(bottomWash, "OpeningItemTag_" + i, tags[i], new Vector2(20f + i * 86f, 54f), 78f, accent);
+                CreateOpeningItemChip(bottomWash, "OpeningItemTag_" + i, tags[i], new Vector2(22f + i * 80f, 56f), 72f, frameAccent);
             }
 
             RectTransform actionLine = CreateStretchPanel(
@@ -3480,16 +3679,62 @@ namespace PathOfTenThousandWays.Demo.UI
                 "OpeningItemActionLine",
                 new Vector2(0f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(22f, 20f),
-                new Vector2(-22f, 23f),
-                accent);
+                new Vector2(22f, 12f),
+                new Vector2(-78f, 14f),
+                new Color(frameAccent.r, frameAccent.g, frameAccent.b, 0.52f));
             actionLine.GetComponent<Image>().raycastTarget = false;
 
-            Text actionText = CreateText(bottomWash, "OpeningItemAction", "携此物上路", 16, FontStyle.Bold, TextAnchor.LowerRight, new Color(0.96f, 0.88f, 0.66f, 0.98f));
+            RectTransform actionSeal = CreateFixedPanel(
+                bottomWash,
+                "OpeningItemActionSeal",
+                new Vector2(1f, 0f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(-44f, 27f),
+                new Vector2(52f, 38f),
+                new Color(1f, 1f, 1f, 0f));
+            ApplySpriteToImage(actionSeal, LoadRootConfirmSealSprite(), new Color(0.72f, 0.19f, 0.12f, 0f), true);
+            actionSeal.localRotation = Quaternion.Euler(0f, 0f, -6f);
+            actionSeal.GetComponent<Image>().raycastTarget = false;
+
+            Text sealText = CreateText(actionSeal, "OpeningItemSealText", "选", 17, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1f, 0.86f, 0.68f, 0f));
+            StretchText(sealText.rectTransform, new Vector2(5f, 5f), new Vector2(-5f, -5f));
+
+            Text actionText = CreateText(bottomWash, "OpeningItemAction", "带上此物", 17, FontStyle.Bold, TextAnchor.LowerRight, new Color(0.36f, 0.20f, 0.08f, 0.96f));
             actionText.rectTransform.anchorMin = new Vector2(0f, 0f);
             actionText.rectTransform.anchorMax = new Vector2(1f, 0f);
-            actionText.rectTransform.offsetMin = new Vector2(20f, 22f);
-            actionText.rectTransform.offsetMax = new Vector2(-22f, 50f);
+            actionText.rectTransform.offsetMin = new Vector2(20f, 9f);
+            actionText.rectTransform.offsetMax = new Vector2(-78f, 35f);
+
+            RectTransform hoverWash = CreateStretchPanel(
+                cardObject.transform,
+                "OpeningItemHoverWash",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(8f, 8f),
+                new Vector2(-8f, -8f),
+                new Color(frameAccent.r, frameAccent.g, frameAccent.b, 0f));
+            Image hoverWashImage = hoverWash.GetComponent<Image>();
+            hoverWashImage.raycastTarget = false;
+
+            RectTransform smoke = CreateFixedPanel(
+                cardObject.transform,
+                "OpeningItemSmoke",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, 88f),
+                new Vector2(328f, 328f),
+                new Color(1f, 1f, 1f, 0f));
+            ApplySpriteToImage(smoke, LoadRootSmokeWispSprite(), new Color(accent.r, accent.g, accent.b, 0.10f), true);
+            smoke.GetComponent<Image>().raycastTarget = false;
+
+            DemoPathChoiceCardFx fx = cardObject.AddComponent<DemoPathChoiceCardFx>();
+            fx.Register(smoke, new Vector2(7f, 10f), 0.20f, GetStableChoiceIndex(reward.Name, 8) * 0.73f, 1.8f, 0.014f, smoke.GetComponent<Image>(), 0.035f);
+            fx.Register(actionSeal, new Vector2(1.2f, 0.8f), 0.34f, 1.5f + GetStableChoiceIndex(itemName, 9), 0.7f, 0.006f);
+
+            DemoOpeningItemCardFx cardFx = cardObject.AddComponent<DemoOpeningItemCardFx>();
+            cardFx.Configure(cardRect, cardImage, hoverWashImage, actionSeal.GetComponent<Image>(), sealText, actionText, frameAccent);
+            AddOpeningItemCardEvents(cardObject, cardFx);
+            DisableChildRaycastsExcept(cardObject, cardImage);
 
             AddRewardHoverEvents(cardObject, reward);
             return cardObject;
@@ -3503,14 +3748,265 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(0f, 0f),
                 new Vector2(0f, 0f),
                 anchoredPosition,
-                new Vector2(width, 24f),
-                new Color(0.10f, 0.105f, 0.110f, 0.82f));
+                new Vector2(width, 26f),
+                new Color(0.94f, 0.86f, 0.66f, 0.42f));
             chip.GetComponent<Image>().raycastTarget = false;
-            DecorateFrame(chip, new Color(accent.r, accent.g, accent.b, 0.62f), new Color(0f, 0f, 0f, 0f), 1f, false);
+            DecorateFrame(chip, new Color(accent.r, accent.g, accent.b, 0.30f), new Color(1f, 0.96f, 0.82f, 0.012f), 1f, false);
 
-            Text text = CreateText(chip, "OpeningItemChipText", label, 11, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.90f, 0.88f, 0.78f, 0.96f));
+            Text text = CreateText(chip, "OpeningItemChipText", label, 12, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.28f, 0.18f, 0.08f, 0.86f));
             StretchText(text.rectTransform, new Vector2(5f, 2f), new Vector2(-5f, -2f));
             return chip;
+        }
+
+        private static void AddOpeningItemCardEvents(GameObject cardObject, DemoOpeningItemCardFx fx)
+        {
+            if (cardObject == null || fx == null)
+            {
+                return;
+            }
+
+            EventTrigger trigger = cardObject.GetComponent<EventTrigger>();
+            if (trigger == null)
+            {
+                trigger = cardObject.AddComponent<EventTrigger>();
+            }
+
+            trigger.triggers = new List<EventTrigger.Entry>();
+
+            EventTrigger.Entry enterEntry = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerEnter
+            };
+            enterEntry.callback.AddListener(_ => fx.SetHover(true));
+            trigger.triggers.Add(enterEntry);
+
+            EventTrigger.Entry exitEntry = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerExit
+            };
+            exitEntry.callback.AddListener(_ =>
+            {
+                fx.SetHover(false);
+                fx.SetPressed(false);
+            });
+            trigger.triggers.Add(exitEntry);
+
+            EventTrigger.Entry downEntry = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerDown
+            };
+            downEntry.callback.AddListener(_ => fx.SetPressed(true));
+            trigger.triggers.Add(downEntry);
+
+            EventTrigger.Entry upEntry = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerUp
+            };
+            upEntry.callback.AddListener(_ => fx.SetPressed(false));
+            trigger.triggers.Add(upEntry);
+        }
+
+        private static void DisableChildRaycastsExcept(GameObject root, Graphic allowedGraphic)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            Graphic[] graphics = root.GetComponentsInChildren<Graphic>(true);
+            for (int i = 0; i < graphics.Length; i++)
+            {
+                if (graphics[i] != null)
+                {
+                    graphics[i].raycastTarget = graphics[i] == allowedGraphic;
+                }
+            }
+        }
+
+        private static Color GetOpeningItemFrameAccent(Color accent)
+        {
+            return new Color(
+                Mathf.Lerp(ColorGold.r, accent.r, 0.28f),
+                Mathf.Lerp(ColorGold.g, accent.g, 0.28f),
+                Mathf.Lerp(ColorGold.b, accent.b, 0.28f),
+                1f);
+        }
+
+        private static Color GetOpeningItemLightColor(DemoJourneyLineDefinition line, Color accent)
+        {
+            string itemName = line?.CarryItemName ?? string.Empty;
+
+            if (ContainsAny(itemName, "护身旧玉", "护身古玉", "护心古玉", "旧玉", "古玉"))
+            {
+                return new Color(0.50f, 0.78f, 0.62f, 0.090f);
+            }
+
+            if (ContainsAny(itemName, "余烬符匣", "余烬符函", "余烬", "符匣", "符函"))
+            {
+                return new Color(0.82f, 0.62f, 0.38f, 0.070f);
+            }
+
+            if (ContainsAny(itemName, "祖龛残匣", "祖纹残匣", "祖龛", "祖纹", "残匣"))
+            {
+                return new Color(0.20f, 0.70f, 0.72f, 0.085f);
+            }
+
+            return new Color(accent.r, accent.g, accent.b, 0.070f);
+        }
+
+        private static Vector2 GetOpeningItemArtOffset(DemoJourneyLineDefinition line)
+        {
+            string itemName = line?.CarryItemName ?? string.Empty;
+
+            if (ContainsAny(itemName, "余烬符匣", "余烬符函", "余烬", "符匣", "符函"))
+            {
+                return new Vector2(0f, 84f);
+            }
+
+            if (ContainsAny(itemName, "祖龛残匣", "祖纹残匣", "祖龛", "祖纹", "残匣"))
+            {
+                return new Vector2(0f, 90f);
+            }
+
+            if (ContainsAny(itemName, "护身旧玉", "护身古玉", "护心古玉", "旧玉", "古玉"))
+            {
+                return new Vector2(0f, 90f);
+            }
+
+            if (ContainsAny(itemName, "雷骨", "雷钉", "雷印", "雷"))
+            {
+                return new Vector2(0f, 18f);
+            }
+
+            if (ContainsAny(itemName, "血玉", "血沁", "血胚", "血"))
+            {
+                return new Vector2(0f, 10f);
+            }
+
+            return new Vector2(0f, 22f);
+        }
+
+        private static Vector2 GetOpeningItemArtSize(DemoJourneyLineDefinition line)
+        {
+            string itemName = line?.CarryItemName ?? string.Empty;
+
+            if (ContainsAny(itemName, "余烬符匣", "余烬符函", "余烬", "符匣", "符函"))
+            {
+                return new Vector2(350f, 525f);
+            }
+
+            if (ContainsAny(itemName, "祖龛残匣", "祖纹残匣", "祖龛", "祖纹", "残匣"))
+            {
+                return new Vector2(366f, 549f);
+            }
+
+            if (ContainsAny(itemName, "护身旧玉", "护身古玉", "护心古玉", "旧玉", "古玉"))
+            {
+                return new Vector2(351f, 527f);
+            }
+
+            if (ContainsAny(itemName, "雷骨", "雷钉", "雷印", "雷", "血玉", "血沁", "血胚", "血"))
+            {
+                return new Vector2(348f, 522f);
+            }
+
+            return new Vector2(366f, 550f);
+        }
+
+        private GameObject CreateOpeningSceneChoiceEntry(Transform parent, DemoReward reward)
+        {
+            Color accent = GetRewardAccentColor(reward);
+            Color panelColor = GetRewardPanelColor(reward);
+            Sprite sceneSprite = LoadOpeningSprite(reward);
+
+            GameObject cardObject = new GameObject("OpeningSceneChoice_" + reward.Name, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+            cardObject.transform.SetParent(parent, false);
+
+            RectTransform cardRect = cardObject.GetComponent<RectTransform>();
+            LayoutElement layout = cardObject.GetComponent<LayoutElement>();
+            layout.preferredWidth = 520f;
+            layout.minWidth = 520f;
+            layout.preferredHeight = 660f;
+            layout.minHeight = 660f;
+            cardRect.sizeDelta = new Vector2(520f, 660f);
+
+            Image cardImage = cardObject.GetComponent<Image>();
+            cardImage.color = panelColor;
+            if (sceneSprite != null)
+            {
+                ApplySpriteToImage(cardRect, sceneSprite, Color.white);
+            }
+
+            Button button = cardObject.GetComponent<Button>();
+            button.targetGraphic = cardImage;
+            button.colors = CreateButtonColors(new Color(0.16f, 0.17f, 0.20f, 1f));
+
+            DecorateFrame(cardRect, new Color(accent.r, accent.g, accent.b, 0.72f), new Color(0f, 0f, 0f, 0.03f), 2f, true);
+
+            CreateStretchPanel(
+                cardRect,
+                "SceneTopVeil",
+                new Vector2(0f, 0.58f),
+                new Vector2(1f, 1f),
+                new Vector2(8f, -8f),
+                new Vector2(-8f, -8f),
+                new Color(1f, 1f, 1f, 0.045f)).GetComponent<Image>().raycastTarget = false;
+
+            CreateStretchPanel(
+                cardRect,
+                "SceneBottomInk",
+                new Vector2(0f, 0f),
+                new Vector2(1f, 0.36f),
+                new Vector2(8f, 8f),
+                new Vector2(-8f, 0f),
+                new Color(0.02f, 0.024f, 0.028f, 0.78f)).GetComponent<Image>().raycastTarget = false;
+
+            CreateStretchPanel(
+                cardRect,
+                "SceneAccentLine",
+                new Vector2(0f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(34f, 8f),
+                new Vector2(-34f, 12f),
+                new Color(accent.r, accent.g, accent.b, 0.95f)).GetComponent<Image>().raycastTarget = false;
+
+            RectTransform riskChip = CreateFixedPanel(
+                cardRect,
+                "SceneRiskChip",
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(24f, -24f),
+                new Vector2(92f, 34f),
+                new Color(0.06f, 0.07f, 0.08f, 0.76f));
+            riskChip.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(riskChip, accent, new Color(accent.r, accent.g, accent.b, 0.08f), 1f, false);
+            Text riskText = CreateText(riskChip, "SceneRiskText", GetRegionRiskLabel(reward.Region), 15, FontStyle.Bold, TextAnchor.MiddleCenter, ColorPaper);
+            StretchText(riskText.rectTransform, new Vector2(8f, 3f), new Vector2(-8f, -3f));
+            riskText.raycastTarget = false;
+
+            Text titleText = CreateText(cardRect, "SceneTitle", reward.Name, 35, FontStyle.Bold, TextAnchor.LowerLeft, ColorPaper);
+            titleText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            titleText.rectTransform.anchorMax = new Vector2(1f, 0f);
+            titleText.rectTransform.offsetMin = new Vector2(34f, 132f);
+            titleText.rectTransform.offsetMax = new Vector2(-34f, 184f);
+            titleText.raycastTarget = false;
+
+            Text hintText = CreateText(cardRect, "SceneHint", BuildOpeningSceneTagline(reward.Region), 17, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.91f, 0.91f, 0.86f, 0.96f));
+            hintText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            hintText.rectTransform.anchorMax = new Vector2(1f, 0f);
+            hintText.rectTransform.offsetMin = new Vector2(34f, 82f);
+            hintText.rectTransform.offsetMax = new Vector2(-34f, 130f);
+            hintText.raycastTarget = false;
+
+            Text actionText = CreateText(cardRect, "SceneAction", "踏入此境", 18, FontStyle.Bold, TextAnchor.LowerRight, new Color(accent.r, accent.g, accent.b, 0.98f));
+            actionText.rectTransform.anchorMin = new Vector2(0f, 0f);
+            actionText.rectTransform.anchorMax = new Vector2(1f, 0f);
+            actionText.rectTransform.offsetMin = new Vector2(34f, 34f);
+            actionText.rectTransform.offsetMax = new Vector2(-34f, 68f);
+            actionText.raycastTarget = false;
+
+            AddRewardHoverEvents(cardObject, reward);
+            return cardObject;
         }
 
         private GameObject CreateOpeningChoiceEntry(Transform parent, DemoReward reward)
@@ -3521,6 +4017,11 @@ namespace PathOfTenThousandWays.Demo.UI
             if (isItem)
             {
                 return CreateOpeningItemChoiceEntry(parent, reward);
+            }
+
+            if (isScene)
+            {
+                return CreateOpeningSceneChoiceEntry(parent, reward);
             }
 
             Color accent = GetRewardAccentColor(reward);
@@ -4264,17 +4765,17 @@ namespace PathOfTenThousandWays.Demo.UI
             string itemName = line?.CarryItemName ?? string.Empty;
             string lineId = line?.Id ?? itemName;
 
-            if (ContainsAny(itemName, "护身古玉", "护心古玉", "古玉"))
+            if (ContainsAny(itemName, "护身旧玉", "护身古玉", "护心古玉", "旧玉", "古玉"))
             {
                 return LoadOpeningItemProtectiveJadeSprite();
             }
 
-            if (ContainsAny(itemName, "余烬符函", "余烬", "符函"))
+            if (ContainsAny(itemName, "余烬符匣", "余烬符函", "余烬", "符匣", "符函"))
             {
-                return LoadOpeningItemEmberTalismanCaseSprite();
+                return LoadOpeningItemSwordcaseSprite();
             }
 
-            if (ContainsAny(itemName, "祖纹残匣", "祖纹", "残匣"))
+            if (ContainsAny(itemName, "祖龛残匣", "祖纹残匣", "祖龛", "祖纹", "残匣"))
             {
                 return LoadOpeningItemAncestralCasketSprite();
             }
@@ -5894,7 +6395,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoRewardType.Root:
                     return "根脚";
                 case DemoRewardType.Journey:
-                    return "携行";
+                    return "启程";
                 case DemoRewardType.OpeningScene:
                     return "首境";
                 case DemoRewardType.Route:
@@ -5923,7 +6424,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoRewardType.Root:
                     return reward.Root != null ? GetRootRarityLabel(reward.Root.Rarity) : "开局身份";
                 case DemoRewardType.Journey:
-                    return reward.JourneyLine != null ? "携一物上路" : "携行";
+                    return reward.JourneyLine != null ? "启程信物" : "信物";
                 case DemoRewardType.OpeningScene:
                     return reward.Region != null ? "先去此境" : "首境";
                 case DemoRewardType.Route:
@@ -6218,7 +6719,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (reward.Type == DemoRewardType.Journey)
             {
-                return "先定器物，再去选首境";
+                return "选定信物，再入首境";
             }
 
             if (reward.Type == DemoRewardType.OpeningScene)
@@ -6433,6 +6934,12 @@ namespace PathOfTenThousandWays.Demo.UI
                     return "防御";
                 case "resource":
                     return "资源";
+                case "stable":
+                    return "稳进";
+                case "treasure":
+                    return "秘藏";
+                case "event":
+                    return "奇遇";
                 case "upgrade":
                     return "强化";
                 case "follow_up":
@@ -6629,6 +7136,112 @@ namespace PathOfTenThousandWays.Demo.UI
             }
         }
 
+        private sealed class DemoOpeningItemCardFx : MonoBehaviour
+        {
+            private RectTransform cardRect;
+            private Image cardImage;
+            private Image hoverWashImage;
+            private Image sealImage;
+            private Text sealText;
+            private Text actionText;
+            private Color accent = ColorGold;
+            private Vector3 baseScale = Vector3.one;
+            private bool hover;
+            private bool pressed;
+            private float sealHoldTimer;
+
+            public void Configure(
+                RectTransform cardRect,
+                Image cardImage,
+                Image hoverWashImage,
+                Image sealImage,
+                Text sealText,
+                Text actionText,
+                Color accent)
+            {
+                this.cardRect = cardRect;
+                this.cardImage = cardImage;
+                this.hoverWashImage = hoverWashImage;
+                this.sealImage = sealImage;
+                this.sealText = sealText;
+                this.actionText = actionText;
+                this.accent = accent;
+
+                if (cardRect != null)
+                {
+                    baseScale = cardRect.localScale;
+                }
+            }
+
+            public void SetHover(bool hover)
+            {
+                this.hover = hover;
+            }
+
+            public void SetPressed(bool pressed)
+            {
+                this.pressed = pressed;
+                if (pressed)
+                {
+                    sealHoldTimer = 0.48f;
+                }
+            }
+
+            private void LateUpdate()
+            {
+                if (cardRect == null)
+                {
+                    return;
+                }
+
+                float follow = 1f - Mathf.Exp(-Time.unscaledDeltaTime * (pressed ? 28f : 14f));
+                sealHoldTimer = Mathf.Max(0f, sealHoldTimer - Time.unscaledDeltaTime);
+                bool showSeal = pressed || sealHoldTimer > 0f;
+                float scale = pressed ? 0.992f : hover ? 1.018f : 1f;
+
+                cardRect.localScale = Vector3.Lerp(cardRect.localScale, baseScale * scale, follow);
+
+                if (cardImage != null)
+                {
+                    Color target = hover || pressed
+                        ? new Color(0.98f, 0.90f, 0.68f, pressed ? 0.38f : 0.31f)
+                        : new Color(0.92f, 0.84f, 0.66f, 0.24f);
+                    cardImage.color = Color.Lerp(cardImage.color, target, follow);
+                }
+
+                if (hoverWashImage != null)
+                {
+                    float alpha = pressed ? 0.105f : hover ? 0.070f : 0f;
+                    Color target = new Color(accent.r, accent.g, accent.b, alpha);
+                    hoverWashImage.color = Color.Lerp(hoverWashImage.color, target, follow);
+                }
+
+                if (sealImage != null)
+                {
+                    Color target = showSeal
+                        ? new Color(0.80f, 0.16f, 0.10f, 0.96f)
+                        : new Color(0.72f, 0.19f, 0.12f, 0f);
+                    sealImage.color = Color.Lerp(sealImage.color, target, follow);
+                }
+
+                if (sealText != null)
+                {
+                    sealText.text = showSeal ? "定" : string.Empty;
+                    Color target = showSeal
+                        ? new Color(1f, 0.86f, 0.68f, 0.98f)
+                        : new Color(1f, 0.86f, 0.68f, 0f);
+                    sealText.color = Color.Lerp(sealText.color, target, follow);
+                }
+
+                if (actionText != null)
+                {
+                    actionText.text = "带上此物";
+                    Color target = new Color(0.36f, 0.20f, 0.08f, 0.96f);
+                    actionText.color = Color.Lerp(actionText.color, target, follow);
+                }
+            }
+        }
+
         private sealed class DemoRootDestinyDeskFx : MonoBehaviour
         {
             private DemoReward[] rewards;
@@ -6642,6 +7255,8 @@ namespace PathOfTenThousandWays.Demo.UI
             private Text footerText;
             private RectTransform[] lotRects;
             private Image[] lotGlowImages;
+            private Image[] lotSelectedSealImages;
+            private Text[] lotSelectedSealTexts;
             private Text[] lotNameTexts;
             private Text[] lotHintTexts;
             private Vector2[] lotBasePositions;
@@ -6657,6 +7272,9 @@ namespace PathOfTenThousandWays.Demo.UI
             private Text confirmText;
             private RectTransform inkSweepRect;
             private Image inkSweepImage;
+            private Vector2 confirmBasePosition;
+            private Vector2 confirmSealBasePosition;
+            private Quaternion confirmSealBaseRotation = Quaternion.identity;
             private Vector2[] idleSmokeBasePositions;
             private Vector2[] burstSmokeBasePositions;
             private Vector2[] burstSmokeDirections;
@@ -6667,6 +7285,8 @@ namespace PathOfTenThousandWays.Demo.UI
             private float transitionTimer;
             private bool transitionActive;
             private bool pendingApplied;
+            private bool confirmHover;
+            private bool confirmPressed;
 
             public int SelectedIndex
             {
@@ -6690,6 +7310,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 Text footerText,
                 RectTransform[] lotRects,
                 Image[] lotGlowImages,
+                Image[] lotSelectedSealImages,
+                Text[] lotSelectedSealTexts,
                 Text[] lotNameTexts,
                 Text[] lotHintTexts,
                 RectTransform[] idleSmokeRects,
@@ -6714,6 +7336,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 this.footerText = footerText;
                 this.lotRects = lotRects ?? new RectTransform[0];
                 this.lotGlowImages = lotGlowImages ?? new Image[0];
+                this.lotSelectedSealImages = lotSelectedSealImages ?? new Image[0];
+                this.lotSelectedSealTexts = lotSelectedSealTexts ?? new Text[0];
                 this.lotNameTexts = lotNameTexts ?? new Text[0];
                 this.lotHintTexts = lotHintTexts ?? new Text[0];
                 this.idleSmokeRects = idleSmokeRects ?? new RectTransform[0];
@@ -6727,6 +7351,13 @@ namespace PathOfTenThousandWays.Demo.UI
                 this.confirmText = confirmText;
                 this.inkSweepRect = inkSweepRect;
                 inkSweepImage = inkSweepRect != null ? inkSweepRect.GetComponent<Image>() : null;
+                confirmBasePosition = confirmRect != null ? confirmRect.anchoredPosition : Vector2.zero;
+                if (confirmSealImage != null)
+                {
+                    RectTransform sealRect = confirmSealImage.rectTransform;
+                    confirmSealBasePosition = sealRect.anchoredPosition;
+                    confirmSealBaseRotation = sealRect.localRotation;
+                }
 
                 lotBasePositions = new Vector2[this.lotRects.Length];
                 lotBaseRotations = new Quaternion[this.lotRects.Length];
@@ -6789,6 +7420,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 transitionTimer = 0f;
                 transitionActive = true;
                 pendingApplied = false;
+                confirmHover = false;
+                confirmPressed = false;
                 HighlightLots(index);
                 SetLedgerTextAlpha(1f);
                 if (confirmButton != null)
@@ -6803,6 +7436,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
                 if (!transitionActive)
                 {
+                    UpdateConfirmButtonMotion(Time.unscaledTime);
                     return;
                 }
 
@@ -6816,6 +7450,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 }
 
                 UpdateTransitionSweep(progress);
+                UpdateTransitionSmoke(progress, Mathf.Sin(progress * Mathf.PI));
 
                 if (rootObjectImage != null)
                 {
@@ -6835,8 +7470,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 if (confirmRect != null)
                 {
                     bool targetClaimable = rewards != null && pendingIndex >= 0 && pendingIndex < rewards.Length && DemoRuntimeCanvasUI.IsRootClaimable(rewards[pendingIndex]);
-                    float pulse = targetClaimable ? Mathf.Sin(progress * Mathf.PI) * 0.012f : 0f;
-                    confirmRect.localScale = Vector3.one * (1f + pulse);
+                    confirmRect.anchoredPosition = confirmBasePosition + new Vector2(0f, targetClaimable ? Mathf.Sin(progress * Mathf.PI) * -2f : 0f);
+                    confirmRect.localScale = Vector3.one;
                 }
 
                 if (progress >= 1f)
@@ -6845,6 +7480,16 @@ namespace PathOfTenThousandWays.Demo.UI
                     pendingIndex = -1;
                     ResetTransitionVisuals();
                 }
+            }
+
+            public void SetConfirmHover(bool hover)
+            {
+                confirmHover = hover;
+            }
+
+            public void SetConfirmPressed(bool pressed)
+            {
+                confirmPressed = pressed;
             }
 
             private void ApplyIndex(int index)
@@ -6936,6 +7581,21 @@ namespace PathOfTenThousandWays.Demo.UI
                             : new Color(0.82f, 0.58f, 0.25f, 0f);
                     }
 
+                    if (i < lotSelectedSealImages.Length && lotSelectedSealImages[i] != null)
+                    {
+                        lotSelectedSealImages[i].color = active
+                            ? (claimable ? new Color(0.78f, 0.18f, 0.12f, 0.74f) : new Color(0.46f, 0.28f, 0.18f, 0.26f))
+                            : new Color(0.78f, 0.18f, 0.12f, 0f);
+                    }
+
+                    if (i < lotSelectedSealTexts.Length && lotSelectedSealTexts[i] != null)
+                    {
+                        lotSelectedSealTexts[i].text = claimable ? "定" : "未";
+                        lotSelectedSealTexts[i].color = active
+                            ? (claimable ? new Color(1.0f, 0.86f, 0.70f, 0.96f) : new Color(0.62f, 0.50f, 0.36f, 0.76f))
+                            : new Color(1.0f, 0.86f, 0.70f, 0f);
+                    }
+
                     if (i < lotRects.Length && lotRects[i] != null)
                     {
                         Vector2 basePosition = i < lotBasePositions.Length ? lotBasePositions[i] : lotRects[i].anchoredPosition;
@@ -6960,6 +7620,54 @@ namespace PathOfTenThousandWays.Demo.UI
                             ? (claimable ? new Color(0.58f, 0.28f, 0.16f, 0.92f) : new Color(0.46f, 0.30f, 0.18f, 0.90f))
                             : (claimable ? new Color(0.58f, 0.42f, 0.20f, 0.80f) : new Color(0.54f, 0.42f, 0.28f, 0.76f));
                     }
+                }
+            }
+
+            private void UpdateConfirmButtonMotion(float time)
+            {
+                if (confirmRect == null)
+                {
+                    return;
+                }
+
+                bool claimable = CanClaimSelected;
+                float follow = 1f - Mathf.Exp(-Time.unscaledDeltaTime * (confirmPressed ? 34f : 14f));
+                Vector2 targetPosition = confirmBasePosition;
+                if (claimable && confirmPressed)
+                {
+                    targetPosition += new Vector2(0f, -8f);
+                }
+                else if (claimable && confirmHover)
+                {
+                    targetPosition += new Vector2(0f, -1.5f);
+                }
+
+                confirmRect.anchoredPosition = Vector2.Lerp(confirmRect.anchoredPosition, targetPosition, follow);
+                confirmRect.localScale = Vector3.one;
+
+                if (confirmSealImage != null)
+                {
+                    RectTransform sealRect = confirmSealImage.rectTransform;
+                    Vector2 targetSealPosition = confirmSealBasePosition + (claimable && confirmPressed ? new Vector2(0f, -2f) : Vector2.zero);
+                    sealRect.anchoredPosition = Vector2.Lerp(sealRect.anchoredPosition, targetSealPosition, follow);
+                    float baseRotation = confirmSealBaseRotation.eulerAngles.z;
+                    if (baseRotation > 180f)
+                    {
+                        baseRotation -= 360f;
+                    }
+
+                    float targetRotation = claimable && confirmPressed ? baseRotation - 0.8f : claimable && confirmHover ? baseRotation + 0.4f : baseRotation;
+                    sealRect.localRotation = Quaternion.Lerp(sealRect.localRotation, Quaternion.Euler(0f, 0f, targetRotation), follow);
+                    confirmSealImage.color = claimable
+                        ? (confirmPressed ? new Color(0.86f, 0.74f, 0.66f, 1f) : confirmHover ? new Color(1f, 0.95f, 0.88f, 1f) : Color.white)
+                        : new Color(0.56f, 0.48f, 0.36f, 0.24f);
+                }
+
+                if (confirmText != null)
+                {
+                    confirmText.color = claimable
+                        ? (confirmPressed ? new Color(1.00f, 0.78f, 0.60f, 1f) : confirmHover ? new Color(1.00f, 0.92f, 0.80f, 0.98f) : new Color(1.00f, 0.88f, 0.74f, 0.98f))
+                        : new Color(0.34f, 0.26f, 0.16f, 0.76f);
                 }
             }
 
@@ -7095,7 +7803,15 @@ namespace PathOfTenThousandWays.Demo.UI
 
                 if (confirmRect != null)
                 {
+                    confirmRect.anchoredPosition = confirmBasePosition;
                     confirmRect.localScale = Vector3.one;
+                }
+
+                if (confirmSealImage != null)
+                {
+                    RectTransform sealRect = confirmSealImage.rectTransform;
+                    sealRect.anchoredPosition = confirmSealBasePosition;
+                    sealRect.localRotation = confirmSealBaseRotation;
                 }
 
                 if (inkSweepImage != null)
@@ -7123,6 +7839,12 @@ namespace PathOfTenThousandWays.Demo.UI
                 }
 
                 bool claimable = DemoRuntimeCanvasUI.IsRootClaimable(rewards[selectedIndex]);
+                if (!claimable)
+                {
+                    confirmHover = false;
+                    confirmPressed = false;
+                }
+
                 if (confirmButton != null)
                 {
                     confirmButton.interactable = claimable;

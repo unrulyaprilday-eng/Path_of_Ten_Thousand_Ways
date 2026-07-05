@@ -132,6 +132,7 @@ function Build-Config {
             carryItemName = $line.carry_item_name
             carryItemEffect = $line.carry_item_effect
             firstRegionId = $line.first_region_id
+            regionCandidateIds = @($line.region_candidate_ids -split "\|" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
             riskLevel = $line.risk_level
             summaryTags = $line.summary_tags -split "\|"
             nodeBiases = @($csv.journeyLineNodeBiases | Where-Object { $_.line_id -eq $line.line_id } | ForEach-Object {
