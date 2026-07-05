@@ -178,6 +178,8 @@ namespace PathOfTenThousandWays.Demo.UI
         private GameObject rewardOverlayRoot;
         private GameObject rootDestinyBackdropRoot;
         private Image rootDestinyBackdropVeilImage;
+        private GameObject openingSceneBackdropRoot;
+        private Image openingSceneBackdropImage;
         private GameObject battleHudRoot;
         private GameObject nodeOverlayPanelRoot;
         private GameObject nodeMapPanelRoot;
@@ -1309,6 +1311,30 @@ namespace PathOfTenThousandWays.Demo.UI
             rootDestinyBackdropVeilImage = rootBackdropVeil.GetComponent<Image>();
             rootDestinyBackdropVeilImage.raycastTarget = false;
 
+            RectTransform openingSceneBackdrop = CreateStretchPanel(
+                rewardOverlayRoot.transform,
+                "OpeningSceneWeakBackdrop",
+                Vector2.zero,
+                Vector2.one,
+                Vector2.zero,
+                Vector2.zero,
+                new Color(0.08f, 0.09f, 0.10f, 0.08f));
+            ApplySpriteToImage(openingSceneBackdrop, LoadSpriteResource(SceneCloudseaFarResourcePath, SceneBattleCloudseaResourcePath), new Color(1f, 1f, 1f, 0.16f));
+            openingSceneBackdropImage = openingSceneBackdrop.GetComponent<Image>();
+            openingSceneBackdropImage.raycastTarget = false;
+            openingSceneBackdropRoot = openingSceneBackdrop.gameObject;
+            openingSceneBackdropRoot.SetActive(false);
+
+            RectTransform openingSceneBackdropVeil = CreateStretchPanel(
+                openingSceneBackdrop,
+                "OpeningSceneWeakBackdropVeil",
+                Vector2.zero,
+                Vector2.one,
+                Vector2.zero,
+                Vector2.zero,
+                new Color(0.015f, 0.018f, 0.020f, 0.42f));
+            openingSceneBackdropVeil.GetComponent<Image>().raycastTarget = false;
+
             rewardTitleText = CreateText(rewardOverlayRoot.transform, "RewardTitle", string.Empty, 40, FontStyle.Bold, TextAnchor.UpperCenter, ColorPaper);
             rewardTitleText.rectTransform.anchorMin = new Vector2(0.5f, 1f);
             rewardTitleText.rectTransform.anchorMax = new Vector2(0.5f, 1f);
@@ -1605,6 +1631,7 @@ namespace PathOfTenThousandWays.Demo.UI
             bool hideTopHud = IsStartPresentationScreen();
             bool showRootOpeningRewards = AreStartRewardsOfType(DemoRewardType.Root);
             bool showOpeningItemRewards = IsStartOpeningItemScreen();
+            bool showOpeningSceneRewards = IsStartOpeningSceneScreen();
             bool showStartOpeningRewards = IsStartOpeningScreen();
             bool showRouteChoiceRewards = IsRouteChoiceScreen();
             bool showMinimalRewardPanels = showStartOpeningRewards || showRouteChoiceRewards;
@@ -1636,6 +1663,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 {
                     rewardOverlayImage.color = showRootOpeningRewards || showOpeningItemRewards
                         ? new Color(0.018f, 0.020f, 0.020f, 0.03f)
+                        : showOpeningSceneRewards
+                            ? new Color(0.020f, 0.024f, 0.026f, 0.12f)
                         : new Color(0.04f, 0.05f, 0.06f, 0.36f);
                 }
             }
@@ -1643,6 +1672,16 @@ namespace PathOfTenThousandWays.Demo.UI
             if (rootDestinyBackdropRoot != null)
             {
                 rootDestinyBackdropRoot.SetActive(showingRewards && (showRootOpeningRewards || showOpeningItemRewards));
+            }
+
+            if (openingSceneBackdropRoot != null)
+            {
+                openingSceneBackdropRoot.SetActive(showingRewards && showOpeningSceneRewards);
+            }
+
+            if (openingSceneBackdropImage != null)
+            {
+                openingSceneBackdropImage.color = new Color(1f, 1f, 1f, showOpeningSceneRewards ? 0.16f : 0f);
             }
 
             if (rootDestinyBackdropVeilImage != null)
@@ -1780,10 +1819,10 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                rewardContainer.anchoredPosition = new Vector2(0f, 6f);
-                rewardContainer.sizeDelta = new Vector2(1760f, 700f);
-                rewardLayoutGroup.spacing = 30f;
-                rewardLayoutGroup.padding = new RectOffset(26, 26, 8, 8);
+                rewardContainer.anchoredPosition = new Vector2(0f, -66f);
+                rewardContainer.sizeDelta = new Vector2(1810f, 760f);
+                rewardLayoutGroup.spacing = 28f;
+                rewardLayoutGroup.padding = new RectOffset(22, 22, 8, 8);
                 return;
             }
 
@@ -1815,85 +1854,110 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             bool showingRootDestiny = AreStartRewardsOfType(DemoRewardType.Root);
             bool showingOpeningItem = IsStartOpeningItemScreen();
+            bool showingOpeningScene = IsStartOpeningSceneScreen();
 
             if (rewardTitleText != null)
             {
-                rewardTitleText.fontSize = showingRootDestiny ? 30 : showingOpeningItem ? 38 : 40;
+                rewardTitleText.fontSize = showingRootDestiny ? 30 : showingOpeningItem ? 38 : showingOpeningScene ? 44 : 40;
                 rewardTitleText.alignment = TextAnchor.UpperCenter;
                 rewardTitleText.rectTransform.anchoredPosition = showingRootDestiny
                     ? new Vector2(0f, -86f)
                     : showingOpeningItem
                         ? new Vector2(0f, -72f)
+                        : showingOpeningScene
+                            ? new Vector2(0f, -68f)
                     : new Vector2(0f, -118f);
                 rewardTitleText.rectTransform.sizeDelta = showingRootDestiny
                     ? new Vector2(720f, 40f)
                     : showingOpeningItem
                         ? new Vector2(760f, 48f)
+                        : showingOpeningScene
+                            ? new Vector2(860f, 56f)
                     : new Vector2(980f, 50f);
                 rewardTitleText.color = showingRootDestiny
                     ? new Color(0.17f, 0.12f, 0.08f, 0.86f)
                     : showingOpeningItem
                         ? new Color(0.17f, 0.12f, 0.08f, 0.94f)
+                        : showingOpeningScene
+                            ? new Color(0.96f, 0.94f, 0.88f, 1f)
                     : new Color(0.95f, 0.94f, 0.90f, 1f);
             }
 
             if (rewardBodyText != null)
             {
-                rewardBodyText.fontSize = showingRootDestiny ? 15 : showingOpeningItem ? 16 : 18;
+                rewardBodyText.fontSize = showingRootDestiny ? 15 : showingOpeningItem ? 16 : showingOpeningScene ? 17 : 18;
                 rewardBodyText.rectTransform.anchoredPosition = showingRootDestiny
                     ? new Vector2(0f, -124f)
                     : showingOpeningItem
                         ? new Vector2(0f, -118f)
+                        : showingOpeningScene
+                            ? new Vector2(0f, -124f)
                     : new Vector2(0f, -172f);
                 rewardBodyText.rectTransform.sizeDelta = showingRootDestiny
                     ? new Vector2(880f, 34f)
                     : showingOpeningItem
                         ? new Vector2(920f, 34f)
+                        : showingOpeningScene
+                            ? new Vector2(1180f, 42f)
                     : new Vector2(1160f, 56f);
                 rewardBodyText.color = showingRootDestiny
                     ? new Color(0.25f, 0.18f, 0.12f, 0.68f)
                     : showingOpeningItem
                         ? new Color(0.27f, 0.20f, 0.13f, 0.72f)
+                        : showingOpeningScene
+                            ? new Color(0.91f, 0.92f, 0.88f, 0.96f)
                     : new Color(0.90f, 0.92f, 0.95f, 0.98f);
             }
 
             if (rewardSectionTitleText != null)
             {
-                rewardSectionTitleText.fontSize = showingRootDestiny ? 15 : showingOpeningItem ? 19 : 22;
+                rewardSectionTitleText.fontSize = showingRootDestiny ? 15 : showingOpeningItem ? 19 : showingOpeningScene ? 18 : 22;
                 rewardSectionTitleText.rectTransform.anchoredPosition = showingRootDestiny
                     ? new Vector2(0f, -158f)
                     : showingOpeningItem
                         ? new Vector2(0f, -154f)
+                        : showingOpeningScene
+                            ? new Vector2(0f, -170f)
                     : new Vector2(0f, -228f);
                 rewardSectionTitleText.rectTransform.sizeDelta = showingRootDestiny
                     ? new Vector2(560f, 24f)
                     : showingOpeningItem
                         ? new Vector2(620f, 28f)
+                        : showingOpeningScene
+                            ? new Vector2(940f, 28f)
                     : new Vector2(840f, 34f);
                 rewardSectionTitleText.color = showingRootDestiny
                     ? new Color(0.50f, 0.31f, 0.14f, 0.72f)
                     : showingOpeningItem
                         ? new Color(0.53f, 0.35f, 0.15f, 0.82f)
+                        : showingOpeningScene
+                            ? new Color(0.92f, 0.78f, 0.46f, 0.96f)
                     : new Color(0.97f, 0.87f, 0.56f, 1f);
             }
 
             if (rewardSectionHintText != null)
             {
-                rewardSectionHintText.fontSize = showingRootDestiny ? 12 : showingOpeningItem ? 14 : 14;
+                rewardSectionHintText.fontSize = showingRootDestiny ? 12 : showingOpeningItem ? 14 : showingOpeningScene ? 13 : 14;
                 rewardSectionHintText.rectTransform.anchoredPosition = showingRootDestiny
                     ? new Vector2(0f, -181f)
                     : showingOpeningItem
                         ? new Vector2(0f, -181f)
+                        : showingOpeningScene
+                            ? new Vector2(0f, -196f)
                     : new Vector2(0f, -256f);
                 rewardSectionHintText.rectTransform.sizeDelta = showingRootDestiny
                     ? new Vector2(660f, 22f)
                     : showingOpeningItem
                         ? new Vector2(840f, 24f)
+                        : showingOpeningScene
+                            ? new Vector2(1040f, 24f)
                     : new Vector2(980f, 28f);
                 rewardSectionHintText.color = showingRootDestiny
                     ? new Color(0.34f, 0.27f, 0.18f, 0.52f)
                     : showingOpeningItem
                         ? new Color(0.34f, 0.27f, 0.18f, 0.60f)
+                        : showingOpeningScene
+                            ? new Color(0.83f, 0.86f, 0.86f, 0.88f)
                     : new Color(0.86f, 0.89f, 0.93f, 0.98f);
             }
         }
@@ -2223,7 +2287,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
                         if (IsStartOpeningSceneScreen())
                         {
-                            return "首境";
+                            return "入首境";
                         }
 
                         return "起手总览";
@@ -2269,7 +2333,10 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "信物微鸣，前路现出几处";
+                string itemName = GetCurrentOpeningItemName();
+                return string.IsNullOrEmpty(itemName)
+                    ? "信物微鸣，前路现出几处"
+                    : $"{itemName}微鸣，前路现出几处";
             }
 
             if (IsRouteChoiceScreen())
@@ -2294,7 +2361,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "只看去处、险势和一口气质，先定第一脚踏入哪里";
+                return "只看去处、险势和一口气质，第一脚落下后，前路才会展开";
             }
 
             if (IsRouteChoiceScreen())
@@ -2303,6 +2370,12 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             return "信息下沉到底部摘要，主区只负责做选择";
+        }
+
+        private string GetCurrentOpeningItemName()
+        {
+            DemoReward reward = controller?.CurrentRewards.FirstOrDefault(current => current.JourneyLine != null);
+            return reward?.JourneyLine?.CarryItemName ?? string.Empty;
         }
 
         private string BuildTopBarSummary()
@@ -2358,7 +2431,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "首境：再决定第一段历练先落到哪里，让开局节奏和画面先成立。";
+                return "入首境：信物已定，第一脚该落到一个真正的地方。";
             }
 
             if (IsRouteChoiceScreen())
@@ -2491,7 +2564,10 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "信物只把去处收窄到几境；这一页只定第一脚踏入哪里。";
+                string itemName = GetCurrentOpeningItemName();
+                return string.IsNullOrEmpty(itemName)
+                    ? "信物已定，雾中只剩几处去处。"
+                    : $"{itemName}已定，雾中只剩几处去处。";
             }
 
             if (IsRouteChoiceScreen())
@@ -2573,7 +2649,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "首境";
+                return "入首境";
             }
 
             return "开局";
@@ -2593,7 +2669,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "再选第一段首境。场景图先行，文字只保留最少的风险与气口提示。";
+                return "信物已定，先让第一段路落到一个地方。";
             }
 
             return "开局信息确认完毕，准备踏入这一局。";
@@ -2613,7 +2689,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "· 看先去哪里\n· 看风险气口\n· 看前两层节奏";
+                return "· 看先去哪里\n· 看险势轻重\n· 落下第一脚";
             }
 
             return "· 准备开局\n· 踏入地图\n· 进入第一场历练";
@@ -2633,7 +2709,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "再定首境，让第一段路真正落到一个地方，而不是只停在抽象方向上。";
+                return "入首境：信物只把去处收窄，第一脚仍由你落下。";
             }
 
             return "起点已经打开，接下来要让奖励、功法和法宝往同一条道途靠拢。";
@@ -3926,9 +4002,9 @@ namespace PathOfTenThousandWays.Demo.UI
             LayoutElement layout = cardObject.GetComponent<LayoutElement>();
             layout.preferredWidth = 520f;
             layout.minWidth = 520f;
-            layout.preferredHeight = 660f;
-            layout.minHeight = 660f;
-            cardRect.sizeDelta = new Vector2(520f, 660f);
+            layout.preferredHeight = 700f;
+            layout.minHeight = 700f;
+            cardRect.sizeDelta = new Vector2(520f, 700f);
 
             Image cardImage = cardObject.GetComponent<Image>();
             cardImage.color = panelColor;
@@ -3956,10 +4032,10 @@ namespace PathOfTenThousandWays.Demo.UI
                 cardRect,
                 "SceneBottomInk",
                 new Vector2(0f, 0f),
-                new Vector2(1f, 0.36f),
+                new Vector2(1f, 0.32f),
                 new Vector2(8f, 8f),
                 new Vector2(-8f, 0f),
-                new Color(0.02f, 0.024f, 0.028f, 0.78f)).GetComponent<Image>().raycastTarget = false;
+                new Color(0.02f, 0.024f, 0.028f, 0.72f)).GetComponent<Image>().raycastTarget = false;
 
             CreateStretchPanel(
                 cardRect,
@@ -3987,15 +4063,15 @@ namespace PathOfTenThousandWays.Demo.UI
             Text titleText = CreateText(cardRect, "SceneTitle", reward.Name, 35, FontStyle.Bold, TextAnchor.LowerLeft, ColorPaper);
             titleText.rectTransform.anchorMin = new Vector2(0f, 0f);
             titleText.rectTransform.anchorMax = new Vector2(1f, 0f);
-            titleText.rectTransform.offsetMin = new Vector2(34f, 132f);
-            titleText.rectTransform.offsetMax = new Vector2(-34f, 184f);
+            titleText.rectTransform.offsetMin = new Vector2(34f, 126f);
+            titleText.rectTransform.offsetMax = new Vector2(-34f, 178f);
             titleText.raycastTarget = false;
 
             Text hintText = CreateText(cardRect, "SceneHint", BuildOpeningSceneTagline(reward.Region), 17, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.91f, 0.91f, 0.86f, 0.96f));
             hintText.rectTransform.anchorMin = new Vector2(0f, 0f);
             hintText.rectTransform.anchorMax = new Vector2(1f, 0f);
-            hintText.rectTransform.offsetMin = new Vector2(34f, 82f);
-            hintText.rectTransform.offsetMax = new Vector2(-34f, 130f);
+            hintText.rectTransform.offsetMin = new Vector2(34f, 80f);
+            hintText.rectTransform.offsetMax = new Vector2(-34f, 122f);
             hintText.raycastTarget = false;
 
             Text actionText = CreateText(cardRect, "SceneAction", "踏入此境", 18, FontStyle.Bold, TextAnchor.LowerRight, new Color(accent.r, accent.g, accent.b, 0.98f));
