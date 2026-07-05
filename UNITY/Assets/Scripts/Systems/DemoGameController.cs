@@ -135,9 +135,9 @@ namespace PathOfTenThousandWays.Demo.Systems
                         return openingStage == DemoOpeningStage.SelectRoot
                             ? "当前位于起点。先定根脚，确认这一世从哪里来。"
                             : openingStage == DemoOpeningStage.SelectOpeningItem
-                                ? "当前位于起点。再选携行之物，确认为何出山、带什么上路。"
+                                ? "当前位于起点。再受信物，确认为何出山、带什么上路。"
                                 : openingStage == DemoOpeningStage.SelectOpeningScene
-                                    ? "当前位于起点。再定首境，确认你先去哪里、第一段历练从哪片气口展开。"
+                                    ? "当前位于起点。信物已定，再从它指向的几处首境里择一处。"
                                     : "当前位于起点。首境已定，接下来直接踏入第一段历练。";
                     case DemoNodeType.RouteChoice:
                         return "当前位于路线分叉。挑出下一段历练，把风险、补强和 Boss 节奏握在自己手里。";
@@ -180,7 +180,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                         return openingStage == DemoOpeningStage.SelectRoot
                             ? "当前不是战斗节点，先定根脚。"
                             : openingStage == DemoOpeningStage.SelectOpeningItem
-                                ? "当前不是战斗节点，先选择携行之物。"
+                                ? "当前不是战斗节点，先选择启程信物。"
                                 : openingStage == DemoOpeningStage.SelectOpeningScene
                                     ? "当前不是战斗节点，先确认首境。"
                                     : "当前不是战斗节点，首境确定后会直接进入历练。";

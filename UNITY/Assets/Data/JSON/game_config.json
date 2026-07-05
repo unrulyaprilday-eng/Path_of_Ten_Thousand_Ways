@@ -1,6 +1,6 @@
 {
     "meta":  {
-                 "generatedAt":  "2026-07-05T17:30:03+08:00",
+                 "generatedAt":  "2026-07-05T20:13:43+08:00",
                  "source":  "UNITY/Assets/Data/CSV",
                  "purpose":  "Program-readable complete config tables for opening system and current Unity DEMO runtime content."
              },
@@ -94,7 +94,7 @@
                                 "key":  "carry_item_power_reference",
                                 "value":  0.5,
                                 "valueType":  "float",
-                                "notes":  "携行之物强度约等于 0.5 件普通法器"
+                                "notes":  "启程信物强度约等于 0.5 件普通法器"
                             },
                             {
                                 "group":  "manifestation",
@@ -164,14 +164,14 @@
                                 "key":  "carry_item_main",
                                 "value":  28,
                                 "valueType":  "int",
-                                "notes":  "携行之物主标签贡献"
+                                "notes":  "启程信物主标签贡献"
                             },
                             {
                                 "group":  "manifestation",
                                 "key":  "carry_item_secondary",
                                 "value":  12,
                                 "valueType":  "int",
-                                "notes":  "携行之物副标签贡献"
+                                "notes":  "启程信物副标签贡献"
                             },
                             {
                                 "group":  "manifestation",
@@ -1042,6 +1042,11 @@
                                                                          "carryItemName":  "旧商路图",
                                                                          "carryItemEffect":  "首层商店额外刷新 1 次且初始灵石 +15",
                                                                          "firstRegionId":  "region_trade_road",
+                                                                         "regionCandidateIds":  [
+                                                                                                    "region_trade_road",
+                                                                                                    "region_herb_forest",
+                                                                                                    "region_old_mine"
+                                                                                                ],
                                                                          "riskLevel":  "stable",
                                                                          "summaryTags":  [
                                                                                              "resource",
@@ -1083,6 +1088,11 @@
                                                                          "carryItemName":  "旧木剑",
                                                                          "carryItemEffect":  "每场战斗第一把飞剑命中后获得 1 层剑意",
                                                                          "firstRegionId":  "region_herb_forest",
+                                                                         "regionCandidateIds":  [
+                                                                                                    "region_herb_forest",
+                                                                                                    "region_old_mine",
+                                                                                                    "region_trade_road"
+                                                                                                ],
                                                                          "riskLevel":  "stable",
                                                                          "summaryTags":  [
                                                                                              "flying_sword",
@@ -1129,6 +1139,11 @@
                                                                              "carryItemName":  "护心古玉",
                                                                              "carryItemEffect":  "前 3 场战斗中首次生命低于 50% 时获得 8 护盾",
                                                                              "firstRegionId":  "region_trade_road",
+                                                                             "regionCandidateIds":  [
+                                                                                                        "region_trade_road",
+                                                                                                        "region_herb_forest",
+                                                                                                        "region_old_mine"
+                                                                                                    ],
                                                                              "riskLevel":  "stable",
                                                                              "summaryTags":  [
                                                                                                  "defense",
@@ -1169,7 +1184,12 @@
                                                                        "originText":  "祖龛塌落时，只有这只封死的小匣没有碎。",
                                                                        "carryItemName":  "祖龛残匣",
                                                                        "carryItemEffect":  "首次获得法器时额外多看 1 件同池候选",
-                                                                       "firstRegionId":  "region_old_mine",
+                                                                       "firstRegionId":  "region_ancestral_vault",
+                                                                       "regionCandidateIds":  [
+                                                                                                  "region_ancestral_vault",
+                                                                                                  "region_old_mine",
+                                                                                                  "region_herb_forest"
+                                                                                              ],
                                                                        "riskLevel":  "stable",
                                                                        "summaryTags":  [
                                                                                            "artifact",
@@ -1211,6 +1231,11 @@
                                                                              "carryItemName":  "雷骨短钉",
                                                                              "carryItemEffect":  "每场战斗首次暴击额外附加 1 层感电并造成 3 点雷击",
                                                                              "firstRegionId":  "region_demon_tower",
+                                                                             "regionCandidateIds":  [
+                                                                                                        "region_demon_tower",
+                                                                                                        "region_thunder_marsh",
+                                                                                                        "region_old_mine"
+                                                                                                    ],
                                                                              "riskLevel":  "risky",
                                                                              "summaryTags":  [
                                                                                                  "shock",
@@ -1257,6 +1282,11 @@
                                                                           "carryItemName":  "护身旧玉",
                                                                           "carryItemEffect":  "第一场斗法开始时获得 6 护盾",
                                                                           "firstRegionId":  "region_old_mine",
+                                                                          "regionCandidateIds":  [
+                                                                                                     "region_old_mine",
+                                                                                                     "region_herb_forest",
+                                                                                                     "region_trade_road"
+                                                                                                 ],
                                                                           "riskLevel":  "stable",
                                                                           "summaryTags":  [
                                                                                               "defense",
@@ -1298,6 +1328,11 @@
                                                                              "carryItemName":  "血沁刃胚",
                                                                              "carryItemEffect":  "每场战斗首次掉血后本场飞剑伤害 +2",
                                                                              "firstRegionId":  "region_herb_forest",
+                                                                             "regionCandidateIds":  [
+                                                                                                        "region_herb_forest",
+                                                                                                        "region_thunder_marsh",
+                                                                                                        "region_trade_road"
+                                                                                                    ],
                                                                              "riskLevel":  "risky",
                                                                              "summaryTags":  [
                                                                                                  "bleed",
@@ -1344,6 +1379,11 @@
                                                                          "carryItemName":  "账房铜印",
                                                                          "carryItemEffect":  "击败首个精英后额外获得 20 灵石",
                                                                          "firstRegionId":  "region_demon_tower",
+                                                                         "regionCandidateIds":  [
+                                                                                                    "region_demon_tower",
+                                                                                                    "region_trade_road",
+                                                                                                    "region_thunder_marsh"
+                                                                                                ],
                                                                          "riskLevel":  "medium",
                                                                          "summaryTags":  [
                                                                                              "resource",
@@ -1385,6 +1425,11 @@
                                                                         "carryItemName":  "血沁剑胚",
                                                                         "carryItemEffect":  "每场战斗首次飞剑命中附加 2 层流血并回复 1 生命",
                                                                         "firstRegionId":  "region_thunder_marsh",
+                                                                        "regionCandidateIds":  [
+                                                                                                   "region_thunder_marsh",
+                                                                                                   "region_herb_forest",
+                                                                                                   "region_trade_road"
+                                                                                               ],
                                                                         "riskLevel":  "risky",
                                                                         "summaryTags":  [
                                                                                             "bleed",
@@ -1425,7 +1470,12 @@
                                                                                    "originText":  "旧宅焚毁后，你从灰里捡出一只仍有余温的符匣。",
                                                                                    "carryItemName":  "余烬符匣",
                                                                                    "carryItemEffect":  "首次功法候选额外再看 1 项",
-                                                                                   "firstRegionId":  "region_old_mine",
+                                                                                   "firstRegionId":  "region_thunder_marsh",
+                                                                                   "regionCandidateIds":  [
+                                                                                                              "region_thunder_marsh",
+                                                                                                              "region_old_mine",
+                                                                                                              "region_demon_tower"
+                                                                                                          ],
                                                                                    "riskLevel":  "medium",
                                                                                    "summaryTags":  [
                                                                                                        "gongfa",
@@ -1467,6 +1517,11 @@
                                                                        "carryItemName":  "残鸣剑匣",
                                                                        "carryItemEffect":  "每场战斗首次飞剑返回时额外再攻击 1 次",
                                                                        "firstRegionId":  "region_old_mine",
+                                                                       "regionCandidateIds":  [
+                                                                                                  "region_old_mine",
+                                                                                                  "region_ancestral_vault",
+                                                                                                  "region_thunder_marsh"
+                                                                                              ],
                                                                        "riskLevel":  "medium",
                                                                        "summaryTags":  [
                                                                                            "flying_sword",
@@ -1513,6 +1568,11 @@
                                                                                "carryItemName":  "裂痕雷印",
                                                                                "carryItemEffect":  "前 3 场战斗中首次感电触发额外附加 2 层感电",
                                                                                "firstRegionId":  "region_thunder_marsh",
+                                                                               "regionCandidateIds":  [
+                                                                                                          "region_thunder_marsh",
+                                                                                                          "region_demon_tower",
+                                                                                                          "region_old_mine"
+                                                                                                      ],
                                                                                "riskLevel":  "medium",
                                                                                "summaryTags":  [
                                                                                                    "thunder",
@@ -1559,6 +1619,11 @@
                                                                          "carryItemName":  "辨路风铃",
                                                                          "carryItemEffect":  "首层前 2 个事件可额外查看 1 个隐藏选项",
                                                                          "firstRegionId":  "region_herb_forest",
+                                                                         "regionCandidateIds":  [
+                                                                                                    "region_herb_forest",
+                                                                                                    "region_trade_road",
+                                                                                                    "region_old_mine"
+                                                                                                ],
                                                                          "riskLevel":  "stable",
                                                                          "summaryTags":  [
                                                                                              "event",
@@ -1600,6 +1665,11 @@
                                                                       "carryItemName":  "磨损印牌",
                                                                       "carryItemEffect":  "首场战斗结束后回复 8 生命",
                                                                       "firstRegionId":  "region_trade_road",
+                                                                      "regionCandidateIds":  [
+                                                                                                 "region_trade_road",
+                                                                                                 "region_herb_forest",
+                                                                                                 "region_old_mine"
+                                                                                             ],
                                                                       "riskLevel":  "stable",
                                                                       "summaryTags":  [
                                                                                           "resource",
@@ -1641,6 +1711,11 @@
                                                                         "carryItemName":  "焦痕雷钉",
                                                                         "carryItemEffect":  "每场战斗第一次暴击触发一段 4 点雷击",
                                                                         "firstRegionId":  "region_demon_tower",
+                                                                        "regionCandidateIds":  [
+                                                                                                   "region_demon_tower",
+                                                                                                   "region_thunder_marsh",
+                                                                                                   "region_old_mine"
+                                                                                               ],
                                                                         "riskLevel":  "risky",
                                                                         "summaryTags":  [
                                                                                             "thunder",
@@ -1687,6 +1762,11 @@
                                                                            "carryItemName":  "锈痕旧匣",
                                                                            "carryItemEffect":  "每场战斗首次飞剑造成伤害后再追加 1 次 50% 伤害的追击",
                                                                            "firstRegionId":  "region_old_mine",
+                                                                           "regionCandidateIds":  [
+                                                                                                      "region_old_mine",
+                                                                                                      "region_ancestral_vault",
+                                                                                                      "region_thunder_marsh"
+                                                                                                  ],
                                                                            "riskLevel":  "medium",
                                                                            "summaryTags":  [
                                                                                                "flying_sword",
@@ -1733,6 +1813,11 @@
                                                                             "carryItemName":  "百炼剑胚",
                                                                             "carryItemEffect":  "前 3 场战斗中第一张飞剑牌费用 -1",
                                                                             "firstRegionId":  "region_trade_road",
+                                                                            "regionCandidateIds":  [
+                                                                                                       "region_trade_road",
+                                                                                                       "region_old_mine",
+                                                                                                       "region_ancestral_vault"
+                                                                                                   ],
                                                                             "riskLevel":  "stable",
                                                                             "summaryTags":  [
                                                                                                 "flying_sword",
@@ -1779,6 +1864,11 @@
                                                                         "carryItemName":  "断锁钥牌",
                                                                         "carryItemEffect":  "首次进入秘藏节点时额外获得 1 个候选",
                                                                         "firstRegionId":  "region_ancestral_vault",
+                                                                        "regionCandidateIds":  [
+                                                                                                   "region_ancestral_vault",
+                                                                                                   "region_old_mine",
+                                                                                                   "region_demon_tower"
+                                                                                               ],
                                                                         "riskLevel":  "risky",
                                                                         "summaryTags":  [
                                                                                             "high_variance",

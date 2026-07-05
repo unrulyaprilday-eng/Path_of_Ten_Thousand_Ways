@@ -11,7 +11,7 @@ opening,secondary_reward_bias_percent,12,int,启程线副标签奖励修正
 opening,main_node_bias_percent,12,int,启程线首层节点主修正
 opening,secondary_node_bias_percent,6,int,启程线首层节点副修正
 opening,counter_node_bias_percent,-6,int,启程线反向节点修正
-opening,carry_item_power_reference,0.5,float,携行之物强度约等于 0.5 件普通法器
+opening,carry_item_power_reference,0.5,float,启程信物强度约等于 0.5 件普通法器
 manifestation,hint_threshold,40,int,起势提示出现
 manifestation,tilt_threshold,70,int,奖励池开始明显倾斜
 manifestation,lock_threshold,100,int,进入定道状态
@@ -21,8 +21,8 @@ manifestation,trace_main,12,int,道痕主标签贡献
 manifestation,trace_secondary,6,int,道痕副标签贡献
 manifestation,journey_main,18,int,启程线主标签贡献
 manifestation,journey_secondary,8,int,启程线副标签贡献
-manifestation,carry_item_main,28,int,携行之物主标签贡献
-manifestation,carry_item_secondary,12,int,携行之物副标签贡献
+manifestation,carry_item_main,28,int,启程信物主标签贡献
+manifestation,carry_item_secondary,12,int,启程信物副标签贡献
 manifestation,first_region_main,10,int,首境主标签贡献
 manifestation,first_region_secondary,5,int,首境副标签贡献
 manifestation,core_gongfa_main,35,int,核心功法主标签贡献

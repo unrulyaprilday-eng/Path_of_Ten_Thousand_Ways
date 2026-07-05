@@ -1587,7 +1587,7 @@ namespace PathOfTenThousandWays.Demo.UI
             {
                 battleStateText.text = "这一轮败在节奏与收束。";
                 battleStateText.color = new Color(0.92f, 0.42f, 0.38f, 1f);
-                battleHintText.text = "重新开局时更早定根脚、定携行与首境，把爆发窗口留给正确的那一轮。";
+                battleHintText.text = "重新开局时更早定根脚、受信物、入首境，把爆发窗口留给正确的那一轮。";
             }
             else
             {
@@ -2269,7 +2269,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "再定第一段首境";
+                return "信物微鸣，前路现出几处";
             }
 
             if (IsRouteChoiceScreen())
@@ -2294,7 +2294,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "场景卡图多字少，先凭画面和气口决定你先去哪一境";
+                return "只看去处、险势和一口气质，先定第一脚踏入哪里";
             }
 
             if (IsRouteChoiceScreen())
@@ -2326,7 +2326,7 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (controller.IsRunComplete)
             {
-                return "天劫已渡：回看本局是如何从定根脚、定携行、定首境，一路走到收束成型。";
+                return "天劫已渡：回看本局是如何从定根脚、受信物、入首境，一路走到收束成型。";
             }
 
             if (controller.HasBattle)
@@ -2340,7 +2340,7 @@ namespace PathOfTenThousandWays.Demo.UI
                     case DemoBattlePhase.Won:
                         return "战斗胜利：准备拿最能改变结构的那一项补强。";
                     case DemoBattlePhase.Lost:
-                        return "战斗失利：下一局更早定根脚、定携行与首境，再把奖励往同一路收束。";
+                        return "战斗失利：下一局更早定根脚、受信物、入首境，再把奖励往同一路收束。";
                     default:
                         return "云海斗法：低频出牌，高反馈自动演武。";
                 }
@@ -2438,7 +2438,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             return
                 $"根脚：{rootName}\n" +
-                $"携行：{journeyName}\n" +
+                $"信物：{journeyName}\n" +
                 $"首境：{regionName}\n" +
                 $"主修：{FormatGongfaSummary(controller.Run.MainGongfa, "未定")}\n" +
                 $"辅修：{FormatGongfaSummary(controller.Run.SupportGongfa, "未定")}\n" +
@@ -2457,7 +2457,7 @@ namespace PathOfTenThousandWays.Demo.UI
             string regionName = controller.Run.OpeningSelection.FirstRegion != null ? controller.Run.OpeningSelection.FirstRegion.Name : "未定";
 
             return
-                $"根脚 {rootName}   携行 {journeyName}   首境 {regionName}\n" +
+                $"根脚 {rootName}   信物 {journeyName}   首境 {regionName}\n" +
                 $"主修 {GetGongfaName(controller.Run.MainGongfa, "未定")}   辅修 {GetGongfaName(controller.Run.SupportGongfa, "未定")}   神通 {GetGongfaName(controller.Run.DivineGongfa, "未悟")}\n" +
                 $"生命 {controller.Run.CurrentHealth}/{controller.Run.MaxHealth}   牌组 {controller.Run.Deck.Count} 张\n" +
                 $"法宝 {artifactText}   遗物 {relicText}";
@@ -2491,7 +2491,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "再从几张场景卡里定首境。这里不重讲流派，只决定你先去哪里、先经历什么。";
+                return "信物只把去处收窄到几境；这一页只定第一脚踏入哪里。";
             }
 
             if (IsRouteChoiceScreen())
@@ -2538,7 +2538,7 @@ namespace PathOfTenThousandWays.Demo.UI
                     "证道　可再证新道\n" +
                     "回看　道途已收束\n" +
                     "起势　根脚再定\n" +
-                    "携行　重新上路";
+                    "信物　重新上路";
             }
 
             string mainGongfa = GetGongfaName(controller.Run.MainGongfa, "未定");
@@ -2554,7 +2554,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private string BuildStartInheritanceScrollText()
         {
             string rootName = controller.Run.OpeningSelection.Root != null ? controller.Run.OpeningSelection.Root.Name : "未定根脚";
-            string journeyName = controller.Run.OpeningSelection.JourneyLine != null ? controller.Run.OpeningSelection.JourneyLine.CarryItemName : "未定携行";
+            string journeyName = controller.Run.OpeningSelection.JourneyLine != null ? controller.Run.OpeningSelection.JourneyLine.CarryItemName : "未定信物";
             string regionName = controller.Run.OpeningSelection.FirstRegion != null ? controller.Run.OpeningSelection.FirstRegion.Name : "未定首境";
             return $"{rootName}  →  {journeyName}  →  {regionName}";
         }
@@ -2708,7 +2708,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoNodeType.Shop:
                     return "进入 Boss 前的最后一次取舍，优先补灵气续航、关键收束点，别把资源撒成平均数。";
                 case DemoNodeType.Victory:
-                    return "这一局已经从定根脚、定携行与首境一路走到收束成型，可以回看是哪一轮补强把飞剑、功法和法宝真正串了起来。";
+                    return "这一局已经从定根脚、受信物与入首境一路走到收束成型，可以回看是哪一轮补强把飞剑、功法和法宝真正串了起来。";
                 default:
                     return BuildContextSummary();
             }
@@ -2781,7 +2781,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private string BuildOpeningSummaryLine()
         {
             string rootName = controller.Run.OpeningSelection.Root != null ? controller.Run.OpeningSelection.Root.Name : "未定根脚";
-            string journeyName = controller.Run.OpeningSelection.JourneyLine != null ? controller.Run.OpeningSelection.JourneyLine.CarryItemName : "未定携行";
+            string journeyName = controller.Run.OpeningSelection.JourneyLine != null ? controller.Run.OpeningSelection.JourneyLine.CarryItemName : "未定信物";
             string regionName = controller.Run.OpeningSelection.FirstRegion != null ? controller.Run.OpeningSelection.FirstRegion.Name : "未定首境";
             return $"开局脉络：{rootName} · {journeyName} · {regionName}";
         }
@@ -4739,6 +4739,36 @@ namespace PathOfTenThousandWays.Demo.UI
                     return cachedOpeningSceneThunderMarshSprite;
                 }
 
+                if (regionId.Contains("herb") || regionId.Contains("forest"))
+                {
+                    if (cachedOpeningSceneHerbForestSprite == null)
+                    {
+                        cachedOpeningSceneHerbForestSprite = LoadSpriteResource(OpeningSceneHerbForestResourcePath, OpeningSceneTradeRoadResourcePath, SceneCloudseaFarResourcePath);
+                    }
+
+                    return cachedOpeningSceneHerbForestSprite;
+                }
+
+                if (regionId.Contains("ancestral") || regionId.Contains("vault"))
+                {
+                    if (cachedOpeningSceneAncestralVaultSprite == null)
+                    {
+                        cachedOpeningSceneAncestralVaultSprite = LoadSpriteResource(OpeningSceneAncestralVaultResourcePath, OpeningSceneOldMineResourcePath, SceneCloudseaFarResourcePath);
+                    }
+
+                    return cachedOpeningSceneAncestralVaultSprite;
+                }
+
+                if (regionId.Contains("demon") || regionId.Contains("tower"))
+                {
+                    if (cachedOpeningSceneDemonTowerSprite == null)
+                    {
+                        cachedOpeningSceneDemonTowerSprite = LoadSpriteResource(OpeningSceneDemonTowerResourcePath, OpeningSceneThunderMarshResourcePath, SceneBattleCloudseaResourcePath);
+                    }
+
+                    return cachedOpeningSceneDemonTowerSprite;
+                }
+
                 if (regionId.Contains("old_mine"))
                 {
                     if (cachedOpeningSceneOldMineSprite == null)
@@ -5371,7 +5401,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (reward.Type == DemoRewardType.OpeningScene && reward.Region != null)
             {
-                return $"{GetRegionFocusLabel(reward.Region)}\n{TrimSentence(reward.Region.Description, 26)}";
+                return $"{GetRegionRiskLabel(reward.Region)}\n{BuildOpeningSceneTagline(reward.Region)}";
             }
 
             return string.IsNullOrEmpty(reward.Description) ? "开局信息待补充。" : BuildCompactLine(reward.Description);
@@ -5560,8 +5590,8 @@ namespace PathOfTenThousandWays.Demo.UI
             {
                 DemoJourneyLineDefinition line = reward.JourneyLine;
                 lines.Add($"根脚：{(controller.Run.OpeningSelection.Root != null ? controller.Run.OpeningSelection.Root.Name : "当前根脚")}");
-                lines.Add($"携行：{line.CarryItemName}");
-                lines.Add($"首境：{BuildJourneyRegionName(line)}");
+                lines.Add($"信物：{line.CarryItemName}");
+                lines.Add($"候选：{BuildJourneyRegionName(line)}");
                 lines.Add($"起势：{GetJourneyRiskLabel(line)}");
                 if (!string.IsNullOrEmpty(line.CarryItemEffect))
                 {
@@ -5579,8 +5609,7 @@ namespace PathOfTenThousandWays.Demo.UI
             else if (reward.Type == DemoRewardType.OpeningScene && reward.Region != null)
             {
                 lines.Add($"场景：{reward.Region.Name}");
-                lines.Add($"携行：{(reward.JourneyLine != null ? reward.JourneyLine.CarryItemName : "未定")}");
-                lines.Add($"气口：{GetJourneyRiskLabel(reward.JourneyLine)}");
+                lines.Add($"险势：{GetRegionRiskLabel(reward.Region)}");
                 lines.Add(string.Empty);
                 lines.Add(reward.Region.Description);
             }
@@ -6453,7 +6482,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoRewardType.Root:
                     return "开局底色";
                 case DemoRewardType.Journey:
-                    return "携行起势";
+                    return "信物起势";
                 case DemoRewardType.OpeningScene:
                     return "场景落点";
                 case DemoRewardType.Route:
@@ -6609,7 +6638,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (reward.Type == DemoRewardType.OpeningScene && reward.Region != null)
             {
-                return $"{GetJourneyRiskLabel(reward.JourneyLine)} · {GetRegionFocusLabel(reward.Region)}";
+                return $"{GetRegionRiskLabel(reward.Region)} · {BuildOpeningSceneTagline(reward.Region)}";
             }
 
             return "开局方向待定。";
@@ -6629,7 +6658,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (reward.Type == DemoRewardType.OpeningScene && reward.Region != null)
             {
-                return GetRegionFocusLabel(reward.Region);
+                return GetRegionRiskLabel(reward.Region);
             }
 
             return string.Empty;
@@ -6652,14 +6681,14 @@ namespace PathOfTenThousandWays.Demo.UI
                 DemoJourneyLineDefinition line = reward.JourneyLine;
                 List<string> keywords = new List<string>
                 {
-                    $"携行：{line.CarryItemName}",
+                    $"信物：{line.CarryItemName}",
                     $"缘由：{TrimSentence(line.Title, 12)}",
                     $"起势：{GetJourneyRiskLabel(line)}"
                 };
 
                 if (!string.IsNullOrEmpty(line.CarryItemEffect))
                 {
-                    keywords[1] = $"携行：{line.CarryItemName} · {line.CarryItemEffect}";
+                    keywords[1] = $"信物：{line.CarryItemName} · {line.CarryItemEffect}";
                 }
 
                 return keywords.ToArray();
@@ -6669,9 +6698,9 @@ namespace PathOfTenThousandWays.Demo.UI
             {
                 return new[]
                 {
-                    $"场景：{reward.Region.Name}",
-                    $"气口：{GetJourneyRiskLabel(reward.JourneyLine)}",
-                    $"偏向：{GetRegionFocusLabel(reward.Region)}"
+                    reward.Region.Name,
+                    GetRegionRiskLabel(reward.Region),
+                    BuildOpeningSceneTagline(reward.Region)
                 };
             }
 
@@ -6724,7 +6753,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (reward.Type == DemoRewardType.OpeningScene)
             {
-                return "图先于字，先决定第一段先去哪一境";
+                return "踏入此境";
             }
 
             return "开局信息";
@@ -6829,6 +6858,58 @@ namespace PathOfTenThousandWays.Demo.UI
             return split.Length > 0 ? split[0].Trim() : region.RewardFocus;
         }
 
+        private static string GetRegionRiskLabel(DemoRegionDefinition region)
+        {
+            string regionId = (region?.Id ?? string.Empty).ToLowerInvariant();
+            if (regionId.Contains("thunder") || regionId.Contains("demon") || regionId.Contains("tower"))
+            {
+                return "高险";
+            }
+
+            if (regionId.Contains("herb") || regionId.Contains("trade"))
+            {
+                return "低险";
+            }
+
+            return "中险";
+        }
+
+        private static string BuildOpeningSceneTagline(DemoRegionDefinition region)
+        {
+            string regionId = (region?.Id ?? string.Empty).ToLowerInvariant();
+            if (regionId.Contains("old_mine"))
+            {
+                return "铁屑与旧契都埋在地下。";
+            }
+
+            if (regionId.Contains("herb") || regionId.Contains("forest"))
+            {
+                return "药香藏在瘴雾深处。";
+            }
+
+            if (regionId.Contains("trade"))
+            {
+                return "荒路尽头仍有人烟与债账。";
+            }
+
+            if (regionId.Contains("thunder"))
+            {
+                return "天雷未散，焦土仍在发亮。";
+            }
+
+            if (regionId.Contains("ancestral") || regionId.Contains("vault"))
+            {
+                return "旧库闭门，匣中微声相应。";
+            }
+
+            if (regionId.Contains("demon") || regionId.Contains("tower"))
+            {
+                return "塔影压云，封禁仍未松动。";
+            }
+
+            return TrimSentence(region?.Description ?? "此境仍在雾中。", 18);
+        }
+
         private static Color GetRegionAccentColor(DemoRegionDefinition region, DemoJourneyLineDefinition line)
         {
             if (region?.Id != null)
@@ -6846,6 +6927,16 @@ namespace PathOfTenThousandWays.Demo.UI
                 if (region.Id.Contains("trade"))
                 {
                     return new Color(0.77f, 0.66f, 0.42f, 1f);
+                }
+
+                if (region.Id.Contains("ancestral") || region.Id.Contains("vault"))
+                {
+                    return new Color(0.56f, 0.70f, 0.68f, 1f);
+                }
+
+                if (region.Id.Contains("demon") || region.Id.Contains("tower"))
+                {
+                    return new Color(0.56f, 0.62f, 0.80f, 1f);
                 }
             }
 
@@ -6976,14 +7067,36 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private static string BuildJourneyRegionName(DemoJourneyLineDefinition line)
         {
-            if (line == null || string.IsNullOrEmpty(line.FirstRegionId))
+            if (line == null)
             {
                 return "未知首境";
             }
 
-            return DemoConfigRepository.TryGetRegion(line.FirstRegionId, out DemoRegionDefinition region)
-                ? region.Name
-                : "未知首境";
+            List<string> names = new List<string>();
+            if (line.RegionCandidateIds != null)
+            {
+                foreach (string regionId in line.RegionCandidateIds)
+                {
+                    if (names.Count >= 3)
+                    {
+                        break;
+                    }
+
+                    if (DemoConfigRepository.TryGetRegion(regionId, out DemoRegionDefinition region) && !names.Contains(region.Name))
+                    {
+                        names.Add(region.Name);
+                    }
+                }
+            }
+
+            if (names.Count == 0
+                && !string.IsNullOrEmpty(line.FirstRegionId)
+                && DemoConfigRepository.TryGetRegion(line.FirstRegionId, out DemoRegionDefinition fallbackRegion))
+            {
+                names.Add(fallbackRegion.Name);
+            }
+
+            return names.Count > 0 ? string.Join(" / ", names) : "未知首境";
         }
 
         private static string GetJourneyRiskLabel(DemoJourneyLineDefinition line)

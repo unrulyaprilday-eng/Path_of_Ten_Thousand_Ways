@@ -68,8 +68,8 @@ namespace PathOfTenThousandWays.Demo.Rewards
         public static DemoReward Journey(DemoJourneyLineDefinition line, DemoRootDefinition root)
         {
             string summary = string.IsNullOrEmpty(line.CarryItemEffect)
-                ? $"携行之物：{line.CarryItemName}"
-                : $"携行之物：{line.CarryItemName} | {line.CarryItemEffect}";
+                ? $"启程信物：{line.CarryItemName}"
+                : $"启程信物：{line.CarryItemName} | {line.CarryItemEffect}";
 
             return new DemoReward
             {
@@ -85,11 +85,11 @@ namespace PathOfTenThousandWays.Demo.Rewards
         public static DemoReward OpeningScene(DemoRegionDefinition region, DemoJourneyLineDefinition line)
         {
             string carryText = line == null || string.IsNullOrEmpty(line.CarryItemName)
-                ? "携行之物待定"
-                : $"携行之物：{line.CarryItemName}";
+                ? "启程信物待定"
+                : $"启程信物：{line.CarryItemName}";
             string riskText = line == null || string.IsNullOrEmpty(line.RiskLevel)
-                ? "首境择路"
-                : $"首境气口：{line.RiskLevel}";
+                ? "首境待定"
+                : "首境候选";
 
             return new DemoReward
             {
