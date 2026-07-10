@@ -1,6 +1,6 @@
 {
     "meta":  {
-                 "generatedAt":  "2026-07-05T20:13:43+08:00",
+                 "generatedAt":  "2026-07-09T23:39:57+08:00",
                  "source":  "UNITY/Assets/Data/CSV",
                  "purpose":  "Program-readable complete config tables for opening system and current Unity DEMO runtime content."
              },
@@ -3066,11 +3066,47 @@
                                                              }
                             },
                  "routePlans":  {
+                                    "route_branch_stable":  {
+                                                                "id":  "route_branch_stable",
+                                                                "layer":  1,
+                                                                "name":  "矿口余烬",
+                                                                "description":  "沿旧矿外沿稳步推进先把首战所得消化成第一批飞剑组件再用修炼节点补足生存和灵气缺口",
+                                                                "routeStyle":  "general",
+                                                                "routeQuality":  "spirit",
+                                                                "routeGlyph":  "稳",
+                                                                "routeTag":  "稳定路线",
+                                                                "nodes":  [
+                                                                              {
+                                                                                  "seq":  1,
+                                                                                  "layer":  1,
+                                                                                  "nodeType":  "battle",
+                                                                                  "nodeName":  "矿口余烬"
+                                                                              },
+                                                                              {
+                                                                                  "seq":  2,
+                                                                                  "layer":  1,
+                                                                                  "nodeType":  "reward",
+                                                                                  "nodeName":  "飞剑组件"
+                                                                              },
+                                                                              {
+                                                                                  "seq":  3,
+                                                                                  "layer":  1,
+                                                                                  "nodeType":  "training",
+                                                                                  "nodeName":  "矿灯下调息"
+                                                                              },
+                                                                              {
+                                                                                  "seq":  4,
+                                                                                  "layer":  2,
+                                                                                  "nodeType":  "route_choice",
+                                                                                  "nodeName":  "第二层岔路"
+                                                                              }
+                                                                          ]
+                                                            },
                                     "route_middle_stable":  {
                                                                 "id":  "route_middle_stable",
                                                                 "layer":  2,
                                                                 "name":  "稳修收束",
-                                                                "description":  "先用修炼补齐当前流派再打一场常规斗法让 build 在中段更稳地收束",
+                                                                "description":  "先用修炼补齐当前主轴再打一场常规斗法让构筑在中段更稳地收束",
                                                                 "routeStyle":  "general",
                                                                 "routeQuality":  "spirit",
                                                                 "routeGlyph":  "稳",
@@ -3080,7 +3116,7 @@
                                                                                   "seq":  1,
                                                                                   "layer":  2,
                                                                                   "nodeType":  "training",
-                                                                                  "nodeName":  "法宝与功法补强"
+                                                                                  "nodeName":  "法器与功法补强"
                                                                               },
                                                                               {
                                                                                   "seq":  2,
@@ -3096,41 +3132,11 @@
                                                                               }
                                                                           ]
                                                             },
-                                    "route_opening_thunder":  {
-                                                                  "id":  "route_opening_thunder",
-                                                                  "layer":  1,
-                                                                  "name":  "雷痕试锋",
-                                                                  "description":  "先踩进覆雷路口靠第一批感电组件把后续自动结算提前点亮",
-                                                                  "routeStyle":  "thunder",
-                                                                  "routeQuality":  "heaven",
-                                                                  "routeGlyph":  "雷",
-                                                                  "routeTag":  "首层路线",
-                                                                  "nodes":  [
-                                                                                {
-                                                                                    "seq":  1,
-                                                                                    "layer":  1,
-                                                                                    "nodeType":  "battle",
-                                                                                    "nodeName":  "雷纹妖将"
-                                                                                },
-                                                                                {
-                                                                                    "seq":  2,
-                                                                                    "layer":  1,
-                                                                                    "nodeType":  "reward",
-                                                                                    "nodeName":  "雷痕遗藏"
-                                                                                },
-                                                                                {
-                                                                                    "seq":  3,
-                                                                                    "layer":  2,
-                                                                                    "nodeType":  "route_choice",
-                                                                                    "nodeName":  "第二层路口"
-                                                                                }
-                                                                            ]
-                                                              },
                                     "route_middle_artifact":  {
                                                                   "id":  "route_middle_artifact",
                                                                   "layer":  2,
                                                                   "name":  "秘器共振",
-                                                                  "description":  "先去整备节点改写规则再打一场试炼让流派提前接上法器与神通",
+                                                                  "description":  "先去整备节点改写规则再打一场试炼让当前主轴提前接上法器与神通",
                                                                   "routeStyle":  "general",
                                                                   "routeQuality":  "mysterious",
                                                                   "routeGlyph":  "器",
@@ -3153,42 +3159,6 @@
                                                                                     "layer":  3,
                                                                                     "nodeType":  "route_choice",
                                                                                     "nodeName":  "第三层路口"
-                                                                                }
-                                                                            ]
-                                                              },
-                                    "route_final_seclusion":  {
-                                                                  "id":  "route_final_seclusion",
-                                                                  "layer":  3,
-                                                                  "name":  "闭关悟道",
-                                                                  "description":  "再闭关一轮补足神通和续航把爆发窗口完整地留给天劫降临那一刻",
-                                                                  "routeStyle":  "general",
-                                                                  "routeQuality":  "mysterious",
-                                                                  "routeGlyph":  "悟",
-                                                                  "routeTag":  "爆发路线",
-                                                                  "nodes":  [
-                                                                                {
-                                                                                    "seq":  1,
-                                                                                    "layer":  3,
-                                                                                    "nodeType":  "training",
-                                                                                    "nodeName":  "渡劫前闭关"
-                                                                                },
-                                                                                {
-                                                                                    "seq":  2,
-                                                                                    "layer":  3,
-                                                                                    "nodeType":  "shop",
-                                                                                    "nodeName":  "Boss 前整备"
-                                                                                },
-                                                                                {
-                                                                                    "seq":  3,
-                                                                                    "layer":  3,
-                                                                                    "nodeType":  "boss",
-                                                                                    "nodeName":  "天劫化身"
-                                                                                },
-                                                                                {
-                                                                                    "seq":  4,
-                                                                                    "layer":  4,
-                                                                                    "nodeType":  "victory",
-                                                                                    "nodeName":  "一世修行完成"
                                                                                 }
                                                                             ]
                                                               },
@@ -3228,11 +3198,83 @@
                                                                                 }
                                                                             ]
                                                               },
+                                    "route_final_seclusion":  {
+                                                                  "id":  "route_final_seclusion",
+                                                                  "layer":  3,
+                                                                  "name":  "闭关悟道",
+                                                                  "description":  "再闭关一轮补足神通和续航把爆发窗口完整地留给天劫降临那一刻",
+                                                                  "routeStyle":  "general",
+                                                                  "routeQuality":  "mysterious",
+                                                                  "routeGlyph":  "悟",
+                                                                  "routeTag":  "爆发路线",
+                                                                  "nodes":  [
+                                                                                {
+                                                                                    "seq":  1,
+                                                                                    "layer":  3,
+                                                                                    "nodeType":  "training",
+                                                                                    "nodeName":  "渡劫前闭关"
+                                                                                },
+                                                                                {
+                                                                                    "seq":  2,
+                                                                                    "layer":  3,
+                                                                                    "nodeType":  "shop",
+                                                                                    "nodeName":  "Boss 前整备"
+                                                                                },
+                                                                                {
+                                                                                    "seq":  3,
+                                                                                    "layer":  3,
+                                                                                    "nodeType":  "boss",
+                                                                                    "nodeName":  "天劫化身"
+                                                                                },
+                                                                                {
+                                                                                    "seq":  4,
+                                                                                    "layer":  4,
+                                                                                    "nodeType":  "victory",
+                                                                                    "nodeName":  "一世修行完成"
+                                                                                }
+                                                                            ]
+                                                              },
+                                    "route_branch_build":  {
+                                                               "id":  "route_branch_build",
+                                                               "layer":  1,
+                                                               "name":  "旧账暗室",
+                                                               "description":  "先绕进旧账暗室补功法与器物再打一场验证当前循环适合把首战奖励整理成明确构筑方向",
+                                                               "routeStyle":  "general",
+                                                               "routeQuality":  "mysterious",
+                                                               "routeGlyph":  "构",
+                                                               "routeTag":  "构筑路线",
+                                                               "nodes":  [
+                                                                             {
+                                                                                 "seq":  1,
+                                                                                 "layer":  1,
+                                                                                 "nodeType":  "training",
+                                                                                 "nodeName":  "暗室悟法"
+                                                                             },
+                                                                             {
+                                                                                 "seq":  2,
+                                                                                 "layer":  1,
+                                                                                 "nodeType":  "shop",
+                                                                                 "nodeName":  "旧账整备"
+                                                                             },
+                                                                             {
+                                                                                 "seq":  3,
+                                                                                 "layer":  1,
+                                                                                 "nodeType":  "battle",
+                                                                                 "nodeName":  "符债残影"
+                                                                             },
+                                                                             {
+                                                                                 "seq":  4,
+                                                                                 "layer":  2,
+                                                                                 "nodeType":  "route_choice",
+                                                                                 "nodeName":  "第二层岔路"
+                                                                             }
+                                                                         ]
+                                                           },
                                     "route_final_stable":  {
                                                                "id":  "route_final_stable",
                                                                "layer":  3,
                                                                "name":  "整备冲劫",
-                                                               "description":  "先整备再渡劫让当前流派在 Boss 战里稳定落地",
+                                                               "description":  "先整备再渡劫让当前构筑在 Boss 战里稳定落地",
                                                                "routeStyle":  "general",
                                                                "routeQuality":  "spirit",
                                                                "routeGlyph":  "备",
@@ -3258,71 +3300,47 @@
                                                                              }
                                                                          ]
                                                            },
-                                    "route_opening_blood":  {
-                                                                "id":  "route_opening_blood",
-                                                                "layer":  1,
-                                                                "name":  "血祭走锋",
-                                                                "description":  "先闯一场搏命试锋再拿流血组件让斩杀压力更早成型",
-                                                                "routeStyle":  "blood",
-                                                                "routeQuality":  "earth",
-                                                                "routeGlyph":  "血",
-                                                                "routeTag":  "首层路线",
-                                                                "nodes":  [
-                                                                              {
-                                                                                  "seq":  1,
-                                                                                  "layer":  1,
-                                                                                  "nodeType":  "battle",
-                                                                                  "nodeName":  "血影残魂"
-                                                                              },
-                                                                              {
-                                                                                  "seq":  2,
-                                                                                  "layer":  1,
-                                                                                  "nodeType":  "reward",
-                                                                                  "nodeName":  "血煞遗藏"
-                                                                              },
-                                                                              {
-                                                                                  "seq":  3,
-                                                                                  "layer":  2,
-                                                                                  "nodeType":  "route_choice",
-                                                                                  "nodeName":  "第二层路口"
-                                                                              }
-                                                                          ]
-                                                            },
-                                    "route_opening_wanjian":  {
-                                                                  "id":  "route_opening_wanjian",
-                                                                  "layer":  1,
-                                                                  "name":  "万剑开锋",
-                                                                  "description":  "先打一场试锋斗法再拿第一批飞剑组件把飞剑数量尽快铺起来",
-                                                                  "routeStyle":  "wanjian",
-                                                                  "routeQuality":  "earth",
-                                                                  "routeGlyph":  "万",
-                                                                  "routeTag":  "首层路线",
-                                                                  "nodes":  [
-                                                                                {
-                                                                                    "seq":  1,
-                                                                                    "layer":  1,
-                                                                                    "nodeType":  "battle",
-                                                                                    "nodeName":  "云海妖灵"
-                                                                                },
-                                                                                {
-                                                                                    "seq":  2,
-                                                                                    "layer":  1,
-                                                                                    "nodeType":  "reward",
-                                                                                    "nodeName":  "第一批飞剑组件"
-                                                                                },
-                                                                                {
-                                                                                    "seq":  3,
-                                                                                    "layer":  2,
-                                                                                    "nodeType":  "route_choice",
-                                                                                    "nodeName":  "第二层路口"
-                                                                                }
-                                                                            ]
-                                                              },
+                                    "route_branch_risky":  {
+                                                               "id":  "route_branch_risky",
+                                                               "layer":  1,
+                                                               "name":  "塌井深处",
+                                                               "description":  "直接下探塌井深处连续承受更高战斗压力提前换取高价值补强和更快成型速度",
+                                                               "routeStyle":  "general",
+                                                               "routeQuality":  "heaven",
+                                                               "routeGlyph":  "险",
+                                                               "routeTag":  "冒险路线",
+                                                               "nodes":  [
+                                                                             {
+                                                                                 "seq":  1,
+                                                                                 "layer":  1,
+                                                                                 "nodeType":  "battle",
+                                                                                 "nodeName":  "塌井守卫"
+                                                                             },
+                                                                             {
+                                                                                 "seq":  2,
+                                                                                 "layer":  1,
+                                                                                 "nodeType":  "reward",
+                                                                                 "nodeName":  "塌井秘藏"
+                                                                             },
+                                                                             {
+                                                                                 "seq":  3,
+                                                                                 "layer":  1,
+                                                                                 "nodeType":  "battle",
+                                                                                 "nodeName":  "井底邪影"
+                                                                             },
+                                                                             {
+                                                                                 "seq":  4,
+                                                                                 "layer":  2,
+                                                                                 "nodeType":  "route_choice",
+                                                                                 "nodeName":  "第二层岔路"
+                                                                             }
+                                                                         ]
+                                                           },
                                     "route_middle_aggressive":  {
                                                                     "id":  "route_middle_aggressive",
                                                                     "layer":  2,
                                                                     "name":  "追锋破阵",
-                                                                    "description":  "连续走两场斗法换一次额外补强适合把流派高点直接压到中段",
+                                                                    "description":  "连续走两场斗法换一次额外补强适合把当前主轴高点直接压到中段",
                                                                     "routeStyle":  "general",
                                                                     "routeQuality":  "heaven",
                                                                     "routeGlyph":  "锋",
@@ -3356,66 +3374,6 @@
                                                                 }
                                 },
                  "enemies":  {
-                                 "enemy_thunder_cliff_guard":  {
-                                                                   "id":  "enemy_thunder_cliff_guard",
-                                                                   "name":  "雷崖执兵",
-                                                                   "battleRole":  "elite",
-                                                                   "isBoss":  false,
-                                                                   "maxHealth":  64,
-                                                                   "baseDamageProfile":  "normal_layer_2",
-                                                                   "notes":  "第二层高压战斗模板",
-                                                                   "bossPhases":  [
-
-                                                                                  ]
-                                                               },
-                                 "enemy_thunder_general":  {
-                                                               "id":  "enemy_thunder_general",
-                                                               "name":  "雷纹妖将",
-                                                               "battleRole":  "normal",
-                                                               "isBoss":  false,
-                                                               "maxHealth":  46,
-                                                               "baseDamageProfile":  "normal_layer_1",
-                                                               "notes":  "首层普通敌人模板",
-                                                               "bossPhases":  [
-
-                                                                              ]
-                                                           },
-                                 "enemy_calamity_guard":  {
-                                                              "id":  "enemy_calamity_guard",
-                                                              "name":  "劫云守卫",
-                                                              "battleRole":  "normal",
-                                                              "isBoss":  false,
-                                                              "maxHealth":  64,
-                                                              "baseDamageProfile":  "normal_layer_2",
-                                                              "notes":  "第二层普通敌人模板",
-                                                              "bossPhases":  [
-
-                                                                             ]
-                                                          },
-                                 "enemy_rift_sword_fiend":  {
-                                                                "id":  "enemy_rift_sword_fiend",
-                                                                "name":  "裂空剑煞",
-                                                                "battleRole":  "elite",
-                                                                "isBoss":  false,
-                                                                "maxHealth":  64,
-                                                                "baseDamageProfile":  "normal_layer_2",
-                                                                "notes":  "第二层高压战斗模板",
-                                                                "bossPhases":  [
-
-                                                                               ]
-                                                            },
-                                 "enemy_mirror_thunder_trial":  {
-                                                                    "id":  "enemy_mirror_thunder_trial",
-                                                                    "name":  "镜雷试炼",
-                                                                    "battleRole":  "elite",
-                                                                    "isBoss":  false,
-                                                                    "maxHealth":  64,
-                                                                    "baseDamageProfile":  "normal_layer_2",
-                                                                    "notes":  "第二层法器试炼模板",
-                                                                    "bossPhases":  [
-
-                                                                                   ]
-                                                                },
                                  "enemy_blood_wraith":  {
                                                             "id":  "enemy_blood_wraith",
                                                             "name":  "血影残魂",
@@ -3428,6 +3386,114 @@
 
                                                                            ]
                                                         },
+                                 "enemy_herb_forest_entry":  {
+                                                                 "id":  "enemy_herb_forest_entry",
+                                                                 "name":  "药谷雾林遭遇",
+                                                                 "battleRole":  "normal",
+                                                                 "isBoss":  false,
+                                                                 "maxHealth":  40,
+                                                                 "baseDamageProfile":  "normal_layer_1",
+                                                                 "notes":  "入首境迷林药谷后的首战短斗法",
+                                                                 "bossPhases":  [
+
+                                                                                ]
+                                                             },
+                                 "enemy_thunder_marsh_entry":  {
+                                                                   "id":  "enemy_thunder_marsh_entry",
+                                                                   "name":  "雷泽浅滩遭遇",
+                                                                   "battleRole":  "normal",
+                                                                   "isBoss":  false,
+                                                                   "maxHealth":  44,
+                                                                   "baseDamageProfile":  "normal_layer_1",
+                                                                   "notes":  "入首境雷泽后的首战短斗法",
+                                                                   "bossPhases":  [
+
+                                                                                  ]
+                                                               },
+                                 "enemy_collapsed_well_guard":  {
+                                                                    "id":  "enemy_collapsed_well_guard",
+                                                                    "name":  "塌井守卫",
+                                                                    "battleRole":  "elite",
+                                                                    "isBoss":  false,
+                                                                    "maxHealth":  52,
+                                                                    "baseDamageProfile":  "normal_layer_1",
+                                                                    "notes":  "第一层冒险路线第一战",
+                                                                    "bossPhases":  [
+
+                                                                                   ]
+                                                                },
+                                 "enemy_thunder_general":  {
+                                                               "id":  "enemy_thunder_general",
+                                                               "name":  "雷纹妖将",
+                                                               "battleRole":  "normal",
+                                                               "isBoss":  false,
+                                                               "maxHealth":  46,
+                                                               "baseDamageProfile":  "normal_layer_1",
+                                                               "notes":  "首层普通敌人模板",
+                                                               "bossPhases":  [
+
+                                                                              ]
+                                                           },
+                                 "enemy_ancestral_vault_entry":  {
+                                                                     "id":  "enemy_ancestral_vault_entry",
+                                                                     "name":  "旧库门前遭遇",
+                                                                     "battleRole":  "normal",
+                                                                     "isBoss":  false,
+                                                                     "maxHealth":  44,
+                                                                     "baseDamageProfile":  "normal_layer_1",
+                                                                     "notes":  "入首境祖地旧库后的首战短斗法",
+                                                                     "bossPhases":  [
+
+                                                                                    ]
+                                                                 },
+                                 "enemy_mirror_thunder_trial":  {
+                                                                    "id":  "enemy_mirror_thunder_trial",
+                                                                    "name":  "镜雷试炼",
+                                                                    "battleRole":  "elite",
+                                                                    "isBoss":  false,
+                                                                    "maxHealth":  64,
+                                                                    "baseDamageProfile":  "normal_layer_2",
+                                                                    "notes":  "第二层法器试炼模板",
+                                                                    "bossPhases":  [
+
+                                                                                   ]
+                                                                },
+                                 "enemy_rift_sword_fiend":  {
+                                                                "id":  "enemy_rift_sword_fiend",
+                                                                "name":  "裂空剑煞",
+                                                                "battleRole":  "elite",
+                                                                "isBoss":  false,
+                                                                "maxHealth":  64,
+                                                                "baseDamageProfile":  "normal_layer_2",
+                                                                "notes":  "第二层高压战斗模板",
+                                                                "bossPhases":  [
+
+                                                                               ]
+                                                            },
+                                 "enemy_trade_road_entry":  {
+                                                                "id":  "enemy_trade_road_entry",
+                                                                "name":  "荒谷驿路遭遇",
+                                                                "battleRole":  "normal",
+                                                                "isBoss":  false,
+                                                                "maxHealth":  40,
+                                                                "baseDamageProfile":  "normal_layer_1",
+                                                                "notes":  "入首境商路荒谷后的首战短斗法",
+                                                                "bossPhases":  [
+
+                                                                               ]
+                                                            },
+                                 "enemy_thunder_cliff_guard":  {
+                                                                   "id":  "enemy_thunder_cliff_guard",
+                                                                   "name":  "雷崖执兵",
+                                                                   "battleRole":  "elite",
+                                                                   "isBoss":  false,
+                                                                   "maxHealth":  64,
+                                                                   "baseDamageProfile":  "normal_layer_2",
+                                                                   "notes":  "第二层高压战斗模板",
+                                                                   "bossPhases":  [
+
+                                                                                  ]
+                                                               },
                                  "enemy_tianjie_avatar":  {
                                                               "id":  "enemy_tianjie_avatar",
                                                               "name":  "天劫化身",
@@ -3472,6 +3538,30 @@
                                                                                  }
                                                                              ]
                                                           },
+                                 "enemy_talisman_debt_wraith":  {
+                                                                    "id":  "enemy_talisman_debt_wraith",
+                                                                    "name":  "符债残影",
+                                                                    "battleRole":  "normal",
+                                                                    "isBoss":  false,
+                                                                    "maxHealth":  50,
+                                                                    "baseDamageProfile":  "normal_layer_1",
+                                                                    "notes":  "第一层构筑路线验证战",
+                                                                    "bossPhases":  [
+
+                                                                                   ]
+                                                                },
+                                 "enemy_calamity_guard":  {
+                                                              "id":  "enemy_calamity_guard",
+                                                              "name":  "劫云守卫",
+                                                              "battleRole":  "normal",
+                                                              "isBoss":  false,
+                                                              "maxHealth":  64,
+                                                              "baseDamageProfile":  "normal_layer_2",
+                                                              "notes":  "第二层普通敌人模板",
+                                                              "bossPhases":  [
+
+                                                                             ]
+                                                          },
                                  "enemy_cloud_spirit":  {
                                                             "id":  "enemy_cloud_spirit",
                                                             "name":  "云海妖灵",
@@ -3484,6 +3574,42 @@
 
                                                                            ]
                                                         },
+                                 "enemy_mine_ember":  {
+                                                          "id":  "enemy_mine_ember",
+                                                          "name":  "矿口余烬",
+                                                          "battleRole":  "normal",
+                                                          "isBoss":  false,
+                                                          "maxHealth":  48,
+                                                          "baseDamageProfile":  "normal_layer_1",
+                                                          "notes":  "第一层稳定路线普通战斗",
+                                                          "bossPhases":  [
+
+                                                                         ]
+                                                      },
+                                 "enemy_well_bottom_shadow":  {
+                                                                  "id":  "enemy_well_bottom_shadow",
+                                                                  "name":  "井底邪影",
+                                                                  "battleRole":  "elite",
+                                                                  "isBoss":  false,
+                                                                  "maxHealth":  56,
+                                                                  "baseDamageProfile":  "normal_layer_1",
+                                                                  "notes":  "第一层冒险路线第二战",
+                                                                  "bossPhases":  [
+
+                                                                                 ]
+                                                              },
+                                 "enemy_demon_tower_entry":  {
+                                                                 "id":  "enemy_demon_tower_entry",
+                                                                 "name":  "妖塔外层遭遇",
+                                                                 "battleRole":  "elite",
+                                                                 "isBoss":  false,
+                                                                 "maxHealth":  52,
+                                                                 "baseDamageProfile":  "normal_layer_1",
+                                                                 "notes":  "入首境妖塔外层后的高压首战",
+                                                                 "bossPhases":  [
+
+                                                                                ]
+                                                             },
                                  "enemy_calamity_gatekeeper":  {
                                                                    "id":  "enemy_calamity_gatekeeper",
                                                                    "name":  "劫前守门",
@@ -3495,7 +3621,19 @@
                                                                    "bossPhases":  [
 
                                                                                   ]
-                                                               }
+                                                               },
+                                 "enemy_old_mine_entry":  {
+                                                              "id":  "enemy_old_mine_entry",
+                                                              "name":  "旧矿入口遭遇",
+                                                              "battleRole":  "normal",
+                                                              "isBoss":  false,
+                                                              "maxHealth":  42,
+                                                              "baseDamageProfile":  "normal_layer_1",
+                                                              "notes":  "入首境旧矿后的首战短斗法",
+                                                              "bossPhases":  [
+
+                                                                             ]
+                                                          }
                              },
                  "rewardPriorities":  {
                                           "artifact_fallback_relics":  {

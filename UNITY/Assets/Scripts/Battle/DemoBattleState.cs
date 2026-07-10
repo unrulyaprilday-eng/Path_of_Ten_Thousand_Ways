@@ -71,6 +71,7 @@ namespace PathOfTenThousandWays.Demo.Battle
         public bool IsOpeningBattlePacing => openingBattlePacing;
         public IReadOnlyList<DemoArtifactType> ActiveArtifacts => activeArtifacts;
         public IReadOnlyList<DemoGongfaType> ActiveGongfas => activeGongfas;
+        public bool AutoAdvancePlanning { get; set; } = true;
 
         public int TotalSwords => PermanentSwords + TemporarySwords;
         private int PlanningSeconds => DemoConfigRepository.GetIntConstant("battle", "planning_seconds", 15);
@@ -236,6 +237,12 @@ namespace PathOfTenThousandWays.Demo.Battle
 
             if (Phase == DemoBattlePhase.Planning)
             {
+                if (!AutoAdvancePlanning)
+                {
+                    PhaseTimer = 0f;
+                    return;
+                }
+
                 ExecuteQueuedCards();
             }
             else

@@ -38,6 +38,13 @@ namespace PathOfTenThousandWays.Demo.Systems
         public bool CanAdvanceUtilityNode => currentRewards.Count == 0 && IsAdvanceNode(run.Map.CurrentNode.Type);
         public string UtilityActionLabel => GetUtilityActionLabel(run.Map.CurrentNode.Type);
         public string BattleActionLabel => GetBattleActionLabel();
+        public bool AutoAdvancePlanning
+        {
+            get => battle.AutoAdvancePlanning;
+            set => battle.AutoAdvancePlanning = value;
+        }
+
+        public float BattleSpeed { get; set; } = 1f;
 
         private void Start()
         {
@@ -46,6 +53,12 @@ namespace PathOfTenThousandWays.Demo.Systems
 
         private void Update()
         {
+            float targetTimeScale = HasBattle ? Mathf.Clamp(BattleSpeed, 1f, 2f) : 1f;
+            if (!Mathf.Approximately(Time.timeScale, targetTimeScale))
+            {
+                Time.timeScale = targetTimeScale;
+            }
+
             battle.Tick(Time.deltaTime);
 
             if (battle.Phase == DemoBattlePhase.Won && !battleResultHandled)
@@ -63,6 +76,10 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
         }
 
+        private void OnDisable()
+        {
+            Time.timeScale = 1f;
+        }
         public bool QueueCardAt(int handIndex)
         {
             return battle.QueueCard(handIndex);
@@ -110,7 +127,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             string relicText = run.Relics.Count > 0 ? string.Join("、", run.Relics) : "暂无";
             string artifactText = run.Artifacts.Count > 0 ? string.Join("、", run.Artifacts.Select(type => DemoArtifactLibrary.Get(type).Name)) : "暂无";
             string gongfaText = string.Join(" / ", GetGongfaNames());
-            return $"当前节点：{run.Map.CurrentNode.Name} | 生命：{run.CurrentHealth}/{run.MaxHealth} | 功法：{gongfaText} | 法宝：{artifactText} | 遗物：{relicText}";
+            return $"当前节点：{run.Map.CurrentNode.Name} | 生命：{run.CurrentHealth}/{run.MaxHealth} | 功法：{gongfaText} | 法器：{artifactText} | 遗物：{relicText}";
         }
 
         public string GetMapSummary()
@@ -138,13 +155,13 @@ namespace PathOfTenThousandWays.Demo.Systems
                                 ? "当前位于起点。再受信物，确认为何出山、带什么上路。"
                                 : openingStage == DemoOpeningStage.SelectOpeningScene
                                     ? "当前位于起点。信物已定，再从它指向的几处首境里择一处。"
-                                    : "当前位于起点。首境已定，接下来直接踏入第一段历练。";
+                                    : "当前位于起点。首境已定，接下来先打一场入场首战，再展开真正的择前路。";
                     case DemoNodeType.RouteChoice:
-                        return "当前位于路线分叉。挑出下一段历练，把风险、补强和 Boss 节奏握在自己手里。";
+                        return "当前位于择前路。根据首战所得，挑出下一段历练，把风险、补强和 Boss 节奏握在自己手里。";
                     case DemoNodeType.Reward:
                         return "当前位于奖励节点。挑一项补强，把下一场演武推向更明确的流派高点。";
                     case DemoNodeType.Training:
-                        return "当前位于修炼节点。补足功法或法宝，让 build 从散件开始收束。";
+                        return "当前位于修炼节点。补足功法或法器，让 build 从散件开始收束。";
                     case DemoNodeType.Shop:
                         return "当前位于 Boss 前整备。优先补续航、补灵气，为天劫窗口留出爆发余地。";
                     case DemoNodeType.Victory:
@@ -164,7 +181,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             return
                 $"阶段：{GetPhaseLabel(battle.Phase)} | 倒计时：{battle.PhaseTimer:0.0}s | 回合：{battle.Round}\n" +
                 $"玩家：HP {battle.Player.Health}/{battle.Player.MaxHealth} | 护盾 {battle.Player.Block} | 灵气 {battle.Energy}/{battle.MaxEnergy} | 剑意 {battle.Player.SwordIntent} | 感电 {battle.Player.Shock}\n" +
-                $"飞剑：永久 {battle.PermanentSwords} + 临时 {battle.TemporarySwords} = {battle.TotalSwords} | 功法：{gongfaText} | 法宝：{artifactText}\n" +
+                $"飞剑：永久 {battle.PermanentSwords} + 临时 {battle.TemporarySwords} = {battle.TotalSwords} | 功法：{gongfaText} | 法器：{artifactText}\n" +
                 $"\n敌人：{battle.Enemy.Name} | HP {battle.Enemy.Health}/{battle.Enemy.MaxHealth} | 护盾 {battle.Enemy.Block}\n" +
                 $"状态：感电 {battle.Enemy.Shock} | 流血 {battle.Enemy.Bleed}" +
                 (battle.IsBossBattle ? $"\nBoss 阶段：{GetBossPhaseLabel(battle.BossPhase)} | 预警：{battle.BossIntentText}" : string.Empty);
@@ -183,7 +200,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                                 ? "当前不是战斗节点，先选择启程信物。"
                                 : openingStage == DemoOpeningStage.SelectOpeningScene
                                     ? "当前不是战斗节点，先确认首境。"
-                                    : "当前不是战斗节点，首境确定后会直接进入历练。";
+                                    : "当前不是战斗节点，首境确定后会先进入入场首战。";
                     case DemoNodeType.RouteChoice:
                         return "当前不是战斗节点，先决定下一段路线。";
                     case DemoNodeType.Reward:
@@ -221,7 +238,7 @@ namespace PathOfTenThousandWays.Demo.Systems
 
             if (currentRewards.All(reward => reward.Type == DemoRewardType.Route))
             {
-                return "下一段路会直接改变节点顺序和成型速度，先挑路，再谈补强。";
+                return "首战已经兑现首境选择；现在挑下一段路，让节点顺序开始真正影响成型速度。";
             }
 
             return "选择一项长期补强，把爽点推向后面的演武阶段。";
@@ -302,6 +319,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 }
 
                 run.SetFirstRegion(reward.Region);
+                run.Map.SetOpeningBattleName(BuildOpeningBattleName(reward.Region));
                 ApplyJourneyStartingDirection(run.OpeningSelection.JourneyLine);
                 openingStage = DemoOpeningStage.Complete;
                 currentRewards.Clear();
@@ -710,6 +728,45 @@ namespace PathOfTenThousandWays.Demo.Systems
             return true;
         }
 
+        private static string BuildOpeningBattleName(DemoRegionDefinition region)
+        {
+            if (region == null || string.IsNullOrEmpty(region.Name))
+            {
+                return "首境入口遭遇";
+            }
+
+            if (region.Name.Contains("旧矿"))
+            {
+                return "旧矿入口遭遇";
+            }
+
+            if (region.Name.Contains("雷泽"))
+            {
+                return "雷泽浅滩遭遇";
+            }
+
+            if (region.Name.Contains("迷林") || region.Name.Contains("药谷"))
+            {
+                return "药谷雾林遭遇";
+            }
+
+            if (region.Name.Contains("商路") || region.Name.Contains("荒谷"))
+            {
+                return "荒谷驿路遭遇";
+            }
+
+            if (region.Name.Contains("祖地") || region.Name.Contains("旧库"))
+            {
+                return "旧库门前遭遇";
+            }
+
+            if (region.Name.Contains("妖塔"))
+            {
+                return "妖塔外层遭遇";
+            }
+
+            return region.Name + "入口遭遇";
+        }
         private static DemoRegionDefinition BuildFallbackTradeRoadRegion()
         {
             return new DemoRegionDefinition

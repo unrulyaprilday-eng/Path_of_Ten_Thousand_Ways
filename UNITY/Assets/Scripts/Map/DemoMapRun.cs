@@ -71,7 +71,9 @@ namespace PathOfTenThousandWays.Demo.Map
         public DemoMapRun()
         {
             Nodes.Add(new DemoMapNode(0, DemoNodeType.Start, "定根脚"));
-            Nodes.Add(new DemoMapNode(1, DemoNodeType.RouteChoice, "第一层路口"));
+            Nodes.Add(new DemoMapNode(1, DemoNodeType.Battle, "旧矿入口遭遇"));
+            Nodes.Add(new DemoMapNode(1, DemoNodeType.Reward, "首战所得"));
+            Nodes.Add(new DemoMapNode(1, DemoNodeType.RouteChoice, "旧矿岔路"));
         }
 
         public void CompleteCurrentNode()
@@ -105,6 +107,23 @@ namespace PathOfTenThousandWays.Demo.Map
             }
 
             CurrentIndex = insertIndex;
+        }
+
+        public void SetOpeningBattleName(string nodeName)
+        {
+            if (string.IsNullOrWhiteSpace(nodeName))
+            {
+                return;
+            }
+
+            for (int i = 0; i < Nodes.Count; i++)
+            {
+                if (Nodes[i].Type == DemoNodeType.Battle)
+                {
+                    Nodes[i].Name = nodeName;
+                    return;
+                }
+            }
         }
     }
 }

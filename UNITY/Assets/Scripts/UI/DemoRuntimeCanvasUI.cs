@@ -51,6 +51,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string OpeningSceneHerbForestResourcePath = "Art/UI/ui_opening_scene_herb_forest_001";
         private const string OpeningSceneAncestralVaultResourcePath = "Art/UI/ui_opening_scene_ancestral_vault_001";
         private const string OpeningSceneDemonTowerResourcePath = "Art/UI/ui_opening_scene_demon_tower_001";
+        private const string OpeningSceneBackdropResourcePath = "Art/UI/ui_opening_scene_select_backdrop_001";
         private const string HomeHeroInkResourcePath = "Art/UI/ui_home_hero_ink_002";
         private const string HomeHeroInkFallbackResourcePath = "Art/UI/ui_home_hero_ink_001";
         private const string HomePrimaryButtonResourcePath = "Art/UI/ui_btn_home_primary_001";
@@ -63,6 +64,14 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string HomeIconExitResourcePath = "Art/UI/ui_icon_exit_001";
         private const string PanelScrollDarkResourcePath = "Art/UI/ui_panel_scroll_dark_001";
         private const string PanelScrollDarkTransparentResourcePath = "Art/UI/ui_panel_scroll_dark_001_transparent";
+        private const string BattleHeaderRibbonResourcePath = "Art/UI/ui_battle_header_ribbon_001";
+        private const string BattleHandShelfResourcePath = "Art/UI/ui_battle_hand_shelf_001";
+        private const string BattleIntentPlateResourcePath = "Art/UI/ui_battle_intent_plate_001";
+        private const string BattleCardFrameResourcePath = "Art/UI/ui_battle_card_frame_001";
+        private const string BattleActionButtonResourcePath = "Art/UI/ui_battle_action_button_001";
+        private const string TransitionInkWipeResourcePath = "Art/UI/ui_transition_ink_wipe_001";
+        private const string TransitionFocusRingResourcePath = "Art/UI/ui_transition_focus_ring_001";
+        private const string TransitionSpeedLinesResourcePath = "Art/UI/ui_transition_speed_lines_001";
         private const string RootDestinySceneTeaDeskResourcePath = "Art/UI/ui_root_destiny_scene_tea_desk_002";
         private const string RootDestinyDeskResourcePath = "Art/UI/ui_root_destiny_desk_bg_001";
         private const string RootDestinyBackdropResourcePath = "Art/UI/ui_root_destiny_backdrop_001";
@@ -78,6 +87,10 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string RootSmokeWispResourcePath = "Art/UI/ui_root_smoke_wisp_001";
         private const string SceneBattleCloudseaResourcePath = "Art/Scenes/scene_battle_cloudsea_001";
         private const string SceneCloudseaFarResourcePath = "Art/Scenes/scene_cloudsea_far_001";
+        private const string SceneBattleOldMineEntryResourcePath = "Art/Scenes/scene_battle_old_mine_entry_001";
+        private const string SceneBattleThunderMarshEntryResourcePath = "Art/Scenes/scene_battle_thunder_marsh_entry_001";
+        private const float OpeningSceneTransitionDuration = 1.72f;
+        private const float OpeningSceneTransitionCommitProgress = 0.56f;
         private static readonly string[] HomeTitleFontCandidates =
         {
             "STXingkai",
@@ -110,6 +123,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private static Sprite cachedOpeningSceneHerbForestSprite;
         private static Sprite cachedOpeningSceneAncestralVaultSprite;
         private static Sprite cachedOpeningSceneDemonTowerSprite;
+        private static Sprite cachedOpeningSceneBackdropSprite;
         private static Sprite cachedHomeHeroInkSprite;
         private static Sprite cachedHomePrimaryButtonSprite;
         private static Sprite cachedHomeSecondaryButtonSprite;
@@ -121,6 +135,14 @@ namespace PathOfTenThousandWays.Demo.UI
         private static Sprite cachedHomeIconExitSprite;
         private static Font cachedHomeTitleFont;
         private static Sprite cachedPanelScrollDarkSprite;
+        private static Sprite cachedBattleHeaderRibbonSprite;
+        private static Sprite cachedBattleHandShelfSprite;
+        private static Sprite cachedBattleIntentPlateSprite;
+        private static Sprite cachedBattleCardFrameSprite;
+        private static Sprite cachedBattleActionButtonSprite;
+        private static Sprite cachedTransitionInkWipeSprite;
+        private static Sprite cachedTransitionFocusRingSprite;
+        private static Sprite cachedTransitionSpeedLinesSprite;
         private static Sprite cachedRootDestinyDeskSprite;
         private static Sprite cachedRootDestinyBackdropSprite;
         private static Sprite cachedRootObjectServantSprite;
@@ -132,6 +154,8 @@ namespace PathOfTenThousandWays.Demo.UI
         private static Sprite cachedRootSmokeWispSprite;
         private static Sprite cachedBattleCloudseaSprite;
         private static Sprite cachedCloudseaFarSprite;
+        private static Sprite cachedRouteOldMineSprite;
+        private static Sprite cachedRouteThunderMarshSprite;
 
         private readonly List<GameObject> handEntries = new List<GameObject>();
         private readonly List<GameObject> rewardEntries = new List<GameObject>();
@@ -154,8 +178,10 @@ namespace PathOfTenThousandWays.Demo.UI
         private Text battleBodyText;
         private Text battleStateText;
 
+        private Text handTitleText;
         private Text handInfoText;
         private Text handEmptyText;
+        private Text battleFlowText;
 
         private Text contextTitleText;
         private Text contextInfoText;
@@ -166,11 +192,16 @@ namespace PathOfTenThousandWays.Demo.UI
         private Text utilityButtonText;
         private Button battleActionButton;
         private Text battleActionButtonText;
+        private Button battleAutoButton;
+        private Text battleAutoButtonText;
+        private Button battleSpeedButton;
+        private Text battleSpeedButtonText;
         private RectTransform utilityButtonRect;
 
         private RectTransform handContainer;
         private RectTransform rewardContainer;
         private HorizontalLayoutGroup rewardLayoutGroup;
+        private CanvasGroup rewardOverlayCanvasGroup;
         private DemoBattleSceneView battleSceneView;
         private GameObject rewardPanelBody;
         private GameObject buildPanelBody;
@@ -180,6 +211,33 @@ namespace PathOfTenThousandWays.Demo.UI
         private Image rootDestinyBackdropVeilImage;
         private GameObject openingSceneBackdropRoot;
         private Image openingSceneBackdropImage;
+        private GameObject openingScenePathRoot;
+        private Text openingScenePathText;
+        private Text openingSceneCauseText;
+        private GameObject openingSceneTransitionRoot;
+        private Image openingSceneTransitionVeilImage;
+        private RectTransform openingSceneTransitionInkWipeRect;
+        private Image openingSceneTransitionInkWipeImage;
+        private RectTransform openingSceneTransitionLeftCloudRect;
+        private Image openingSceneTransitionLeftCloudImage;
+        private RectTransform openingSceneTransitionRightCloudRect;
+        private Image openingSceneTransitionRightCloudImage;
+        private RectTransform openingSceneTransitionGateGlowRect;
+        private Image openingSceneTransitionGateGlowImage;
+        private RectTransform openingSceneTransitionSpeedLinesRect;
+        private Image openingSceneTransitionSpeedLinesImage;
+        private RectTransform openingSceneTransitionFocusRect;
+        private Image openingSceneTransitionFocusImage;
+        private CanvasGroup openingSceneTransitionFocusCanvasGroup;
+        private Image openingSceneTransitionFocusWashImage;
+        private RectTransform openingSceneTransitionFocusRingRect;
+        private Image openingSceneTransitionFocusRingImage;
+        private RectTransform openingSceneTransitionBlurRect;
+        private Image openingSceneTransitionBlurImage;
+        private Text openingSceneTransitionTitleText;
+        private Text openingSceneTransitionHintText;
+        private RectTransform[] openingSceneTransitionStreakRects = new RectTransform[0];
+        private Image[] openingSceneTransitionStreakImages = new Image[0];
         private GameObject battleHudRoot;
         private GameObject nodeOverlayPanelRoot;
         private GameObject nodeMapPanelRoot;
@@ -232,6 +290,15 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private string handSignature = string.Empty;
         private string rewardSignature = string.Empty;
+        private Vector2 openingSceneTransitionStartPosition;
+        private Vector2 openingSceneTransitionStartSize;
+        private Vector2 openingSceneTransitionTargetPosition;
+        private Vector2 openingSceneTransitionTargetSize;
+        private Color openingSceneTransitionAccent = Color.white;
+        private int openingSceneTransitionRewardIndex = -1;
+        private float openingSceneTransitionTimer;
+        private bool openingSceneTransitionActive;
+        private bool openingSceneTransitionCommitted;
 
         private void Awake()
         {
@@ -254,6 +321,7 @@ namespace PathOfTenThousandWays.Demo.UI
             RefreshHand();
             RefreshRewards();
             UpdateHomePresentation(Time.time);
+            UpdateOpeningSceneTransition(Time.unscaledDeltaTime);
         }
 
         private void EnsureEventSystem()
@@ -335,6 +403,7 @@ namespace PathOfTenThousandWays.Demo.UI
             BuildNodeOverlay(canvasRect);
             BuildRewardOverlay(canvasRect);
             BuildBattleHud(canvasRect);
+            BuildOpeningSceneTransitionOverlay(canvasRect);
         }
 
         private void CreateBackdrop(RectTransform parent)
@@ -374,15 +443,15 @@ namespace PathOfTenThousandWays.Demo.UI
             topHudRect.offsetMin = Vector2.zero;
             topHudRect.offsetMax = Vector2.zero;
 
-            Sprite headerCloudBand = LoadHeaderCloudBandSprite();
+            Sprite headerCloudBand = LoadBattleHeaderRibbonSprite();
 
             RectTransform panel = CreateFixedPanel(
                 topHudRoot.transform,
                 "TopHudPanel",
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f),
-                new Vector2(0f, -54f),
-                new Vector2(1480f, 72f),
+                new Vector2(0f, -52f),
+                new Vector2(1420f, 68f),
                 new Color(0.08f, 0.09f, 0.11f, 0.90f));
             ApplySpriteToImage(panel, headerCloudBand, headerCloudBand != null ? Color.white : new Color(0.08f, 0.09f, 0.11f, 0.90f));
             DecorateFrame(panel, ColorGold, new Color(0.18f, 0.14f, 0.08f, 0.16f), 2f, true);
@@ -406,12 +475,12 @@ namespace PathOfTenThousandWays.Demo.UI
 
             headerTitleText = CreateText(panel, "HeaderTitle", "万道归途", 28, FontStyle.Bold, TextAnchor.MiddleLeft, ColorPaper);
             headerTitleText.rectTransform.anchorMin = new Vector2(0f, 0f);
-            headerTitleText.rectTransform.anchorMax = new Vector2(0.30f, 1f);
+            headerTitleText.rectTransform.anchorMax = new Vector2(0.34f, 1f);
             headerTitleText.rectTransform.offsetMin = new Vector2(34f, 10f);
             headerTitleText.rectTransform.offsetMax = new Vector2(-12f, -10f);
 
             headerSummaryText = CreateText(panel, "HeaderSummary", string.Empty, 13, FontStyle.Normal, TextAnchor.MiddleRight, ColorMist);
-            headerSummaryText.rectTransform.anchorMin = new Vector2(0.28f, 0f);
+            headerSummaryText.rectTransform.anchorMin = new Vector2(0.34f, 0f);
             headerSummaryText.rectTransform.anchorMax = new Vector2(1f, 1f);
             headerSummaryText.rectTransform.offsetMin = new Vector2(16f, 10f);
             headerSummaryText.rectTransform.offsetMax = new Vector2(-178f, -10f);
@@ -466,7 +535,7 @@ namespace PathOfTenThousandWays.Demo.UI
             Image overlayImage = nodeOverlayRoot.GetComponent<Image>();
             overlayImage.color = new Color(0.04f, 0.05f, 0.06f, 0.24f);
 
-            Sprite headerCloudBand = LoadHeaderCloudBandSprite();
+            Sprite headerCloudBand = LoadBattleHeaderRibbonSprite();
 
             RectTransform panel = CreateFixedPanel(
                 nodeOverlayRoot.transform,
@@ -1274,8 +1343,9 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private void BuildRewardOverlay(RectTransform parent)
         {
-            rewardOverlayRoot = new GameObject("RewardOverlayRoot", typeof(RectTransform), typeof(Image));
+            rewardOverlayRoot = new GameObject("RewardOverlayRoot", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
             rewardOverlayRoot.transform.SetParent(parent, false);
+            rewardOverlayCanvasGroup = rewardOverlayRoot.GetComponent<CanvasGroup>();
 
             RectTransform overlayRect = rewardOverlayRoot.GetComponent<RectTransform>();
             overlayRect.anchorMin = Vector2.zero;
@@ -1318,8 +1388,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 Vector2.one,
                 Vector2.zero,
                 Vector2.zero,
-                new Color(0.08f, 0.09f, 0.10f, 0.08f));
-            ApplySpriteToImage(openingSceneBackdrop, LoadSpriteResource(SceneCloudseaFarResourcePath, SceneBattleCloudseaResourcePath), new Color(1f, 1f, 1f, 0.16f));
+                Color.white);
+            ApplySpriteToImage(openingSceneBackdrop, LoadOpeningSceneBackdropSprite(), Color.white);
             openingSceneBackdropImage = openingSceneBackdrop.GetComponent<Image>();
             openingSceneBackdropImage.raycastTarget = false;
             openingSceneBackdropRoot = openingSceneBackdrop.gameObject;
@@ -1332,8 +1402,68 @@ namespace PathOfTenThousandWays.Demo.UI
                 Vector2.one,
                 Vector2.zero,
                 Vector2.zero,
-                new Color(0.015f, 0.018f, 0.020f, 0.42f));
+                new Color(0.98f, 0.95f, 0.88f, 0.035f));
             openingSceneBackdropVeil.GetComponent<Image>().raycastTarget = false;
+
+            RectTransform openingSceneDeskWash = CreateStretchPanel(
+                openingSceneBackdrop,
+                "OpeningSceneDeskWash",
+                new Vector2(0f, 0f),
+                new Vector2(1f, 0.50f),
+                Vector2.zero,
+                Vector2.zero,
+                new Color(0.46f, 0.31f, 0.15f, 0f));
+            openingSceneDeskWash.GetComponent<Image>().raycastTarget = false;
+
+            RectTransform openingSceneScrollGround = CreateFixedPanel(
+                openingSceneBackdrop,
+                "OpeningSceneScrollGround",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -58f),
+                new Vector2(1648f, 728f),
+                new Color(0.92f, 0.82f, 0.60f, 0f));
+            openingSceneScrollGround.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(openingSceneScrollGround, new Color(0.48f, 0.34f, 0.17f, 0f), new Color(1f, 0.90f, 0.66f, 0f), 1f, false);
+
+            RectTransform openingSceneTopThread = CreateFixedPanel(
+                openingSceneBackdrop,
+                "OpeningSceneTopThread",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, 314f),
+                new Vector2(1120f, 2f),
+                new Color(0.64f, 0.42f, 0.18f, 0.08f));
+            openingSceneTopThread.GetComponent<Image>().raycastTarget = false;
+
+            RectTransform openingScenePathStrip = CreateFixedPanel(
+                openingSceneBackdrop,
+                "OpeningScenePathStrip",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, 264f),
+                new Vector2(820f, 40f),
+                new Color(0.93f, 0.83f, 0.62f, 0.28f));
+            openingScenePathRoot = openingScenePathStrip.gameObject;
+            openingScenePathRoot.SetActive(false);
+            openingScenePathStrip.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(openingScenePathStrip, new Color(0.64f, 0.42f, 0.18f, 0.22f), new Color(1f, 0.91f, 0.68f, 0.045f), 1f, false);
+            openingScenePathText = CreateText(openingScenePathStrip, "OpeningScenePathText", string.Empty, 15, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.30f, 0.20f, 0.10f, 0.86f));
+            StretchText(openingScenePathText.rectTransform, new Vector2(18f, 5f), new Vector2(-18f, -5f));
+
+            RectTransform openingSceneCauseStrip = CreateFixedPanel(
+                openingSceneBackdrop,
+                "OpeningSceneCauseStrip",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -446f),
+                new Vector2(940f, 38f),
+                new Color(0.92f, 0.82f, 0.60f, 0.30f));
+            openingSceneCauseStrip.gameObject.SetActive(false);
+            openingSceneCauseStrip.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(openingSceneCauseStrip, new Color(0.64f, 0.42f, 0.18f, 0f), new Color(1f, 0.91f, 0.68f, 0f), 1f, false);
+            openingSceneCauseText = CreateText(openingSceneCauseStrip, "OpeningSceneCauseText", string.Empty, 14, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.34f, 0.25f, 0.16f, 0.78f));
+            StretchText(openingSceneCauseText.rectTransform, new Vector2(18f, 5f), new Vector2(-18f, -5f));
 
             rewardTitleText = CreateText(rewardOverlayRoot.transform, "RewardTitle", string.Empty, 40, FontStyle.Bold, TextAnchor.UpperCenter, ColorPaper);
             rewardTitleText.rectTransform.anchorMin = new Vector2(0.5f, 1f);
@@ -1411,7 +1541,7 @@ namespace PathOfTenThousandWays.Demo.UI
             rewardDetailHintText.rectTransform.offsetMin = new Vector2(20f, 8f);
             rewardDetailHintText.rectTransform.offsetMax = new Vector2(-20f, 28f);
 
-            Sprite headerCloudBand = LoadHeaderCloudBandSprite();
+            Sprite headerCloudBand = LoadBattleHeaderRibbonSprite();
 
             RectTransform rewardInfoPanel = CreateInkPanel(
                 rewardOverlayRoot.transform,
@@ -1458,6 +1588,169 @@ namespace PathOfTenThousandWays.Demo.UI
             rewardDeckPanelRoot = rewardDeckPanel.gameObject;
         }
 
+        private void BuildOpeningSceneTransitionOverlay(RectTransform parent)
+        {
+            openingSceneTransitionRoot = new GameObject("OpeningSceneTransitionRoot", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
+            openingSceneTransitionRoot.transform.SetParent(parent, false);
+
+            RectTransform rootRect = openingSceneTransitionRoot.GetComponent<RectTransform>();
+            rootRect.anchorMin = Vector2.zero;
+            rootRect.anchorMax = Vector2.one;
+            rootRect.offsetMin = Vector2.zero;
+            rootRect.offsetMax = Vector2.zero;
+
+            openingSceneTransitionVeilImage = openingSceneTransitionRoot.GetComponent<Image>();
+            openingSceneTransitionVeilImage.color = new Color(0.02f, 0.025f, 0.03f, 0f);
+            openingSceneTransitionVeilImage.raycastTarget = true;
+
+            Sprite transitionInkWipe = LoadTransitionInkWipeSprite();
+            Sprite transitionFocusRing = LoadTransitionFocusRingSprite();
+            Sprite transitionSpeedLines = LoadTransitionSpeedLinesSprite();
+            Sprite transitionCloud = LoadRootSmokeWispSprite();
+
+            openingSceneTransitionSpeedLinesRect = CreateStretchPanel(
+                openingSceneTransitionRoot.transform,
+                "OpeningSceneTransitionSpeedLines",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(-120f, -80f),
+                new Vector2(120f, 80f),
+                new Color(1f, 1f, 1f, 0f));
+            openingSceneTransitionSpeedLinesImage = openingSceneTransitionSpeedLinesRect.GetComponent<Image>();
+            ApplySpriteToImage(openingSceneTransitionSpeedLinesRect, transitionSpeedLines, new Color(1f, 1f, 1f, 0f));
+            openingSceneTransitionSpeedLinesImage.raycastTarget = false;
+
+            RectTransform blurRect = CreateFixedPanel(
+                openingSceneTransitionRoot.transform,
+                "OpeningSceneTransitionBlur",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                Vector2.zero,
+                new Vector2(1480f, 880f),
+                new Color(1f, 1f, 1f, 0f));
+            openingSceneTransitionBlurRect = blurRect;
+            openingSceneTransitionBlurImage = blurRect.GetComponent<Image>();
+            openingSceneTransitionBlurImage.raycastTarget = false;
+
+            openingSceneTransitionFocusRect = CreateFixedPanel(
+                openingSceneTransitionRoot.transform,
+                "OpeningSceneTransitionFocus",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                Vector2.zero,
+                new Vector2(680f, 520f),
+                new Color(1f, 1f, 1f, 0f));
+            openingSceneTransitionFocusImage = openingSceneTransitionFocusRect.GetComponent<Image>();
+            openingSceneTransitionFocusImage.raycastTarget = false;
+            openingSceneTransitionFocusCanvasGroup = openingSceneTransitionFocusRect.gameObject.AddComponent<CanvasGroup>();
+            DecorateFrame(openingSceneTransitionFocusRect, new Color(0.98f, 0.86f, 0.58f, 0.64f), new Color(0.14f, 0.09f, 0.04f, 0.18f), 2f, true);
+
+            RectTransform focusWash = CreateStretchPanel(
+                openingSceneTransitionFocusRect,
+                "OpeningSceneTransitionFocusWash",
+                Vector2.zero,
+                Vector2.one,
+                Vector2.zero,
+                Vector2.zero,
+                new Color(0.98f, 0.88f, 0.60f, 0f));
+            openingSceneTransitionFocusWashImage = focusWash.GetComponent<Image>();
+            openingSceneTransitionFocusWashImage.raycastTarget = false;
+
+            openingSceneTransitionFocusRingRect = CreateFixedPanel(
+                openingSceneTransitionRoot.transform,
+                "OpeningSceneTransitionFocusRing",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                Vector2.zero,
+                new Vector2(760f, 590f),
+                new Color(1f, 1f, 1f, 0f));
+            openingSceneTransitionFocusRingImage = openingSceneTransitionFocusRingRect.GetComponent<Image>();
+            ApplySpriteToImage(openingSceneTransitionFocusRingRect, transitionFocusRing, new Color(1f, 1f, 1f, 0f));
+            openingSceneTransitionFocusRingImage.raycastTarget = false;
+
+            openingSceneTransitionStreakRects = new RectTransform[5];
+            openingSceneTransitionStreakImages = new Image[openingSceneTransitionStreakRects.Length];
+            for (int i = 0; i < openingSceneTransitionStreakRects.Length; i++)
+            {
+                RectTransform streak = CreateFixedPanel(
+                    openingSceneTransitionRoot.transform,
+                    "OpeningSceneTransitionStreak_" + i,
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(-620f + i * 310f, -230f + i * 94f),
+                    new Vector2(280f + i * 42f, 5f),
+                    new Color(0.96f, 0.86f, 0.60f, 0f));
+                streak.localRotation = Quaternion.Euler(0f, 0f, -9f + i * 3.5f);
+                streak.GetComponent<Image>().raycastTarget = false;
+                openingSceneTransitionStreakRects[i] = streak;
+                openingSceneTransitionStreakImages[i] = streak.GetComponent<Image>();
+            }
+
+            openingSceneTransitionInkWipeRect = CreateStretchPanel(
+                openingSceneTransitionRoot.transform,
+                "OpeningSceneTransitionInkWipe",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(-180f, -120f),
+                new Vector2(180f, 120f),
+                new Color(0.04f, 0.045f, 0.05f, 0f));
+            openingSceneTransitionInkWipeImage = openingSceneTransitionInkWipeRect.GetComponent<Image>();
+            ApplySpriteToImage(openingSceneTransitionInkWipeRect, transitionInkWipe, transitionInkWipe != null ? new Color(1f, 1f, 1f, 0f) : new Color(0.03f, 0.035f, 0.04f, 0f));
+            openingSceneTransitionInkWipeImage.raycastTarget = false;
+
+            openingSceneTransitionLeftCloudRect = CreateStretchPanel(
+                openingSceneTransitionRoot.transform,
+                "OpeningSceneTransitionLeftCloud",
+                new Vector2(0f, 0f),
+                new Vector2(0.58f, 1f),
+                new Vector2(-260f, -160f),
+                new Vector2(180f, 160f),
+                new Color(0.82f, 0.85f, 0.82f, 0f));
+            openingSceneTransitionLeftCloudImage = openingSceneTransitionLeftCloudRect.GetComponent<Image>();
+            ApplySpriteToImage(openingSceneTransitionLeftCloudRect, transitionCloud != null ? transitionCloud : transitionInkWipe, new Color(1f, 1f, 1f, 0f), false);
+            openingSceneTransitionLeftCloudImage.raycastTarget = false;
+
+            openingSceneTransitionRightCloudRect = CreateStretchPanel(
+                openingSceneTransitionRoot.transform,
+                "OpeningSceneTransitionRightCloud",
+                new Vector2(0.42f, 0f),
+                new Vector2(1f, 1f),
+                new Vector2(-180f, -160f),
+                new Vector2(260f, 160f),
+                new Color(0.82f, 0.85f, 0.82f, 0f));
+            openingSceneTransitionRightCloudImage = openingSceneTransitionRightCloudRect.GetComponent<Image>();
+            ApplySpriteToImage(openingSceneTransitionRightCloudRect, transitionCloud != null ? transitionCloud : transitionInkWipe, new Color(1f, 1f, 1f, 0f), false);
+            openingSceneTransitionRightCloudImage.raycastTarget = false;
+            openingSceneTransitionRightCloudRect.localScale = new Vector3(-1f, 1f, 1f);
+
+            openingSceneTransitionGateGlowRect = CreateFixedPanel(
+                openingSceneTransitionRoot.transform,
+                "OpeningSceneTransitionGateGlow",
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                Vector2.zero,
+                new Vector2(500f, 920f),
+                new Color(0.90f, 0.94f, 0.92f, 0f));
+            openingSceneTransitionGateGlowImage = openingSceneTransitionGateGlowRect.GetComponent<Image>();
+            ApplySpriteToImage(openingSceneTransitionGateGlowRect, transitionFocusRing, new Color(1f, 1f, 1f, 0f), false);
+            openingSceneTransitionGateGlowImage.raycastTarget = false;
+
+            openingSceneTransitionTitleText = CreateText(openingSceneTransitionRoot.transform, "OpeningSceneTransitionTitle", string.Empty, 42, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.96f, 0.91f, 0.78f, 0f));
+            openingSceneTransitionTitleText.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            openingSceneTransitionTitleText.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            openingSceneTransitionTitleText.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            openingSceneTransitionTitleText.rectTransform.anchoredPosition = new Vector2(0f, -404f);
+            openingSceneTransitionTitleText.rectTransform.sizeDelta = new Vector2(980f, 54f);
+
+            openingSceneTransitionHintText = CreateText(openingSceneTransitionRoot.transform, "OpeningSceneTransitionHint", string.Empty, 17, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.72f, 0.78f, 0.78f, 0f));
+            openingSceneTransitionHintText.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            openingSceneTransitionHintText.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            openingSceneTransitionHintText.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            openingSceneTransitionHintText.rectTransform.anchoredPosition = new Vector2(0f, -448f);
+            openingSceneTransitionHintText.rectTransform.sizeDelta = new Vector2(1180f, 34f);
+
+            openingSceneTransitionRoot.SetActive(false);
+        }
         private void BuildBattleHud(RectTransform parent)
         {
             battleHudRoot = new GameObject("BattleHudRoot", typeof(RectTransform));
@@ -1469,81 +1762,185 @@ namespace PathOfTenThousandWays.Demo.UI
             hudRect.offsetMin = Vector2.zero;
             hudRect.offsetMax = Vector2.zero;
 
-            RectTransform hintPanel = CreateInkPanel(
+            Sprite battleHandShelf = LoadBattleHandShelfSprite();
+            Sprite battleActionButtonSurface = LoadBattleActionButtonSprite();
+
+            RectTransform hintPanel = CreateStretchPanel(
                 battleHudRoot.transform,
                 "BattleHintPanel",
-                new Vector2(1f, 0f),
-                new Vector2(1f, 0f),
-                new Vector2(-430f, 248f),
-                new Vector2(-20f, 348f),
-                new Color(0.08f, 0.09f, 0.11f, 0.88f));
-            battleStateText = CreateText(hintPanel, "BattleStateText", string.Empty, 16, FontStyle.Bold, TextAnchor.UpperLeft, ColorPaper);
-            battleStateText.rectTransform.anchorMin = new Vector2(0f, 0.5f);
-            battleStateText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            battleStateText.rectTransform.offsetMin = new Vector2(18f, -10f);
-            battleStateText.rectTransform.offsetMax = new Vector2(-18f, -10f);
-
-            battleHintText = CreateText(hintPanel, "BattleHintText", string.Empty, 13, FontStyle.Normal, TextAnchor.UpperLeft, ColorMist);
-            battleHintText.rectTransform.anchorMin = new Vector2(0f, 0f);
-            battleHintText.rectTransform.anchorMax = new Vector2(1f, 0.56f);
-            battleHintText.rectTransform.offsetMin = new Vector2(18f, 14f);
-            battleHintText.rectTransform.offsetMax = new Vector2(-18f, -10f);
+                new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f),
+                new Vector2(-340f, 182f),
+                new Vector2(340f, 236f),
+                new Color(0.94f, 0.92f, 0.86f, 0.72f));
+            battleStateText = CreateText(hintPanel, "BattleStateText", string.Empty, 13, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.22f, 0.22f, 0.20f, 0.94f));
+            StretchText(battleStateText.rectTransform, new Vector2(16f, 22f), new Vector2(-16f, -4f));
+            battleHintText = CreateText(hintPanel, "BattleHintText", string.Empty, 11, FontStyle.Normal, TextAnchor.MiddleCenter, new Color(0.38f, 0.40f, 0.38f, 0.88f));
+            StretchText(battleHintText.rectTransform, new Vector2(16f, 4f), new Vector2(-16f, -22f));
+            hintPanel.gameObject.SetActive(false);
 
             RectTransform handPanel = CreateFixedPanel(
                 battleHudRoot.transform,
                 "HandHudPanel",
                 new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0f),
-                new Vector2(0f, 24f),
-                new Vector2(1300f, 230f),
-                new Color(0.07f, 0.08f, 0.10f, 0.92f));
-            DecorateFrame(handPanel, ColorGoldDim, new Color(0.18f, 0.14f, 0.09f, 0.16f), 2f, true);
+                new Vector2(-72f, -2f),
+                new Vector2(1320f, 176f),
+                new Color(0.10f, 0.10f, 0.095f, 0.78f));
+            ApplySpriteToImage(
+                handPanel,
+                battleHandShelf,
+                battleHandShelf != null ? new Color(1f, 1f, 1f, 0.96f) : new Color(0.10f, 0.10f, 0.095f, 0.78f));
+            if (battleHandShelf == null)
+            {
+                DecorateFrame(handPanel, ColorGoldDim, new Color(0.18f, 0.14f, 0.09f, 0.10f), 1.5f, true);
+            }
 
-            Text handTitleText = CreateText(handPanel, "HandTitle", "手牌规划", 20, FontStyle.Bold, TextAnchor.UpperLeft, ColorPaper);
+            handTitleText = CreateText(handPanel, "HandTitle", "手牌", 14, FontStyle.Bold, TextAnchor.UpperLeft, ColorPaper);
             handTitleText.rectTransform.anchorMin = new Vector2(0f, 1f);
-            handTitleText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            handTitleText.rectTransform.offsetMin = new Vector2(22f, -38f);
-            handTitleText.rectTransform.offsetMax = new Vector2(-22f, -8f);
+            handTitleText.rectTransform.anchorMax = new Vector2(0.16f, 1f);
+            handTitleText.rectTransform.offsetMin = new Vector2(24f, -28f);
+            handTitleText.rectTransform.offsetMax = new Vector2(-6f, -5f);
 
-            handInfoText = CreateText(handPanel, "HandInfo", string.Empty, 15, FontStyle.Normal, TextAnchor.UpperLeft, ColorMist);
+            handInfoText = CreateText(handPanel, "HandInfo", string.Empty, 11, FontStyle.Normal, TextAnchor.UpperLeft, ColorMist);
             handInfoText.rectTransform.anchorMin = new Vector2(0f, 1f);
-            handInfoText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            handInfoText.rectTransform.offsetMin = new Vector2(22f, -64f);
-            handInfoText.rectTransform.offsetMax = new Vector2(-22f, -34f);
+            handInfoText.rectTransform.anchorMax = new Vector2(0.58f, 1f);
+            handInfoText.rectTransform.offsetMin = new Vector2(76f, -27f);
+            handInfoText.rectTransform.offsetMax = new Vector2(-6f, -5f);
+
+            battleFlowText = CreateText(handPanel, "BattleFlow", string.Empty, 11, FontStyle.Bold, TextAnchor.MiddleRight, ColorGoldDim);
+            battleFlowText.rectTransform.anchorMin = new Vector2(0.58f, 1f);
+            battleFlowText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            battleFlowText.rectTransform.offsetMin = new Vector2(6f, -27f);
+            battleFlowText.rectTransform.offsetMax = new Vector2(-192f, -5f);
 
             GameObject containerObject = new GameObject("HandContainer", typeof(RectTransform), typeof(HorizontalLayoutGroup));
             containerObject.transform.SetParent(handPanel, false);
             handContainer = containerObject.GetComponent<RectTransform>();
             handContainer.anchorMin = new Vector2(0f, 0f);
-            handContainer.anchorMax = new Vector2(1f, 1f);
-            handContainer.offsetMin = new Vector2(18f, 52f);
-            handContainer.offsetMax = new Vector2(-182f, -72f);
+            handContainer.anchorMax = new Vector2(1f, 0f);
+            handContainer.pivot = new Vector2(0.5f, 0f);
+            handContainer.anchoredPosition = new Vector2(-54f, 10f);
+            handContainer.sizeDelta = new Vector2(-232f, 124f);
 
             HorizontalLayoutGroup group = containerObject.GetComponent<HorizontalLayoutGroup>();
-            group.spacing = 12f;
-            group.padding = new RectOffset(0, 0, 4, 4);
-            group.childAlignment = TextAnchor.UpperCenter;
+            group.spacing = 7f;
+            group.padding = new RectOffset(0, 0, 0, 0);
+            group.childAlignment = TextAnchor.LowerCenter;
             group.childControlHeight = true;
             group.childControlWidth = true;
             group.childForceExpandHeight = false;
             group.childForceExpandWidth = false;
 
-            handEmptyText = CreateText(handPanel, "HandEmpty", string.Empty, 14, FontStyle.Normal, TextAnchor.MiddleLeft, new Color(0.66f, 0.70f, 0.74f, 1f));
+            handEmptyText = CreateText(handPanel, "HandEmpty", string.Empty, 12, FontStyle.Normal, TextAnchor.MiddleLeft, new Color(0.66f, 0.70f, 0.72f, 1f));
             handEmptyText.rectTransform.anchorMin = new Vector2(0f, 0f);
             handEmptyText.rectTransform.anchorMax = new Vector2(1f, 0f);
-            handEmptyText.rectTransform.offsetMin = new Vector2(22f, 18f);
-            handEmptyText.rectTransform.offsetMax = new Vector2(-320f, 44f);
+            handEmptyText.rectTransform.offsetMin = new Vector2(24f, 12f);
+            handEmptyText.rectTransform.offsetMax = new Vector2(-210f, 34f);
 
-            battleActionButton = CreateActionButton(handPanel, "BattleActionButton", out battleActionButtonText, new Color(0.24f, 0.18f, 0.10f, 0.98f), ColorPaper);
+            battleActionButton = CreateActionButton(
+                handPanel,
+                "BattleActionButton",
+                out battleActionButtonText,
+                new Color(0.22f, 0.17f, 0.10f, 0.96f),
+                ColorPaper);
             RectTransform actionRect = battleActionButton.GetComponent<RectTransform>();
             actionRect.anchorMin = new Vector2(1f, 0f);
             actionRect.anchorMax = new Vector2(1f, 0f);
             actionRect.pivot = new Vector2(1f, 0f);
-            actionRect.anchoredPosition = new Vector2(-22f, 18f);
-            actionRect.sizeDelta = new Vector2(260f, 52f);
-            battleActionButton.onClick.AddListener(OnBattleActionClicked);
-        }
+            actionRect.anchoredPosition = new Vector2(-18f, 13f);
+            actionRect.sizeDelta = new Vector2(170f, 40f);
+            if (battleActionButtonSurface != null)
+            {
+                ApplySpriteToImage(actionRect, battleActionButtonSurface, Color.white);
+                battleActionButton.colors = CreateSpriteButtonColors(new Color(0.32f, 0.28f, 0.22f, 0.62f));
+            }
 
+            battleActionButton.onClick.AddListener(OnBattleActionClicked);
+            BuildBattleDaoDock(battleHudRoot.transform);
+        }
+        private void BuildBattleDaoDock(Transform parent)
+        {
+            RectTransform dock = CreateFixedPanel(
+                parent,
+                "BattleDaoDock",
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(-24f, 12f),
+                new Vector2(234f, 184f),
+                new Color(0.08f, 0.08f, 0.075f, 0.78f));
+            DecorateFrame(dock, new Color(0.70f, 0.58f, 0.34f, 0.48f), new Color(0.18f, 0.14f, 0.08f, 0.08f), 1.4f, true);
+
+            RectTransform daoSeal = CreateFixedPanel(
+                dock,
+                "DaoSeal",
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(12f, -12f),
+                new Vector2(94f, 94f),
+                new Color(0.12f, 0.10f, 0.075f, 0.88f));
+            DecorateFrame(daoSeal, ColorGold, new Color(0.92f, 0.78f, 0.42f, 0.06f), 1.8f, true);
+            Text daoText = CreateText(daoSeal, "DaoText", "道法", 23, FontStyle.Bold, TextAnchor.MiddleCenter, ColorPaper);
+            StretchText(daoText.rectTransform, new Vector2(8f, 8f), new Vector2(-8f, -8f));
+
+            RectTransform divineSlot = CreateFixedPanel(
+                dock,
+                "DivineSlot",
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(-70f, -20f),
+                new Vector2(48f, 48f),
+                new Color(0.12f, 0.10f, 0.075f, 0.84f));
+            DecorateFrame(divineSlot, ColorGold, new Color(0.24f, 0.20f, 0.14f, 0.06f), 1.2f, true);
+            Text divineText = CreateText(divineSlot, "DivineText", "神通", 12, FontStyle.Bold, TextAnchor.MiddleCenter, ColorGold);
+            StretchText(divineText.rectTransform, new Vector2(4f, 4f), new Vector2(-4f, -4f));
+
+            RectTransform artifactSlot = CreateFixedPanel(
+                dock,
+                "ArtifactSlot",
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(-12f, -20f),
+                new Vector2(48f, 48f),
+                new Color(0.08f, 0.12f, 0.12f, 0.84f));
+            DecorateFrame(artifactSlot, ColorJade, new Color(0.24f, 0.40f, 0.42f, 0.06f), 1.2f, true);
+            Text artifactText = CreateText(artifactSlot, "ArtifactText", "法器", 12, FontStyle.Bold, TextAnchor.MiddleCenter, ColorJade);
+            StretchText(artifactText.rectTransform, new Vector2(4f, 4f), new Vector2(-4f, -4f));
+
+            Text dockHint = CreateText(dock, "DockHint", "神通与主动法器", 10, FontStyle.Normal, TextAnchor.MiddleCenter, ColorGoldDim);
+            dockHint.rectTransform.anchorMin = new Vector2(0.48f, 0.34f);
+            dockHint.rectTransform.anchorMax = new Vector2(0.98f, 0.55f);
+            dockHint.rectTransform.offsetMin = Vector2.zero;
+            dockHint.rectTransform.offsetMax = Vector2.zero;
+
+            battleAutoButton = CreateActionButton(
+                dock,
+                "BattleAutoButton",
+                out battleAutoButtonText,
+                new Color(0.12f, 0.13f, 0.12f, 0.90f),
+                ColorPaper);
+            RectTransform autoRect = battleAutoButton.GetComponent<RectTransform>();
+            autoRect.anchorMin = new Vector2(0f, 0f);
+            autoRect.anchorMax = new Vector2(0f, 0f);
+            autoRect.pivot = new Vector2(0f, 0f);
+            autoRect.anchoredPosition = new Vector2(12f, 10f);
+            autoRect.sizeDelta = new Vector2(96f, 34f);
+            battleAutoButton.onClick.AddListener(OnBattleAutoClicked);
+
+            battleSpeedButton = CreateActionButton(
+                dock,
+                "BattleSpeedButton",
+                out battleSpeedButtonText,
+                new Color(0.12f, 0.13f, 0.12f, 0.90f),
+                ColorPaper);
+            RectTransform speedRect = battleSpeedButton.GetComponent<RectTransform>();
+            speedRect.anchorMin = new Vector2(1f, 0f);
+            speedRect.anchorMax = new Vector2(1f, 0f);
+            speedRect.pivot = new Vector2(1f, 0f);
+            speedRect.anchoredPosition = new Vector2(-12f, 10f);
+            speedRect.sizeDelta = new Vector2(96f, 34f);
+            battleSpeedButton.onClick.AddListener(OnBattleSpeedClicked);
+        }
         private Text CreatePinnedPanelTitle(Transform parent, string title)
         {
             Text text = CreateText(parent, "PinnedTitle", title, 18, FontStyle.Bold, TextAnchor.UpperLeft, ColorPaper);
@@ -1556,11 +1953,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private void RefreshTextPanels()
         {
-            headerTitleText.text = controller.HasBattle
-                ? "云海斗法"
-                : IsStartHomeScreen()
-                    ? "起手总览"
-                    : "万道归途";
+            headerTitleText.text = BuildHeaderTitleText();
             headerSummaryText.text = BuildTopBarSummary();
             headerChipText.text = GetHeaderChipText();
             headerContextText.text = BuildHeaderContextText();
@@ -1591,8 +1984,19 @@ namespace PathOfTenThousandWays.Demo.UI
             rewardSectionTitleText.text = BuildRewardSectionTitle();
             rewardSectionHintText.text = BuildRewardSectionHint();
             RefreshRewardHeaderStyle();
+            RefreshOpeningSceneGuidance();
 
-            handInfoText.text = controller.GetHandStatus();
+            if (handTitleText != null)
+            {
+                handTitleText.text = BuildHandTitleText();
+            }
+
+            handInfoText.text = BuildHandInfoText();
+            if (battleFlowText != null)
+            {
+                battleFlowText.text = BuildBattleFlowText();
+                battleFlowText.gameObject.SetActive(controller.HasBattle);
+            }
             handEmptyText.text = BuildHandHint();
 
             if (controller.IsRunComplete)
@@ -1617,7 +2021,7 @@ namespace PathOfTenThousandWays.Demo.UI
             }
             else
             {
-                battleStateText.text = controller.Battle.IsBossBattle ? "Boss 已压上中天，准备收束全局。" : "演武主场开启，手牌只负责布势。";
+                battleStateText.text = BuildBattleStateTitle();
                 battleStateText.color = new Color(0.74f, 0.80f, 0.87f, 1f);
                 battleHintText.text = BuildBattleHint();
             }
@@ -1664,7 +2068,7 @@ namespace PathOfTenThousandWays.Demo.UI
                     rewardOverlayImage.color = showRootOpeningRewards || showOpeningItemRewards
                         ? new Color(0.018f, 0.020f, 0.020f, 0.03f)
                         : showOpeningSceneRewards
-                            ? new Color(0.020f, 0.024f, 0.026f, 0.12f)
+                            ? new Color(0.96f, 0.93f, 0.86f, 0.03f)
                         : new Color(0.04f, 0.05f, 0.06f, 0.36f);
                 }
             }
@@ -1681,7 +2085,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (openingSceneBackdropImage != null)
             {
-                openingSceneBackdropImage.color = new Color(1f, 1f, 1f, showOpeningSceneRewards ? 0.16f : 0f);
+                openingSceneBackdropImage.color = new Color(1f, 1f, 1f, showOpeningSceneRewards ? 0.98f : 0f);
             }
 
             if (rootDestinyBackdropVeilImage != null)
@@ -1696,7 +2100,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (topHudRoot != null)
             {
-                topHudRoot.SetActive(!hideTopHud);
+                topHudRoot.SetActive(!hideTopHud && !showingBattle);
             }
 
             if (rewardInfoPanelRoot != null)
@@ -1790,6 +2194,34 @@ namespace PathOfTenThousandWays.Demo.UI
             bool showBattleAction = showingBattle && !string.IsNullOrEmpty(battleLabel);
             battleActionButton.gameObject.SetActive(showBattleAction);
             battleActionButtonText.text = battleLabel;
+
+            if (battleAutoButton != null)
+            {
+                battleAutoButton.gameObject.SetActive(showingBattle);
+                battleAutoButton.image.color = controller.AutoAdvancePlanning
+                    ? new Color(0.19f, 0.30f, 0.29f, 0.96f)
+                    : new Color(0.12f, 0.13f, 0.12f, 0.90f);
+            }
+
+            if (battleAutoButtonText != null)
+            {
+                battleAutoButtonText.text = controller.AutoAdvancePlanning ? "自动 · 开" : "自动 · 关";
+                battleAutoButtonText.color = controller.AutoAdvancePlanning ? ColorJade : ColorMist;
+            }
+
+            if (battleSpeedButton != null)
+            {
+                battleSpeedButton.gameObject.SetActive(showingBattle);
+                battleSpeedButton.image.color = controller.BattleSpeed >= 1.9f
+                    ? new Color(0.30f, 0.22f, 0.12f, 0.96f)
+                    : new Color(0.12f, 0.13f, 0.12f, 0.90f);
+            }
+
+            if (battleSpeedButtonText != null)
+            {
+                battleSpeedButtonText.text = controller.BattleSpeed >= 1.9f ? "倍速 · ×2" : "倍速 · ×1";
+                battleSpeedButtonText.color = controller.BattleSpeed >= 1.9f ? ColorGold : ColorMist;
+            }
         }
 
         private void RefreshRewardLayout()
@@ -1819,10 +2251,10 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                rewardContainer.anchoredPosition = new Vector2(0f, -66f);
-                rewardContainer.sizeDelta = new Vector2(1810f, 760f);
-                rewardLayoutGroup.spacing = 28f;
-                rewardLayoutGroup.padding = new RectOffset(22, 22, 8, 8);
+                rewardContainer.anchoredPosition = new Vector2(0f, -64f);
+                rewardContainer.sizeDelta = new Vector2(1660f, 704f);
+                rewardLayoutGroup.spacing = 24f;
+                rewardLayoutGroup.padding = new RectOffset(20, 20, 8, 8);
                 return;
             }
 
@@ -1858,7 +2290,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (rewardTitleText != null)
             {
-                rewardTitleText.fontSize = showingRootDestiny ? 30 : showingOpeningItem ? 38 : showingOpeningScene ? 44 : 40;
+                rewardTitleText.fontSize = showingRootDestiny ? 30 : showingOpeningItem ? 38 : showingOpeningScene ? 42 : 40;
                 rewardTitleText.alignment = TextAnchor.UpperCenter;
                 rewardTitleText.rectTransform.anchoredPosition = showingRootDestiny
                     ? new Vector2(0f, -86f)
@@ -1879,7 +2311,7 @@ namespace PathOfTenThousandWays.Demo.UI
                     : showingOpeningItem
                         ? new Color(0.17f, 0.12f, 0.08f, 0.94f)
                         : showingOpeningScene
-                            ? new Color(0.96f, 0.94f, 0.88f, 1f)
+                            ? new Color(0.18f, 0.12f, 0.07f, 0.94f)
                     : new Color(0.95f, 0.94f, 0.90f, 1f);
             }
 
@@ -1905,7 +2337,7 @@ namespace PathOfTenThousandWays.Demo.UI
                     : showingOpeningItem
                         ? new Color(0.27f, 0.20f, 0.13f, 0.72f)
                         : showingOpeningScene
-                            ? new Color(0.91f, 0.92f, 0.88f, 0.96f)
+                            ? new Color(0.31f, 0.24f, 0.16f, 0.76f)
                     : new Color(0.90f, 0.92f, 0.95f, 0.98f);
             }
 
@@ -1931,7 +2363,7 @@ namespace PathOfTenThousandWays.Demo.UI
                     : showingOpeningItem
                         ? new Color(0.53f, 0.35f, 0.15f, 0.82f)
                         : showingOpeningScene
-                            ? new Color(0.92f, 0.78f, 0.46f, 0.96f)
+                            ? new Color(0.56f, 0.34f, 0.14f, 0.86f)
                     : new Color(0.97f, 0.87f, 0.56f, 1f);
             }
 
@@ -1957,7 +2389,7 @@ namespace PathOfTenThousandWays.Demo.UI
                     : showingOpeningItem
                         ? new Color(0.34f, 0.27f, 0.18f, 0.60f)
                         : showingOpeningScene
-                            ? new Color(0.83f, 0.86f, 0.86f, 0.88f)
+                            ? new Color(0.34f, 0.28f, 0.20f, 0.66f)
                     : new Color(0.86f, 0.89f, 0.93f, 0.98f);
             }
         }
@@ -2084,9 +2516,10 @@ namespace PathOfTenThousandWays.Demo.UI
 
             handEmptyText.text = controller.Battle.Hand.Count == 0
                 ? "暂无可用手牌，系统会在下一轮自动补牌。"
-                : "拖牌进入规划队列，留住高点给后续连锁。";
+                : IsOpeningBattlePage()
+                    ? "点击卡牌纳入规划，确认后开始演武。"
+                    : "点击卡牌纳入规划，留住高点给后续连锁。";
         }
-
         private void RefreshRewards()
         {
             string signature = controller.GetRewardSummary() + "|" + controller.CurrentRewards.Count;
@@ -2120,11 +2553,385 @@ namespace PathOfTenThousandWays.Demo.UI
             {
                 int capturedIndex = i;
                 DemoReward reward = controller.CurrentRewards[i];
+                DemoReward capturedReward = reward;
                 GameObject rewardObject = CreateRewardEntry(rewardContainer, reward);
+                RectTransform rewardRect = rewardObject.GetComponent<RectTransform>();
                 Button button = rewardObject.GetComponent<Button>();
-                button.onClick.AddListener(() => controller.ClaimRewardAt(capturedIndex));
+                if (reward.Type == DemoRewardType.OpeningScene)
+                {
+                    button.onClick.AddListener(() => BeginOpeningSceneTransition(capturedIndex, rewardRect, capturedReward));
+                }
+                else
+                {
+                    button.onClick.AddListener(() => controller.ClaimRewardAt(capturedIndex));
+                }
+
                 rewardEntries.Add(rewardObject);
             }
+        }
+
+        private void BeginOpeningSceneTransition(int rewardIndex, RectTransform sourceRect, DemoReward reward)
+        {
+            if (openingSceneTransitionActive || reward == null || reward.Type != DemoRewardType.OpeningScene)
+            {
+                return;
+            }
+
+            if (openingSceneTransitionRoot == null || controller == null)
+            {
+                controller?.ClaimRewardAt(rewardIndex);
+                return;
+            }
+
+            HideRewardDetail();
+            SetRewardButtonsInteractable(false);
+
+            Sprite sceneSprite = LoadOpeningSprite(reward);
+            openingSceneTransitionRewardIndex = rewardIndex;
+            openingSceneTransitionTimer = 0f;
+            openingSceneTransitionCommitted = false;
+            openingSceneTransitionActive = true;
+            openingSceneTransitionAccent = GetRewardAccentColor(reward);
+
+            if (!TryGetRectInTransitionSpace(sourceRect, out openingSceneTransitionStartPosition, out openingSceneTransitionStartSize))
+            {
+                openingSceneTransitionStartPosition = new Vector2(0f, -42f);
+                openingSceneTransitionStartSize = new Vector2(520f, 640f);
+            }
+
+            openingSceneTransitionTargetPosition = new Vector2(0f, -24f);
+            openingSceneTransitionTargetSize = new Vector2(1320f, 790f);
+
+            if (openingSceneTransitionFocusImage != null)
+            {
+                openingSceneTransitionFocusImage.sprite = sceneSprite;
+                openingSceneTransitionFocusImage.type = Image.Type.Simple;
+                openingSceneTransitionFocusImage.preserveAspect = false;
+            }
+
+            if (openingSceneTransitionBlurImage != null)
+            {
+                openingSceneTransitionBlurImage.sprite = sceneSprite;
+                openingSceneTransitionBlurImage.type = Image.Type.Simple;
+                openingSceneTransitionBlurImage.preserveAspect = false;
+            }
+
+            if (openingSceneTransitionTitleText != null)
+            {
+                openingSceneTransitionTitleText.text = reward.Name;
+            }
+
+            if (openingSceneTransitionHintText != null)
+            {
+                string tagline = reward.Region != null ? BuildOpeningSceneTagline(reward.Region) : "首境已定，气机入境。";
+                openingSceneTransitionHintText.text = tagline;
+            }
+
+            if (rewardOverlayCanvasGroup != null)
+            {
+                rewardOverlayCanvasGroup.alpha = 1f;
+                rewardOverlayCanvasGroup.interactable = false;
+                rewardOverlayCanvasGroup.blocksRaycasts = false;
+            }
+
+            openingSceneTransitionRoot.SetActive(true);
+            openingSceneTransitionRoot.transform.SetAsLastSibling();
+            ApplyOpeningSceneTransitionProgress(0f);
+        }
+
+        private void UpdateOpeningSceneTransition(float deltaTime)
+        {
+            if (!openingSceneTransitionActive)
+            {
+                if (rewardOverlayCanvasGroup != null)
+                {
+                    rewardOverlayCanvasGroup.alpha = 1f;
+                    rewardOverlayCanvasGroup.interactable = true;
+                    rewardOverlayCanvasGroup.blocksRaycasts = true;
+                }
+
+                return;
+            }
+
+            openingSceneTransitionTimer += Mathf.Max(0f, deltaTime);
+            float progress = Mathf.Clamp01(openingSceneTransitionTimer / OpeningSceneTransitionDuration);
+
+            if (!openingSceneTransitionCommitted && progress >= OpeningSceneTransitionCommitProgress)
+            {
+                openingSceneTransitionCommitted = true;
+                int rewardIndex = openingSceneTransitionRewardIndex;
+                openingSceneTransitionRewardIndex = -1;
+                if (rewardIndex >= 0)
+                {
+                    controller.ClaimRewardAt(rewardIndex);
+                    battleSceneView?.RefreshForCurrentBattle();
+                }
+            }
+
+            ApplyOpeningSceneTransitionProgress(progress);
+
+            if (progress >= 1f)
+            {
+                FinishOpeningSceneTransition();
+            }
+        }
+
+        private void ApplyOpeningSceneTransitionProgress(float progress)
+        {
+            float centerProgress = SmoothRange(progress, 0.02f, 0.46f);
+            float blurProgress = SmoothRange(progress, 0.42f, 0.64f);
+            float holdProgress = SmoothRange(progress, 0.18f, OpeningSceneTransitionCommitProgress);
+
+            if (rewardOverlayCanvasGroup != null)
+            {
+                rewardOverlayCanvasGroup.alpha = Mathf.Lerp(1f, 0.12f, SmoothRange(progress, 0.05f, 0.48f));
+            }
+
+            if (openingSceneTransitionVeilImage != null)
+            {
+                float veilIn = Mathf.Lerp(0.05f, 0.82f, holdProgress);
+                float veilOut = Mathf.Lerp(0.88f, 0f, SmoothRange(progress, 0.66f, 1f));
+                float alpha = progress < OpeningSceneTransitionCommitProgress ? veilIn : veilOut;
+                openingSceneTransitionVeilImage.color = new Color(0.02f, 0.024f, 0.03f, alpha);
+            }
+
+            if (openingSceneTransitionSpeedLinesRect != null)
+            {
+                float speedSweep = SmoothRange(progress, 0.04f, 0.68f);
+                openingSceneTransitionSpeedLinesRect.anchoredPosition = new Vector2(Mathf.Lerp(120f, -120f, speedSweep), Mathf.Lerp(-20f, 34f, speedSweep));
+                openingSceneTransitionSpeedLinesRect.localScale = Vector3.one * (1f + speedSweep * 0.10f);
+            }
+
+            if (openingSceneTransitionSpeedLinesImage != null)
+            {
+                float speedAlpha = Mathf.Sin(Mathf.Clamp01((progress - 0.04f) / 0.72f) * Mathf.PI) * 0.50f;
+                float revealSpeedAlpha = SmoothRange(progress, 0.58f, 0.72f) * (1f - SmoothRange(progress, 0.88f, 1f)) * 0.34f;
+                speedAlpha = Mathf.Max(speedAlpha * (1f - SmoothRange(progress, 0.76f, 1f)), revealSpeedAlpha);
+                openingSceneTransitionSpeedLinesImage.color = new Color(1f, 1f, 1f, speedAlpha);
+            }
+
+            if (openingSceneTransitionFocusRect != null)
+            {
+                Vector2 position = Vector2.Lerp(openingSceneTransitionStartPosition, openingSceneTransitionTargetPosition, centerProgress);
+                Vector2 size = Vector2.Lerp(openingSceneTransitionStartSize, openingSceneTransitionTargetSize, centerProgress);
+                float pushScale = 1f + SmoothRange(progress, 0.36f, 0.76f) * 0.23f;
+                openingSceneTransitionFocusRect.anchoredPosition = position;
+                openingSceneTransitionFocusRect.sizeDelta = size;
+                openingSceneTransitionFocusRect.localScale = Vector3.one * pushScale;
+            }
+
+            if (openingSceneTransitionFocusRingRect != null)
+            {
+                Vector2 ringPosition = Vector2.Lerp(openingSceneTransitionStartPosition, openingSceneTransitionTargetPosition, centerProgress);
+                Vector2 ringSize = Vector2.Lerp(openingSceneTransitionStartSize, openingSceneTransitionTargetSize, centerProgress) + new Vector2(116f, 92f);
+                openingSceneTransitionFocusRingRect.anchoredPosition = ringPosition;
+                openingSceneTransitionFocusRingRect.sizeDelta = ringSize;
+                openingSceneTransitionFocusRingRect.localScale = Vector3.one * (1f + SmoothRange(progress, 0.36f, 0.76f) * 0.18f);
+            }
+
+            if (openingSceneTransitionFocusRingImage != null)
+            {
+                float ringAlpha = SmoothRange(progress, 0.03f, 0.20f) * (1f - SmoothRange(progress, 0.62f, 0.94f)) * 0.80f;
+                openingSceneTransitionFocusRingImage.color = new Color(openingSceneTransitionAccent.r, openingSceneTransitionAccent.g, openingSceneTransitionAccent.b, ringAlpha);
+            }
+
+            if (openingSceneTransitionFocusCanvasGroup != null)
+            {
+                openingSceneTransitionFocusCanvasGroup.alpha = Mathf.Lerp(1f, 0f, SmoothRange(progress, 0.72f, 1f));
+            }
+
+            if (openingSceneTransitionFocusImage != null)
+            {
+                float imageAlpha = Mathf.Lerp(0.94f, 0.42f, blurProgress * 0.55f);
+                imageAlpha = Mathf.Lerp(imageAlpha, 0f, SmoothRange(progress, 0.82f, 1f));
+                openingSceneTransitionFocusImage.color = new Color(1f, 0.97f, 0.90f, imageAlpha);
+            }
+
+            if (openingSceneTransitionFocusWashImage != null)
+            {
+                float washAlpha = Mathf.Lerp(0.03f, 0.30f, blurProgress) * (1f - SmoothRange(progress, 0.82f, 1f));
+                openingSceneTransitionFocusWashImage.color = new Color(openingSceneTransitionAccent.r, openingSceneTransitionAccent.g, openingSceneTransitionAccent.b, washAlpha);
+            }
+
+            if (openingSceneTransitionBlurRect != null)
+            {
+                openingSceneTransitionBlurRect.anchoredPosition = openingSceneTransitionTargetPosition + new Vector2(Mathf.Sin(progress * 28f) * 18f, Mathf.Cos(progress * 21f) * 10f) * blurProgress;
+                openingSceneTransitionBlurRect.sizeDelta = openingSceneTransitionTargetSize + new Vector2(260f, 190f) * blurProgress;
+                openingSceneTransitionBlurRect.localScale = Vector3.one * (1.04f + blurProgress * 0.16f);
+            }
+
+            if (openingSceneTransitionBlurImage != null)
+            {
+                float blurAlpha = Mathf.Sin(Mathf.Clamp01((progress - 0.34f) / 0.52f) * Mathf.PI) * 0.36f;
+                blurAlpha = Mathf.Max(blurAlpha, blurProgress * 0.18f);
+                blurAlpha *= 1f - SmoothRange(progress, 0.76f, 1f);
+                openingSceneTransitionBlurImage.color = new Color(1f, 0.95f, 0.82f, blurAlpha);
+            }
+
+            if (openingSceneTransitionInkWipeRect != null)
+            {
+                float inkSpread = SmoothRange(progress, 0.34f, 0.82f);
+                openingSceneTransitionInkWipeRect.anchoredPosition = new Vector2(Mathf.Lerp(48f, -28f, inkSpread), Mathf.Lerp(-20f, 18f, inkSpread));
+                openingSceneTransitionInkWipeRect.localScale = Vector3.one * Mathf.Lerp(0.98f, 1.08f, inkSpread);
+            }
+
+            if (openingSceneTransitionInkWipeImage != null)
+            {
+                float inkAlpha = SmoothRange(progress, 0.34f, 0.62f) * (1f - SmoothRange(progress, 0.82f, 1f)) * 0.88f;
+                Color fallbackInk = new Color(0.03f, 0.035f, 0.04f, inkAlpha * 0.92f);
+                openingSceneTransitionInkWipeImage.color = openingSceneTransitionInkWipeImage.sprite != null ? new Color(1f, 1f, 1f, inkAlpha) : fallbackInk;
+            }
+
+            float gateInProgress = SmoothRange(progress, 0.52f, 0.62f);
+            float gateOpenProgress = SmoothRange(progress, 0.64f, 0.96f);
+            float gateFadeProgress = SmoothRange(progress, 0.90f, 1f);
+            float gateAlpha = gateInProgress * (1f - gateFadeProgress);
+            if (openingSceneTransitionLeftCloudRect != null)
+            {
+                float drift = Mathf.Sin(progress * 31f) * 10f;
+                openingSceneTransitionLeftCloudRect.anchoredPosition = new Vector2(Mathf.Lerp(0f, -700f, gateOpenProgress), drift);
+                openingSceneTransitionLeftCloudRect.localScale = new Vector3(1f + gateOpenProgress * 0.10f, 1f + gateInProgress * 0.06f, 1f);
+            }
+
+            if (openingSceneTransitionRightCloudRect != null)
+            {
+                float drift = Mathf.Cos(progress * 27f) * 10f;
+                openingSceneTransitionRightCloudRect.anchoredPosition = new Vector2(Mathf.Lerp(0f, 700f, gateOpenProgress), drift);
+                openingSceneTransitionRightCloudRect.localScale = new Vector3(-1f - gateOpenProgress * 0.10f, 1f + gateInProgress * 0.06f, 1f);
+            }
+
+            if (openingSceneTransitionLeftCloudImage != null)
+            {
+                openingSceneTransitionLeftCloudImage.color = new Color(0.82f, 0.86f, 0.84f, gateAlpha * 0.88f);
+            }
+
+            if (openingSceneTransitionRightCloudImage != null)
+            {
+                openingSceneTransitionRightCloudImage.color = new Color(0.82f, 0.86f, 0.84f, gateAlpha * 0.88f);
+            }
+
+            if (openingSceneTransitionGateGlowRect != null)
+            {
+                openingSceneTransitionGateGlowRect.sizeDelta = new Vector2(Mathf.Lerp(220f, 1220f, gateOpenProgress), Mathf.Lerp(720f, 1080f, gateOpenProgress));
+                openingSceneTransitionGateGlowRect.localScale = Vector3.one * (1f + gateOpenProgress * 0.12f);
+            }
+
+            if (openingSceneTransitionGateGlowImage != null)
+            {
+                float glowAlpha = gateInProgress * Mathf.Sin(gateOpenProgress * Mathf.PI) * (1f - gateFadeProgress) * 0.42f;
+                openingSceneTransitionGateGlowImage.color = new Color(openingSceneTransitionAccent.r, openingSceneTransitionAccent.g, openingSceneTransitionAccent.b, glowAlpha);
+            }
+
+            float textAlpha = SmoothRange(progress, 0.08f, 0.28f) * (1f - SmoothRange(progress, 0.70f, 0.96f));
+            SetTextAlpha(openingSceneTransitionTitleText, textAlpha);
+            SetTextAlpha(openingSceneTransitionHintText, textAlpha * 0.82f);
+
+            float streakAlpha = Mathf.Sin(Mathf.Clamp01((progress - 0.10f) / 0.74f) * Mathf.PI) * 0.50f;
+            streakAlpha *= 1f - SmoothRange(progress, 0.78f, 1f);
+            for (int i = 0; i < openingSceneTransitionStreakRects.Length; i++)
+            {
+                RectTransform streakRect = openingSceneTransitionStreakRects[i];
+                if (streakRect == null)
+                {
+                    continue;
+                }
+
+                float lane = i - (openingSceneTransitionStreakRects.Length - 1) * 0.5f;
+                streakRect.anchoredPosition = new Vector2(-760f + progress * 1460f + i * 34f, lane * 118f - 26f + progress * 52f);
+                streakRect.localScale = new Vector3(0.78f + progress * 0.58f, 1f, 1f);
+
+                if (i < openingSceneTransitionStreakImages.Length && openingSceneTransitionStreakImages[i] != null)
+                {
+                    float laneAlpha = streakAlpha * (0.55f + i * 0.10f);
+                    openingSceneTransitionStreakImages[i].color = new Color(openingSceneTransitionAccent.r, openingSceneTransitionAccent.g, openingSceneTransitionAccent.b, laneAlpha);
+                }
+            }
+        }
+
+        private void FinishOpeningSceneTransition()
+        {
+            openingSceneTransitionActive = false;
+            openingSceneTransitionCommitted = false;
+            openingSceneTransitionRewardIndex = -1;
+
+            if (openingSceneTransitionRoot != null)
+            {
+                openingSceneTransitionRoot.SetActive(false);
+            }
+
+            if (rewardOverlayCanvasGroup != null)
+            {
+                rewardOverlayCanvasGroup.alpha = 1f;
+                rewardOverlayCanvasGroup.interactable = true;
+                rewardOverlayCanvasGroup.blocksRaycasts = true;
+            }
+
+            SetRewardButtonsInteractable(true);
+        }
+
+        private bool TryGetRectInTransitionSpace(RectTransform sourceRect, out Vector2 center, out Vector2 size)
+        {
+            center = Vector2.zero;
+            size = Vector2.zero;
+            if (sourceRect == null || openingSceneTransitionRoot == null)
+            {
+                return false;
+            }
+
+            RectTransform canvasRect = openingSceneTransitionRoot.transform.parent as RectTransform;
+            if (canvasRect == null)
+            {
+                return false;
+            }
+
+            Vector3[] corners = new Vector3[4];
+            sourceRect.GetWorldCorners(corners);
+            Vector2 min;
+            Vector2 max;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, RectTransformUtility.WorldToScreenPoint(null, corners[0]), null, out min);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, RectTransformUtility.WorldToScreenPoint(null, corners[2]), null, out max);
+            center = (min + max) * 0.5f;
+            size = new Vector2(Mathf.Abs(max.x - min.x), Mathf.Abs(max.y - min.y));
+            return size.x > 1f && size.y > 1f;
+        }
+
+        private void SetRewardButtonsInteractable(bool interactable)
+        {
+            for (int i = 0; i < rewardEntries.Count; i++)
+            {
+                if (rewardEntries[i] == null)
+                {
+                    continue;
+                }
+
+                Button button = rewardEntries[i].GetComponent<Button>();
+                if (button != null)
+                {
+                    button.interactable = interactable;
+                }
+            }
+        }
+
+        private static float SmoothRange(float value, float start, float end)
+        {
+            if (Mathf.Approximately(start, end))
+            {
+                return value >= end ? 1f : 0f;
+            }
+
+            return Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((value - start) / (end - start)));
+        }
+
+        private static void SetTextAlpha(Text text, float alpha)
+        {
+            if (text == null)
+            {
+                return;
+            }
+
+            Color color = text.color;
+            color.a = Mathf.Clamp01(alpha);
+            text.color = color;
         }
 
         private void OnUtilityButtonClicked()
@@ -2136,7 +2943,15 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             controller.TriggerBattleAction();
         }
+        private void OnBattleAutoClicked()
+        {
+            controller.AutoAdvancePlanning = !controller.AutoAdvancePlanning;
+        }
 
+        private void OnBattleSpeedClicked()
+        {
+            controller.BattleSpeed = controller.BattleSpeed >= 1.9f ? 1f : 2f;
+        }
         private bool HasContinuableRun()
         {
             return controller != null
@@ -2177,7 +2992,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private string BuildHomeCodexText()
         {
             return
-                "当前 DEMO 已开放三条起势方向：万剑、雷、血。\n\n" +
+                "当前 DEMO 先打磨世家旁支入首境后的首战与择前路循环。\n\n" +
                 "图鉴页先作为轻量入口保留，后续会记录已见功法、法器、Boss 与通关流派。";
         }
 
@@ -2333,10 +3148,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                string itemName = GetCurrentOpeningItemName();
-                return string.IsNullOrEmpty(itemName)
-                    ? "信物微鸣，前路现出几处"
-                    : $"{itemName}微鸣，前路现出几处";
+                return string.Empty;
             }
 
             if (IsRouteChoiceScreen())
@@ -2361,7 +3173,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "只看去处、险势和一口气质，第一脚落下后，前路才会展开";
+                return string.Empty;
             }
 
             if (IsRouteChoiceScreen())
@@ -2372,19 +3184,157 @@ namespace PathOfTenThousandWays.Demo.UI
             return "信息下沉到底部摘要，主区只负责做选择";
         }
 
+        private void RefreshOpeningSceneGuidance()
+        {
+            bool showingOpeningScene = IsStartOpeningSceneScreen();
+            if (openingScenePathRoot != null)
+            {
+                openingScenePathRoot.SetActive(false);
+            }
+
+            if (!showingOpeningScene)
+            {
+                return;
+            }
+
+            if (openingScenePathText != null)
+            {
+                openingScenePathText.text = BuildOpeningScenePathText();
+            }
+
+            if (openingSceneCauseText != null)
+            {
+                openingSceneCauseText.text = BuildOpeningSceneCauseText();
+            }
+        }
+
+        private string BuildOpeningScenePathText()
+        {
+            string rootName = controller?.Run?.OpeningSelection.Root != null ? controller.Run.OpeningSelection.Root.Name : "未定根脚";
+            string itemName = GetCurrentOpeningItemName();
+            if (string.IsNullOrEmpty(itemName))
+            {
+                itemName = "启程信物";
+            }
+
+            return $"{rootName}  →  {itemName}  →  入首境";
+        }
+
+        private string BuildOpeningSceneCauseText()
+        {
+            string itemName = GetCurrentOpeningItemName();
+            return string.IsNullOrEmpty(itemName)
+                ? "信物只把去处收窄，第一脚仍由你落下。"
+                : $"{itemName}只把去处收窄，第一脚仍由你落下。";
+        }
+
         private string GetCurrentOpeningItemName()
         {
+            if (controller?.Run?.OpeningSelection.JourneyLine != null)
+            {
+                return controller.Run.OpeningSelection.JourneyLine.CarryItemName ?? string.Empty;
+            }
+
             DemoReward reward = controller?.CurrentRewards.FirstOrDefault(current => current.JourneyLine != null);
             return reward?.JourneyLine?.CarryItemName ?? string.Empty;
         }
 
+        private string BuildHeaderTitleText()
+        {
+            if (controller.HasBattle)
+            {
+                return BuildBattleHeaderTitle();
+            }
+
+            return IsStartHomeScreen()
+                ? "起手总览"
+                : "万道归途";
+        }
+
+        private string BuildBattleHeaderTitle()
+        {
+            string nodeName = controller.Run.Map.CurrentNode.Name;
+            if (IsOpeningBattlePage())
+            {
+                return $"{GetSelectedRegionName()} · 入场首战";
+            }
+
+            return controller.Battle.IsBossBattle
+                ? $"{nodeName} · 终局斗法"
+                : $"{nodeName} · 斗法";
+        }
+
+        private string GetSelectedRegionName()
+        {
+            return controller.Run.OpeningSelection.FirstRegion != null
+                ? controller.Run.OpeningSelection.FirstRegion.Name
+                : "首境";
+        }
+
+        private bool IsOpeningBattlePage()
+        {
+            if (controller == null || !controller.HasBattle)
+            {
+                return false;
+            }
+
+            DemoMapNode currentNode = controller.Run.Map.CurrentNode;
+            return currentNode.Type == DemoNodeType.Battle
+                && currentNode.Layer == 1
+                && controller.Run.OpeningSelection.FirstRegion != null;
+        }
+
+        private string GetBattlePhaseShortLabel()
+        {
+            switch (controller.Battle.Phase)
+            {
+                case DemoBattlePhase.Planning:
+                    return "规划";
+                case DemoBattlePhase.Executing:
+                    return "演武";
+                case DemoBattlePhase.Won:
+                    return "胜利";
+                case DemoBattlePhase.Lost:
+                    return "失利";
+                default:
+                    return "斗法";
+            }
+        }
+
+        private string BuildBattleStateTitle()
+        {
+            if (IsOpeningBattlePage())
+            {
+                switch (controller.Battle.Phase)
+                {
+                    case DemoBattlePhase.Planning:
+                        return "入场首战开启，先试这一境的压迫。";
+                    case DemoBattlePhase.Executing:
+                        return "剑势已出，看飞剑与法术如何自转。";
+                    case DemoBattlePhase.Won:
+                        return "首战已破，下一步进入战后奖励。";
+                    default:
+                        return "入场首战正在推进。";
+                }
+            }
+
+            return controller.Battle.IsBossBattle
+                ? "Boss 已压上中天，准备收束全局。"
+                : "节点斗法开启，手牌只负责布势。";
+        }
         private string BuildTopBarSummary()
         {
             if (controller.HasBattle)
             {
+                string battleLine = $"{GetBattlePhaseShortLabel()}   第 {controller.Battle.Round} 回合   灵气 {controller.Battle.Energy}/{controller.Battle.MaxEnergy}   飞剑 {controller.Battle.TotalSwords}";
+                if (IsOpeningBattlePage())
+                {
+                    return battleLine + "   首战后：奖励 -> 择前路";
+                }
+
                 return controller.Battle.IsBossBattle
-                    ? $"第 {controller.Battle.Round} 回合   飞剑 {controller.Battle.TotalSwords}   灵气 {controller.Battle.Energy}/{controller.Battle.MaxEnergy}   Boss {controller.Battle.BossPhase + 1}"
-                    : $"第 {controller.Battle.Round} 回合   飞剑 {controller.Battle.TotalSwords}   灵气 {controller.Battle.Energy}/{controller.Battle.MaxEnergy}";
+                    ? battleLine + $"   Boss {controller.Battle.BossPhase + 1}"
+                    : battleLine;
             }
 
             if (IsStartHomeScreen())
@@ -2404,12 +3354,27 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (controller.HasBattle)
             {
+                if (IsOpeningBattlePage())
+                {
+                    switch (controller.Battle.Phase)
+                    {
+                        case DemoBattlePhase.Planning:
+                            return "首境已定：先以一场短斗法兑现去处，胜后拿首战奖励，再进入择前路。";
+                        case DemoBattlePhase.Executing:
+                            return "首战执行中：飞剑会自动追击，玩家只需要观察这一轮规划是否滚起来。";
+                        case DemoBattlePhase.Won:
+                            return "首战胜利：奖励先补一口结构，随后才让后续节点真正展开。";
+                        case DemoBattlePhase.Lost:
+                            return "首战失利：开局选择还不多，问题集中在手牌节奏与灵气使用。";
+                    }
+                }
+
                 switch (controller.Battle.Phase)
                 {
                     case DemoBattlePhase.Planning:
                         return "规划阶段：把飞剑增殖、状态叠层和收束牌压进同一轮。";
                     case DemoBattlePhase.Executing:
-                        return "执行阶段：让飞剑、功法与法宝自动结算，观察演武是否滚起来。";
+                        return "执行阶段：让飞剑、功法与法器自动结算，观察演武是否滚起来。";
                     case DemoBattlePhase.Won:
                         return "战斗胜利：准备拿最能改变结构的那一项补强。";
                     case DemoBattlePhase.Lost:
@@ -2431,7 +3396,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                return "入首境：信物已定，第一脚该落到一个真正的地方。";
+                return "入首境：信物已定，卷中显境，第一脚该落到一个真正的地方。";
             }
 
             if (IsRouteChoiceScreen())
@@ -2446,11 +3411,11 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoNodeType.Reward:
                     return "战后补强：只拿能改变结构的那一项，别把路线拿散。";
                 case DemoNodeType.Training:
-                    return "修炼节点：补齐功法与法宝之间的关键缺口。";
+                    return "修炼节点：补齐功法与法器之间的关键缺口。";
                 case DemoNodeType.Shop:
                     return "Boss 前整备：优先看续航、灵气和收束点。";
                 default:
-                    return "道途推进：让飞剑、功法与法宝往同一路靠拢。";
+                    return "道途推进：让飞剑、功法与法器往同一路靠拢。";
             }
         }
 
@@ -2458,12 +3423,77 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (controller.IsRunComplete)
             {
-                return "这一局已经从起手一脉，走到渡劫成道。回看构筑，重点看哪一步让飞剑、功法和法宝真正串了起来。";
+                return "这一局已经从起手一脉，走到渡劫成道。回看构筑，重点看哪一步让飞剑、功法和法器真正串了起来。";
             }
 
             return controller.GetBattleSummary() + "\n\n" + BuildContextSummary();
         }
 
+        private string BuildHandTitleText()
+        {
+            if (!controller.HasBattle)
+            {
+                return "手牌规划";
+            }
+
+            if (IsOpeningBattlePage())
+            {
+                switch (controller.Battle.Phase)
+                {
+                    case DemoBattlePhase.Planning:
+                        return "入场首战 · 手牌规划";
+                    case DemoBattlePhase.Executing:
+                        return "入场首战 · 演武观察";
+                    case DemoBattlePhase.Won:
+                        return "入场首战 · 战后将启";
+                    case DemoBattlePhase.Lost:
+                        return "入场首战 · 节奏失守";
+                    default:
+                        return "入场首战";
+                }
+            }
+
+            return controller.Battle.Phase == DemoBattlePhase.Executing
+                ? "演武观察"
+                : "手牌规划";
+        }
+
+        private string BuildHandInfoText()
+        {
+            if (!IsOpeningBattlePage())
+            {
+                return controller.GetHandStatus();
+            }
+
+            switch (controller.Battle.Phase)
+            {
+                case DemoBattlePhase.Planning:
+                    return $"首战目标：用 {controller.Battle.Energy}/{controller.Battle.MaxEnergy} 灵气纳入关键牌；飞剑会自动追击。";
+                case DemoBattlePhase.Executing:
+                    return "首战正在结算：观察卡牌、飞剑与状态是否接上。";
+                case DemoBattlePhase.Won:
+                    return "首战已破：下一步拿首战奖励，再进入择前路。";
+                case DemoBattlePhase.Lost:
+                    return "首战失利：问题集中在费用、灵气和首轮规划。";
+                default:
+                    return controller.GetHandStatus();
+            }
+        }
+
+        private string BuildBattleFlowText()
+        {
+            if (!controller.HasBattle)
+            {
+                return string.Empty;
+            }
+
+            if (IsOpeningBattlePage())
+            {
+                return "入首境  >  [入场首战]  >  首战奖励  >  择前路";
+            }
+
+            return "择前路  >  节点历练  >  战后补强  >  继续前行";
+        }
         private string BuildHandHint()
         {
             if (!controller.HasBattle)
@@ -2474,7 +3504,9 @@ namespace PathOfTenThousandWays.Demo.UI
             switch (controller.Battle.Phase)
             {
                 case DemoBattlePhase.Planning:
-                    return "把低频决策压缩到底部，主舞台只负责演武爆发。";
+                    return IsOpeningBattlePage()
+                        ? "点击卡牌纳入规划，确认后开始演武；这一场只要求看懂费用、灵气和飞剑自转。"
+                        : "把低频决策压缩到底部，主舞台只负责演武爆发。";
                 case DemoBattlePhase.Executing:
                     return "当前已进入执行阶段，飞剑与法术会自动结算。";
                 case DemoBattlePhase.Won:
@@ -2491,6 +3523,21 @@ namespace PathOfTenThousandWays.Demo.UI
             if (!controller.HasBattle)
             {
                 return BuildNodeOverlaySummary();
+            }
+
+            if (IsOpeningBattlePage())
+            {
+                switch (controller.Battle.Phase)
+                {
+                    case DemoBattlePhase.Planning:
+                        return $"规划队列 {controller.Battle.PlayQueue.Count} 张。首战不再给新岔路，只先验证费用、灵气和飞剑自动攻击。";
+                    case DemoBattlePhase.Executing:
+                        return "观察飞剑、状态和卡牌结算是否接上；这一战结束后才进入首战奖励。";
+                    case DemoBattlePhase.Won:
+                        return "下一步拿一项首战补强，再进入择前路，后续节点才开始分叉。";
+                    default:
+                        return "首境已经选定，先打这一场，再把肉鸽路线打开。";
+                }
             }
 
             if (controller.Battle.IsBossBattle)
@@ -2516,7 +3563,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 $"主修：{FormatGongfaSummary(controller.Run.MainGongfa, "未定")}\n" +
                 $"辅修：{FormatGongfaSummary(controller.Run.SupportGongfa, "未定")}\n" +
                 $"神通：{FormatGongfaSummary(controller.Run.DivineGongfa, "未悟")}\n" +
-                $"法宝：{artifactText}\n" +
+                $"法器：{artifactText}\n" +
                 $"遗物：{relicText}\n" +
                 $"生命：{controller.Run.CurrentHealth}/{controller.Run.MaxHealth}   牌组：{controller.Run.Deck.Count} 张";
         }
@@ -2533,7 +3580,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 $"根脚 {rootName}   信物 {journeyName}   首境 {regionName}\n" +
                 $"主修 {GetGongfaName(controller.Run.MainGongfa, "未定")}   辅修 {GetGongfaName(controller.Run.SupportGongfa, "未定")}   神通 {GetGongfaName(controller.Run.DivineGongfa, "未悟")}\n" +
                 $"生命 {controller.Run.CurrentHealth}/{controller.Run.MaxHealth}   牌组 {controller.Run.Deck.Count} 张\n" +
-                $"法宝 {artifactText}   遗物 {relicText}";
+                $"法器 {artifactText}   遗物 {relicText}";
         }
 
         private string BuildDeckFocusSummary()
@@ -2564,10 +3611,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (IsStartOpeningSceneScreen())
             {
-                string itemName = GetCurrentOpeningItemName();
-                return string.IsNullOrEmpty(itemName)
-                    ? "信物已定，雾中只剩几处去处。"
-                    : $"{itemName}已定，雾中只剩几处去处。";
+                return string.Empty;
             }
 
             if (IsRouteChoiceScreen())
@@ -2580,7 +3624,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoNodeType.Start:
                     return "起点会先给你身份，再给你启程信物与首境，最后才把主脉交给战斗与奖励去显化。";
                 case DemoNodeType.Training:
-                    return "补齐功法和法宝之间的缺口，让构筑开始收束。";
+                    return "补齐功法和法器之间的缺口，让构筑开始收束。";
                 case DemoNodeType.Shop:
                     return "Boss 前做最后一次取舍，优先补爆发窗口或续航。";
                 case DemoNodeType.Reward:
@@ -2712,7 +3756,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 return "入首境：信物只把去处收窄，第一脚仍由你落下。";
             }
 
-            return "起点已经打开，接下来要让奖励、功法和法宝往同一条道途靠拢。";
+            return "首境已经定下，先用入场首战兑现去处，再用择前路把肉鸽路线打开。";
         }
 
         private bool AreStartRewardsOfType(DemoRewardType type)
@@ -2780,11 +3824,11 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoNodeType.Start:
                     return BuildStartStageBody();
                 case DemoNodeType.Training:
-                    return "修炼节点最适合补齐功法、法宝和终结技之间的缺口，让自动演武从能打变成会滚。";
+                    return "修炼节点最适合补齐功法、法器和终结技之间的缺口，让自动演武从能打变成会滚。";
                 case DemoNodeType.Shop:
                     return "进入 Boss 前的最后一次取舍，优先补灵气续航、关键收束点，别把资源撒成平均数。";
                 case DemoNodeType.Victory:
-                    return "这一局已经从定根脚、受信物与入首境一路走到收束成型，可以回看是哪一轮补强把飞剑、功法和法宝真正串了起来。";
+                    return "这一局已经从定根脚、受信物与入首境一路走到收束成型，可以回看是哪一轮补强把飞剑、功法和法器真正串了起来。";
                 default:
                     return BuildContextSummary();
             }
@@ -2797,7 +3841,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoNodeType.Start:
                     return BuildStartStageChecklist();
                 case DemoNodeType.Training:
-                    return "· 优先补关键功法\n· 让法宝接上主脉\n· 给终结技留出爆发窗";
+                    return "· 优先补关键功法\n· 让法器接上主脉\n· 给终结技留出爆发窗";
                 case DemoNodeType.Shop:
                     return "· 看续航是否够打满三段\n· 看灵气是否支撑连锁\n· 看爆发是否能压住 Boss";
                 case DemoNodeType.Victory:
@@ -2823,7 +3867,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoNodeType.Reward:
                     return "优先拿能改变演武结构的补强，而不是只加一点面板数值。";
                 case DemoNodeType.Training:
-                    return "修炼节点最适合补齐功法、法宝和终结技之间的缺口。";
+                    return "修炼节点最适合补齐功法、法器和终结技之间的缺口。";
                 case DemoNodeType.Shop:
                     return "Boss 前整备优先看续航、灵气和爆发窗口，不要把资源花散。";
                 case DemoNodeType.Victory:
@@ -2873,11 +3917,11 @@ namespace PathOfTenThousandWays.Demo.UI
             lines.Add($"辅修：{FormatGongfaSummary(controller.Run.SupportGongfa, "未定辅修")}");
             lines.Add($"神通：{FormatGongfaSummary(controller.Run.DivineGongfa, "未悟神通")}");
             lines.Add(string.Empty);
-            lines.Add("法宝");
+            lines.Add("法器");
 
             if (controller.Run.Artifacts.Count == 0)
             {
-                lines.Add("尚未获得法宝。");
+                lines.Add("尚未获得法器。");
             }
             else
             {
@@ -2982,109 +4026,100 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private GameObject CreateCardEntry(Transform parent, DemoCard card, bool interactable)
         {
-            GameObject cardObject = new GameObject("Card_" + card.Id, typeof(RectTransform), typeof(Image), typeof(Button), typeof(VerticalLayoutGroup), typeof(LayoutElement));
+            GameObject cardObject = new GameObject(
+                "Card_" + card.Id,
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(Button),
+                typeof(LayoutElement));
             cardObject.transform.SetParent(parent, false);
+
             RectTransform cardRect = cardObject.GetComponent<RectTransform>();
-            cardRect.sizeDelta = new Vector2(176f, 162f);
+            cardRect.sizeDelta = new Vector2(128f, 122f);
 
             LayoutElement layout = cardObject.GetComponent<LayoutElement>();
-            layout.preferredWidth = 176f;
-            layout.minWidth = 176f;
-            layout.preferredHeight = 162f;
-            layout.minHeight = 162f;
+            layout.preferredWidth = 128f;
+            layout.minWidth = 128f;
+            layout.preferredHeight = 122f;
+            layout.minHeight = 122f;
+            layout.flexibleWidth = 0f;
+            layout.flexibleHeight = 0f;
 
             Image image = cardObject.GetComponent<Image>();
             image.color = new Color(0.11f, 0.11f, 0.12f, 0.98f);
+            Sprite battleCardFrame = LoadBattleCardFrameSprite();
+            if (battleCardFrame != null)
+            {
+                ApplySpriteToImage(cardRect, battleCardFrame, interactable ? Color.white : new Color(1f, 1f, 1f, 0.52f));
+            }
+            else
+            {
+                DecorateFrame(cardRect, GetCardAccentColor(card.Style), new Color(0.22f, 0.17f, 0.11f, 0.10f), 1.5f, true);
+            }
 
             Button button = cardObject.GetComponent<Button>();
             button.targetGraphic = image;
             button.interactable = interactable;
-            button.colors = CreateButtonColors(interactable ? new Color(0.18f, 0.16f, 0.13f, 0.98f) : new Color(0.12f, 0.12f, 0.12f, 0.84f));
+            button.colors = battleCardFrame != null
+                ? CreateSpriteButtonColors(new Color(0.36f, 0.32f, 0.26f, 0.52f))
+                : CreateButtonColors(interactable ? new Color(0.18f, 0.16f, 0.13f, 0.98f) : new Color(0.12f, 0.12f, 0.12f, 0.78f));
 
-            VerticalLayoutGroup layoutGroup = cardObject.GetComponent<VerticalLayoutGroup>();
-            layoutGroup.padding = new RectOffset(12, 12, 10, 10);
-            layoutGroup.spacing = 5f;
-            layoutGroup.childAlignment = TextAnchor.UpperLeft;
-            layoutGroup.childControlHeight = true;
-            layoutGroup.childControlWidth = true;
-            layoutGroup.childForceExpandHeight = false;
-            layoutGroup.childForceExpandWidth = true;
-            DecorateFrame(cardObject.GetComponent<RectTransform>(), GetCardAccentColor(card.Style), new Color(0.22f, 0.17f, 0.11f, 0.14f), 2f, true);
-
-            GameObject metaRowObject = new GameObject("MetaRow", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
-            metaRowObject.transform.SetParent(cardObject.transform, false);
-            LayoutElement metaLayout = metaRowObject.GetComponent<LayoutElement>();
-            metaLayout.preferredHeight = 24f;
-            HorizontalLayoutGroup metaRow = metaRowObject.GetComponent<HorizontalLayoutGroup>();
-            metaRow.spacing = 4f;
-            metaRow.childAlignment = TextAnchor.MiddleLeft;
-            metaRow.childControlHeight = true;
-            metaRow.childControlWidth = false;
-            metaRow.childForceExpandHeight = false;
-            metaRow.childForceExpandWidth = false;
-
-            CreateLabelChip(metaRowObject.transform, $"{card.Cost} 气", new Color(0.18f, 0.14f, 0.10f, 1f), ColorGold, 44f);
-            CreateLabelChip(metaRowObject.transform, GetStyleLabel(card.Style), GetCardColor(card.Style), ColorPaper, 50f);
-            CreateLabelChip(metaRowObject.transform, GetQualityLabel(card.Quality), GetQualityColor(card.Quality), ColorPaper, 34f);
-
-            Text nameText = CreateText(cardObject.transform, "Name", card.Name, 17, FontStyle.Bold, TextAnchor.UpperLeft, ColorPaper);
-            LayoutElement nameLayout = nameText.gameObject.AddComponent<LayoutElement>();
-            nameLayout.preferredHeight = 26f;
-
-            RectTransform artPanel = CreateFixedHeightBlock(cardObject.transform, "ArtPanel", 44f, new Color(0.16f, 0.13f, 0.10f, 0.96f));
-            DecorateFrame(artPanel, GetQualityColor(card.Quality), new Color(0.24f, 0.20f, 0.14f, 0.18f), 1.5f, false);
-            CreateStretchPanel(
-                artPanel,
-                "ArtGlow",
-                new Vector2(0f, 0f),
-                new Vector2(1f, 1f),
-                new Vector2(8f, 8f),
-                new Vector2(-8f, -8f),
-                new Color(GetQualityColor(card.Quality).r, GetQualityColor(card.Quality).g, GetQualityColor(card.Quality).b, 0.12f));
-
-            RectTransform iconSeal = CreateFixedPanel(
-                artPanel,
-                "IconSeal",
-                new Vector2(0f, 0.5f),
-                new Vector2(0f, 0.5f),
-                new Vector2(12f, 0f),
+            RectTransform costSeal = CreateFixedPanel(
+                cardRect,
+                "CostSeal",
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(19f, -18f),
                 new Vector2(32f, 32f),
-                new Color(0.12f, 0.10f, 0.08f, 0.98f));
-            DecorateFrame(iconSeal, GetQualityColor(card.Quality), new Color(0.18f, 0.14f, 0.10f, 0.12f), 1f, false);
-            Text iconText = CreateText(iconSeal, "IconText", GetCardIconGlyph(card), 18, FontStyle.Bold, TextAnchor.MiddleCenter, GetQualityColor(card.Quality));
-            StretchText(iconText.rectTransform, new Vector2(4f, 4f), new Vector2(-4f, -4f));
+                new Color(0.16f, 0.13f, 0.09f, 0.94f));
+            DecorateFrame(costSeal, ColorGold, new Color(0.28f, 0.22f, 0.12f, 0.08f), 1f, true);
+            Text costText = CreateText(costSeal, "Cost", card.Cost.ToString(), 15, FontStyle.Bold, TextAnchor.MiddleCenter, ColorGold);
+            StretchText(costText.rectTransform, new Vector2(4f, 4f), new Vector2(-4f, -4f));
 
-            Text artLabel = CreateText(artPanel, "ArtLabel", GetCardMoodText(card), 12, FontStyle.Bold, TextAnchor.MiddleLeft, GetCardAccentColor(card.Style));
-            artLabel.rectTransform.anchorMin = new Vector2(0f, 0f);
-            artLabel.rectTransform.anchorMax = new Vector2(1f, 1f);
-            artLabel.rectTransform.offsetMin = new Vector2(52f, 4f);
-            artLabel.rectTransform.offsetMax = new Vector2(-10f, -16f);
+            Text styleText = CreateText(cardRect, "Style", GetStyleLabel(card.Style), 9, FontStyle.Bold, TextAnchor.UpperRight, GetCardAccentColor(card.Style));
+            styleText.rectTransform.anchorMin = new Vector2(0.60f, 0.78f);
+            styleText.rectTransform.anchorMax = new Vector2(0.92f, 0.96f);
+            styleText.rectTransform.offsetMin = Vector2.zero;
+            styleText.rectTransform.offsetMax = Vector2.zero;
 
-            Text qualityText = CreateText(artPanel, "QualityText", GetCardTypeLabel(card.Type), 11, FontStyle.Bold, TextAnchor.LowerRight, GetQualityColor(card.Quality));
-            qualityText.rectTransform.anchorMin = new Vector2(0f, 0f);
-            qualityText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            qualityText.rectTransform.offsetMin = new Vector2(56f, 14f);
-            qualityText.rectTransform.offsetMax = new Vector2(-10f, -4f);
+            Text nameText = CreateText(cardRect, "Name", card.Name, 13, FontStyle.Bold, TextAnchor.UpperLeft, ColorPaper);
+            nameText.rectTransform.anchorMin = new Vector2(0.30f, 0.70f);
+            nameText.rectTransform.anchorMax = new Vector2(0.92f, 0.92f);
+            nameText.rectTransform.offsetMin = Vector2.zero;
+            nameText.rectTransform.offsetMax = Vector2.zero;
+            nameText.verticalOverflow = VerticalWrapMode.Truncate;
 
-            Text rulesText = CreateText(cardObject.transform, "Rules", BuildCardPreviewText(card), 12, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.82f, 0.84f, 0.86f, 1f));
-            LayoutElement rulesLayout = rulesText.gameObject.AddComponent<LayoutElement>();
-            rulesLayout.flexibleHeight = 1f;
+            RectTransform artBand = CreateStretchPanel(
+                cardRect,
+                "ArtBand",
+                new Vector2(0.08f, 0.32f),
+                new Vector2(0.92f, 0.65f),
+                Vector2.zero,
+                Vector2.zero,
+                new Color(GetCardColor(card.Style).r, GetCardColor(card.Style).g, GetCardColor(card.Style).b, 0.38f));
+            Text iconText = CreateText(artBand, "Icon", GetCardIconGlyph(card), 19, FontStyle.Bold, TextAnchor.MiddleLeft, GetQualityColor(card.Quality));
+            StretchText(iconText.rectTransform, new Vector2(10f, 2f), new Vector2(-62f, -2f));
+            Text moodText = CreateText(artBand, "Mood", GetCardMoodText(card), 9, FontStyle.Bold, TextAnchor.MiddleRight, GetCardAccentColor(card.Style));
+            StretchText(moodText.rectTransform, new Vector2(42f, 2f), new Vector2(-8f, -2f));
 
-            RectTransform footer = CreateFixedHeightBlock(cardObject.transform, "Footer", 24f, new Color(0.14f, 0.12f, 0.10f, 0.98f));
-            CreateStretchPanel(
-                footer,
-                "FooterAccent",
-                new Vector2(0f, 0f),
-                new Vector2(1f, 0f),
-                new Vector2(10f, 0f),
-                new Vector2(-10f, 2f),
-                GetCardAccentColor(card.Style));
-            Text actionText = CreateText(footer, "Action", interactable ? "纳入规划" : "灵气不足", 12, FontStyle.Bold, TextAnchor.MiddleCenter, interactable ? ColorPaper : new Color(0.66f, 0.66f, 0.68f, 1f));
-            StretchText(actionText.rectTransform, new Vector2(6f, 2f), new Vector2(-6f, -2f));
+            Text rulesText = CreateText(cardRect, "Rules", BuildCardPreviewText(card), 9, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.80f, 0.82f, 0.82f, 0.96f));
+            rulesText.rectTransform.anchorMin = new Vector2(0.08f, 0.045f);
+            rulesText.rectTransform.anchorMax = new Vector2(0.92f, 0.29f);
+            rulesText.rectTransform.offsetMin = Vector2.zero;
+            rulesText.rectTransform.offsetMax = Vector2.zero;
+            rulesText.verticalOverflow = VerticalWrapMode.Truncate;
+
+            if (!interactable)
+            {
+                Text lockedText = CreateText(cardRect, "Locked", "气不足", 9, FontStyle.Bold, TextAnchor.LowerRight, new Color(0.70f, 0.66f, 0.58f, 0.92f));
+                lockedText.rectTransform.anchorMin = new Vector2(0.55f, 0f);
+                lockedText.rectTransform.anchorMax = new Vector2(0.92f, 0.18f);
+                lockedText.rectTransform.offsetMin = Vector2.zero;
+                lockedText.rectTransform.offsetMax = Vector2.zero;
+            }
 
             return cardObject;
         }
-
         private GameObject CreateRewardEntry(Transform parent, DemoReward reward)
         {
             if (IsStartOpeningScreen()
@@ -3834,6 +4869,53 @@ namespace PathOfTenThousandWays.Demo.UI
             return chip;
         }
 
+        private static void AddOpeningSceneCardEvents(GameObject cardObject, DemoOpeningSceneCardFx fx)
+        {
+            if (cardObject == null || fx == null)
+            {
+                return;
+            }
+
+            EventTrigger trigger = cardObject.GetComponent<EventTrigger>();
+            if (trigger == null)
+            {
+                trigger = cardObject.AddComponent<EventTrigger>();
+            }
+
+            trigger.triggers = new List<EventTrigger.Entry>();
+
+            EventTrigger.Entry enterEntry = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerEnter
+            };
+            enterEntry.callback.AddListener(_ => fx.SetHover(true));
+            trigger.triggers.Add(enterEntry);
+
+            EventTrigger.Entry exitEntry = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerExit
+            };
+            exitEntry.callback.AddListener(_ =>
+            {
+                fx.SetHover(false);
+                fx.SetPressed(false);
+            });
+            trigger.triggers.Add(exitEntry);
+
+            EventTrigger.Entry downEntry = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerDown
+            };
+            downEntry.callback.AddListener(_ => fx.SetPressed(true));
+            trigger.triggers.Add(downEntry);
+
+            EventTrigger.Entry upEntry = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerUp
+            };
+            upEntry.callback.AddListener(_ => fx.SetPressed(false));
+            trigger.triggers.Add(upEntry);
+        }
         private static void AddOpeningItemCardEvents(GameObject cardObject, DemoOpeningItemCardFx fx)
         {
             if (cardObject == null || fx == null)
@@ -3989,98 +5071,204 @@ namespace PathOfTenThousandWays.Demo.UI
             return new Vector2(366f, 550f);
         }
 
+        private static bool IsPrimaryOpeningScene(DemoReward reward)
+        {
+            string regionId = reward?.Region?.Id ?? string.Empty;
+            string primaryRegionId = reward?.JourneyLine?.FirstRegionId ?? string.Empty;
+            return !string.IsNullOrEmpty(regionId)
+                && !string.IsNullOrEmpty(primaryRegionId)
+                && string.Equals(regionId, primaryRegionId, System.StringComparison.OrdinalIgnoreCase);
+        }
+
         private GameObject CreateOpeningSceneChoiceEntry(Transform parent, DemoReward reward)
         {
             Color accent = GetRewardAccentColor(reward);
             Color panelColor = GetRewardPanelColor(reward);
             Sprite sceneSprite = LoadOpeningSprite(reward);
+            string regionId = (reward.Region?.Id ?? string.Empty).ToLowerInvariant();
+            bool isPrimary = IsPrimaryOpeningScene(reward);
+            float cardWidth = isPrimary ? 512f : 468f;
+            float cardHeight = isPrimary ? 680f : 640f;
 
             GameObject cardObject = new GameObject("OpeningSceneChoice_" + reward.Name, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
             cardObject.transform.SetParent(parent, false);
 
             RectTransform cardRect = cardObject.GetComponent<RectTransform>();
+            cardRect.sizeDelta = new Vector2(cardWidth, cardHeight);
+
             LayoutElement layout = cardObject.GetComponent<LayoutElement>();
-            layout.preferredWidth = 520f;
-            layout.minWidth = 520f;
-            layout.preferredHeight = 700f;
-            layout.minHeight = 700f;
-            cardRect.sizeDelta = new Vector2(520f, 700f);
+            layout.preferredWidth = cardWidth;
+            layout.minWidth = cardWidth;
+            layout.preferredHeight = cardHeight;
+            layout.minHeight = cardHeight;
+            layout.flexibleWidth = 0f;
+            layout.flexibleHeight = 0f;
 
             Image cardImage = cardObject.GetComponent<Image>();
-            cardImage.color = panelColor;
-            if (sceneSprite != null)
-            {
-                ApplySpriteToImage(cardRect, sceneSprite, Color.white);
-            }
+            cardImage.color = isPrimary ? new Color(0.91f, 0.83f, 0.66f, 0.98f) : new Color(0.88f, 0.81f, 0.66f, 0.94f);
+            cardImage.raycastTarget = true;
 
             Button button = cardObject.GetComponent<Button>();
             button.targetGraphic = cardImage;
-            button.colors = CreateButtonColors(new Color(0.16f, 0.17f, 0.20f, 1f));
+            button.colors = CreateButtonColors(new Color(0.95f, 0.90f, 0.78f, 0.98f));
 
-            DecorateFrame(cardRect, new Color(accent.r, accent.g, accent.b, 0.72f), new Color(0f, 0f, 0f, 0.03f), 2f, true);
+            DecorateFrame(cardRect, new Color(accent.r, accent.g, accent.b, 0.48f), new Color(0.98f, 0.90f, 0.70f, 0.10f), 1.2f, true);
 
-            CreateStretchPanel(
+            RectTransform paperWash = CreateStretchPanel(
                 cardRect,
-                "SceneTopVeil",
-                new Vector2(0f, 0.58f),
-                new Vector2(1f, 1f),
-                new Vector2(8f, -8f),
-                new Vector2(-8f, -8f),
-                new Color(1f, 1f, 1f, 0.045f)).GetComponent<Image>().raycastTarget = false;
-
-            CreateStretchPanel(
-                cardRect,
-                "SceneBottomInk",
-                new Vector2(0f, 0f),
-                new Vector2(1f, 0.32f),
+                "SceneCardPaperWash",
+                Vector2.zero,
+                Vector2.one,
                 new Vector2(8f, 8f),
-                new Vector2(-8f, 0f),
-                new Color(0.02f, 0.024f, 0.028f, 0.72f)).GetComponent<Image>().raycastTarget = false;
+                new Vector2(-8f, -8f),
+                new Color(0.94f, 0.86f, 0.66f, 0.08f));
+            paperWash.GetComponent<Image>().raycastTarget = false;
 
-            CreateStretchPanel(
+            RectTransform artShadow = CreateStretchPanel(
                 cardRect,
-                "SceneAccentLine",
-                new Vector2(0f, 0f),
-                new Vector2(1f, 0f),
-                new Vector2(34f, 8f),
-                new Vector2(-34f, 12f),
-                new Color(accent.r, accent.g, accent.b, 0.95f)).GetComponent<Image>().raycastTarget = false;
+                "SceneArtShadow",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(18f, 172f),
+                new Vector2(-18f, -80f),
+                new Color(0.10f, 0.07f, 0.04f, 0.14f));
+            artShadow.GetComponent<Image>().raycastTarget = false;
+
+            RectTransform artViewport = CreateStretchPanel(
+                cardRect,
+                "SceneArtViewport",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(22f, 178f),
+                new Vector2(-22f, -84f),
+                panelColor);
+            Image artImage = artViewport.GetComponent<Image>();
+            artImage.raycastTarget = false;
+            if (sceneSprite != null)
+            {
+                ApplySpriteToImage(artViewport, sceneSprite, new Color(0.96f, 0.94f, 0.88f, 0.92f));
+            }
+            DecorateFrame(artViewport, new Color(0.99f, 0.90f, 0.66f, 0.22f), new Color(0.08f, 0.05f, 0.03f, 0.18f), 1f, false);
+
+            RectTransform artPaperMist = CreateStretchPanel(
+                artViewport,
+                "SceneArtPaperMist",
+                Vector2.zero,
+                Vector2.one,
+                Vector2.zero,
+                Vector2.zero,
+                new Color(0.95f, 0.90f, 0.76f, 0f));
+            artPaperMist.GetComponent<Image>().raycastTarget = false;
+
+            RectTransform artTopWash = CreateStretchPanel(
+                artViewport,
+                "SceneArtTopWash",
+                new Vector2(0f, 0.66f),
+                Vector2.one,
+                Vector2.zero,
+                Vector2.zero,
+                new Color(0.95f, 0.86f, 0.63f, 0.035f));
+            artTopWash.GetComponent<Image>().raycastTarget = false;
+
+            RectTransform artBottomMist = CreateStretchPanel(
+                artViewport,
+                "SceneArtBottomMist",
+                Vector2.zero,
+                new Vector2(1f, 0.26f),
+                Vector2.zero,
+                Vector2.zero,
+                new Color(0.08f, 0.05f, 0.03f, 0.16f));
+            artBottomMist.GetComponent<Image>().raycastTarget = false;
+
+            RectTransform topBand = CreateStretchPanel(
+                cardRect,
+                "SceneTopPaperBand",
+                new Vector2(0f, 1f),
+                Vector2.one,
+                new Vector2(18f, -66f),
+                new Vector2(-18f, -16f),
+                new Color(0.93f, 0.84f, 0.64f, 0.86f));
+            topBand.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(topBand, new Color(0.99f, 0.90f, 0.68f, 0.18f), new Color(0.20f, 0.12f, 0.05f, 0.16f), 1f, false);
 
             RectTransform riskChip = CreateFixedPanel(
-                cardRect,
+                topBand,
                 "SceneRiskChip",
-                new Vector2(0f, 1f),
-                new Vector2(0f, 1f),
-                new Vector2(24f, -24f),
-                new Vector2(92f, 34f),
-                new Color(0.06f, 0.07f, 0.08f, 0.76f));
+                new Vector2(0f, 0.5f),
+                new Vector2(0f, 0.5f),
+                new Vector2(14f, 0f),
+                new Vector2(74f, 30f),
+                new Color(accent.r, accent.g, accent.b, 0.22f));
             riskChip.GetComponent<Image>().raycastTarget = false;
-            DecorateFrame(riskChip, accent, new Color(accent.r, accent.g, accent.b, 0.08f), 1f, false);
-            Text riskText = CreateText(riskChip, "SceneRiskText", GetRegionRiskLabel(reward.Region), 15, FontStyle.Bold, TextAnchor.MiddleCenter, ColorPaper);
+            DecorateFrame(riskChip, new Color(accent.r, accent.g, accent.b, 0.42f), new Color(0.98f, 0.89f, 0.68f, 0.18f), 1f, false);
+            Text riskText = CreateText(riskChip, "SceneRiskText", GetRegionRiskLabel(reward.Region), 18, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.22f, 0.14f, 0.08f, 0.94f));
             StretchText(riskText.rectTransform, new Vector2(8f, 3f), new Vector2(-8f, -3f));
-            riskText.raycastTarget = false;
 
-            Text titleText = CreateText(cardRect, "SceneTitle", reward.Name, 35, FontStyle.Bold, TextAnchor.LowerLeft, ColorPaper);
-            titleText.rectTransform.anchorMin = new Vector2(0f, 0f);
-            titleText.rectTransform.anchorMax = new Vector2(1f, 0f);
-            titleText.rectTransform.offsetMin = new Vector2(34f, 126f);
-            titleText.rectTransform.offsetMax = new Vector2(-34f, 178f);
-            titleText.raycastTarget = false;
+            Text focusText = CreateText(topBand, "SceneFocusText", GetRegionFocusLabel(reward.Region), 19, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.32f, 0.20f, 0.10f, 0.92f));
+            StretchText(focusText.rectTransform, new Vector2(104f, 4f), new Vector2(-18f, -4f));
 
-            Text hintText = CreateText(cardRect, "SceneHint", BuildOpeningSceneTagline(reward.Region), 17, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.91f, 0.91f, 0.86f, 0.96f));
-            hintText.rectTransform.anchorMin = new Vector2(0f, 0f);
-            hintText.rectTransform.anchorMax = new Vector2(1f, 0f);
-            hintText.rectTransform.offsetMin = new Vector2(34f, 80f);
-            hintText.rectTransform.offsetMax = new Vector2(-34f, 122f);
-            hintText.raycastTarget = false;
+            Image affinitySealImage = null;
 
-            Text actionText = CreateText(cardRect, "SceneAction", "踏入此境", 18, FontStyle.Bold, TextAnchor.LowerRight, new Color(accent.r, accent.g, accent.b, 0.98f));
-            actionText.rectTransform.anchorMin = new Vector2(0f, 0f);
-            actionText.rectTransform.anchorMax = new Vector2(1f, 0f);
-            actionText.rectTransform.offsetMin = new Vector2(34f, 34f);
-            actionText.rectTransform.offsetMax = new Vector2(-34f, 68f);
-            actionText.raycastTarget = false;
+            RectTransform infoPanel = CreateStretchPanel(
+                cardRect,
+                "SceneInfoPaper",
+                new Vector2(0f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(18f, 18f),
+                new Vector2(-18f, 168f),
+                new Color(0.94f, 0.86f, 0.66f, 0.94f));
+            infoPanel.GetComponent<Image>().raycastTarget = false;
+            DecorateFrame(infoPanel, new Color(0.99f, 0.91f, 0.70f, 0.18f), new Color(0.20f, 0.12f, 0.05f, 0.16f), 1f, false);
 
+            Text titleText = CreateText(infoPanel, "SceneTitle", reward.Name, 36, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.15f, 0.09f, 0.05f, 0.98f));
+            StretchText(titleText.rectTransform, new Vector2(24f, 94f), new Vector2(-24f, -12f));
+
+            Text hintText = CreateText(infoPanel, "SceneHint", BuildOpeningSceneTagline(reward.Region), 20, FontStyle.Normal, TextAnchor.MiddleLeft, new Color(0.32f, 0.24f, 0.17f, 0.90f));
+            StretchText(hintText.rectTransform, new Vector2(24f, 58f), new Vector2(-24f, -62f));
+
+            RectTransform actionGround = CreateStretchPanel(
+                infoPanel,
+                "SceneActionSeal",
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(-172f, 18f),
+                new Vector2(-24f, 54f),
+                new Color(accent.r, accent.g, accent.b, 0.20f));
+            Image actionImage = actionGround.GetComponent<Image>();
+            ApplySpriteToImage(actionGround, LoadRootConfirmSealSprite(), new Color(accent.r, accent.g, accent.b, 0.20f), true);
+            actionImage.raycastTarget = false;
+            DecorateFrame(actionGround, new Color(accent.r, accent.g, accent.b, 0.46f), new Color(0.98f, 0.90f, 0.68f, 0.16f), 1f, false);
+
+            Text actionText = CreateText(actionGround, "SceneAction", "踏入此境", 19, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.23f, 0.12f, 0.06f, 0.96f));
+            StretchText(actionText.rectTransform, new Vector2(8f, 3f), new Vector2(-8f, -3f));
+
+            RectTransform accentLine = CreateStretchPanel(
+                cardRect,
+                "SceneCardAccentLine",
+                new Vector2(0f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(28f, 8f),
+                new Vector2(-28f, 13f),
+                new Color(accent.r, accent.g, accent.b, 0.80f));
+            Image accentLineImage = accentLine.GetComponent<Image>();
+            accentLineImage.raycastTarget = false;
+
+            RectTransform hoverWash = CreateStretchPanel(
+                cardRect,
+                "SceneHoverWash",
+                Vector2.zero,
+                Vector2.one,
+                new Vector2(10f, 10f),
+                new Vector2(-10f, -10f),
+                new Color(accent.r, accent.g, accent.b, 0f));
+            Image hoverWashImage = hoverWash.GetComponent<Image>();
+            hoverWashImage.raycastTarget = false;
+
+            DemoOpeningSceneCardFx sceneFx = cardObject.AddComponent<DemoOpeningSceneCardFx>();
+            sceneFx.Configure(cardRect, cardImage, hoverWashImage, actionImage, actionText, accentLineImage, affinitySealImage, accent, isPrimary);
+            AddOpeningSceneCardEvents(cardObject, sceneFx);
+
+            DisableChildRaycastsExcept(cardObject, cardImage);
             AddRewardHoverEvents(cardObject, reward);
             return cardObject;
         }
@@ -4315,12 +5503,12 @@ namespace PathOfTenThousandWays.Demo.UI
             DecorateFrame(heroBand, accent, new Color(0.14f, 0.15f, 0.18f, 0.10f), 1.5f, false);
             if (hasHeroSprite)
             {
-                ApplySpriteToImage(heroBand, heroSprite, Color.white);
-                CreateStretchPanel(heroBand, "RouteHeroMist", new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(6f, 6f), new Vector2(-6f, -6f), new Color(1f, 1f, 1f, 0.05f));
+                ApplySpriteToImage(heroBand, heroSprite, new Color(0.82f, 0.86f, 0.84f, 0.74f));
+                CreateStretchPanel(heroBand, "RouteHeroMist", new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(6f, 6f), new Vector2(-6f, -6f), new Color(0.95f, 0.92f, 0.80f, 0.20f));
             }
 
-            CreateStretchPanel(heroBand, "RouteHeroShadow", new Vector2(0f, 0f), new Vector2(1f, 0.42f), new Vector2(6f, 6f), new Vector2(-6f, -6f), new Color(0f, 0f, 0f, 0.30f));
-            RectTransform glyphSeal = CreateFixedPanel(heroBand, "RouteGlyphSeal", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16f, -16f), new Vector2(52f, 52f), new Color(0.08f, 0.09f, 0.11f, 0.88f));
+            CreateStretchPanel(heroBand, "RouteHeroShadow", new Vector2(0f, 0f), new Vector2(1f, 0.46f), new Vector2(6f, 6f), new Vector2(-6f, -6f), new Color(0f, 0f, 0f, 0.42f));
+            RectTransform glyphSeal = CreateFixedPanel(heroBand, "RouteGlyphSeal", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16f, -16f), new Vector2(52f, 52f), new Color(0.08f, 0.09f, 0.11f, 0.90f));
             DecorateFrame(glyphSeal, accent, new Color(0f, 0f, 0f, 0f), 1.5f, false);
             Text glyphText = CreateText(glyphSeal, "RouteGlyphText", GetRewardGlyph(reward), 24, FontStyle.Bold, TextAnchor.MiddleCenter, accent);
             StretchText(glyphText.rectTransform, new Vector2(6f, 6f), new Vector2(-6f, -6f));
@@ -4352,8 +5540,8 @@ namespace PathOfTenThousandWays.Demo.UI
             CreateLabelChip(metaRow.transform, BuildRoutePaceTag(reward), new Color(0.13f, 0.16f, 0.19f, 1f), ColorMist, 86f);
             CreateLabelChip(metaRow.transform, $"{reward.RoutePlan.Nodes.Count} 节点", new Color(0.17f, 0.14f, 0.11f, 1f), accent, 74f);
 
-            RectTransform nodeBand = CreateFixedHeightBlock(cardObject.transform, "RouteNodes", 128f, new Color(0.08f, 0.10f, 0.12f, 0.94f));
-            DecorateFrame(nodeBand, new Color(accent.r, accent.g, accent.b, 0.56f), new Color(0f, 0f, 0f, 0f), 1.5f, false);
+            RectTransform nodeBand = CreateFixedHeightBlock(cardObject.transform, "RouteNodes", 128f, new Color(0.09f, 0.10f, 0.11f, 0.98f));
+            DecorateFrame(nodeBand, new Color(accent.r, accent.g, accent.b, 0.72f), new Color(accent.r, accent.g, accent.b, 0.08f), 1.5f, false);
             BuildRouteNodeSequence(nodeBand, reward);
 
             Text footerText = CreateText(cardObject.transform, "RouteFooter", BuildRouteDecisionText(reward), 13, FontStyle.Normal, TextAnchor.UpperLeft, new Color(0.90f, 0.91f, 0.88f, 0.96f));
@@ -4962,16 +6150,51 @@ namespace PathOfTenThousandWays.Demo.UI
                 return null;
             }
 
+            if (reward.RoutePlan.Nodes.Any(node => ContainsAny(node.Name, "旧矿", "矿", "塌井", "井底", "旧账", "暗室", "符债", "矿灯")))
+            {
+                return LoadRouteOldMineSprite();
+            }
+
+            if (reward.RoutePlan.Nodes.Any(node => node.Type == DemoNodeType.Boss || ContainsAny(node.Name, "雷", "劫", "镜")))
+            {
+                return LoadRouteThunderMarshSprite();
+            }
+
             if (reward.RoutePlan.Nodes.Any(node => node.Type == DemoNodeType.Shop || node.Type == DemoNodeType.Training))
             {
                 if (cachedCloudseaFarSprite == null)
                 {
-                    cachedCloudseaFarSprite = LoadSpriteResource(SceneCloudseaFarResourcePath);
+                    cachedCloudseaFarSprite = LoadSpriteResource(SceneCloudseaFarResourcePath, SceneBattleCloudseaResourcePath);
                 }
 
                 return cachedCloudseaFarSprite;
             }
 
+            return LoadRouteOldMineSprite() ?? LoadRouteCloudseaSprite();
+        }
+
+        private static Sprite LoadRouteOldMineSprite()
+        {
+            if (cachedRouteOldMineSprite == null)
+            {
+                cachedRouteOldMineSprite = LoadSpriteResource(SceneBattleOldMineEntryResourcePath, SceneBattleCloudseaResourcePath, SceneCloudseaFarResourcePath);
+            }
+
+            return cachedRouteOldMineSprite;
+        }
+
+        private static Sprite LoadRouteThunderMarshSprite()
+        {
+            if (cachedRouteThunderMarshSprite == null)
+            {
+                cachedRouteThunderMarshSprite = LoadSpriteResource(SceneBattleThunderMarshEntryResourcePath, SceneBattleCloudseaResourcePath, SceneCloudseaFarResourcePath);
+            }
+
+            return cachedRouteThunderMarshSprite;
+        }
+
+        private static Sprite LoadRouteCloudseaSprite()
+        {
             if (cachedBattleCloudseaSprite == null)
             {
                 cachedBattleCloudseaSprite = LoadSpriteResource(SceneBattleCloudseaResourcePath, SceneCloudseaFarResourcePath);
@@ -4988,6 +6211,16 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             return cachedHeaderCloudBandSprite;
+        }
+
+        private static Sprite LoadBattleHeaderRibbonSprite()
+        {
+            if (cachedBattleHeaderRibbonSprite == null)
+            {
+                cachedBattleHeaderRibbonSprite = LoadSpriteResource(BattleHeaderRibbonResourcePath, HeaderCloudBandResourcePath);
+            }
+
+            return cachedBattleHeaderRibbonSprite;
         }
 
         private static Sprite LoadHomeHeroSprite()
@@ -5090,6 +6323,76 @@ namespace PathOfTenThousandWays.Demo.UI
             return cachedPanelScrollDarkSprite;
         }
 
+        private static Sprite LoadBattleHandShelfSprite()
+        {
+            if (cachedBattleHandShelfSprite == null)
+            {
+                cachedBattleHandShelfSprite = LoadSpriteResource(BattleHandShelfResourcePath);
+            }
+
+            return cachedBattleHandShelfSprite;
+        }
+
+        private static Sprite LoadBattleIntentPlateSprite()
+        {
+            if (cachedBattleIntentPlateSprite == null)
+            {
+                cachedBattleIntentPlateSprite = LoadSpriteResource(BattleIntentPlateResourcePath, PanelScrollDarkTransparentResourcePath, PanelScrollDarkResourcePath);
+            }
+
+            return cachedBattleIntentPlateSprite;
+        }
+
+        private static Sprite LoadBattleCardFrameSprite()
+        {
+            if (cachedBattleCardFrameSprite == null)
+            {
+                cachedBattleCardFrameSprite = LoadSpriteResource(BattleCardFrameResourcePath);
+            }
+
+            return cachedBattleCardFrameSprite;
+        }
+
+        private static Sprite LoadBattleActionButtonSprite()
+        {
+            if (cachedBattleActionButtonSprite == null)
+            {
+                cachedBattleActionButtonSprite = LoadSpriteResource(BattleActionButtonResourcePath);
+            }
+
+            return cachedBattleActionButtonSprite;
+        }
+
+        private static Sprite LoadTransitionInkWipeSprite()
+        {
+            if (cachedTransitionInkWipeSprite == null)
+            {
+                cachedTransitionInkWipeSprite = LoadSpriteResource(TransitionInkWipeResourcePath);
+            }
+
+            return cachedTransitionInkWipeSprite;
+        }
+
+        private static Sprite LoadTransitionFocusRingSprite()
+        {
+            if (cachedTransitionFocusRingSprite == null)
+            {
+                cachedTransitionFocusRingSprite = LoadSpriteResource(TransitionFocusRingResourcePath);
+            }
+
+            return cachedTransitionFocusRingSprite;
+        }
+
+        private static Sprite LoadTransitionSpeedLinesSprite()
+        {
+            if (cachedTransitionSpeedLinesSprite == null)
+            {
+                cachedTransitionSpeedLinesSprite = LoadSpriteResource(TransitionSpeedLinesResourcePath);
+            }
+
+            return cachedTransitionSpeedLinesSprite;
+        }
+
         private static Sprite LoadRootDestinyDeskSprite()
         {
             if (cachedRootDestinyDeskSprite == null)
@@ -5112,6 +6415,19 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             return cachedRootDestinyBackdropSprite;
+        }
+
+        private static Sprite LoadOpeningSceneBackdropSprite()
+        {
+            if (cachedOpeningSceneBackdropSprite == null)
+            {
+                cachedOpeningSceneBackdropSprite = LoadSpriteResource(
+                    OpeningSceneBackdropResourcePath,
+                    RootDestinySceneTeaDeskResourcePath,
+                    RootDestinyBackdropResourcePath);
+            }
+
+            return cachedOpeningSceneBackdropSprite;
         }
 
         private static Sprite LoadRootObjectSprite(DemoRootDefinition root)
@@ -5642,7 +6958,7 @@ namespace PathOfTenThousandWays.Demo.UI
             }
             else if (reward.Type == DemoRewardType.Route && reward.RoutePlan != null)
             {
-                lines.Add($"路数：{(string.IsNullOrEmpty(reward.RouteTag) ? "路线分叉" : reward.RouteTag)}");
+                lines.Add($"路数：{(string.IsNullOrEmpty(reward.RouteTag) ? "择前路" : reward.RouteTag)}");
                 lines.Add($"节奏：{BuildRoutePaceTag(reward)}");
                 lines.Add(string.Empty);
                 lines.Add(reward.Description);
@@ -6193,6 +7509,19 @@ namespace PathOfTenThousandWays.Demo.UI
             return colors;
         }
 
+        private static ColorBlock CreateSpriteButtonColors(Color disabledColor)
+        {
+            ColorBlock colors = ColorBlock.defaultColorBlock;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1f, 0.96f, 0.82f, 1f);
+            colors.pressedColor = new Color(0.80f, 0.72f, 0.56f, 1f);
+            colors.selectedColor = new Color(0.94f, 0.86f, 0.68f, 1f);
+            colors.disabledColor = disabledColor;
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.08f;
+            return colors;
+        }
+
         private static void ApplySpriteToImage(RectTransform rect, Sprite sprite, Color color, bool preserveAspect = false)
         {
             if (rect == null || sprite == null)
@@ -6510,7 +7839,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoRewardType.Gongfa:
                     return "功法";
                 case DemoRewardType.Artifact:
-                    return "法宝";
+                    return "法器";
                 case DemoRewardType.Relic:
                     return "遗物";
                 case DemoRewardType.Upgrade:
@@ -6533,7 +7862,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoRewardType.OpeningScene:
                     return reward.Region != null ? "先去此境" : "首境";
                 case DemoRewardType.Route:
-                    return string.IsNullOrEmpty(reward.RouteTag) ? "路线分叉" : reward.RouteTag;
+                    return string.IsNullOrEmpty(reward.RouteTag) ? "择前路" : reward.RouteTag;
                 case DemoRewardType.Card:
                     return "战斗件";
                 case DemoRewardType.Gongfa:
@@ -6878,8 +8207,8 @@ namespace PathOfTenThousandWays.Demo.UI
             {
                 DemoMapNode node = reward.RoutePlan.Nodes[i];
                 Color nodeColor = GetRouteNodeColor(node, GetRewardAccentColor(reward));
-                RectTransform chip = CreateFixedPanel(parent, "RouteNodeChip_" + i, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(left + i * 74f, -18f), new Vector2(slotWidth, 76f), new Color(0.10f, 0.11f, 0.13f, 0.88f));
-                DecorateFrame(chip, nodeColor, new Color(nodeColor.r, nodeColor.g, nodeColor.b, 0.08f), 1f, false);
+                RectTransform chip = CreateFixedPanel(parent, "RouteNodeChip_" + i, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(left + i * 74f, -18f), new Vector2(slotWidth, 76f), new Color(0.11f, 0.12f, 0.14f, 0.96f));
+                DecorateFrame(chip, nodeColor, new Color(nodeColor.r, nodeColor.g, nodeColor.b, 0.14f), 1f, false);
 
                 Text indexText = CreateText(chip, "RouteNodeIndex_" + i, (i + 1).ToString(), 10, FontStyle.Bold, TextAnchor.UpperLeft, nodeColor);
                 indexText.rectTransform.anchorMin = new Vector2(0f, 1f);
@@ -6901,12 +8230,12 @@ namespace PathOfTenThousandWays.Demo.UI
 
                 if (i < count - 1)
                 {
-                    RectTransform line = CreateFixedPanel(parent, "RouteNodeLink_" + i, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(left + 68f + i * 74f, -56f), new Vector2(10f, 2f), GetRewardAccentColor(reward));
+                    RectTransform line = CreateFixedPanel(parent, "RouteNodeLink_" + i, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(left + 67f + i * 74f, -56f), new Vector2(14f, 3f), GetRewardAccentColor(reward));
                     IgnoreLayout(line.gameObject);
                 }
             }
 
-            Text detail = CreateText(parent, "RouteNodeHint", BuildRouteCountSummary(reward.RoutePlan), 12, FontStyle.Bold, TextAnchor.LowerCenter, new Color(0.90f, 0.90f, 0.87f, 0.92f));
+            Text detail = CreateText(parent, "RouteNodeHint", BuildRouteCountSummary(reward.RoutePlan), 12, FontStyle.Bold, TextAnchor.LowerCenter, new Color(0.96f, 0.93f, 0.82f, 0.98f));
             detail.rectTransform.anchorMin = new Vector2(0f, 0f);
             detail.rectTransform.anchorMax = new Vector2(1f, 0f);
             detail.rectTransform.offsetMin = new Vector2(12f, 8f);
@@ -6955,7 +8284,7 @@ namespace PathOfTenThousandWays.Demo.UI
             string regionId = (region?.Id ?? string.Empty).ToLowerInvariant();
             if (regionId.Contains("old_mine"))
             {
-                return "铁屑与旧契都埋在地下。";
+                return "旧契与铁屑埋在地底。";
             }
 
             if (regionId.Contains("herb") || regionId.Contains("forest"))
@@ -6990,6 +8319,11 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (region?.Id != null)
             {
+                if (region.Id.Contains("old_mine"))
+                {
+                    return new Color(0.72f, 0.43f, 0.27f, 1f);
+                }
+
                 if (region.Id.Contains("thunder"))
                 {
                     return new Color(0.39f, 0.67f, 0.84f, 1f);
@@ -7023,10 +8357,10 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             Color accent = GetRegionAccentColor(region, line);
             return new Color(
-                Mathf.Lerp(0.10f, accent.r * 0.24f, 0.65f),
-                Mathf.Lerp(0.11f, accent.g * 0.22f, 0.65f),
-                Mathf.Lerp(0.13f, accent.b * 0.20f, 0.65f),
-                0.98f);
+                Mathf.Lerp(0.68f, accent.r, 0.18f),
+                Mathf.Lerp(0.62f, accent.g, 0.16f),
+                Mathf.Lerp(0.50f, accent.b, 0.12f),
+                0.94f);
         }
 
         private static Color GetRouteAccentColor(DemoReward reward)
@@ -7112,7 +8446,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case "follow_up":
                     return "追击";
                 case "artifact":
-                    return "法宝";
+                    return "法器";
                 case "high_variance":
                 case "high_variance_reward":
                     return "高波动";
@@ -7325,6 +8659,129 @@ namespace PathOfTenThousandWays.Demo.UI
             }
         }
 
+        private sealed class DemoOpeningSceneCardFx : MonoBehaviour
+        {
+            private RectTransform cardRect;
+            private Image cardImage;
+            private Image hoverWashImage;
+            private Image actionImage;
+            private Text actionText;
+            private Image accentLineImage;
+            private Image affinitySealImage;
+            private Color accent = ColorGold;
+            private Vector3 baseScale = Vector3.one;
+            private bool hover;
+            private bool pressed;
+            private bool primary;
+            private float pressHoldTimer;
+            private float pulsePhase;
+
+            public void Configure(
+                RectTransform cardRect,
+                Image cardImage,
+                Image hoverWashImage,
+                Image actionImage,
+                Text actionText,
+                Image accentLineImage,
+                Image affinitySealImage,
+                Color accent,
+                bool primary)
+            {
+                this.cardRect = cardRect;
+                this.cardImage = cardImage;
+                this.hoverWashImage = hoverWashImage;
+                this.actionImage = actionImage;
+                this.actionText = actionText;
+                this.accentLineImage = accentLineImage;
+                this.affinitySealImage = affinitySealImage;
+                this.accent = accent;
+                this.primary = primary;
+                pulsePhase = Mathf.Abs(accent.r * 11.7f + accent.g * 17.3f + accent.b * 23.1f);
+
+                if (cardRect != null)
+                {
+                    baseScale = cardRect.localScale;
+                }
+            }
+
+            public void SetHover(bool hover)
+            {
+                this.hover = hover;
+            }
+
+            public void SetPressed(bool pressed)
+            {
+                this.pressed = pressed;
+                if (pressed)
+                {
+                    pressHoldTimer = 0.28f;
+                }
+            }
+
+            private void LateUpdate()
+            {
+                if (cardRect == null)
+                {
+                    return;
+                }
+
+                float follow = 1f - Mathf.Exp(-Time.unscaledDeltaTime * (pressed ? 30f : 13f));
+                pressHoldTimer = Mathf.Max(0f, pressHoldTimer - Time.unscaledDeltaTime);
+                bool activePress = pressed || pressHoldTimer > 0f;
+                float scale = pressed ? (primary ? 1.002f : 0.992f) : hover ? (primary ? 1.020f : 1.014f) : primary ? 1.006f : 1f;
+
+                cardRect.localScale = Vector3.Lerp(cardRect.localScale, baseScale * scale, follow);
+
+                if (cardImage != null)
+                {
+                    Color target = activePress
+                        ? new Color(0.92f, 0.80f, 0.58f, 0.99f)
+                        : hover
+                            ? new Color(0.94f, 0.84f, 0.62f, primary ? 0.99f : 0.96f)
+                            : primary
+                                ? new Color(0.92f, 0.81f, 0.58f, 0.98f)
+                                : new Color(0.86f, 0.76f, 0.56f, 0.90f);
+                    cardImage.color = Color.Lerp(cardImage.color, target, follow);
+                }
+
+                if (hoverWashImage != null)
+                {
+                    float alpha = activePress ? (primary ? 0.135f : 0.105f) : hover ? (primary ? 0.090f : 0.065f) : primary ? 0.030f : 0f;
+                    Color target = new Color(accent.r, accent.g, accent.b, alpha);
+                    hoverWashImage.color = Color.Lerp(hoverWashImage.color, target, follow);
+                }
+
+                if (actionImage != null)
+                {
+                    float alpha = activePress ? 0.48f : hover ? 0.34f : 0.20f;
+                    Color target = new Color(accent.r, accent.g, accent.b, alpha);
+                    actionImage.color = Color.Lerp(actionImage.color, target, follow);
+                }
+
+                if (actionText != null)
+                {
+                    Color target = activePress || hover
+                        ? new Color(0.30f, 0.13f, 0.05f, 0.99f)
+                        : new Color(0.23f, 0.12f, 0.06f, 0.96f);
+                    actionText.color = Color.Lerp(actionText.color, target, follow);
+                }
+
+                if (accentLineImage != null)
+                {
+                    float alpha = activePress ? 1f : hover ? 0.96f : primary ? 0.95f : 0.72f;
+                    Color target = new Color(accent.r, accent.g, accent.b, alpha);
+                    accentLineImage.color = Color.Lerp(accentLineImage.color, target, follow);
+                }
+
+                if (affinitySealImage != null)
+                {
+                    float pulse = Mathf.Sin((Time.unscaledTime + pulsePhase) * 2.2f) * 0.035f;
+                    float alpha = activePress ? 1f : hover ? 0.94f : 0.82f + pulse;
+                    Color target = new Color(0.62f, 0.16f, 0.10f, alpha);
+                    affinitySealImage.color = Color.Lerp(affinitySealImage.color, target, follow);
+                }
+            }
+        }
         private sealed class DemoOpeningItemCardFx : MonoBehaviour
         {
             private RectTransform cardRect;

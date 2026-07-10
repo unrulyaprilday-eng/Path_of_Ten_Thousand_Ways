@@ -2,6 +2,16 @@ enemy_id,name,battle_role,is_boss,max_health,base_damage_profile,notes
 enemy_cloud_spirit,云海妖灵,normal,false,46,normal_layer_1,首层普通敌人模板
 enemy_thunder_general,雷纹妖将,normal,false,46,normal_layer_1,首层普通敌人模板
 enemy_blood_wraith,血影残魂,normal,false,46,normal_layer_1,首层普通敌人模板
+enemy_old_mine_entry,旧矿入口遭遇,normal,false,42,normal_layer_1,入首境旧矿后的首战短斗法
+enemy_thunder_marsh_entry,雷泽浅滩遭遇,normal,false,44,normal_layer_1,入首境雷泽后的首战短斗法
+enemy_herb_forest_entry,药谷雾林遭遇,normal,false,40,normal_layer_1,入首境迷林药谷后的首战短斗法
+enemy_trade_road_entry,荒谷驿路遭遇,normal,false,40,normal_layer_1,入首境商路荒谷后的首战短斗法
+enemy_ancestral_vault_entry,旧库门前遭遇,normal,false,44,normal_layer_1,入首境祖地旧库后的首战短斗法
+enemy_demon_tower_entry,妖塔外层遭遇,elite,false,52,normal_layer_1,入首境妖塔外层后的高压首战
+enemy_mine_ember,矿口余烬,normal,false,48,normal_layer_1,第一层稳定路线普通战斗
+enemy_collapsed_well_guard,塌井守卫,elite,false,52,normal_layer_1,第一层冒险路线第一战
+enemy_well_bottom_shadow,井底邪影,elite,false,56,normal_layer_1,第一层冒险路线第二战
+enemy_talisman_debt_wraith,符债残影,normal,false,50,normal_layer_1,第一层构筑路线验证战
 enemy_calamity_guard,劫云守卫,normal,false,64,normal_layer_2,第二层普通敌人模板
 enemy_rift_sword_fiend,裂空剑煞,elite,false,64,normal_layer_2,第二层高压战斗模板
 enemy_thunder_cliff_guard,雷崖执兵,elite,false,64,normal_layer_2,第二层高压战斗模板
