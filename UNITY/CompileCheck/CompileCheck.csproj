@@ -22,6 +22,7 @@
     <Compile Include="..\Assets\Scripts\Systems\DemoConfigData.cs" Link="Systems\DemoConfigData.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoConfigRepository.cs" Link="Systems\DemoConfigRepository.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoGongfa.cs" Link="Systems\DemoGongfa.cs" />
+    <Compile Include="..\Assets\Scripts\Systems\DemoMetaProgress.cs" Link="Systems\DemoMetaProgress.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoQuality.cs" Link="Systems\DemoQuality.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoRelic.cs" Link="Systems\DemoRelic.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoRunState.cs" Link="Systems\DemoRunState.cs" />

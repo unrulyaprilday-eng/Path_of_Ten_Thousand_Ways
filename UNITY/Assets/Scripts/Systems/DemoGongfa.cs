@@ -57,7 +57,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                         IconGlyph = "剑",
                         Title = "主修剑诀",
                         Quality = DemoQuality.Earth,
-                        Description = "每回合第一张飞剑牌额外生成 1 把临时飞剑，让演武从起手就进入剑势。"
+                        Description = "每次洗牌后的第一张飞剑牌额外生成 1 把临时飞剑，参与接下来 3 次齐射。"
                     };
                 case DemoGongfaType.ThunderScripture:
                     return new DemoGongfaDefinition
@@ -93,7 +93,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                         IconGlyph = "心",
                         Title = "辅修心法",
                         Quality = DemoQuality.Spirit,
-                        Description = "每回合开始获得 1 点剑意。若本回合只规划 2 张以内牌，飞剑演武获得额外增伤。"
+                        Description = "开战与每次洗牌获得 1 点剑意；两次齐射之间只打出 2 张以内牌时，下一次齐射额外增伤。"
                     };
                 case DemoGongfaType.LightningMeridians:
                     return new DemoGongfaDefinition

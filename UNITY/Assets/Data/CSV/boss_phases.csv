@@ -1,4 +1,4 @@
 boss_id,phase_id,phase_order,name,health_ratio_max,intent_text,charge_turn,base_damage,shock_apply,notes
 enemy_tianjie_avatar,thunder_cloud,1,雷云压境,1.00,雷云压境：稳定压血轻度感电,false,12,1,Boss 第一阶段
-enemy_tianjie_avatar,soul_lock,2,天雷锁魂,0.70,天雷锁魂：高压伤害并压制下回合灵气,false,14,2,Boss 第二阶段
-enemy_tianjie_avatar,calamity_descends,3,天劫降临,0.35,天劫蓄雷：本轮蓄势下一轮重击,true,22,1,Boss 第三阶段
+enemy_tianjie_avatar,soul_lock,2,天雷锁魂,0.70,天雷锁魂：高压伤害并压制接下来 3 秒灵气恢复,false,14,2,Boss 第二阶段
+enemy_tianjie_avatar,calamity_descends,3,天劫降临,0.35,天劫蓄雷：读条结束后释放重击,true,22,1,Boss 第三阶段

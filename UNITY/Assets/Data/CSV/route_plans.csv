@@ -1,10 +1,10 @@
 route_plan_id,layer,name,description,route_style,route_quality,route_glyph,route_tag
-route_branch_stable,1,矿口余烬,沿旧矿外沿稳步推进先把首战所得消化成第一批飞剑组件再用修炼节点补足生存和灵气缺口,general,spirit,稳,稳定路线
-route_branch_risky,1,塌井深处,直接下探塌井深处连续承受更高战斗压力提前换取高价值补强和更快成型速度,general,heaven,险,冒险路线
-route_branch_build,1,旧账暗室,先绕进旧账暗室补功法与器物再打一场验证当前循环适合把首战奖励整理成明确构筑方向,general,mysterious,构,构筑路线
-route_middle_stable,2,稳修收束,先用修炼补齐当前主轴再打一场常规斗法让构筑在中段更稳地收束,general,spirit,稳,稳定路线
-route_middle_aggressive,2,追锋破阵,连续走两场斗法换一次额外补强适合把当前主轴高点直接压到中段,general,heaven,锋,冒险路线
-route_middle_artifact,2,秘器共振,先去整备节点改写规则再打一场试炼让当前主轴提前接上法器与神通,general,mysterious,器,构筑路线
-route_final_stable,3,整备冲劫,先整备再渡劫让当前构筑在 Boss 战里稳定落地,general,spirit,备,稳守路线
-route_final_seclusion,3,闭关悟道,再闭关一轮补足神通和续航把爆发窗口完整地留给天劫降临那一刻,general,mysterious,悟,爆发路线
-route_final_desperate,3,背水破劫,再打一场劫前守门换最后一次补强用更高风险把斩杀上限抬上去,general,immortal,劫,背水路线
+route_branch_stable,1,矿口余烬,普通战后在矿灯下调息并定向补启动缺口以恢复换取稳定推进,general,spirit,稳,稳定路线
+route_branch_risky,1,塌井深处,连续挑战两名精英不获免费恢复以更早获得两次高档战斗奖励,general,heaven,险,冒险路线
+route_branch_build,1,旧账暗室,先悟法再整备并以普通战验证循环用较少随机性补齐万剑启动组件,general,mysterious,构,构筑路线
+route_middle_stable,2,稳修收束,先定向补小诛仙剑阵再打一场普通战稳定获得第二层核心,general,spirit,稳,稳定路线
+route_middle_aggressive,2,追锋破阵,连续挑战两名第二层精英以更高压力换取更早更高品质的引擎补强,general,heaven,锋,冒险路线
+route_middle_artifact,2,秘器共振,先在核心整备中补御剑诀或剑匣缺口再进入精英试炼,general,mysterious,器,构筑路线
+route_final_stable,3,整备冲劫,Boss 前恢复并完成整备以当前成形构筑稳定渡劫,general,spirit,备,稳守路线
+route_final_seclusion,3,闭关悟道,先定向补万剑诀再完成整备把完整爆发窗口留给天劫,general,mysterious,悟,爆发路线
+route_final_desperate,3,背水破劫,渡劫前再战一名高奖精英并允许万剑归宗出现以风险抬高上限,general,immortal,劫,背水路线

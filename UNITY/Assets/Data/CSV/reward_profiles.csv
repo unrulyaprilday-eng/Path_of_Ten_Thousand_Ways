@@ -1,0 +1,11 @@
+reward_profile_id,tier,source,route_risk,allows_finisher,allows_divine,description
+reward_opening_battle,opening,opening_battle,stable,false,false,首战固定提供凝剑诀踏云遁聚灵换息
+reward_layer1_standard,standard,normal_battle,stable,false,false,第一层普通战主轴生存高波动三槽
+reward_layer1_elite,elite,elite_battle,risky,false,false,第一层精英提高品质但禁止剑阵神通与终结
+reward_layer1_build,build,normal_battle,build,false,false,第一层构筑线定向补万剑启动组件
+reward_layer2_standard,core,normal_battle,stable,false,false,第二层优先补小诛仙剑阵与万剑引擎
+reward_layer2_elite,elite,elite_battle,risky,false,false,第二层精英加速剑阵功法与法器成形
+reward_layer2_core,core,elite_battle,build,false,false,第二层核心整备后的定向引擎奖励
+reward_layer3_standard,finisher,normal_battle,stable,true,false,第三层保证万剑诀进入候选
+reward_layer3_high,high,elite_battle,risky,true,true,第三层高风险档可额外出现万剑归宗
+reward_boss_completion,boss,boss,stable,false,false,Boss 胜利直接进入一世结算不再发局内战力

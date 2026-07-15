@@ -85,7 +85,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 IconGlyph = "符",
                 Style = "规则修改",
                 Quality = DemoQuality.Spirit,
-                Description = "每回合第一张 1 费牌改为免费。"
+                Description = "每次洗牌后的第一张 1 费牌改为免费。"
             },
             ["残破古镜"] = new DemoRelicDefinition
             {

@@ -15,7 +15,9 @@ namespace PathOfTenThousandWays.Demo.Systems
     public sealed class DemoOpeningConfig
     {
         public Dictionary<string, DemoRootConfig> Roots { get; set; } = new Dictionary<string, DemoRootConfig>();
+        public Dictionary<string, DemoTraceConfig> Traces { get; set; } = new Dictionary<string, DemoTraceConfig>();
         public Dictionary<string, DemoRegionConfig> Regions { get; set; } = new Dictionary<string, DemoRegionConfig>();
+        public Dictionary<string, DemoJourneyVesselConfig> JourneyVessels { get; set; } = new Dictionary<string, DemoJourneyVesselConfig>();
         public Dictionary<string, DemoJourneyLineConfig> JourneyLines { get; set; } = new Dictionary<string, DemoJourneyLineConfig>();
     }
 
@@ -45,6 +47,8 @@ namespace PathOfTenThousandWays.Demo.Systems
         public Dictionary<string, DemoArtifactConfig> Artifacts { get; set; } = new Dictionary<string, DemoArtifactConfig>();
         public Dictionary<string, DemoRelicConfig> Relics { get; set; } = new Dictionary<string, DemoRelicConfig>();
         public Dictionary<string, DemoRoutePlanConfig> RoutePlans { get; set; } = new Dictionary<string, DemoRoutePlanConfig>();
+        public Dictionary<string, DemoRewardProfileConfig> RewardProfiles { get; set; } = new Dictionary<string, DemoRewardProfileConfig>();
+        public Dictionary<string, DemoNodeActionProfileConfig> NodeActionProfiles { get; set; } = new Dictionary<string, DemoNodeActionProfileConfig>();
         public Dictionary<string, DemoEnemyConfig> Enemies { get; set; } = new Dictionary<string, DemoEnemyConfig>();
         public Dictionary<string, Dictionary<string, List<DemoRewardPriorityEntryConfig>>> RewardPriorities { get; set; }
             = new Dictionary<string, Dictionary<string, List<DemoRewardPriorityEntryConfig>>>();
@@ -57,6 +61,15 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string Rarity { get; set; }
         public string UnlockCondition { get; set; }
         public bool IsDefaultPool { get; set; }
+        public bool IsAvailable { get; set; }
+        public string Summary { get; set; }
+    }
+
+    public sealed class DemoTraceConfig
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string TraceType { get; set; }
         public string Summary { get; set; }
     }
 
@@ -66,6 +79,7 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string Name { get; set; }
         public string RewardFocus { get; set; }
         public string Description { get; set; }
+        public bool IsAvailable { get; set; }
         public List<DemoRegionNodeWeightConfig> NodeWeights { get; set; } = new List<DemoRegionNodeWeightConfig>();
     }
 
@@ -83,12 +97,33 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string OriginText { get; set; }
         public string CarryItemName { get; set; }
         public string CarryItemEffect { get; set; }
+        public string VesselType { get; set; }
+        public string StarterPoolId { get; set; }
+        public string BaseStyle { get; set; }
+        public bool IsAvailable { get; set; }
         public string FirstRegionId { get; set; }
         public List<string> RegionCandidateIds { get; set; } = new List<string>();
         public string RiskLevel { get; set; }
         public List<string> SummaryTags { get; set; } = new List<string>();
         public List<DemoJourneyNodeBiasConfig> NodeBiases { get; set; } = new List<DemoJourneyNodeBiasConfig>();
         public List<DemoJourneyRewardBiasConfig> RewardBiases { get; set; } = new List<DemoJourneyRewardBiasConfig>();
+    }
+
+    public sealed class DemoJourneyVesselConfig
+    {
+        public string Id { get; set; }
+        public string RootId { get; set; }
+        public string Name { get; set; }
+        public string OriginText { get; set; }
+        public string VesselType { get; set; }
+        public string StarterPoolId { get; set; }
+        public string BaseStyle { get; set; }
+        public string StartingEffectText { get; set; }
+        public string FirstRegionId { get; set; }
+        public List<string> RegionCandidateIds { get; set; } = new List<string>();
+        public string RiskLevel { get; set; }
+        public List<string> SummaryTags { get; set; } = new List<string>();
+        public bool IsAvailable { get; set; }
     }
 
     public sealed class DemoJourneyNodeBiasConfig
@@ -189,6 +224,31 @@ namespace PathOfTenThousandWays.Demo.Systems
         public int Layer { get; set; }
         public string NodeType { get; set; }
         public string NodeName { get; set; }
+        public string NodeId { get; set; }
+        public string EncounterId { get; set; }
+        public string RewardProfileId { get; set; }
+        public string ActionProfileId { get; set; }
+    }
+
+    public sealed class DemoRewardProfileConfig
+    {
+        public string Id { get; set; }
+        public string Tier { get; set; }
+        public string Source { get; set; }
+        public string RouteRisk { get; set; }
+        public bool AllowsFinisher { get; set; }
+        public bool AllowsDivine { get; set; }
+        public string Description { get; set; }
+    }
+
+    public sealed class DemoNodeActionProfileConfig
+    {
+        public string Id { get; set; }
+        public string ActionType { get; set; }
+        public string RewardProfileId { get; set; }
+        public string GuaranteedComponentId { get; set; }
+        public int HealAmount { get; set; }
+        public string Description { get; set; }
     }
 
     public sealed class DemoRewardPriorityEntryConfig
@@ -254,6 +314,15 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string Rarity;
         public string UnlockCondition;
         public bool IsDefaultPool;
+        public bool IsAvailable;
+        public string Summary;
+    }
+
+    public sealed class DemoTraceDefinition
+    {
+        public string Id;
+        public string Name;
+        public string TraceType;
         public string Summary;
     }
 
@@ -263,7 +332,25 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string Name;
         public string RewardFocus;
         public string Description;
+        public bool IsAvailable;
         public Dictionary<string, int> NodeWeights = new Dictionary<string, int>();
+    }
+
+    public sealed class DemoJourneyVesselDefinition
+    {
+        public string Id;
+        public string RootId;
+        public string Name;
+        public string OriginText;
+        public string VesselType;
+        public string StarterPoolId;
+        public string BaseStyle;
+        public string StartingEffectText;
+        public string FirstRegionId;
+        public List<string> RegionCandidateIds = new List<string>();
+        public string RiskLevel;
+        public List<string> SummaryTags = new List<string>();
+        public bool IsAvailable;
     }
 
     public sealed class DemoJourneyLineDefinition
@@ -274,11 +361,36 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string OriginText;
         public string CarryItemName;
         public string CarryItemEffect;
+        public string VesselType;
+        public string StarterPoolId;
+        public string BaseStyle;
+        public bool IsAvailable;
         public string FirstRegionId;
         public List<string> RegionCandidateIds = new List<string>();
         public string RiskLevel;
         public List<string> SummaryTags = new List<string>();
         public List<DemoJourneyNodeBiasConfig> NodeBiases = new List<DemoJourneyNodeBiasConfig>();
         public List<DemoJourneyRewardBiasConfig> RewardBiases = new List<DemoJourneyRewardBiasConfig>();
+    }
+
+    public sealed class DemoRewardProfileDefinition
+    {
+        public string Id;
+        public string Tier;
+        public string Source;
+        public string RouteRisk;
+        public bool AllowsFinisher;
+        public bool AllowsDivine;
+        public string Description;
+    }
+
+    public sealed class DemoNodeActionProfileDefinition
+    {
+        public string Id;
+        public string ActionType;
+        public string RewardProfileId;
+        public string GuaranteedComponentId;
+        public int HealAmount;
+        public string Description;
     }
 }

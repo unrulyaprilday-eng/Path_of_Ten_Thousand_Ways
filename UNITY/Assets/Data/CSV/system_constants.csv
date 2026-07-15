@@ -30,15 +30,22 @@ manifestation,core_gongfa_secondary,15,int,核心功法副标签贡献
 manifestation,core_artifact_main,22,int,核心法器主标签贡献
 manifestation,core_artifact_secondary,10,int,核心法器副标签贡献
 manifestation,card_triplet_main,15,int,同标签卡牌达到 3 张后的主标签贡献
-battle,planning_seconds,15,int,规划阶段倒计时
-battle,step_duration_seconds,0.7,float,单个演出步骤的基础时长
-battle,minimum_execution_seconds,2.4,float,演武阶段最小时长
 battle,player_base_max_health,72,int,玩家基础最大生命
-battle,player_base_max_energy,3,int,玩家基础最大灵气
+battle,player_base_max_energy,10,int,玩家基础最大灵气
 battle,player_base_permanent_swords,1,int,玩家基础永久飞剑
 battle,boss_extra_permanent_swords,1,int,Boss 战额外永久飞剑
-battle,opening_round_energy,1,int,首战第一回合灵气
-battle,opening_round_hand_size,3,int,首战第一回合手牌数量
-battle,normal_round_hand_size,5,int,常规回合目标手牌数量
+battle,opening_initial_energy,1,int,首战初始灵气
+battle,normal_initial_energy,2,int,常规战初始灵气
+battle,energy_regen_per_second,1,float,每秒自然恢复灵气
+battle,opening_hand_size,3,int,首战初始手牌
+battle,normal_hand_size,4,int,常规战初始手牌
+battle,max_hand_size,7,int,手牌上限
+battle,draw_interval_seconds,4,float,定时抽牌间隔
+battle,sword_volley_interval_seconds,2.2,float,飞剑自动齐射间隔
+battle,temporary_sword_volley_uses,3,int,临时飞剑参与齐射次数
+battle,enemy_intent_min_seconds,5,float,敌人意图最短读条
+battle,enemy_intent_max_seconds,7,float,敌人意图最长读条
+battle,victory_feedback_seconds,1.2,float,破敌反馈后进入奖励的延迟
+battle,step_duration_seconds,0.7,float,单个表现事件的基础时长
 battle,heal_reward_amount,18,int,调息奖励回复生命
 battle,upgrade_reward_energy_bonus,1,int,剑诀精修提升灵气上限

@@ -1,20 +1,20 @@
 enemy_id,name,battle_role,is_boss,max_health,base_damage_profile,notes
-enemy_cloud_spirit,云海妖灵,normal,false,46,normal_layer_1,首层普通敌人模板
-enemy_thunder_general,雷纹妖将,normal,false,46,normal_layer_1,首层普通敌人模板
-enemy_blood_wraith,血影残魂,normal,false,46,normal_layer_1,首层普通敌人模板
-enemy_old_mine_entry,旧矿入口遭遇,normal,false,42,normal_layer_1,入首境旧矿后的首战短斗法
-enemy_thunder_marsh_entry,雷泽浅滩遭遇,normal,false,44,normal_layer_1,入首境雷泽后的首战短斗法
-enemy_herb_forest_entry,药谷雾林遭遇,normal,false,40,normal_layer_1,入首境迷林药谷后的首战短斗法
-enemy_trade_road_entry,荒谷驿路遭遇,normal,false,40,normal_layer_1,入首境商路荒谷后的首战短斗法
-enemy_ancestral_vault_entry,旧库门前遭遇,normal,false,44,normal_layer_1,入首境祖地旧库后的首战短斗法
-enemy_demon_tower_entry,妖塔外层遭遇,elite,false,52,normal_layer_1,入首境妖塔外层后的高压首战
-enemy_mine_ember,矿口余烬,normal,false,48,normal_layer_1,第一层稳定路线普通战斗
-enemy_collapsed_well_guard,塌井守卫,elite,false,52,normal_layer_1,第一层冒险路线第一战
-enemy_well_bottom_shadow,井底邪影,elite,false,56,normal_layer_1,第一层冒险路线第二战
-enemy_talisman_debt_wraith,符债残影,normal,false,50,normal_layer_1,第一层构筑路线验证战
-enemy_calamity_guard,劫云守卫,normal,false,64,normal_layer_2,第二层普通敌人模板
-enemy_rift_sword_fiend,裂空剑煞,elite,false,64,normal_layer_2,第二层高压战斗模板
-enemy_thunder_cliff_guard,雷崖执兵,elite,false,64,normal_layer_2,第二层高压战斗模板
-enemy_mirror_thunder_trial,镜雷试炼,elite,false,64,normal_layer_2,第二层法器试炼模板
-enemy_calamity_gatekeeper,劫前守门,elite,false,78,normal_layer_3,第三层高压战斗模板
-enemy_tianjie_avatar,天劫化身,boss,true,150,boss_tianjie,终局 Boss
+enemy_cloud_spirit,云海妖灵,normal,false,170,normal_layer_1,首层普通敌人模板目标 50 至 80 秒
+enemy_thunder_general,雷纹妖将,normal,false,180,normal_layer_1,首层普通敌人模板目标 50 至 80 秒
+enemy_blood_wraith,血影残魂,normal,false,180,normal_layer_1,首层普通敌人模板目标 50 至 80 秒
+enemy_old_mine_entry,旧矿入口遭遇,normal,false,105,opening_battle,入旧矿首战目标 30 至 45 秒
+enemy_thunder_marsh_entry,雷泽浅滩遭遇,normal,false,110,opening_battle,未开放首境兼容模板
+enemy_herb_forest_entry,药谷雾林遭遇,normal,false,95,opening_battle,未开放首境兼容模板
+enemy_trade_road_entry,荒谷驿路遭遇,normal,false,95,opening_battle,未开放首境兼容模板
+enemy_ancestral_vault_entry,旧库门前遭遇,normal,false,110,opening_battle,未开放首境兼容模板
+enemy_demon_tower_entry,妖塔外层遭遇,elite,false,150,opening_elite,未开放首境高压兼容模板
+enemy_mine_ember,矿口余烬,normal,false,175,normal_layer_1,第一层稳定路线目标 50 至 80 秒
+enemy_collapsed_well_guard,塌井守卫,elite,false,250,elite_layer_1,第一层冒险路线精英目标 80 至 110 秒
+enemy_well_bottom_shadow,井底邪影,elite,false,285,elite_layer_1,第一层冒险路线第二精英目标 80 至 110 秒
+enemy_talisman_debt_wraith,符债残影,normal,false,190,normal_layer_1,第一层构筑路线验证战目标 50 至 80 秒
+enemy_calamity_guard,劫云守卫,normal,false,650,normal_layer_2,第二层普通战目标 50 至 80 秒
+enemy_rift_sword_fiend,裂空剑煞,elite,false,1000,elite_layer_2,第二层高压战目标 80 至 110 秒
+enemy_thunder_cliff_guard,雷崖执兵,elite,false,1100,elite_layer_2,第二层高压战目标 80 至 110 秒
+enemy_mirror_thunder_trial,镜雷试炼,elite,false,1050,elite_layer_2,第二层法器试炼目标 80 至 110 秒
+enemy_calamity_gatekeeper,劫前守门,elite,false,1600,elite_layer_3,第三层高奖精英目标 80 至 110 秒
+enemy_tianjie_avatar,天劫化身,boss,true,3800,boss_tianjie,终局 Boss 目标 150 至 210 秒

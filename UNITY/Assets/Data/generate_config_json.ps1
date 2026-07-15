@@ -33,6 +33,43 @@ function Convert-TypedValue {
     }
 }
 
+function Assert-UniqueColumn {
+    param(
+        [object[]]$Rows,
+        [string]$Column,
+        [string]$TableName
+    )
+
+    $duplicates = @($Rows |
+        Group-Object -Property $Column |
+        Where-Object { [string]::IsNullOrWhiteSpace($_.Name) -or $_.Count -gt 1 })
+
+    if ($duplicates.Count -gt 0) {
+        throw "$TableName has blank or duplicate $Column values: $($duplicates.Name -join ', ')"
+    }
+}
+
+function Assert-Reference {
+    param(
+        [string]$Value,
+        [object[]]$ValidValues,
+        [string]$Context,
+        [switch]$AllowEmpty
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        if ($AllowEmpty) {
+            return
+        }
+
+        throw "$Context is required."
+    }
+
+    if ($ValidValues -notcontains $Value) {
+        throw "$Context references unknown id '$Value'."
+    }
+}
+
 function Build-Config {
     param(
         [Parameter(Mandatory = $true)]
@@ -50,6 +87,7 @@ function Build-Config {
         regions = Read-CsvFile (Join-Path $RootDir "regions.csv")
         regionNodeWeights = Read-CsvFile (Join-Path $RootDir "region_node_weights.csv")
         journeyLines = Read-CsvFile (Join-Path $RootDir "journey_lines.csv")
+        journeyVessels = Read-CsvFile (Join-Path $RootDir "journey_vessels.csv")
         journeyLineNodeBiases = Read-CsvFile (Join-Path $RootDir "journey_line_node_biases.csv")
         journeyLineRewardBiases = Read-CsvFile (Join-Path $RootDir "journey_line_reward_biases.csv")
         cards = Read-CsvFile (Join-Path $RootDir "cards.csv")
@@ -59,6 +97,8 @@ function Build-Config {
         relics = Read-CsvFile (Join-Path $RootDir "relics.csv")
         routePlans = Read-CsvFile (Join-Path $RootDir "route_plans.csv")
         routePlanNodes = Read-CsvFile (Join-Path $RootDir "route_plan_nodes.csv")
+        rewardProfiles = Read-CsvFile (Join-Path $RootDir "reward_profiles.csv")
+        nodeActionProfiles = Read-CsvFile (Join-Path $RootDir "node_action_profiles.csv")
         enemies = Read-CsvFile (Join-Path $RootDir "enemies.csv")
         bossPhases = Read-CsvFile (Join-Path $RootDir "boss_phases.csv")
         rewardServicePriorities = Read-CsvFile (Join-Path $RootDir "reward_service_priorities.csv")
@@ -72,6 +112,7 @@ function Build-Config {
             rarity = $root.rarity
             unlockCondition = $root.unlock_condition
             isDefaultPool = [System.Convert]::ToBoolean($root.is_default_pool)
+            isAvailable = [System.Convert]::ToBoolean($root.is_available)
             summary = $root.summary
             modifiers = @($csv.rootModifiers | Where-Object { $_.root_id -eq $root.root_id } | ForEach-Object {
                 [ordered]@{
@@ -113,6 +154,7 @@ function Build-Config {
             name = $region.name
             rewardFocus = $region.reward_focus
             description = $region.description
+            isAvailable = [System.Convert]::ToBoolean($region.is_available)
             nodeWeights = @($csv.regionNodeWeights | Where-Object { $_.region_id -eq $region.region_id } | ForEach-Object {
                 [ordered]@{
                     nodeType = $_.node_type
@@ -151,6 +193,47 @@ function Build-Config {
         }
     }
 
+    $journeyVesselById = @{}
+    foreach ($vessel in $csv.journeyVessels) {
+        $journeyVesselById[$vessel.vessel_id] = [ordered]@{
+            id = $vessel.vessel_id
+            rootId = $vessel.root_id
+            name = $vessel.name
+            originText = $vessel.origin_text
+            vesselType = $vessel.vessel_type
+            starterPoolId = $vessel.starter_pool_id
+            baseStyle = $vessel.base_style
+            startingEffectText = $vessel.starting_effect_text
+            firstRegionId = $vessel.first_region_id
+            regionCandidateIds = @($vessel.region_candidate_ids -split "\|" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
+            riskLevel = $vessel.risk_level
+            summaryTags = @($vessel.summary_tags -split "\|" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
+            isAvailable = [System.Convert]::ToBoolean($vessel.is_available)
+        }
+    }
+    # Runtime opening still uses the legacy journey-line shape during the UI migration.
+    # Its data source is now the available journey vessels, not journey_lines.csv.
+    $journeyLineById = @{}
+    foreach ($vessel in $csv.journeyVessels | Where-Object { [System.Convert]::ToBoolean($_.is_available) }) {
+        $journeyLineById[$vessel.vessel_id] = [ordered]@{
+            id = $vessel.vessel_id
+            rootId = $vessel.root_id
+            title = $vessel.name
+            originText = $vessel.origin_text
+            carryItemName = $vessel.name
+            carryItemEffect = $vessel.starting_effect_text
+            vesselType = $vessel.vessel_type
+            starterPoolId = $vessel.starter_pool_id
+            baseStyle = $vessel.base_style
+            isAvailable = $true
+            firstRegionId = $vessel.first_region_id
+            regionCandidateIds = @($vessel.region_candidate_ids -split "\|" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
+            riskLevel = $vessel.risk_level
+            summaryTags = @($vessel.summary_tags -split "\|" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
+            nodeBiases = @()
+            rewardBiases = @()
+        }
+    }
     $cardById = @{}
     foreach ($card in $csv.cards) {
         $cardById[$card.card_id] = [ordered]@{
@@ -252,8 +335,37 @@ function Build-Config {
                         layer = [int]$_.layer
                         nodeType = $_.node_type
                         nodeName = $_.node_name
+                        nodeId = $_.node_id
+                        encounterId = $_.encounter_id
+                        rewardProfileId = $_.reward_profile_id
+                        actionProfileId = $_.action_profile_id
                     }
                 })
+        }
+    }
+
+    $rewardProfileById = @{}
+    foreach ($profile in $csv.rewardProfiles) {
+        $rewardProfileById[$profile.reward_profile_id] = [ordered]@{
+            id = $profile.reward_profile_id
+            tier = $profile.tier
+            source = $profile.source
+            routeRisk = $profile.route_risk
+            allowsFinisher = [System.Convert]::ToBoolean($profile.allows_finisher)
+            allowsDivine = [System.Convert]::ToBoolean($profile.allows_divine)
+            description = $profile.description
+        }
+    }
+
+    $nodeActionProfileById = @{}
+    foreach ($profile in $csv.nodeActionProfiles) {
+        $nodeActionProfileById[$profile.action_profile_id] = [ordered]@{
+            id = $profile.action_profile_id
+            actionType = $profile.action_type
+            rewardProfileId = $profile.reward_profile_id
+            guaranteedComponentId = $profile.guaranteed_component_id
+            healAmount = if ([string]::IsNullOrWhiteSpace($profile.heal_amount)) { 0 } else { [int]$profile.heal_amount }
+            description = $profile.description
         }
     }
 
@@ -283,6 +395,88 @@ function Build-Config {
         }
     }
 
+    Assert-UniqueColumn $csv.roots "root_id" "roots.csv"
+    Assert-UniqueColumn $csv.traces "trace_id" "traces.csv"
+    Assert-UniqueColumn $csv.regions "region_id" "regions.csv"
+    Assert-UniqueColumn $csv.journeyVessels "vessel_id" "journey_vessels.csv"
+    Assert-UniqueColumn $csv.cards "card_id" "cards.csv"
+    Assert-UniqueColumn $csv.gongfas "gongfa_id" "gongfas.csv"
+    Assert-UniqueColumn $csv.artifacts "artifact_id" "artifacts.csv"
+    Assert-UniqueColumn $csv.relics "relic_id" "relics.csv"
+    Assert-UniqueColumn $csv.routePlans "route_plan_id" "route_plans.csv"
+    Assert-UniqueColumn $csv.routePlanNodes "node_id" "route_plan_nodes.csv"
+    Assert-UniqueColumn $csv.rewardProfiles "reward_profile_id" "reward_profiles.csv"
+    Assert-UniqueColumn $csv.nodeActionProfiles "action_profile_id" "node_action_profiles.csv"
+    Assert-UniqueColumn $csv.enemies "enemy_id" "enemies.csv"
+
+    $rootIds = @($csv.roots.root_id)
+    $regionIds = @($csv.regions.region_id)
+    $poolIds = @($csv.cardPools.pool_id | Sort-Object -Unique)
+    $cardIds = @($csv.cards.card_id)
+    $gongfaIds = @($csv.gongfas.gongfa_id)
+    $artifactIds = @($csv.artifacts.artifact_id)
+    $relicIds = @($csv.relics.relic_id)
+    $routePlanIds = @($csv.routePlans.route_plan_id)
+    $rewardProfileIds = @($csv.rewardProfiles.reward_profile_id)
+    $actionProfileIds = @($csv.nodeActionProfiles.action_profile_id)
+    $enemyIds = @($csv.enemies.enemy_id)
+
+    foreach ($vessel in $csv.journeyVessels) {
+        Assert-Reference $vessel.root_id $rootIds "journey_vessels[$($vessel.vessel_id)].root_id"
+        Assert-Reference $vessel.starter_pool_id $poolIds "journey_vessels[$($vessel.vessel_id)].starter_pool_id"
+        Assert-Reference $vessel.first_region_id $regionIds "journey_vessels[$($vessel.vessel_id)].first_region_id"
+        foreach ($regionId in @($vessel.region_candidate_ids.Split([char]124) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })) {
+            Assert-Reference $regionId.Trim() $regionIds "journey_vessels[$($vessel.vessel_id)].region_candidate_ids"
+        }
+    }
+
+    foreach ($entry in $csv.cardPools) {
+        if ($entry.entry_type -eq "card") {
+            Assert-Reference $entry.ref_id $cardIds "card_pools[$($entry.pool_id)].ref_id"
+        }
+    }
+
+    foreach ($node in $csv.routePlanNodes) {
+        Assert-Reference $node.route_plan_id $routePlanIds "route_plan_nodes[$($node.node_id)].route_plan_id"
+        Assert-Reference $node.encounter_id $enemyIds "route_plan_nodes[$($node.node_id)].encounter_id" -AllowEmpty
+        Assert-Reference $node.reward_profile_id $rewardProfileIds "route_plan_nodes[$($node.node_id)].reward_profile_id" -AllowEmpty
+        Assert-Reference $node.action_profile_id $actionProfileIds "route_plan_nodes[$($node.node_id)].action_profile_id" -AllowEmpty
+
+        if ($node.node_type -in @("battle", "boss")) {
+            Assert-Reference $node.encounter_id $enemyIds "route_plan_nodes[$($node.node_id)].encounter_id"
+            Assert-Reference $node.reward_profile_id $rewardProfileIds "route_plan_nodes[$($node.node_id)].reward_profile_id"
+        }
+
+        if ($node.node_type -eq "boss") {
+            $enemy = $csv.enemies | Where-Object { $_.enemy_id -eq $node.encounter_id } | Select-Object -First 1
+            if ($null -eq $enemy -or -not [System.Convert]::ToBoolean($enemy.is_boss)) {
+                throw "route_plan_nodes[$($node.node_id)] must reference a boss encounter."
+            }
+        }
+    }
+
+    foreach ($profile in $csv.nodeActionProfiles) {
+        Assert-Reference $profile.reward_profile_id $rewardProfileIds "node_action_profiles[$($profile.action_profile_id)].reward_profile_id" -AllowEmpty
+        if (-not [string]::IsNullOrWhiteSpace($profile.guaranteed_component_id) -and $profile.guaranteed_component_id -notin @("engine_wanjian", "survival_boss")) {
+            $componentIds = @($cardIds + $gongfaIds + $artifactIds)
+            Assert-Reference $profile.guaranteed_component_id $componentIds "node_action_profiles[$($profile.action_profile_id)].guaranteed_component_id"
+        }
+    }
+
+    foreach ($priority in $csv.rewardServicePriorities) {
+        switch ($priority.ref_type) {
+            "card" { Assert-Reference $priority.ref_id $cardIds "reward_service_priorities[$($priority.service)].ref_id" }
+            "gongfa" { Assert-Reference $priority.ref_id $gongfaIds "reward_service_priorities[$($priority.service)].ref_id" }
+            "artifact" {
+                $runtimeEnums = @($csv.artifacts.runtime_enum)
+                Assert-Reference $priority.ref_id $runtimeEnums "reward_service_priorities[$($priority.service)].ref_id"
+            }
+            "relic" {
+                $relicNames = @($csv.relics.name)
+                Assert-Reference $priority.ref_id $relicNames "reward_service_priorities[$($priority.service)].ref_id"
+            }
+        }
+    }
     $rewardPriorities = @{}
     foreach ($serviceName in ($csv.rewardServicePriorities.service | Sort-Object -Unique)) {
         $rewardPriorities[$serviceName] = @{}
@@ -324,6 +518,7 @@ function Build-Config {
             traces = $traceById
             regions = $regionById
             journeyLines = $journeyLineById
+            journeyVessels = $journeyVesselById
         }
         demo = [ordered]@{
             cards = $cardById
@@ -332,6 +527,8 @@ function Build-Config {
             artifacts = $artifactById
             relics = $relicById
             routePlans = $routePlanById
+            rewardProfiles = $rewardProfileById
+            nodeActionProfiles = $nodeActionProfileById
             enemies = $enemyById
             rewardPriorities = $rewardPriorities
         }

@@ -23,31 +23,19 @@ namespace PathOfTenThousandWays.Demo.Rewards
 
             rewards = rewards.Take(3).ToList();
 
-            if (rewards.Count == 0)
-            {
-                foreach (string relicName in GetFallbackRelicPriority(run))
-                {
-                    if (run == null || !run.HasRelic(relicName))
-                    {
-                        rewards.Add(DemoReward.Relic(relicName));
-                    }
-
-                    if (rewards.Count >= 3)
-                    {
-                        break;
-                    }
-                }
-            }
-
             while (rewards.Count < 3)
             {
                 if (rewards.All(reward => reward.Type != DemoRewardType.Upgrade))
                 {
                     rewards.Add(DemoReward.Upgrade());
                 }
-                else
+                else if (rewards.All(reward => reward.Type != DemoRewardType.Heal))
                 {
                     rewards.Add(DemoReward.Heal());
+                }
+                else
+                {
+                    rewards.Add(DemoReward.FromCard(DemoCardLibrary.Create("jade_barrier")));
                 }
             }
 
@@ -104,25 +92,5 @@ namespace PathOfTenThousandWays.Demo.Rewards
             }
         }
 
-        private static IEnumerable<string> GetFallbackRelicPriority(DemoRunState run)
-        {
-            DemoSwordStyle style = run?.GetBuildStyle() ?? DemoSwordStyle.General;
-            IReadOnlyList<string> configuredIds = DemoConfigRepository.GetRewardPriorityRefs("artifact_fallback_relics", style, "relic");
-            if (configuredIds.Count > 0)
-            {
-                return configuredIds;
-            }
-
-            switch (style)
-            {
-                case DemoSwordStyle.Thunder:
-                    return new[] { "雷心", "九霄雷印", "残破古镜", "聚灵符", "护心镜" };
-                case DemoSwordStyle.Blood:
-                    return new[] { "血剑胚", "血魔珠", "护心镜", "聚灵符" };
-                case DemoSwordStyle.Wanjian:
-                default:
-                    return new[] { "剑冢残碑", "万剑剑匣", "聚灵符", "残破古镜", "护心镜" };
-            }
-        }
     }
 }

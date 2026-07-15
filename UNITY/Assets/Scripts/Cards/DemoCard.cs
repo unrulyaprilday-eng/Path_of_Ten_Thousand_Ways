@@ -62,7 +62,7 @@ namespace PathOfTenThousandWays.Demo.Cards
         {
             if (!string.IsNullOrEmpty(RulesOverride))
             {
-                return RulesOverride;
+                return NormalizeRealtimeRules(RulesOverride);
             }
 
             string text = string.Empty;
@@ -94,7 +94,7 @@ namespace PathOfTenThousandWays.Demo.Cards
 
             if (TemporarySwords > 0)
             {
-                text += $"本回合生成 {TemporarySwords} 临时飞剑。";
+                text += $"生成 {TemporarySwords} 把临时飞剑，可参与接下来 3 次飞剑齐射。";
             }
 
             if (PermanentSword)
@@ -123,6 +123,13 @@ namespace PathOfTenThousandWays.Demo.Cards
             }
 
             return text;
+        }
+
+        private static string NormalizeRealtimeRules(string rules)
+        {
+            return rules
+                .Replace("本回合飞剑不自动攻击", "下一次飞剑齐射不会攻击")
+                .Replace("本回合感电不引爆", "下一次飞剑齐射不引爆感电");
         }
     }
 }

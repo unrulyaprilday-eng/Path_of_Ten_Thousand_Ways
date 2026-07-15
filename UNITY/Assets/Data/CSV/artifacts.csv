@@ -1,5 +1,5 @@
 artifact_id,runtime_enum,name,icon_glyph,style,quality,description
 artifact_sword_box,SwordBox,剑匣,匣,万剑核心,earth,战斗开始时永久飞剑 +1 且飞剑牌额外生成 1 把临时飞剑
 artifact_haotian_mirror,HaotianMirror,昊天镜,镜,复制核心,heaven,每场战斗首次飞剑牌或终结牌结算两次
-artifact_purple_gourd,PurpleGourd,紫金葫芦,葫,生存转化,mysterious,每次敌方攻击吸收 4 点伤害并在下回合返还 1 点额外灵气
+artifact_purple_gourd,PurpleGourd,紫金葫芦,葫,生存转化,mysterious,每次敌方攻击吸收 4 点伤害并立即返还 1 点灵气
 artifact_thunder_seal,ThunderSeal,雷印,印,雷剑核心,earth,感电牌额外施加 2 层感电飞剑引爆感电时追加 4 点雷击伤害

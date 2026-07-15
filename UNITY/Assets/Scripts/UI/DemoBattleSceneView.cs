@@ -27,10 +27,13 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string BossPortraitResourcePath = "Art/Boss/boss_tianjie_halfbody_001";
         private const string BossPortraitFallbackResourcePath = "Art/Boss/boss_tianjie_halfbody_002";
         private const string BattleHeaderRibbonResourcePath = "Art/UI/ui_battle_header_ribbon_001";
+        private const string BattleStatusBrushResourcePath = "Art/UI/ui_battle_status_brush_002";
         private const string BattleStatusPlateResourcePath = "Art/UI/ui_battle_status_plate_001";
         private const string BattleEnemyPlateResourcePath = "Art/UI/ui_battle_enemy_plate_001";
         private const string BattleIntentPlateResourcePath = "Art/UI/ui_battle_intent_plate_001";
-        private const string BattlePhaseSealResourcePath = "Art/UI/ui_battle_phase_seal_001";
+        private const string BattlePhaseSealResourcePath = "Art/UI/ui_battle_phase_seal_002";
+        private const string BattleCloudWispAResourcePath = "Art/UI/ui_root_smoke_wisp_001";
+        private const string BattleCloudWispBResourcePath = "Art/UI/ui_root_smoke_wisp_002";
         private const float BattleEntryIntroDuration = 1.08f;
         private static readonly Color HudPaper = new Color(0.94f, 0.93f, 0.89f, 1f);
         private static readonly Color HudMist = new Color(0.63f, 0.67f, 0.72f, 1f);
@@ -58,6 +61,8 @@ namespace PathOfTenThousandWays.Demo.UI
         private static Sprite cachedBattleEnemyPlateSprite;
         private static Sprite cachedBattleIntentPlateSprite;
         private static Sprite cachedBattlePhaseSealSprite;
+        private static Sprite cachedBattleCloudWispASprite;
+        private static Sprite cachedBattleCloudWispBSprite;
 
         private sealed class AmbientDrift
         {
@@ -109,6 +114,9 @@ namespace PathOfTenThousandWays.Demo.UI
         private Sprite vfxSwordSlashSprite;
         private Sprite vfxThunderArcSprite;
         private Sprite vfxImpactInkBurstSprite;
+        private Sprite battleCloudWispASprite;
+        private Sprite battleCloudWispBSprite;
+        private bool usesRegionBattleBackground;
 
         private RectTransform rootRect;
         private RectTransform skyGlow;
@@ -133,10 +141,18 @@ namespace PathOfTenThousandWays.Demo.UI
         private RectTransform playerRoot;
         private RectTransform playerSword;
         private RectTransform playerBody;
+        private RectTransform playerPlatformSword;
+        private RectTransform playerHairTrailA;
+        private RectTransform playerHairTrailB;
+        private RectTransform playerRobeTrail;
+        private RectTransform regionCloudA;
+        private RectTransform regionCloudB;
         private RectTransform enemyRoot;
+        private RectTransform enemyPlatformSword;
         private RectTransform enemySword;
         private RectTransform enemyBody;
         private Image enemyAuraImage;
+        private Image enemyPortraitImage;
         private Image enemySwordImage;
         private Image enemySwordTrailImage;
         private Image enemyBodyImage;
@@ -178,7 +194,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private readonly List<Image> transientMarks = new List<Image>();
 
         private Coroutine sequenceCoroutine;
-        private int lastSequenceVersion = -1;
+
         private float elapsed;
 
         public void Initialize(DemoGameController demoController, Font font)
@@ -205,14 +221,21 @@ namespace PathOfTenThousandWays.Demo.UI
         private void LoadVisualResourcesForCurrentState()
         {
             battleBackgroundSprite = LoadBattleBackgroundSprite();
-            bool useRegionBattleBackground = IsUsingRegionBattleBackground();
-            battleFarSceneSprite = useRegionBattleBackground ? null : LoadSceneLayerSprite(ref cachedBattleFarSceneSprite, BattleFarSceneResourcePath);
-            battleMidSceneSprite = useRegionBattleBackground ? null : LoadSceneLayerSprite(ref cachedBattleMidSceneSprite, BattleMidSceneResourcePath);
-            battleNearSceneSprite = useRegionBattleBackground ? null : LoadSceneLayerSprite(ref cachedBattleNearSceneSprite, BattleNearSceneResourcePath);
+            usesRegionBattleBackground = IsUsingRegionBattleBackground();
+            battleFarSceneSprite = usesRegionBattleBackground ? null : LoadSceneLayerSprite(ref cachedBattleFarSceneSprite, BattleFarSceneResourcePath);
+            battleMidSceneSprite = usesRegionBattleBackground ? null : LoadSceneLayerSprite(ref cachedBattleMidSceneSprite, BattleMidSceneResourcePath);
+            battleNearSceneSprite = usesRegionBattleBackground ? null : LoadSceneLayerSprite(ref cachedBattleNearSceneSprite, BattleNearSceneResourcePath);
             bossPortraitSprite = LoadBossPortraitSprite();
             battleHeaderRibbonSprite = LoadSceneLayerSprite(ref cachedBattleHeaderRibbonSprite, BattleHeaderRibbonResourcePath);
-            battleStatusPlateSprite = LoadSceneLayerSprite(ref cachedBattleStatusPlateSprite, BattleStatusPlateResourcePath);
-            battleEnemyPlateSprite = LoadSceneLayerSprite(ref cachedBattleEnemyPlateSprite, BattleEnemyPlateResourcePath);
+            battleStatusPlateSprite = LoadSceneLayerSprite(ref cachedBattleStatusPlateSprite, BattleStatusBrushResourcePath);
+            if (battleStatusPlateSprite == null)
+            {
+                battleStatusPlateSprite = LoadSceneLayerSprite(ref cachedBattleStatusPlateSprite, BattleStatusPlateResourcePath);
+            }
+
+            battleEnemyPlateSprite = battleStatusPlateSprite != null
+                ? battleStatusPlateSprite
+                : LoadSceneLayerSprite(ref cachedBattleEnemyPlateSprite, BattleEnemyPlateResourcePath);
             battleIntentPlateSprite = LoadSceneLayerSprite(ref cachedBattleIntentPlateSprite, BattleIntentPlateResourcePath);
             battlePhaseSealSprite = LoadSceneLayerSprite(ref cachedBattlePhaseSealSprite, BattlePhaseSealResourcePath);
             playerCharacterSprite = LoadSceneLayerSprite(ref cachedPlayerCharacterSprite, PlayerCharacterResourcePath);
@@ -222,6 +245,8 @@ namespace PathOfTenThousandWays.Demo.UI
             vfxSwordSlashSprite = LoadSceneLayerSprite(ref cachedVfxSwordSlashSprite, VfxSwordSlashResourcePath);
             vfxThunderArcSprite = LoadSceneLayerSprite(ref cachedVfxThunderArcSprite, VfxThunderArcResourcePath);
             vfxImpactInkBurstSprite = LoadSceneLayerSprite(ref cachedVfxImpactInkBurstSprite, VfxImpactInkBurstResourcePath);
+            battleCloudWispASprite = LoadSceneLayerSprite(ref cachedBattleCloudWispASprite, BattleCloudWispAResourcePath);
+            battleCloudWispBSprite = LoadSceneLayerSprite(ref cachedBattleCloudWispBSprite, BattleCloudWispBResourcePath);
         }
 
         private void RebuildSceneGraph()
@@ -240,7 +265,7 @@ namespace PathOfTenThousandWays.Demo.UI
             popups.Clear();
             transientMarks.Clear();
             sequenceCoroutine = null;
-            lastSequenceVersion = -1;
+
             entryCameraVeil = null;
             BuildScene();
         }
@@ -266,37 +291,30 @@ namespace PathOfTenThousandWays.Demo.UI
 
             SetCombatVisualState(true);
 
-            if (controller.Battle.ExecutionSequenceVersion != lastSequenceVersion &&
-                controller.Battle.CurrentPresentationSteps.Count > 0)
+            if (sequenceCoroutine == null &&
+                controller.Battle.TryConsumePresentationStep(out DemoBattlePresentationStep presentationStep))
             {
-                lastSequenceVersion = controller.Battle.ExecutionSequenceVersion;
-
-                if (sequenceCoroutine != null)
-                {
-                    StopCoroutine(sequenceCoroutine);
-                }
-
-                sequenceCoroutine = StartCoroutine(PlaySequence(controller.Battle.CurrentPresentationSteps));
+                sequenceCoroutine = StartCoroutine(PlayQueuedPresentationStep(presentationStep));
             }
 
-            if (controller.Battle.Phase == DemoBattlePhase.Planning)
+            if (controller.Battle.Phase == DemoBattlePhase.Intro)
             {
-                phaseText.text = IsOpeningBattlePage() ? "入场首战 · 规划" : "规划";
+                phaseText.text = "入阵";
                 phaseText.color = new Color(0.80f, 0.87f, 0.92f, 1f);
             }
-            else if (controller.Battle.Phase == DemoBattlePhase.Executing)
+            else if (controller.Battle.Phase == DemoBattlePhase.Running)
             {
-                phaseText.text = IsOpeningBattlePage() ? "入场首战 · 演武" : "演武";
+                phaseText.text = "斗法";
                 phaseText.color = new Color(0.94f, 0.83f, 0.55f, 1f);
             }
             else if (controller.Battle.Phase == DemoBattlePhase.Won)
             {
-                phaseText.text = IsOpeningBattlePage() ? "首战已破" : "胜利";
+                phaseText.text = "已破";
                 phaseText.color = new Color(0.96f, 0.88f, 0.54f, 1f);
             }
             else if (controller.Battle.Phase == DemoBattlePhase.Lost)
             {
-                phaseText.text = IsOpeningBattlePage() ? "首战失守" : "失利";
+                phaseText.text = "失守";
                 phaseText.color = new Color(0.93f, 0.50f, 0.43f, 1f);
             }
 
@@ -344,7 +362,7 @@ namespace PathOfTenThousandWays.Demo.UI
             CreatePanel(
                 "LowerBattleWash",
                 rootRect,
-                new Color(0.04f, 0.045f, 0.045f, 0.10f),
+                new Color(0.04f, 0.045f, 0.045f, battleBackgroundSprite != null ? 0.035f : 0.10f),
                 new Vector2(0f, 0f),
                 new Vector2(1f, 0.24f),
                 Vector2.zero,
@@ -353,7 +371,7 @@ namespace PathOfTenThousandWays.Demo.UI
             skyGlow = CreatePanelRect(
                 "SkyBreath",
                 rootRect,
-                new Color(0.92f, 0.95f, 0.94f, 0.035f),
+                new Color(0.92f, 0.95f, 0.94f, usesRegionBattleBackground ? 0f : 0.035f),
                 new Vector2(0.22f, 0.70f),
                 new Vector2(0.82f, 1f),
                 Vector2.zero,
@@ -361,7 +379,7 @@ namespace PathOfTenThousandWays.Demo.UI
             horizonGlow = CreatePanelRect(
                 "HorizonBreath",
                 rootRect,
-                new Color(0.64f, 0.70f, 0.69f, 0.018f),
+                new Color(0.64f, 0.70f, 0.69f, usesRegionBattleBackground ? 0f : 0.018f),
                 new Vector2(0.16f, 0.28f),
                 new Vector2(0.84f, 0.48f),
                 Vector2.zero,
@@ -385,7 +403,7 @@ namespace PathOfTenThousandWays.Demo.UI
             frontFogA = CreateQuietAtmosphereRect("FrontFogA", new Vector2(0.02f, 0.175f), new Vector2(0.50f, 0.205f), 0.010f, 0f);
             frontFogB = CreateQuietAtmosphereRect("FrontFogB", new Vector2(0.50f, 0.16f), new Vector2(0.98f, 0.19f), 0.008f, 0f);
 
-            if (bossPortraitSprite != null)
+            if (bossPortraitSprite != null && enemyWraithSprite == null)
             {
                 bossPortrait = CreateImage("BossPortrait", rootRect, new Color(0.72f, 0.74f, 0.76f, 0f));
                 bossPortrait.type = Image.Type.Simple;
@@ -397,7 +415,52 @@ namespace PathOfTenThousandWays.Demo.UI
                 bossPortrait.rectTransform.offsetMax = Vector2.zero;
             }
 
+            CreateRegionCloudLayers();
             ambientDrifts.Clear();
+        }
+
+        private void CreateRegionCloudLayers()
+        {
+            if (!usesRegionBattleBackground)
+            {
+                regionCloudA = null;
+                regionCloudB = null;
+                return;
+            }
+
+            regionCloudA = CreateCloudWisp(
+                "RegionCloudFar",
+                battleCloudWispASprite,
+                new Vector2(1040f, 280f),
+                new Color(0.90f, 0.92f, 0.90f, 0.075f),
+                false);
+            regionCloudB = CreateCloudWisp(
+                "RegionCloudMid",
+                battleCloudWispBSprite != null ? battleCloudWispBSprite : battleCloudWispASprite,
+                new Vector2(820f, 240f),
+                new Color(0.82f, 0.86f, 0.84f, 0.11f),
+                true);
+        }
+
+        private RectTransform CreateCloudWisp(string name, Sprite sprite, Vector2 size, Color color, bool mirror)
+        {
+            if (sprite == null)
+            {
+                return null;
+            }
+
+            Image cloud = CreateImage(name, rootRect, color);
+            cloud.sprite = sprite;
+            cloud.type = Image.Type.Simple;
+            cloud.preserveAspect = true;
+            cloud.raycastTarget = false;
+
+            RectTransform rect = cloud.rectTransform;
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = size;
+            rect.localScale = new Vector3(mirror ? -1f : 1f, 1f, 1f);
+            return rect;
         }
 
         private RectTransform CreateQuietAtmosphereRect(string name, Vector2 anchorMin, Vector2 anchorMax, float alpha, float rotation)
@@ -405,7 +468,7 @@ namespace PathOfTenThousandWays.Demo.UI
             RectTransform rect = CreatePanelRect(
                 name,
                 rootRect,
-                new Color(0.72f, 0.75f, 0.74f, alpha),
+                new Color(0.72f, 0.75f, 0.74f, usesRegionBattleBackground ? 0f : alpha),
                 anchorMin,
                 anchorMax,
                 Vector2.zero,
@@ -425,6 +488,8 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             Vector2 playerAnchor = GetPlayerAnchor();
             Vector2 enemyAnchor = GetEnemyAnchor();
+            bool useBossCombatArt = controller != null && controller.HasBattle && controller.Battle.IsBossBattle && bossPortraitSprite != null;
+            Sprite enemyCombatSprite = useBossCombatArt ? bossPortraitSprite : enemyWraithSprite;
 
             playerRoot = CreateEntity(
                 "PlayerRoot",
@@ -436,7 +501,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 true);
             playerRoot.sizeDelta = new Vector2(540f, 330f);
             playerSword = playerRoot.Find("Sword") as RectTransform;
-            playerBody = ApplyEntitySprite(playerRoot, playerCharacterSprite, new Vector2(500f, 240f), new Vector2(-44f, 70f));
+            playerBody = ApplyEntitySprite(playerRoot, playerCharacterSprite, new Vector2(520f, 262f), new Vector2(-30f, 78f));
+            CreatePlayerWindPresentation();
             ApplySwordSprite(playerSword, true);
 
             enemyRoot = CreateEntity(
@@ -447,9 +513,14 @@ namespace PathOfTenThousandWays.Demo.UI
                 string.Empty,
                 false,
                 false);
-            enemyRoot.sizeDelta = new Vector2(420f, 360f);
+            enemyRoot.sizeDelta = new Vector2(520f, 400f);
             enemySword = enemyRoot.Find("Sword") as RectTransform;
-            enemyBody = ApplyEntitySprite(enemyRoot, enemyWraithSprite, new Vector2(350f, 218f), new Vector2(0f, 62f));
+            enemyBody = ApplyEntitySprite(
+                enemyRoot,
+                enemyCombatSprite,
+                useBossCombatArt ? new Vector2(560f, 390f) : new Vector2(600f, 372f),
+                useBossCombatArt ? new Vector2(-12f, 54f) : new Vector2(-8f, 70f));
+            CreateEnemyGroundPresentation();
             ApplySwordSprite(enemySword, false);
 
             enemyAuraImage = FindEntityImage(enemyRoot, "Aura");
@@ -458,6 +529,85 @@ namespace PathOfTenThousandWays.Demo.UI
             enemyBodyImage = enemyBody != null ? enemyBody.GetComponent<Image>() : null;
             Transform enemyLabel = enemyRoot.Find("Label");
             enemyLabelText = enemyLabel != null ? enemyLabel.GetComponent<Text>() : null;
+        }
+
+        private void CreatePlayerWindPresentation()
+        {
+            playerPlatformSword = CreateWindSprite(
+                "PlayerPlatformSword",
+                vfxFlyingSwordSprite,
+                new Vector2(380f, 108f),
+                new Vector2(-26f, -54f),
+                new Color(0.66f, 0.84f, 0.90f, 0.92f),
+                -4f,
+                1);
+
+            playerHairTrailA = CreateWindSprite(
+                "PlayerHairTrailA",
+                vfxSwordSlashSprite,
+                new Vector2(210f, 54f),
+                new Vector2(-124f, 116f),
+                new Color(0.05f, 0.06f, 0.075f, 0.38f),
+                174f,
+                2);
+            playerHairTrailB = CreateWindSprite(
+                "PlayerHairTrailB",
+                vfxSwordSlashSprite,
+                new Vector2(174f, 42f),
+                new Vector2(-108f, 96f),
+                new Color(0.08f, 0.09f, 0.11f, 0.28f),
+                168f,
+                2);
+            playerRobeTrail = CreateWindSprite(
+                "PlayerRobeTrail",
+                vfxSwordSlashSprite,
+                new Vector2(236f, 70f),
+                new Vector2(-112f, 34f),
+                new Color(0.16f, 0.24f, 0.30f, 0.30f),
+                184f,
+                2);
+        }
+
+        private void CreateEnemyGroundPresentation()
+        {
+            bool hasSwordArt = vfxFlyingSwordSprite != null;
+            Image image = CreateImage(
+                "EnemyPlatformSword",
+                enemyRoot,
+                hasSwordArt
+                    ? new Color(0.46f, 0.68f, 0.78f, 0.62f)
+                    : new Color(0.38f, 0.62f, 0.70f, 0.24f));
+            image.sprite = hasSwordArt ? vfxFlyingSwordSprite : whiteSprite;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+
+            enemyPlatformSword = image.rectTransform;
+            enemyPlatformSword.anchorMin = new Vector2(0.5f, 0.5f);
+            enemyPlatformSword.anchorMax = new Vector2(0.5f, 0.5f);
+            enemyPlatformSword.pivot = new Vector2(0.5f, 0.5f);
+            enemyPlatformSword.sizeDelta = hasSwordArt ? new Vector2(410f, 112f) : new Vector2(300f, 10f);
+            enemyPlatformSword.anchoredPosition = new Vector2(18f, -70f);
+            enemyPlatformSword.localRotation = Quaternion.Euler(0f, 0f, 4f);
+            enemyPlatformSword.SetSiblingIndex(Mathf.Clamp(1, 0, enemyRoot.childCount - 1));
+        }
+        private RectTransform CreateWindSprite(string name, Sprite sprite, Vector2 size, Vector2 position, Color color, float rotation, int siblingIndex)
+        {
+            Image image = CreateImage(name, playerRoot, color);
+            image.sprite = sprite != null ? sprite : whiteSprite;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+
+            RectTransform rect = image.rectTransform;
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = size;
+            rect.anchoredPosition = position;
+            rect.localRotation = Quaternion.Euler(0f, 0f, rotation);
+            rect.SetSiblingIndex(Mathf.Clamp(siblingIndex, 0, playerRoot.childCount - 1));
+            return rect;
         }
 
         private void ApplySwordSprite(RectTransform swordRect, bool isPlayer)
@@ -491,10 +641,15 @@ namespace PathOfTenThousandWays.Demo.UI
             playerStatusPanel = CreateHudPanel(
                 "PlayerScroll",
                 new Vector2(0.025f, 0.835f),
-                new Vector2(0.365f, 0.965f),
+                new Vector2(0.37f, 0.965f),
                 new Color(0.96f, 0.95f, 0.90f, 0.12f),
                 new Color(0.52f, 0.42f, 0.24f, 0.32f));
-            ApplyHudSprite(playerStatusPanel, battleStatusPlateSprite, new Color(1f, 1f, 1f, 0.94f));
+            Image playerPanelImage = playerStatusPanel.GetComponent<Image>();
+            if (playerPanelImage != null)
+            {
+                playerPanelImage.color = new Color(0.035f, 0.045f, 0.055f, 0.36f);
+                playerPanelImage.raycastTarget = false;
+            }
 
             RectTransform portraitWell = CreatePanelRect(
                 "PlayerPortraitWell",
@@ -511,13 +666,13 @@ namespace PathOfTenThousandWays.Demo.UI
             playerPortraitImage.preserveAspect = true;
             StretchRect(playerPortraitImage.rectTransform);
 
-            playerNameText = CreateText("PlayerName", playerStatusPanel, 18, FontStyle.Bold, TextAnchor.UpperLeft, HudInk);
+            playerNameText = CreateText("PlayerName", playerStatusPanel, 20, FontStyle.Bold, TextAnchor.UpperLeft, HudPaper);
             playerNameText.rectTransform.anchorMin = new Vector2(0.195f, 0.70f);
             playerNameText.rectTransform.anchorMax = new Vector2(0.62f, 0.98f);
             playerNameText.rectTransform.offsetMin = Vector2.zero;
             playerNameText.rectTransform.offsetMax = Vector2.zero;
 
-            playerResourceText = CreateText("PlayerResource", playerStatusPanel, 12, FontStyle.Bold, TextAnchor.UpperRight, new Color(0.28f, 0.27f, 0.23f, 0.94f));
+            playerResourceText = CreateText("PlayerResource", playerStatusPanel, 13, FontStyle.Bold, TextAnchor.UpperRight, HudGold);
             playerResourceText.rectTransform.anchorMin = new Vector2(0.56f, 0.70f);
             playerResourceText.rectTransform.anchorMax = new Vector2(0.97f, 0.98f);
             playerResourceText.rectTransform.offsetMin = Vector2.zero;
@@ -551,7 +706,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 Vector2.zero,
                 Vector2.zero).GetComponent<Image>();
 
-            playerStatusText = CreateText("PlayerStatus", playerStatusPanel, 11, FontStyle.Bold, TextAnchor.LowerLeft, new Color(0.28f, 0.30f, 0.29f, 0.90f));
+            playerStatusText = CreateText("PlayerStatus", playerStatusPanel, 12, FontStyle.Bold, TextAnchor.LowerLeft, HudMist);
             playerStatusText.rectTransform.anchorMin = new Vector2(0.195f, 0.04f);
             playerStatusText.rectTransform.anchorMax = new Vector2(0.965f, 0.27f);
             playerStatusText.rectTransform.offsetMin = Vector2.zero;
@@ -559,46 +714,77 @@ namespace PathOfTenThousandWays.Demo.UI
 
             RectTransform topScroll = CreateHudPanel(
                 "BattleSeal",
-                new Vector2(0.455f, 0.865f),
+                new Vector2(0.455f, 0.835f),
                 new Vector2(0.545f, 0.965f),
                 new Color(0.12f, 0.11f, 0.09f, 0.20f),
                 new Color(0.58f, 0.48f, 0.28f, 0.40f));
-            ApplyHudSprite(topScroll, battlePhaseSealSprite != null ? battlePhaseSealSprite : battleHeaderRibbonSprite, Color.white);
-            phaseText = CreateText("PhaseText", topScroll, 17, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.30f, 0.28f, 0.22f, 1f));
-            StretchRect(phaseText.rectTransform);
-            phaseText.rectTransform.offsetMin = new Vector2(8f, 18f);
-            phaseText.rectTransform.offsetMax = new Vector2(-8f, -6f);
-            phaseText.text = "观势";
+            if (battlePhaseSealSprite != null)
+            {
+                ApplyHudSprite(topScroll, battlePhaseSealSprite, Color.white);
+            }
+            else
+            {
+                CreatePhaseSealColorModule(topScroll);
+            }
 
-            roundStatusPanel = CreateHudPanel(
-                "RoundSeal",
-                new Vector2(0.458f, 0.835f),
-                new Vector2(0.542f, 0.872f),
-                new Color(0.94f, 0.91f, 0.82f, 0.12f),
-                new Color(0.48f, 0.40f, 0.24f, 0.28f));
-            ApplyHudSprite(roundStatusPanel, battleHeaderRibbonSprite, new Color(1f, 1f, 1f, 0.86f));
-            roundStatusText = CreateText("RoundStatus", roundStatusPanel, 11, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.30f, 0.28f, 0.22f, 0.92f));
+            phaseText = CreateText("PhaseText", topScroll, 21, FontStyle.Bold, TextAnchor.MiddleCenter, HudInk);
+            StretchRect(phaseText.rectTransform);
+            phaseText.rectTransform.offsetMin = new Vector2(10f, 14f);
+            phaseText.rectTransform.offsetMax = new Vector2(-10f, -10f);
+            phaseText.text = "入阵";
+
+            roundStatusPanel = CreatePanelRect(
+                "RoundLabel",
+                rootRect,
+                new Color(0.05f, 0.055f, 0.055f, 0f),
+                new Vector2(0.38f, 0.798f),
+                new Vector2(0.62f, 0.832f),
+                Vector2.zero,
+                Vector2.zero);
+            roundStatusText = CreateText("RoundStatus", roundStatusPanel, 13, FontStyle.Bold, TextAnchor.MiddleCenter, HudPaper);
             StretchRect(roundStatusText.rectTransform);
             roundStatusText.rectTransform.offsetMin = new Vector2(6f, 2f);
             roundStatusText.rectTransform.offsetMax = new Vector2(-6f, -2f);
 
             enemyStatusPanel = CreateHudPanel(
                 "EnemyScroll",
-                new Vector2(0.635f, 0.845f),
+                new Vector2(0.63f, 0.835f),
                 new Vector2(0.975f, 0.965f),
                 new Color(0.96f, 0.94f, 0.90f, 0.12f),
                 new Color(0.52f, 0.28f, 0.24f, 0.34f));
-            ApplyHudSprite(enemyStatusPanel, battleEnemyPlateSprite, new Color(1f, 1f, 1f, 0.94f));
+            Image enemyPanelImage = enemyStatusPanel.GetComponent<Image>();
+            if (enemyPanelImage != null)
+            {
+                enemyPanelImage.color = new Color(0.045f, 0.035f, 0.040f, 0.36f);
+                enemyPanelImage.raycastTarget = false;
+            }
 
-            enemyNameText = CreateText("EnemyName", enemyStatusPanel, 18, FontStyle.Bold, TextAnchor.UpperRight, HudInk);
+            RectTransform enemyPortraitWell = CreatePanelRect(
+                "EnemyPortraitWell",
+                enemyStatusPanel,
+                new Color(0.08f, 0.09f, 0.09f, 0.26f),
+                new Vector2(0.82f, 0.08f),
+                new Vector2(0.982f, 0.91f),
+                Vector2.zero,
+                Vector2.zero);
+            DecorateHudFrame(enemyPortraitWell, new Color(0.58f, 0.34f, 0.28f, 0.32f));
+            enemyPortraitImage = CreateImage("EnemyPortrait", enemyPortraitWell, Color.white);
+            enemyPortraitImage.sprite = controller != null && controller.HasBattle && controller.Battle.IsBossBattle && bossPortraitSprite != null
+                ? bossPortraitSprite
+                : enemyWraithSprite;
+            enemyPortraitImage.type = Image.Type.Simple;
+            enemyPortraitImage.preserveAspect = true;
+            StretchRect(enemyPortraitImage.rectTransform);
+
+            enemyNameText = CreateText("EnemyName", enemyStatusPanel, 20, FontStyle.Bold, TextAnchor.UpperRight, HudPaper);
             enemyNameText.rectTransform.anchorMin = new Vector2(0.38f, 0.66f);
-            enemyNameText.rectTransform.anchorMax = new Vector2(0.96f, 0.98f);
+            enemyNameText.rectTransform.anchorMax = new Vector2(0.80f, 0.98f);
             enemyNameText.rectTransform.offsetMin = Vector2.zero;
             enemyNameText.rectTransform.offsetMax = Vector2.zero;
 
-            enemyResourceText = CreateText("EnemyResource", enemyStatusPanel, 12, FontStyle.Bold, TextAnchor.UpperLeft, new Color(0.38f, 0.25f, 0.22f, 0.94f));
+            enemyResourceText = CreateText("EnemyResource", enemyStatusPanel, 13, FontStyle.Bold, TextAnchor.UpperLeft, HudCrimson);
             enemyResourceText.rectTransform.anchorMin = new Vector2(0.05f, 0.66f);
-            enemyResourceText.rectTransform.anchorMax = new Vector2(0.40f, 0.98f);
+            enemyResourceText.rectTransform.anchorMax = new Vector2(0.36f, 0.98f);
             enemyResourceText.rectTransform.offsetMin = Vector2.zero;
             enemyResourceText.rectTransform.offsetMax = Vector2.zero;
 
@@ -606,24 +792,24 @@ namespace PathOfTenThousandWays.Demo.UI
                 enemyStatusPanel,
                 "EnemyHealth",
                 new Vector2(0.06f, 0.40f),
-                new Vector2(0.94f, 0.54f),
+                new Vector2(0.80f, 0.54f),
                 new Color(0.24f, 0.16f, 0.14f, 0.42f),
                 new Color(0.66f, 0.18f, 0.15f, 0.96f),
                 new Color(0.42f, 0.10f, 0.09f, 0.38f));
 
-            enemyStatusText = CreateText("EnemyStatus", enemyStatusPanel, 11, FontStyle.Bold, TextAnchor.LowerRight, new Color(0.32f, 0.30f, 0.29f, 0.90f));
+            enemyStatusText = CreateText("EnemyStatus", enemyStatusPanel, 12, FontStyle.Bold, TextAnchor.LowerRight, HudMist);
             enemyStatusText.rectTransform.anchorMin = new Vector2(0.05f, 0.05f);
-            enemyStatusText.rectTransform.anchorMax = new Vector2(0.94f, 0.35f);
+            enemyStatusText.rectTransform.anchorMax = new Vector2(0.80f, 0.35f);
             enemyStatusText.rectTransform.offsetMin = Vector2.zero;
             enemyStatusText.rectTransform.offsetMax = Vector2.zero;
 
             intentPanel = CreateHudPanel(
                 "IntentPanel",
-                new Vector2(0.675f, 0.785f),
-                new Vector2(0.975f, 0.835f),
-                new Color(0.95f, 0.94f, 0.90f, 0.10f),
+                new Vector2(0.67f, 0.775f),
+                new Vector2(0.975f, 0.825f),
+                new Color(0.025f, 0.075f, 0.085f, 0.28f),
                 new Color(0.34f, 0.52f, 0.54f, 0.30f));
-            ApplyHudSprite(intentPanel, battleIntentPlateSprite, new Color(1f, 1f, 1f, 0.88f));
+
             intentProgressFillImage = CreateInlineBar(
                 intentPanel,
                 "IntentProgress",
@@ -632,7 +818,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Color(0.14f, 0.18f, 0.18f, 0.30f),
                 new Color(0.36f, 0.62f, 0.66f, 0.68f),
                 new Color(0.18f, 0.44f, 0.46f, 0.20f));
-            intentText = CreateText("IntentText", intentPanel, 11, FontStyle.Bold, TextAnchor.MiddleLeft, new Color(0.28f, 0.31f, 0.31f, 0.94f));
+            intentText = CreateText("IntentText", intentPanel, 13, FontStyle.Bold, TextAnchor.MiddleLeft, HudPaper);
             intentText.rectTransform.anchorMin = new Vector2(0f, 0.24f);
             intentText.rectTransform.anchorMax = Vector2.one;
             intentText.rectTransform.offsetMin = new Vector2(16f, 1f);
@@ -662,6 +848,25 @@ namespace PathOfTenThousandWays.Demo.UI
             idleBodyText.rectTransform.offsetMin = new Vector2(20f, 10f);
             idleBodyText.rectTransform.offsetMax = new Vector2(-20f, -4f);
         }
+        private void CreatePhaseSealColorModule(RectTransform parent)
+        {
+            Image image = parent.GetComponent<Image>();
+            if (image != null)
+            {
+                image.color = new Color(0.08f, 0.085f, 0.08f, 0.94f);
+            }
+
+            RectTransform core = CreatePanelRect(
+                "PhaseSealCore",
+                parent,
+                new Color(0.12f, 0.13f, 0.13f, 0.98f),
+                new Vector2(0.10f, 0.10f),
+                new Vector2(0.90f, 0.90f),
+                Vector2.zero,
+                Vector2.zero);
+            DecorateHudFrame(core, new Color(0.74f, 0.62f, 0.38f, 0.34f));
+        }
+
         private void CreateBattleEntryIntroOverlay()
         {
             entryCameraVeil = CreateImage("BattleEntryCameraVeil", rootRect, new Color(0.78f, 0.84f, 0.82f, 0f));
@@ -735,20 +940,40 @@ namespace PathOfTenThousandWays.Demo.UI
             }
         }
 
+        private IEnumerator PlayQueuedPresentationStep(DemoBattlePresentationStep step)
+        {
+            yield return PlayStep(step);
+            sequenceCoroutine = null;
+        }
+
         private IEnumerator PlayStep(DemoBattlePresentationStep step)
         {
             phaseText.text = step.Label;
 
             switch (step.Type)
             {
+                case DemoBattlePresentationStepType.BattleStart:
+                    yield return new WaitForSeconds(0.05f);
+                    break;
                 case DemoBattlePresentationStepType.PhaseShift:
                     yield return PlayPhaseShift(step);
                     break;
                 case DemoBattlePresentationStepType.CardCast:
                     yield return PlayCardCast(step);
                     break;
+                case DemoBattlePresentationStepType.CardDraw:
+                    SpawnPopup(playerRoot.anchoredPosition + new Vector2(-18f, 82f), "抽 · " + step.Label, HudJade);
+                    yield return new WaitForSeconds(0.06f);
+                    break;
                 case DemoBattlePresentationStepType.SwordVolley:
                     yield return PlaySwordVolley(step);
+                    break;
+                case DemoBattlePresentationStepType.SwordStored:
+                    SpawnPopup(
+                        playerRoot.anchoredPosition + new Vector2(16f, 74f),
+                        step.Damage > 0 ? $"剑意 +{step.Damage}" : "飞剑收锋",
+                        HudGold);
+                    yield return new WaitForSeconds(0.08f);
                     break;
                 case DemoBattlePresentationStepType.BossCharge:
                     yield return PlayBossCharge(step);
@@ -761,6 +986,9 @@ namespace PathOfTenThousandWays.Demo.UI
                     break;
                 case DemoBattlePresentationStepType.Defeat:
                     yield return PlayResolution(step, false);
+                    break;
+                default:
+                    yield return null;
                     break;
             }
         }
@@ -781,7 +1009,7 @@ namespace PathOfTenThousandWays.Demo.UI
             {
                 Vector2 start = GetSwordTip(playerSword, true) + GetCardCastStartOffset(step, i, visualHits);
                 Vector2 end = GetSwordTip(enemySword, false) + GetCardCastEndOffset(step, i, visualHits);
-                yield return AnimateSwordFlight(start, end, styleColor, GetFlightDuration(step, false), GetFlightThickness(step, false));
+                yield return AnimateSwordFlight(start, end, styleColor, GetFlightDuration(step, false), GetFlightThickness(step, false), step.Style, i);
 
                 if (step.Style == DemoSwordStyle.Thunder)
                 {
@@ -807,7 +1035,7 @@ namespace PathOfTenThousandWays.Demo.UI
             {
                 Vector2 start = GetSwordTip(playerSword, true) + GetVolleyStartOffset(step, i, visualHits);
                 Vector2 end = GetSwordTip(enemySword, false) + GetVolleyEndOffset(step, i, visualHits);
-                StartCoroutine(AnimateSwordFlight(start, end, GetVolleyFlightColor(step), GetFlightDuration(step, true), GetFlightThickness(step, true)));
+                StartCoroutine(AnimateSwordFlight(start, end, GetVolleyFlightColor(step), GetFlightDuration(step, true), GetFlightThickness(step, true), step.Style, i));
 
                 if (step.Style == DemoSwordStyle.Thunder && (i % 2 == 0 || i == visualHits - 1))
                 {
@@ -851,7 +1079,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private IEnumerator PlayBossCharge(DemoBattlePresentationStep step)
         {
-            phaseText.text = "天劫蓄势，下一轮将有重击";
+            phaseText.text = "蓄势";
             StartCoroutine(BrushWipe(new Color(0.38f, 0.48f, 0.65f, 0.22f), 0.22f));
             yield return AnimateScalePunch(enemyRoot, new Vector3(1.16f, 1.16f, 1f), 0.18f);
 
@@ -907,7 +1135,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private IEnumerator PlayResolution(DemoBattlePresentationStep step, bool victory)
         {
             Color color = victory ? new Color(0.97f, 0.88f, 0.58f, 1f) : new Color(0.93f, 0.52f, 0.46f, 1f);
-            phaseText.text = victory ? "万剑归鞘，劫云退散" : "剑势散乱，灵台失守";
+            phaseText.text = victory ? "已破" : "失守";
             flashOverlay.color = new Color(color.r, color.g, color.b, 0f);
             StartCoroutine(BrushWipe(
                 victory ? new Color(0.62f, 0.50f, 0.24f, 0.18f) : new Color(0.28f, 0.10f, 0.10f, 0.22f),
@@ -1015,11 +1243,16 @@ namespace PathOfTenThousandWays.Demo.UI
             SpawnPopup(enemyRoot.anchoredPosition + new Vector2(18f, 54f), "-" + step.Damage, GetImpactColor(step));
         }
 
-        private IEnumerator AnimateSwordFlight(Vector2 start, Vector2 end, Color color, float duration, float thickness)
+        private IEnumerator AnimateSwordFlight(
+            Vector2 start,
+            Vector2 end,
+            Color color,
+            float duration,
+            float thickness,
+            DemoSwordStyle style = DemoSwordStyle.General,
+            int laneIndex = 0)
         {
-            Color trailColor = new Color(color.r * 0.55f, color.g * 0.55f, color.b * 0.58f, 0.28f);
-            StartCoroutine(SpawnTransientMark((start + end) * 0.5f, new Vector2(140f, thickness * 1.5f), trailColor, duration * 0.9f, Mathf.Atan2(end.y - start.y, end.x - start.x) * Mathf.Rad2Deg));
-
+            Color trailColor = new Color(color.r * 0.55f, color.g * 0.55f, color.b * 0.58f, 0.30f);
             Image slash = CreateImage("SwordFlight", rootRect, color);
             transientMarks.Add(slash);
             RectTransform rect = slash.rectTransform;
@@ -1037,22 +1270,68 @@ namespace PathOfTenThousandWays.Demo.UI
                 rect.sizeDelta = new Vector2(96f, thickness);
             }
 
-            Vector2 delta = end - start;
-            float angle = Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg;
-            rect.localRotation = Quaternion.Euler(0f, 0f, angle);
-
+            Vector2 previousPosition = start;
+            float trailTimer = 0f;
             float timer = 0f;
             while (timer < duration)
             {
                 timer += Time.deltaTime;
+                trailTimer += Time.deltaTime;
                 float t = Mathf.Clamp01(timer / duration);
-                rect.anchoredPosition = Vector2.Lerp(start, end, t);
+                Vector2 position = GetFlightPathPosition(start, end, t, style, laneIndex);
+                Vector2 tangent = position - previousPosition;
+                if (tangent.sqrMagnitude > 0.01f)
+                {
+                    rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(tangent.y, tangent.x) * Mathf.Rad2Deg);
+                }
+
+                rect.anchoredPosition = position;
                 slash.color = new Color(color.r, color.g, color.b, Mathf.Lerp(0.92f, 0.20f, t));
+
+                if (trailTimer >= 0.035f && tangent.sqrMagnitude > 1f)
+                {
+                    trailTimer = 0f;
+                    float segmentLength = Mathf.Clamp(tangent.magnitude * 2.4f, 34f, 104f);
+                    StartCoroutine(SpawnTransientMark(
+                        (previousPosition + position) * 0.5f,
+                        new Vector2(segmentLength, thickness * 0.72f),
+                        trailColor,
+                        duration * 1.35f,
+                        Mathf.Atan2(tangent.y, tangent.x) * Mathf.Rad2Deg));
+                }
+
+                previousPosition = position;
                 yield return null;
             }
 
             transientMarks.Remove(slash);
             Destroy(slash.gameObject);
+        }
+
+        private static Vector2 GetFlightPathPosition(Vector2 start, Vector2 end, float t, DemoSwordStyle style, int laneIndex)
+        {
+            Vector2 direct = Vector2.Lerp(start, end, t);
+            Vector2 delta = end - start;
+            Vector2 normal = delta.sqrMagnitude > 0.01f
+                ? new Vector2(-delta.y, delta.x).normalized
+                : Vector2.up;
+
+            switch (style)
+            {
+                case DemoSwordStyle.Thunder:
+                    float lightningWave = Mathf.Sin(t * Mathf.PI * 5f + laneIndex * 1.7f);
+                    return direct + normal * lightningWave * Mathf.Lerp(28f, 10f, t);
+                case DemoSwordStyle.Blood:
+                    float hookDirection = laneIndex % 2 == 0 ? -1f : 1f;
+                    return direct + normal * Mathf.Sin(t * Mathf.PI) * (72f + laneIndex * 8f) * hookDirection
+                        + Vector2.down * Mathf.Sin(t * Mathf.PI) * 18f;
+                case DemoSwordStyle.Wanjian:
+                    float fanDirection = laneIndex % 2 == 0 ? 1f : -1f;
+                    float fanHeight = 24f + laneIndex * 9f;
+                    return direct + normal * Mathf.Sin(t * Mathf.PI) * fanHeight * fanDirection;
+                default:
+                    return direct + normal * Mathf.Sin(t * Mathf.PI) * 16f;
+            }
         }
 
         private IEnumerator FlashTarget(RectTransform targetBody, Color color, float scaleMultiplier, float pushDistance, bool pushLeft)
@@ -1337,6 +1616,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 return;
             }
 
+            UpdateRegionCloudMotion(width);
             // Keep the generated background readable; only quiet atmosphere breathes.
             farCloudA.localRotation = Quaternion.Euler(0f, 0f, -4f + Mathf.Sin(elapsed * 0.12f) * 0.35f);
             farCloudB.localRotation = Quaternion.Euler(0f, 0f, 3f + Mathf.Sin(elapsed * 0.14f + 1.1f) * 0.35f);
@@ -1354,6 +1634,7 @@ namespace PathOfTenThousandWays.Demo.UI
             playerRoot.anchoredPosition = ScenePoint(playerAnchor.x, playerAnchor.y) + new Vector2(Mathf.Sin(elapsed * 1.2f) * 9f, Mathf.Sin(elapsed * 1.9f) * 8f);
             playerRoot.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(elapsed * 1.4f) * 0.8f - 1.2f);
             playerSword.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(elapsed * 2.1f) * 4f - 7f);
+            UpdatePlayerWindMotion();
 
             EncounterVisualTier encounterTier = GetEncounterVisualTier();
             ApplyEncounterLayerMotion(encounterTier);
@@ -1367,6 +1648,11 @@ namespace PathOfTenThousandWays.Demo.UI
             enemyRoot.anchoredPosition = ScenePoint(enemyAnchor.x, enemyAnchor.y) + new Vector2(Mathf.Sin(elapsed * 1.0f + 0.7f) * enemyHorizontalDrift, Mathf.Sin(elapsed * 1.6f + 0.2f) * enemyVerticalDrift);
             enemyRoot.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(elapsed * 1.1f + 0.2f) * enemyTiltWave + enemyTiltBase);
             enemySword.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(elapsed * 2.0f + 0.8f) * enemySwordWave + enemySwordBase);
+            if (enemyPlatformSword != null)
+            {
+                enemyPlatformSword.anchoredPosition = new Vector2(18f, -70f + Mathf.Sin(elapsed * 1.45f + 0.6f) * 3f);
+                enemyPlatformSword.localRotation = Quaternion.Euler(0f, 0f, 4f + Mathf.Sin(elapsed * 1.1f) * 1.2f);
+            }
 
             for (int i = 0; i < ambientDrifts.Count; i++)
             {
@@ -1382,8 +1668,57 @@ namespace PathOfTenThousandWays.Demo.UI
             }
         }
 
+        private void UpdateRegionCloudMotion(float width)
+        {
+            if (regionCloudA == null || regionCloudB == null)
+            {
+                return;
+            }
+
+            float farTravel = width + regionCloudA.sizeDelta.x;
+            float midTravel = width + regionCloudB.sizeDelta.x;
+            float farX = Mathf.Repeat(elapsed * 9f + farTravel * 0.18f, farTravel) - farTravel * 0.5f;
+            float midX = Mathf.Repeat(midTravel * 0.78f - elapsed * 16f, midTravel) - midTravel * 0.5f;
+
+            regionCloudA.anchoredPosition = new Vector2(farX, ScenePoint(0.5f, 0.62f).y + Mathf.Sin(elapsed * 0.18f) * 8f);
+            regionCloudB.anchoredPosition = new Vector2(midX, ScenePoint(0.5f, 0.43f).y + Mathf.Sin(elapsed * 0.28f + 1.2f) * 12f);
+        }
+
+        private void UpdatePlayerWindMotion()
+        {
+            if (playerPlatformSword != null)
+            {
+                playerPlatformSword.anchoredPosition = new Vector2(-26f, -54f + Mathf.Sin(elapsed * 1.7f) * 3f);
+                playerPlatformSword.localRotation = Quaternion.Euler(0f, 0f, -4f + Mathf.Sin(elapsed * 1.2f) * 1.4f);
+            }
+
+            if (playerHairTrailA != null)
+            {
+                playerHairTrailA.localRotation = Quaternion.Euler(0f, 0f, 174f + Mathf.Sin(elapsed * 2.0f) * 5f);
+                playerHairTrailA.localScale = new Vector3(1f + Mathf.Sin(elapsed * 1.35f) * 0.08f, 1f, 1f);
+            }
+
+            if (playerHairTrailB != null)
+            {
+                playerHairTrailB.localRotation = Quaternion.Euler(0f, 0f, 168f + Mathf.Sin(elapsed * 2.4f + 0.8f) * 7f);
+                playerHairTrailB.localScale = new Vector3(1f + Mathf.Sin(elapsed * 1.6f + 0.5f) * 0.10f, 1f, 1f);
+            }
+
+            if (playerRobeTrail != null)
+            {
+                playerRobeTrail.localRotation = Quaternion.Euler(0f, 0f, 184f + Mathf.Sin(elapsed * 1.6f + 1.1f) * 4f);
+                playerRobeTrail.localScale = new Vector3(1f + Mathf.Sin(elapsed * 1.15f) * 0.07f, 1f, 1f);
+            }
+        }
+
         private void ApplyEncounterLayerMotion(EncounterVisualTier tier)
         {
+            if (battleBackgroundSprite != null)
+            {
+                ClearQuietAtmosphereLayers();
+                return;
+            }
+
             float pulse = Mathf.Sin(elapsed * 0.9f) * 0.5f + 0.5f;
 
             SetLayerColor(skyGlow, GetSkyGlowColor(tier, pulse));
@@ -1405,6 +1740,29 @@ namespace PathOfTenThousandWays.Demo.UI
             nearCliffLeft.localScale = new Vector3(cliffScale, 1f + pressure * 0.04f, 1f);
             nearCliffRight.localScale = new Vector3(cliffScale, 1f + pressure * 0.05f, 1f);
             inkVeil.localScale = new Vector3(1f + pressure * 0.05f, 1f + pressure * 0.02f, 1f);
+        }
+
+        private void ClearQuietAtmosphereLayers()
+        {
+            SetLayerColor(skyGlow, Color.clear);
+            SetLayerColor(horizonGlow, Color.clear);
+            SetLayerColor(farCloudA, Color.clear);
+            SetLayerColor(farCloudB, Color.clear);
+            SetLayerColor(farRidgeA, Color.clear);
+            SetLayerColor(farRidgeB, Color.clear);
+            SetLayerColor(mistBand, Color.clear);
+            SetLayerColor(midCloudShelf, Color.clear);
+            SetLayerColor(midIslandLeft, Color.clear);
+            SetLayerColor(midIslandRight, Color.clear);
+            SetLayerColor(midRuinBand, Color.clear);
+            SetLayerColor(foregroundMist, Color.clear);
+            SetLayerColor(inkVeil, Color.clear);
+            SetLayerColor(nearCliffLeft, Color.clear);
+            SetLayerColor(nearCliffRight, Color.clear);
+            SetLayerColor(nearPlatformGlowLeft, Color.clear);
+            SetLayerColor(nearPlatformGlowRight, Color.clear);
+            SetLayerColor(frontFogA, Color.clear);
+            SetLayerColor(frontFogB, Color.clear);
         }
 
         private static void SetLayerColor(RectTransform rect, Color color)
@@ -1606,9 +1964,7 @@ namespace PathOfTenThousandWays.Demo.UI
             if (!controller.Battle.IsBossBattle)
             {
                 EncounterVisualTier encounterTier = GetEncounterVisualTier();
-                intentText.text = IsOpeningBattlePage()
-                    ? "首战：费用、灵气、飞剑自转"
-                    : GetEncounterIntentText(encounterTier);
+                intentText.text = BuildEnemyIntentLabel();
                 switch (encounterTier)
                 {
                     case EncounterVisualTier.Elite:
@@ -1632,7 +1988,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 return;
             }
 
-            intentText.text = "Boss 预警：" + GetBossShortIntent();
+            intentText.text = BuildEnemyIntentLabel();
 
             float alpha;
             switch (controller.Battle.BossPhase)
@@ -1680,7 +2036,7 @@ namespace PathOfTenThousandWays.Demo.UI
             if (enemyLabelText != null)
             {
                 enemyLabelText.text = IsOpeningBattlePage()
-                    ? "入场首战"
+                    ? string.Empty
                     : GetEncounterTierLabel(encounterTier);
                 enemyLabelText.color = GetEncounterLabelColor(encounterTier);
             }
@@ -1711,9 +2067,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 Image enemyPanelImage = enemyStatusPanel.GetComponent<Image>();
                 if (enemyPanelImage != null)
                 {
-                    enemyPanelImage.color = battleEnemyPlateSprite != null
-                        ? GetEncounterPanelTint(encounterTier)
-                        : GetEncounterPanelColor(encounterTier);
+                    Color enemySurface = GetEncounterPanelColor(encounterTier);
+                    enemyPanelImage.color = new Color(enemySurface.r, enemySurface.g, enemySurface.b, 0.36f);
                 }
             }
 
@@ -1722,9 +2077,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 Image intentPanelImage = intentPanel.GetComponent<Image>();
                 if (intentPanelImage != null)
                 {
-                    intentPanelImage.color = battleIntentPlateSprite != null
-                        ? GetEncounterIntentPanelTint(encounterTier)
-                        : GetEncounterIntentPanelColor(encounterTier);
+                    Color intentSurface = GetEncounterIntentPanelColor(encounterTier);
+                    intentPanelImage.color = new Color(intentSurface.r, intentSurface.g, intentSurface.b, 0.34f);
                 }
             }
 
@@ -1748,10 +2102,10 @@ namespace PathOfTenThousandWays.Demo.UI
             float energyPulse = fullEnergy ? 0.5f + Mathf.Sin(elapsed * 4.2f) * 0.5f : 0f;
 
             playerNameText.text = "凌云剑修";
-            playerResourceText.text = $"气血 {playerHealth}/{playerMaxHealth}   灵气 {energy}/{maxEnergy}";
-            playerStatusText.text = $"护盾 {controller.Battle.Player.Block}   剑意 {controller.Battle.Player.SwordIntent}   本命飞剑 {controller.Battle.TotalSwords}";
+            playerResourceText.text = $"{playerHealth}/{playerMaxHealth}   灵 {energy}/{maxEnergy} +{controller.Battle.EnergyRegenerationPerSecond:0.#}/秒";
+            playerStatusText.text = $"盾 {controller.Battle.Player.Block}   剑意 {controller.Battle.Player.SwordIntent}   飞剑 {controller.Battle.TotalSwords}（临 {controller.Battle.TemporarySwords}）";
             SetHorizontalFill(playerHealthFillImage, playerHealth / (float)playerMaxHealth);
-            SetHorizontalFill(playerEnergyFillImage, energy / (float)maxEnergy);
+            SetHorizontalFill(playerEnergyFillImage, controller.Battle.EnergyExact / maxEnergy);
             playerEnergyFillImage.color = fullEnergy
                 ? new Color(0.66f, 0.93f, 1f, 1f)
                 : new Color(0.46f, 0.83f, 0.95f, 0.96f);
@@ -1763,21 +2117,29 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             enemyNameText.text = controller.Battle.Enemy.Name;
-            enemyResourceText.text = $"气血 {enemyHealth}/{enemyMaxHealth}";
+            enemyResourceText.text = $"{enemyHealth}/{enemyMaxHealth}";
             enemyStatusText.text = controller.Battle.IsBossBattle
                 ? $"阶段 {GetBossPhaseLabel(controller.Battle.BossPhase)}   {GetBossShortIntent()}"
                 : $"感电 {controller.Battle.Enemy.Shock}   流血 {controller.Battle.Enemy.Bleed}   {GetEncounterStatusLine(GetEncounterVisualTier())}";
             SetHorizontalFill(enemyHealthFillImage, enemyHealth / (float)enemyMaxHealth);
 
-            float intentFill = controller.Battle.Phase == DemoBattlePhase.Planning
-                ? Mathf.Clamp01(controller.Battle.PhaseTimer / 15f)
-                : controller.Battle.Phase == DemoBattlePhase.Executing
-                    ? 1f - Mathf.Clamp01(controller.Battle.PhaseTimer / 3f)
-                    : 1f;
-            SetHorizontalFill(intentProgressFillImage, intentFill);
+            SetHorizontalFill(intentProgressFillImage, controller.Battle.EnemyIntentProgress);
 
-            roundStatusText.text = $"第 {controller.Battle.Round} 回合";
+            roundStatusText.text = $"手 {controller.Battle.Hand.Count}  牌 {controller.Battle.DrawPile.Count}  弃 {controller.Battle.DiscardPile.Count}  ·  抽 {Mathf.Max(0f, controller.Battle.DrawTimer):0.0}s";
         }
+        private string BuildEnemyIntentLabel()
+        {
+            string intent = controller.Battle.IsBossBattle
+                ? GetBossShortIntent()
+                : controller.Battle.EnemyIntentText;
+            if (string.IsNullOrWhiteSpace(intent))
+            {
+                intent = GetEncounterIntentText(GetEncounterVisualTier());
+            }
+
+            return $"{(controller.Battle.IsBossBattle ? "天劫预警" : "敌方意图")}：{intent} · {Mathf.Max(0f, controller.Battle.EnemyIntentRemaining):0.0}s";
+        }
+
         private void UpdateIdleStage()
         {
             if (sequenceCoroutine != null)
@@ -2190,7 +2552,27 @@ namespace PathOfTenThousandWays.Demo.UI
             image.type = Image.Type.Simple;
             image.preserveAspect = false;
             image.color = color;
+            HideFallbackHudDecoration(panel);
         }
+
+        private static void HideFallbackHudDecoration(RectTransform panel)
+        {
+            string[] decorationNames =
+            {
+                "Wash", "Top", "Bottom", "Left", "Right",
+                "CornerTL", "CornerTR", "CornerBL", "CornerBR"
+            };
+
+            for (int i = 0; i < decorationNames.Length; i++)
+            {
+                Transform decoration = panel.Find(decorationNames[i]);
+                if (decoration != null)
+                {
+                    decoration.gameObject.SetActive(false);
+                }
+            }
+        }
+
         private Image CreateImage(string name, Transform parent, Color color)
         {
             GameObject imageObject = new GameObject(name, typeof(RectTransform), typeof(Image));
@@ -2415,7 +2797,7 @@ namespace PathOfTenThousandWays.Demo.UI
             return controller != null
                 && controller.HasBattle
                 && controller.Battle.IsOpeningBattlePacing
-                && controller.Battle.Round == 1
+                && controller.Battle.ElapsedSeconds <= 8f
                 && step != null
                 && step.HitCount <= 1
                 && (step.Type == DemoBattlePresentationStepType.CardCast || step.Type == DemoBattlePresentationStepType.SwordVolley);
@@ -2801,10 +3183,10 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             switch (controller.Battle.Phase)
             {
-                case DemoBattlePhase.Planning:
-                    return "规划";
-                case DemoBattlePhase.Executing:
-                    return "演武";
+                case DemoBattlePhase.Intro:
+                    return "入阵";
+                case DemoBattlePhase.Running:
+                    return "斗法";
                 case DemoBattlePhase.Won:
                     return "胜利";
                 case DemoBattlePhase.Lost:
@@ -3064,7 +3446,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private Vector2 GetPlayerAnchor()
         {
-            return new Vector2(0.20f, 0.285f);
+            return new Vector2(0.20f, 0.345f);
         }
 
         private Vector2 GetEnemyAnchor()
@@ -3073,13 +3455,13 @@ namespace PathOfTenThousandWays.Demo.UI
             switch (tier)
             {
                 case EncounterVisualTier.FinalBoss:
-                    return new Vector2(0.76f, 0.59f);
+                    return new Vector2(0.78f, 0.50f);
                 case EncounterVisualTier.MiniBoss:
-                    return new Vector2(0.78f, 0.55f);
+                    return new Vector2(0.78f, 0.48f);
                 case EncounterVisualTier.Elite:
-                    return new Vector2(0.80f, 0.52f);
+                    return new Vector2(0.79f, 0.47f);
                 default:
-                    return new Vector2(0.81f, 0.49f);
+                    return new Vector2(0.79f, 0.46f);
             }
         }
     }

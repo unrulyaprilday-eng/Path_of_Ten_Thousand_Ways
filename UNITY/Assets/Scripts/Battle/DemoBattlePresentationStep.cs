@@ -1,12 +1,15 @@
-using PathOfTenThousandWays.Demo.Cards;
+﻿using PathOfTenThousandWays.Demo.Cards;
 
 namespace PathOfTenThousandWays.Demo.Battle
 {
     public enum DemoBattlePresentationStepType
     {
+        BattleStart,
         PhaseShift,
         CardCast,
+        CardDraw,
         SwordVolley,
+        SwordStored,
         BossCharge,
         EnemyAttack,
         Victory,
@@ -15,6 +18,8 @@ namespace PathOfTenThousandWays.Demo.Battle
 
     public sealed class DemoBattlePresentationStep
     {
+        public long Sequence;
+        public float BattleTime;
         public DemoBattlePresentationStepType Type;
         public DemoSwordStyle Style;
         public string Label;
@@ -25,6 +30,17 @@ namespace PathOfTenThousandWays.Demo.Battle
         public bool TriggerBleed;
         public bool IsBossAction;
         public int PlayerShockDelta;
+
+        public static DemoBattlePresentationStep BattleStart(string enemyName, bool isBoss)
+        {
+            return new DemoBattlePresentationStep
+            {
+                Type = DemoBattlePresentationStepType.BattleStart,
+                Style = DemoSwordStyle.General,
+                Label = enemyName,
+                IsBossAction = isBoss
+            };
+        }
 
         public static DemoBattlePresentationStep PhaseShift(string label)
         {
@@ -51,7 +67,22 @@ namespace PathOfTenThousandWays.Demo.Battle
             };
         }
 
-        public static DemoBattlePresentationStep SwordVolley(DemoSwordStyle style, int swordCount, int damage, bool triggerShock)
+        public static DemoBattlePresentationStep Draw(DemoCard card)
+        {
+            return new DemoBattlePresentationStep
+            {
+                Type = DemoBattlePresentationStepType.CardDraw,
+                Style = card == null ? DemoSwordStyle.General : card.Style,
+                Label = card == null ? "抽牌" : card.Name,
+                HitCount = 1
+            };
+        }
+
+        public static DemoBattlePresentationStep SwordVolley(
+            DemoSwordStyle style,
+            int swordCount,
+            int damage,
+            bool triggerShock)
         {
             string labelPrefix = style == DemoSwordStyle.Thunder
                 ? "雷剑"
@@ -68,6 +99,22 @@ namespace PathOfTenThousandWays.Demo.Battle
                 HitCount = swordCount,
                 HeavyImpact = swordCount >= 4 || damage >= 16,
                 TriggerShock = triggerShock
+            };
+        }
+
+        public static DemoBattlePresentationStep SwordStored(
+            DemoSwordStyle style,
+            int swordCount,
+            int gainedIntent)
+        {
+            return new DemoBattlePresentationStep
+            {
+                Type = DemoBattlePresentationStepType.SwordStored,
+                Style = style,
+                Label = $"{swordCount} 把飞剑收锋入鞘",
+                HitCount = swordCount,
+                Damage = gainedIntent,
+                HeavyImpact = swordCount >= 5
             };
         }
 

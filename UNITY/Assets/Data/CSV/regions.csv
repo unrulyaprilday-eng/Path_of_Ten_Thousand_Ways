@@ -1,7 +1,7 @@
-region_id,name,reward_focus,description
-region_trade_road,商路荒谷,资源|商店|稳健补强,稳定推进并兼顾资源与商路事件
-region_old_mine,旧矿地窟,飞剑|法器|秘藏,战斗与搜寻并重
-region_demon_tower,妖塔外层,精英|高压|高质变,成长快但试炼压力大
-region_herb_forest,迷林药谷,恢复|事件|功法过渡,奇遇与修整更多
-region_thunder_marsh,雷泽险地,雷系|爆发|风险收益,高风险高收益并偏爆发
-region_ancestral_vault,祖地旧库,功法|法器|构筑加速,器物与功法推进明显
+region_id,name,reward_focus,description,is_available
+region_trade_road,商路荒谷,资源|商店|稳健补强,稳定推进并兼顾资源与商路事件,false
+region_old_mine,旧矿地窟,飞剑|法器|秘藏,铁屑尘灰与旁支旧契一同埋在矿脉深处,true
+region_demon_tower,妖塔外层,精英|高压|高质变,成长快但试炼压力大,false
+region_herb_forest,迷林药谷,恢复|事件|功法过渡,奇遇与修整更多,false
+region_thunder_marsh,雷泽险地,雷系|爆发|风险收益,高风险高收益并偏爆发,false
+region_ancestral_vault,祖地旧库,功法|法器|构筑加速,器物与功法推进明显,false

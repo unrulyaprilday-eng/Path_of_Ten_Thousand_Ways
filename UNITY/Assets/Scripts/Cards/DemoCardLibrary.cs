@@ -255,7 +255,7 @@ namespace PathOfTenThousandWays.Demo.Cards
                         Quality = DemoQuality.Earth,
                         Cost = 1,
                         SpecialEffect = DemoCardSpecialEffect.SheatheEdge,
-                        RulesOverride = "本回合飞剑不自动攻击，改为把当前飞剑化为剑意并积蓄锋势，为下一次斩击收束伤害。"
+                        RulesOverride = "下一次飞剑齐射不会攻击，改为把当前飞剑化为剑意并积蓄锋势，为后续斩击收束伤害。"
                     };
                 case "sword_tide":
                     return new DemoCard
@@ -338,7 +338,7 @@ namespace PathOfTenThousandWays.Demo.Cards
                         Cost = 1,
                         Shock = 4,
                         SpecialEffect = DemoCardSpecialEffect.ThunderSeal,
-                        RulesOverride = "施加 4 感电。本回合感电不引爆，改为继续蓄存，并让下一次雷击额外增强。"
+                        RulesOverride = "施加 4 感电。下一次飞剑齐射不引爆感电，改为继续蓄存，并让随后雷击额外增强。"
                     };
                 case "storm_sword_array":
                     return new DemoCard

@@ -20,13 +20,18 @@ namespace PathOfTenThousandWays.Demo.Systems
         private static Dictionary<string, DemoCard> cardsById = new Dictionary<string, DemoCard>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, List<DemoCardPoolEntryConfig>> cardPoolsById = new Dictionary<string, List<DemoCardPoolEntryConfig>>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, DemoRootDefinition> rootsById = new Dictionary<string, DemoRootDefinition>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, DemoTraceDefinition> tracesById = new Dictionary<string, DemoTraceDefinition>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, DemoRegionDefinition> regionsById = new Dictionary<string, DemoRegionDefinition>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, DemoJourneyVesselDefinition> journeyVesselsById = new Dictionary<string, DemoJourneyVesselDefinition>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, DemoJourneyLineDefinition> journeyLinesById = new Dictionary<string, DemoJourneyLineDefinition>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<DemoGongfaType, DemoGongfaDefinition> gongfasByType = new Dictionary<DemoGongfaType, DemoGongfaDefinition>();
         private static Dictionary<DemoGongfaSlot, List<DemoGongfaType>> gongfasBySlot = new Dictionary<DemoGongfaSlot, List<DemoGongfaType>>();
         private static Dictionary<DemoArtifactType, DemoArtifactDefinition> artifactsByType = new Dictionary<DemoArtifactType, DemoArtifactDefinition>();
         private static Dictionary<string, DemoRelicDefinition> relicsByName = new Dictionary<string, DemoRelicDefinition>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, DemoRoutePlanDefinition> routePlansById = new Dictionary<string, DemoRoutePlanDefinition>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, DemoRewardProfileDefinition> rewardProfilesById = new Dictionary<string, DemoRewardProfileDefinition>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, DemoNodeActionProfileDefinition> nodeActionProfilesById = new Dictionary<string, DemoNodeActionProfileDefinition>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, DemoEnemyDefinition> enemiesById = new Dictionary<string, DemoEnemyDefinition>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, DemoEnemyDefinition> enemiesByName = new Dictionary<string, DemoEnemyDefinition>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, Dictionary<string, List<DemoRewardPriorityEntryConfig>>> rewardPriorities
             = new Dictionary<string, Dictionary<string, List<DemoRewardPriorityEntryConfig>>>(StringComparer.OrdinalIgnoreCase);
@@ -68,18 +73,83 @@ namespace PathOfTenThousandWays.Demo.Systems
             return roots;
         }
 
+        public static List<DemoRootDefinition> GetRootsForOpening(int maxCount)
+        {
+            EnsureLoaded();
+
+            return rootsById.Values
+                .OrderByDescending(root => root.IsAvailable)
+                .ThenBy(root => GetOpeningRootOrder(root.Id))
+                .ThenBy(root => root.Id)
+                .Take(Math.Max(0, maxCount))
+                .Select(Clone)
+                .ToList();
+        }
+
+        public static bool TryGetTrace(string traceId, out DemoTraceDefinition trace)
+        {
+            EnsureLoaded();
+
+            if (!string.IsNullOrEmpty(traceId) && tracesById.TryGetValue(traceId, out DemoTraceDefinition cached))
+            {
+                trace = Clone(cached);
+                return true;
+            }
+
+            trace = null;
+            return false;
+        }
+
+        public static List<DemoJourneyVesselDefinition> GetJourneyVesselsForRoot(
+            string rootId,
+            int maxCount,
+            bool includeUnavailable = true)
+        {
+            EnsureLoaded();
+
+            return journeyVesselsById.Values
+                .Where(vessel => string.Equals(vessel.RootId, rootId, StringComparison.OrdinalIgnoreCase))
+                .Where(vessel => includeUnavailable || vessel.IsAvailable)
+                .OrderByDescending(vessel => vessel.IsAvailable)
+                .ThenBy(vessel => vessel.Id)
+                .Take(Math.Max(0, maxCount))
+                .Select(Clone)
+                .ToList();
+        }
+
+        public static List<DemoJourneyVesselDefinition> GetVesselsForRoot(
+            string rootId,
+            int maxCount,
+            bool includeUnavailable = true)
+        {
+            return GetJourneyVesselsForRoot(rootId, maxCount, includeUnavailable);
+        }
+
+        public static bool TryGetJourneyVessel(string vesselId, out DemoJourneyVesselDefinition vessel)
+        {
+            EnsureLoaded();
+
+            if (!string.IsNullOrEmpty(vesselId) && journeyVesselsById.TryGetValue(vesselId, out DemoJourneyVesselDefinition cached))
+            {
+                vessel = Clone(cached);
+                return true;
+            }
+
+            vessel = null;
+            return false;
+        }
+
         public static List<DemoJourneyLineDefinition> GetJourneyLinesForRoot(string rootId, int maxCount)
         {
             EnsureLoaded();
 
-            List<DemoJourneyLineDefinition> lines = journeyLinesById.Values
+            return journeyLinesById.Values
+                .Where(line => line.IsAvailable)
                 .Where(line => string.Equals(line.RootId, rootId, StringComparison.OrdinalIgnoreCase))
                 .OrderBy(line => line.Id)
                 .Take(Math.Max(0, maxCount))
                 .Select(Clone)
                 .ToList();
-
-            return lines;
         }
 
         public static bool TryGetRegion(string regionId, out DemoRegionDefinition region)
@@ -208,6 +278,48 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
 
             routePlan = null;
+            return false;
+        }
+
+        public static bool TryGetRewardProfile(string rewardProfileId, out DemoRewardProfileDefinition rewardProfile)
+        {
+            EnsureLoaded();
+
+            if (!string.IsNullOrEmpty(rewardProfileId) && rewardProfilesById.TryGetValue(rewardProfileId, out DemoRewardProfileDefinition cached))
+            {
+                rewardProfile = Clone(cached);
+                return true;
+            }
+
+            rewardProfile = null;
+            return false;
+        }
+
+        public static bool TryGetNodeActionProfile(string actionProfileId, out DemoNodeActionProfileDefinition actionProfile)
+        {
+            EnsureLoaded();
+
+            if (!string.IsNullOrEmpty(actionProfileId) && nodeActionProfilesById.TryGetValue(actionProfileId, out DemoNodeActionProfileDefinition cached))
+            {
+                actionProfile = Clone(cached);
+                return true;
+            }
+
+            actionProfile = null;
+            return false;
+        }
+
+        public static bool TryGetEnemyById(string enemyId, out DemoEnemyDefinition enemy)
+        {
+            EnsureLoaded();
+
+            if (!string.IsNullOrEmpty(enemyId) && enemiesById.TryGetValue(enemyId, out DemoEnemyDefinition cached))
+            {
+                enemy = Clone(cached);
+                return true;
+            }
+
+            enemy = null;
             return false;
         }
 
@@ -360,13 +472,18 @@ namespace PathOfTenThousandWays.Demo.Systems
             cardsById = new Dictionary<string, DemoCard>(StringComparer.OrdinalIgnoreCase);
             cardPoolsById = new Dictionary<string, List<DemoCardPoolEntryConfig>>(StringComparer.OrdinalIgnoreCase);
             rootsById = new Dictionary<string, DemoRootDefinition>(StringComparer.OrdinalIgnoreCase);
+            tracesById = new Dictionary<string, DemoTraceDefinition>(StringComparer.OrdinalIgnoreCase);
             regionsById = new Dictionary<string, DemoRegionDefinition>(StringComparer.OrdinalIgnoreCase);
+            journeyVesselsById = new Dictionary<string, DemoJourneyVesselDefinition>(StringComparer.OrdinalIgnoreCase);
             journeyLinesById = new Dictionary<string, DemoJourneyLineDefinition>(StringComparer.OrdinalIgnoreCase);
             gongfasByType = new Dictionary<DemoGongfaType, DemoGongfaDefinition>();
             gongfasBySlot = new Dictionary<DemoGongfaSlot, List<DemoGongfaType>>();
             artifactsByType = new Dictionary<DemoArtifactType, DemoArtifactDefinition>();
             relicsByName = new Dictionary<string, DemoRelicDefinition>(StringComparer.OrdinalIgnoreCase);
             routePlansById = new Dictionary<string, DemoRoutePlanDefinition>(StringComparer.OrdinalIgnoreCase);
+            rewardProfilesById = new Dictionary<string, DemoRewardProfileDefinition>(StringComparer.OrdinalIgnoreCase);
+            nodeActionProfilesById = new Dictionary<string, DemoNodeActionProfileDefinition>(StringComparer.OrdinalIgnoreCase);
+            enemiesById = new Dictionary<string, DemoEnemyDefinition>(StringComparer.OrdinalIgnoreCase);
             enemiesByName = new Dictionary<string, DemoEnemyDefinition>(StringComparer.OrdinalIgnoreCase);
             rewardPriorities = new Dictionary<string, Dictionary<string, List<DemoRewardPriorityEntryConfig>>>(StringComparer.OrdinalIgnoreCase);
 
@@ -416,7 +533,25 @@ namespace PathOfTenThousandWays.Demo.Systems
                         Rarity = root.Rarity,
                         UnlockCondition = root.UnlockCondition,
                         IsDefaultPool = root.IsDefaultPool,
+                        IsAvailable = root.IsAvailable,
                         Summary = root.Summary
+                    };
+                }
+
+                foreach (KeyValuePair<string, DemoTraceConfig> pair in opening.Traces)
+                {
+                    DemoTraceConfig trace = pair.Value;
+                    if (trace == null)
+                    {
+                        continue;
+                    }
+
+                    tracesById[pair.Key] = new DemoTraceDefinition
+                    {
+                        Id = trace.Id,
+                        Name = trace.Name,
+                        TraceType = trace.TraceType,
+                        Summary = trace.Summary
                     };
                 }
 
@@ -433,7 +568,8 @@ namespace PathOfTenThousandWays.Demo.Systems
                         Id = region.Id,
                         Name = region.Name,
                         RewardFocus = region.RewardFocus,
-                        Description = region.Description
+                        Description = region.Description,
+                        IsAvailable = region.IsAvailable
                     };
 
                     if (region.NodeWeights != null)
@@ -453,6 +589,35 @@ namespace PathOfTenThousandWays.Demo.Systems
                     regionsById[pair.Key] = definition;
                 }
 
+                foreach (KeyValuePair<string, DemoJourneyVesselConfig> pair in opening.JourneyVessels)
+                {
+                    DemoJourneyVesselConfig vessel = pair.Value;
+                    if (vessel == null)
+                    {
+                        continue;
+                    }
+
+                    DemoJourneyVesselDefinition definition = new DemoJourneyVesselDefinition
+                    {
+                        Id = vessel.Id,
+                        RootId = vessel.RootId,
+                        Name = vessel.Name,
+                        OriginText = vessel.OriginText,
+                        VesselType = vessel.VesselType,
+                        StarterPoolId = vessel.StarterPoolId,
+                        BaseStyle = vessel.BaseStyle,
+                        StartingEffectText = vessel.StartingEffectText,
+                        FirstRegionId = vessel.FirstRegionId,
+                        RegionCandidateIds = vessel.RegionCandidateIds ?? new List<string>(),
+                        RiskLevel = vessel.RiskLevel,
+                        SummaryTags = vessel.SummaryTags ?? new List<string>(),
+                        IsAvailable = vessel.IsAvailable
+                    };
+
+                    journeyVesselsById[pair.Key] = definition;
+                    journeyLinesById[pair.Key] = ToLegacyJourneyLine(definition);
+                }
+
                 foreach (KeyValuePair<string, DemoJourneyLineConfig> pair in opening.JourneyLines)
                 {
                     DemoJourneyLineConfig line = pair.Value;
@@ -461,7 +626,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                         continue;
                     }
 
-                    journeyLinesById[pair.Key] = new DemoJourneyLineDefinition
+                    DemoJourneyLineDefinition legacy = new DemoJourneyLineDefinition
                     {
                         Id = line.Id,
                         RootId = line.RootId,
@@ -469,6 +634,10 @@ namespace PathOfTenThousandWays.Demo.Systems
                         OriginText = line.OriginText,
                         CarryItemName = line.CarryItemName,
                         CarryItemEffect = line.CarryItemEffect,
+                        VesselType = line.VesselType,
+                        StarterPoolId = line.StarterPoolId,
+                        BaseStyle = line.BaseStyle,
+                        IsAvailable = line.IsAvailable,
                         FirstRegionId = line.FirstRegionId,
                         RegionCandidateIds = line.RegionCandidateIds ?? new List<string>(),
                         RiskLevel = line.RiskLevel,
@@ -476,6 +645,12 @@ namespace PathOfTenThousandWays.Demo.Systems
                         NodeBiases = line.NodeBiases ?? new List<DemoJourneyNodeBiasConfig>(),
                         RewardBiases = line.RewardBiases ?? new List<DemoJourneyRewardBiasConfig>()
                     };
+
+                    journeyLinesById[pair.Key] = legacy;
+                    if (!journeyVesselsById.ContainsKey(pair.Key))
+                    {
+                        journeyVesselsById[pair.Key] = ToJourneyVessel(legacy);
+                    }
                 }
             }
 
@@ -595,6 +770,45 @@ namespace PathOfTenThousandWays.Demo.Systems
                 };
             }
 
+            foreach (KeyValuePair<string, DemoRewardProfileConfig> pair in runtime.RewardProfiles)
+            {
+                DemoRewardProfileConfig profile = pair.Value;
+                if (profile == null)
+                {
+                    continue;
+                }
+
+                rewardProfilesById[pair.Key] = new DemoRewardProfileDefinition
+                {
+                    Id = profile.Id,
+                    Tier = profile.Tier,
+                    Source = profile.Source,
+                    RouteRisk = profile.RouteRisk,
+                    AllowsFinisher = profile.AllowsFinisher,
+                    AllowsDivine = profile.AllowsDivine,
+                    Description = profile.Description
+                };
+            }
+
+            foreach (KeyValuePair<string, DemoNodeActionProfileConfig> pair in runtime.NodeActionProfiles)
+            {
+                DemoNodeActionProfileConfig profile = pair.Value;
+                if (profile == null)
+                {
+                    continue;
+                }
+
+                nodeActionProfilesById[pair.Key] = new DemoNodeActionProfileDefinition
+                {
+                    Id = profile.Id,
+                    ActionType = profile.ActionType,
+                    RewardProfileId = profile.RewardProfileId,
+                    GuaranteedComponentId = profile.GuaranteedComponentId,
+                    HealAmount = profile.HealAmount,
+                    Description = profile.Description
+                };
+            }
+
             foreach (KeyValuePair<string, DemoRoutePlanConfig> pair in runtime.RoutePlans)
             {
                 DemoRoutePlanConfig routeConfig = pair.Value;
@@ -604,6 +818,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 }
 
                 DemoMapRoutePlan plan = new DemoMapRoutePlan(
+                    routeConfig.Id,
                     routeConfig.Name,
                     routeConfig.Description,
                     routeConfig.Nodes
@@ -611,7 +826,11 @@ namespace PathOfTenThousandWays.Demo.Systems
                         .Select(node => new DemoMapNode(
                             node.Layer,
                             ParseEnum(node.NodeType, DemoNodeType.RouteChoice),
-                            node.NodeName))
+                            node.NodeName,
+                            node.NodeId,
+                            node.EncounterId,
+                            node.RewardProfileId,
+                            node.ActionProfileId))
                         .ToArray());
 
                 routePlansById[pair.Key] = new DemoRoutePlanDefinition
@@ -633,7 +852,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                     continue;
                 }
 
-                enemiesByName[enemyConfig.Name] = new DemoEnemyDefinition
+                DemoEnemyDefinition enemy = new DemoEnemyDefinition
                 {
                     Id = enemyConfig.Id,
                     Name = enemyConfig.Name,
@@ -644,6 +863,9 @@ namespace PathOfTenThousandWays.Demo.Systems
                     Notes = enemyConfig.Notes,
                     BossPhases = enemyConfig.BossPhases ?? new List<DemoBossPhaseConfig>()
                 };
+
+                enemiesById[enemy.Id] = enemy;
+                enemiesByName[enemy.Name] = enemy;
             }
 
             foreach (KeyValuePair<string, Dictionary<string, List<DemoRewardPriorityEntryConfig>>> service in runtime.RewardPriorities)
@@ -682,7 +904,9 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
 
             opening.Roots = ReadObjectMap(raw, "roots", ParseRootConfig);
+            opening.Traces = ReadObjectMap(raw, "traces", ParseTraceConfig);
             opening.Regions = ReadObjectMap(raw, "regions", ParseRegionConfig);
+            opening.JourneyVessels = ReadObjectMap(raw, "journeyVessels", ParseJourneyVesselConfig);
             opening.JourneyLines = ReadObjectMap(raw, "journeyLines", ParseJourneyLineConfig);
             return opening;
         }
@@ -701,6 +925,8 @@ namespace PathOfTenThousandWays.Demo.Systems
             runtime.Artifacts = ReadObjectMap(raw, "artifacts", ParseArtifactConfig);
             runtime.Relics = ReadObjectMap(raw, "relics", ParseRelicConfig);
             runtime.RoutePlans = ReadObjectMap(raw, "routePlans", ParseRoutePlanConfig);
+            runtime.RewardProfiles = ReadObjectMap(raw, "rewardProfiles", ParseRewardProfileConfig);
+            runtime.NodeActionProfiles = ReadObjectMap(raw, "nodeActionProfiles", ParseNodeActionProfileConfig);
             runtime.Enemies = ReadObjectMap(raw, "enemies", ParseEnemyConfig);
             runtime.RewardPriorities = ParseRewardPriorities(GetObject(raw, "rewardPriorities"));
             return runtime;
@@ -754,6 +980,25 @@ namespace PathOfTenThousandWays.Demo.Systems
                 Rarity = GetString(raw, "rarity"),
                 UnlockCondition = GetString(raw, "unlockCondition"),
                 IsDefaultPool = GetBool(raw, "isDefaultPool"),
+                IsAvailable = raw.ContainsKey("isAvailable")
+                    ? GetBool(raw, "isAvailable")
+                    : GetBool(raw, "isDefaultPool"),
+                Summary = GetString(raw, "summary")
+            };
+        }
+
+        private static DemoTraceConfig ParseTraceConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null)
+            {
+                return null;
+            }
+
+            return new DemoTraceConfig
+            {
+                Id = GetString(raw, "id", key),
+                Name = GetString(raw, "name"),
+                TraceType = GetString(raw, "traceType"),
                 Summary = GetString(raw, "summary")
             };
         }
@@ -771,6 +1016,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 Name = GetString(raw, "name"),
                 RewardFocus = GetString(raw, "rewardFocus"),
                 Description = GetString(raw, "description"),
+                IsAvailable = raw.ContainsKey("isAvailable") ? GetBool(raw, "isAvailable") : true,
                 NodeWeights = ReadObjectList(raw, "nodeWeights", ParseRegionNodeWeightConfig)
             };
         }
@@ -789,6 +1035,31 @@ namespace PathOfTenThousandWays.Demo.Systems
             };
         }
 
+        private static DemoJourneyVesselConfig ParseJourneyVesselConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null)
+            {
+                return null;
+            }
+
+            return new DemoJourneyVesselConfig
+            {
+                Id = GetString(raw, "id", key),
+                RootId = GetString(raw, "rootId"),
+                Name = GetString(raw, "name"),
+                OriginText = GetString(raw, "originText"),
+                VesselType = GetString(raw, "vesselType"),
+                StarterPoolId = GetString(raw, "starterPoolId"),
+                BaseStyle = GetString(raw, "baseStyle"),
+                StartingEffectText = GetString(raw, "startingEffectText"),
+                FirstRegionId = GetString(raw, "firstRegionId"),
+                RegionCandidateIds = ReadStringList(GetArray(raw, "regionCandidateIds")),
+                RiskLevel = GetString(raw, "riskLevel"),
+                SummaryTags = ReadStringList(GetArray(raw, "summaryTags")),
+                IsAvailable = GetBool(raw, "isAvailable")
+            };
+        }
+
         private static DemoJourneyLineConfig ParseJourneyLineConfig(string key, Dictionary<string, object> raw)
         {
             if (raw == null)
@@ -804,6 +1075,10 @@ namespace PathOfTenThousandWays.Demo.Systems
                 OriginText = GetString(raw, "originText"),
                 CarryItemName = GetString(raw, "carryItemName"),
                 CarryItemEffect = GetString(raw, "carryItemEffect"),
+                VesselType = GetString(raw, "vesselType"),
+                StarterPoolId = GetString(raw, "starterPoolId"),
+                BaseStyle = GetString(raw, "baseStyle"),
+                IsAvailable = raw.ContainsKey("isAvailable") ? GetBool(raw, "isAvailable") : true,
                 FirstRegionId = GetString(raw, "firstRegionId"),
                 RegionCandidateIds = ReadStringList(GetArray(raw, "regionCandidateIds")),
                 RiskLevel = GetString(raw, "riskLevel"),
@@ -981,7 +1256,48 @@ namespace PathOfTenThousandWays.Demo.Systems
                 Seq = GetInt(raw, "seq"),
                 Layer = GetInt(raw, "layer"),
                 NodeType = GetString(raw, "nodeType"),
-                NodeName = GetString(raw, "nodeName")
+                NodeName = GetString(raw, "nodeName"),
+                NodeId = GetString(raw, "nodeId"),
+                EncounterId = GetString(raw, "encounterId"),
+                RewardProfileId = GetString(raw, "rewardProfileId"),
+                ActionProfileId = GetString(raw, "actionProfileId")
+            };
+        }
+
+        private static DemoRewardProfileConfig ParseRewardProfileConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null)
+            {
+                return null;
+            }
+
+            return new DemoRewardProfileConfig
+            {
+                Id = GetString(raw, "id", key),
+                Tier = GetString(raw, "tier"),
+                Source = GetString(raw, "source"),
+                RouteRisk = GetString(raw, "routeRisk"),
+                AllowsFinisher = GetBool(raw, "allowsFinisher"),
+                AllowsDivine = GetBool(raw, "allowsDivine"),
+                Description = GetString(raw, "description")
+            };
+        }
+
+        private static DemoNodeActionProfileConfig ParseNodeActionProfileConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null)
+            {
+                return null;
+            }
+
+            return new DemoNodeActionProfileConfig
+            {
+                Id = GetString(raw, "id", key),
+                ActionType = GetString(raw, "actionType"),
+                RewardProfileId = GetString(raw, "rewardProfileId"),
+                GuaranteedComponentId = GetString(raw, "guaranteedComponentId"),
+                HealAmount = GetInt(raw, "healAmount"),
+                Description = GetString(raw, "description")
             };
         }
 
@@ -1351,6 +1667,22 @@ namespace PathOfTenThousandWays.Demo.Systems
             return string.Concat(group ?? string.Empty, "::", key ?? string.Empty);
         }
 
+        private static int GetOpeningRootOrder(string rootId)
+        {
+            switch (rootId)
+            {
+                case "root_branch":
+                    return 0;
+                case "root_servant":
+                    return 1;
+                case "root_smith":
+                    return 2;
+                case "root_caravan":
+                    return 3;
+                default:
+                    return 100;
+            }
+        }
         private static string GetStyleKey(DemoSwordStyle style)
         {
             return style.ToString().ToLowerInvariant();
@@ -1451,7 +1783,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             return new DemoRoutePlanDefinition
             {
                 Id = definition.Id,
-                Plan = new DemoMapRoutePlan(definition.Plan.Name, definition.Plan.Description, clonedNodes),
+                Plan = new DemoMapRoutePlan(definition.Plan.Id, definition.Plan.Name, definition.Plan.Description, clonedNodes),
                 RouteStyle = definition.RouteStyle,
                 RouteQuality = definition.RouteQuality,
                 RouteGlyph = definition.RouteGlyph,
@@ -1485,6 +1817,18 @@ namespace PathOfTenThousandWays.Demo.Systems
                 Rarity = definition.Rarity,
                 UnlockCondition = definition.UnlockCondition,
                 IsDefaultPool = definition.IsDefaultPool,
+                IsAvailable = definition.IsAvailable,
+                Summary = definition.Summary
+            };
+        }
+
+        private static DemoTraceDefinition Clone(DemoTraceDefinition definition)
+        {
+            return new DemoTraceDefinition
+            {
+                Id = definition.Id,
+                Name = definition.Name,
+                TraceType = definition.TraceType,
                 Summary = definition.Summary
             };
         }
@@ -1497,7 +1841,96 @@ namespace PathOfTenThousandWays.Demo.Systems
                 Name = definition.Name,
                 RewardFocus = definition.RewardFocus,
                 Description = definition.Description,
+                IsAvailable = definition.IsAvailable,
                 NodeWeights = new Dictionary<string, int>(definition.NodeWeights, StringComparer.OrdinalIgnoreCase)
+            };
+        }
+
+        private static DemoJourneyVesselDefinition Clone(DemoJourneyVesselDefinition definition)
+        {
+            return new DemoJourneyVesselDefinition
+            {
+                Id = definition.Id,
+                RootId = definition.RootId,
+                Name = definition.Name,
+                OriginText = definition.OriginText,
+                VesselType = definition.VesselType,
+                StarterPoolId = definition.StarterPoolId,
+                BaseStyle = definition.BaseStyle,
+                StartingEffectText = definition.StartingEffectText,
+                FirstRegionId = definition.FirstRegionId,
+                RegionCandidateIds = definition.RegionCandidateIds != null ? new List<string>(definition.RegionCandidateIds) : new List<string>(),
+                RiskLevel = definition.RiskLevel,
+                SummaryTags = definition.SummaryTags != null ? new List<string>(definition.SummaryTags) : new List<string>(),
+                IsAvailable = definition.IsAvailable
+            };
+        }
+
+        private static DemoJourneyVesselDefinition ToJourneyVessel(DemoJourneyLineDefinition definition)
+        {
+            return new DemoJourneyVesselDefinition
+            {
+                Id = definition.Id,
+                RootId = definition.RootId,
+                Name = string.IsNullOrEmpty(definition.CarryItemName) ? definition.Title : definition.CarryItemName,
+                OriginText = definition.OriginText,
+                VesselType = definition.VesselType,
+                StarterPoolId = definition.StarterPoolId,
+                BaseStyle = definition.BaseStyle,
+                StartingEffectText = definition.CarryItemEffect,
+                FirstRegionId = definition.FirstRegionId,
+                RegionCandidateIds = definition.RegionCandidateIds != null ? new List<string>(definition.RegionCandidateIds) : new List<string>(),
+                RiskLevel = definition.RiskLevel,
+                SummaryTags = definition.SummaryTags != null ? new List<string>(definition.SummaryTags) : new List<string>(),
+                IsAvailable = definition.IsAvailable
+            };
+        }
+
+        private static DemoJourneyLineDefinition ToLegacyJourneyLine(DemoJourneyVesselDefinition definition)
+        {
+            return new DemoJourneyLineDefinition
+            {
+                Id = definition.Id,
+                RootId = definition.RootId,
+                Title = definition.Name,
+                OriginText = definition.OriginText,
+                CarryItemName = definition.Name,
+                CarryItemEffect = definition.StartingEffectText,
+                VesselType = definition.VesselType,
+                StarterPoolId = definition.StarterPoolId,
+                BaseStyle = definition.BaseStyle,
+                IsAvailable = definition.IsAvailable,
+                FirstRegionId = definition.FirstRegionId,
+                RegionCandidateIds = definition.RegionCandidateIds != null ? new List<string>(definition.RegionCandidateIds) : new List<string>(),
+                RiskLevel = definition.RiskLevel,
+                SummaryTags = definition.SummaryTags != null ? new List<string>(definition.SummaryTags) : new List<string>()
+            };
+        }
+
+        private static DemoRewardProfileDefinition Clone(DemoRewardProfileDefinition definition)
+        {
+            return new DemoRewardProfileDefinition
+            {
+                Id = definition.Id,
+                Tier = definition.Tier,
+                Source = definition.Source,
+                RouteRisk = definition.RouteRisk,
+                AllowsFinisher = definition.AllowsFinisher,
+                AllowsDivine = definition.AllowsDivine,
+                Description = definition.Description
+            };
+        }
+
+        private static DemoNodeActionProfileDefinition Clone(DemoNodeActionProfileDefinition definition)
+        {
+            return new DemoNodeActionProfileDefinition
+            {
+                Id = definition.Id,
+                ActionType = definition.ActionType,
+                RewardProfileId = definition.RewardProfileId,
+                GuaranteedComponentId = definition.GuaranteedComponentId,
+                HealAmount = definition.HealAmount,
+                Description = definition.Description
             };
         }
 
@@ -1511,6 +1944,10 @@ namespace PathOfTenThousandWays.Demo.Systems
                 OriginText = definition.OriginText,
                 CarryItemName = definition.CarryItemName,
                 CarryItemEffect = definition.CarryItemEffect,
+                VesselType = definition.VesselType,
+                StarterPoolId = definition.StarterPoolId,
+                BaseStyle = definition.BaseStyle,
+                IsAvailable = definition.IsAvailable,
                 FirstRegionId = definition.FirstRegionId,
                 RegionCandidateIds = definition.RegionCandidateIds != null ? new List<string>(definition.RegionCandidateIds) : new List<string>(),
                 RiskLevel = definition.RiskLevel,

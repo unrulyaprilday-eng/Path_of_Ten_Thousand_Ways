@@ -57,7 +57,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                         IconGlyph = "葫",
                         Style = "生存转化",
                         Quality = DemoQuality.Mysterious,
-                        Description = "每次敌方攻击吸收 4 点伤害，并在下回合返还 1 点额外灵气。"
+                        Description = "每次敌方攻击吸收 4 点伤害，并立即返还 1 点灵气。"
                     };
                 case DemoArtifactType.ThunderSeal:
                     return new DemoArtifactDefinition

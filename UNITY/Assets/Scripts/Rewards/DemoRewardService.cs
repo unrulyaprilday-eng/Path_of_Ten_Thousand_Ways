@@ -9,12 +9,41 @@ namespace PathOfTenThousandWays.Demo.Rewards
 {
     public sealed class DemoRewardService
     {
-        private readonly Random random = new Random();
-        private readonly List<DemoCard> cardPool = DemoCardLibrary.CreateRewardPool();
+        private static readonly HashSet<string> LayerTwoOrLaterCards = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "sword_array",
+            "wanjian_burst"
+        };
+
+        private static readonly HashSet<string> FocusComponentIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "sword_focus",
+            "summon_sword",
+            "returning_array",
+            "sword_rain",
+            "sword_array",
+            "wanjian_burst",
+            "gongfa_sword_control_art",
+            "gongfa_wanjian_return",
+            "artifact_sword_box"
+        };
+
+        private static readonly string[] WanjianFocusPriority =
+        {
+            "sword_focus",
+            "summon_sword",
+            "returning_array",
+            "sword_rain",
+            "sheathe_edge",
+            "sword_tide",
+            "heaven_opening",
+            "sword_array",
+            "wanjian_burst"
+        };
 
         private static readonly Dictionary<DemoSwordStyle, string[]> FocusCardPriority = new Dictionary<DemoSwordStyle, string[]>
         {
-            [DemoSwordStyle.Wanjian] = new[] { "sword_focus", "summon_sword", "returning_array", "sheathe_edge", "sword_rain", "sword_array", "sword_tide", "heaven_opening", "wanjian_burst" },
+            [DemoSwordStyle.Wanjian] = WanjianFocusPriority,
             [DemoSwordStyle.Thunder] = new[] { "thunder_sword", "thunder_chain", "thunder_lead", "thunder_casket", "storm_sword_array", "thunder_prison", "heaven_thunder" },
             [DemoSwordStyle.Blood] = new[] { "blood_mark", "blood_edge_awakening", "scarlet_feast", "blood_guard", "blood_sword", "blood_tide_array", "blood_execution" },
             [DemoSwordStyle.General] = new[] { "sword_slash", "guard_step", "cloud_step", "spirit_draw", "meridian_breath", "jade_barrier" }
@@ -22,10 +51,10 @@ namespace PathOfTenThousandWays.Demo.Rewards
 
         private static readonly Dictionary<DemoSwordStyle, string[]> WildcardCardPriority = new Dictionary<DemoSwordStyle, string[]>
         {
-            [DemoSwordStyle.Wanjian] = new[] { "sword_array", "sword_rain", "returning_array", "sheathe_edge", "sword_tide", "heaven_opening", "wanjian_burst" },
+            [DemoSwordStyle.Wanjian] = new[] { "sword_rain", "returning_array", "sheathe_edge", "sword_tide", "heaven_opening", "sword_array", "wanjian_burst" },
             [DemoSwordStyle.Thunder] = new[] { "thunder_chain", "thunder_lead", "thunder_casket", "storm_sword_array", "thunder_prison", "heaven_thunder" },
             [DemoSwordStyle.Blood] = new[] { "blood_sword", "blood_edge_awakening", "scarlet_feast", "blood_guard", "blood_tide_array", "blood_execution" },
-            [DemoSwordStyle.General] = new[] { "jade_barrier", "sword_array", "thunder_prison", "blood_execution" }
+            [DemoSwordStyle.General] = new[] { "jade_barrier", "sword_rain", "thunder_prison", "blood_guard" }
         };
 
         private static readonly string[] GeneralUtilityCards =
@@ -37,27 +66,66 @@ namespace PathOfTenThousandWays.Demo.Rewards
             "jade_barrier"
         };
 
+        private readonly Random random;
+        private readonly List<DemoCard> cardPool = DemoCardLibrary.CreateRewardPool();
+
+        public DemoRewardService()
+        {
+            random = new Random();
+        }
+
+        public DemoRewardService(int seed)
+        {
+            random = new Random(seed);
+        }
+
         public List<DemoReward> CreateChoices(int layer, DemoRunState run)
         {
-            DemoSwordStyle focusStyle = run.GetBuildStyle();
-            HashSet<string> usedCardIds = new HashSet<string>();
-            HashSet<string> usedRewardNames = new HashSet<string>();
+            DemoRewardContext context = DemoRewardContext.FromNode(run?.Map?.CurrentNode, run);
+            context.Layer = Math.Max(1, layer);
 
-            DemoReward focusReward = CreateFocusReward(layer, focusStyle, run, usedCardIds, usedRewardNames);
-            usedRewardNames.Add(focusReward.Name);
-            if (focusReward.Card != null)
+            if (string.IsNullOrEmpty(context.RewardProfileId) && layer == 1 && (run?.BattlesWon ?? 0) == 0)
             {
-                usedCardIds.Add(focusReward.Card.Id);
+                context.Source = DemoRewardSource.OpeningBattle;
+                context.Tier = DemoRewardTier.Opening;
             }
 
-            DemoReward utilityReward = CreateUtilityReward(layer, focusStyle, run, usedCardIds, usedRewardNames);
-            usedRewardNames.Add(utilityReward.Name);
-            if (utilityReward.Card != null)
+            return CreateChoices(context, run);
+        }
+
+        public List<DemoReward> CreateChoices(DemoRewardContext context, DemoRunState run)
+        {
+            context = context ?? new DemoRewardContext();
+            Random source = context.HasSeed ? new Random(context.Seed) : random;
+
+            if (context.Source == DemoRewardSource.OpeningBattle
+                || string.Equals(context.RewardProfileId, "reward_opening_battle", StringComparison.OrdinalIgnoreCase))
             {
-                usedCardIds.Add(utilityReward.Card.Id);
+                return CreateOpeningBattleChoices();
             }
 
-            DemoReward wildcardReward = CreateWildcardReward(layer, focusStyle, run, usedCardIds, usedRewardNames);
+            DemoSwordStyle focusStyle = run?.GetBuildStyle() ?? DemoSwordStyle.Wanjian;
+            HashSet<string> usedCardIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> usedRewardNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            DemoReward focusReward = CreateFocusReward(context, focusStyle, run, source, usedCardIds)
+                .WithSlot(DemoRewardSlot.Focus, BuildFocusDelta(context, run));
+            TrackReward(focusReward, usedCardIds, usedRewardNames);
+
+            DemoReward utilityReward = CreateUtilityReward(context, focusStyle, run, source, usedCardIds, usedRewardNames)
+                .WithSlot(DemoRewardSlot.Utility, "补足当前生存或灵气缺口");
+            TrackReward(utilityReward, usedCardIds, usedRewardNames);
+
+            DemoReward wildcardReward = CreateWildcardReward(context, focusStyle, run, source, usedCardIds, usedRewardNames)
+                .WithSlot(DemoRewardSlot.Wildcard, "高波动补强，不保证当前循环");
+
+            if (wildcardReward == null || usedRewardNames.Contains(wildcardReward.Name))
+            {
+                wildcardReward = (run != null && run.CurrentHealth < run.MaxHealth
+                        ? DemoReward.Heal()
+                        : DemoReward.Upgrade())
+                    .WithSlot(DemoRewardSlot.Wildcard, "通用资源回退");
+            }
 
             return new List<DemoReward>
             {
@@ -67,111 +135,228 @@ namespace PathOfTenThousandWays.Demo.Rewards
             };
         }
 
+        public DemoReward CreateGuaranteedReward(string componentId, DemoRunState run)
+        {
+            switch (componentId)
+            {
+                case "survival_boss":
+                    if (run == null || !run.HasBuildComponent("jade_barrier"))
+                    {
+                        return DemoReward.FromCard(CreateCard("jade_barrier"))
+                            .WithSlot(DemoRewardSlot.Utility, "Boss 前补齐强防御牌");
+                    }
+
+                    if (!run.HasArtifact(DemoArtifactType.PurpleGourd))
+                    {
+                        return DemoReward.Artifact(DemoArtifactType.PurpleGourd)
+                            .WithSlot(DemoRewardSlot.Utility, "Boss 前补齐持续减伤法器");
+                    }
+
+                    return DemoReward.Heal()
+                        .WithSlot(DemoRewardSlot.Utility, "生存组件已齐，改为恢复生命");
+                case "engine_wanjian":
+                    if (run == null || !run.HasGongfa(DemoGongfaType.SwordControlArt))
+                    {
+                        return DemoReward.Gongfa(DemoGongfaType.SwordControlArt)
+                            .WithSlot(DemoRewardSlot.Focus, "补齐万剑主修引擎");
+                    }
+
+                    return DemoReward.Artifact(DemoArtifactType.SwordBox)
+                        .WithSlot(DemoRewardSlot.Focus, "补齐飞剑增殖法器");
+                case "gongfa_sword_control_art":
+                    return DemoReward.Gongfa(DemoGongfaType.SwordControlArt)
+                        .WithSlot(DemoRewardSlot.Focus, "获得万剑主修引擎");
+                case "gongfa_wanjian_return":
+                    return DemoReward.Gongfa(DemoGongfaType.WanjianReturn)
+                        .WithSlot(DemoRewardSlot.Focus, "获得高风险神通收束");
+                case "artifact_sword_box":
+                    return DemoReward.Artifact(DemoArtifactType.SwordBox)
+                        .WithSlot(DemoRewardSlot.Focus, "获得飞剑增殖法器");
+                default:
+                    DemoCard card = CreateCard(componentId);
+                    return card == null
+                        ? DemoReward.Upgrade().WithSlot(DemoRewardSlot.Focus, "配置缺失时的资源回退")
+                        : DemoReward.FromCard(card).WithSlot(DemoRewardSlot.Focus, "获得阶段保底组件");
+            }
+        }
+
+        public static bool IsFocusComponent(DemoReward reward)
+        {
+            if (reward == null)
+            {
+                return false;
+            }
+
+            if (reward.Card != null && FocusComponentIds.Contains(reward.Card.Id))
+            {
+                return true;
+            }
+
+            if (reward.Type == DemoRewardType.Gongfa)
+            {
+                return reward.GongfaType == DemoGongfaType.SwordControlArt
+                    || reward.GongfaType == DemoGongfaType.WanjianReturn;
+            }
+
+            return reward.Type == DemoRewardType.Artifact
+                && reward.ArtifactType == DemoArtifactType.SwordBox;
+        }
+
+        private static List<DemoReward> CreateOpeningBattleChoices()
+        {
+            return new List<DemoReward>
+            {
+                DemoReward.FromCard(CreateCard("sword_focus"))
+                    .WithSlot(DemoRewardSlot.Focus, "万剑启动组件 +1"),
+                DemoReward.FromCard(CreateCard("cloud_step"))
+                    .WithSlot(DemoRewardSlot.Utility, "防御与过牌组件 +1"),
+                DemoReward.FromCard(CreateCard("spirit_draw"))
+                    .WithSlot(DemoRewardSlot.Wildcard, "零费回灵组件 +1")
+            };
+        }
+
         private DemoReward CreateFocusReward(
-            int layer,
+            DemoRewardContext context,
             DemoSwordStyle focusStyle,
             DemoRunState run,
-            HashSet<string> usedCardIds,
-            HashSet<string> usedRewardNames)
+            Random source,
+            ISet<string> usedCardIds)
         {
-            string nextRelic = GetNextStyleRelic(run, focusStyle, layer);
-            if (!string.IsNullOrEmpty(nextRelic) && !usedRewardNames.Contains(nextRelic))
+            if (context.Layer >= 3 && !HasComponent(context, run, "wanjian_burst"))
             {
-                return DemoReward.Relic(nextRelic);
+                return DemoReward.FromCard(CreateCard("wanjian_burst"));
+            }
+
+            if (context.Layer >= 2 && !HasComponent(context, run, "sword_array"))
+            {
+                return DemoReward.FromCard(CreateCard("sword_array"));
+            }
+
+            if (context.Layer >= 2
+                && (run == null || (!run.HasGongfa(DemoGongfaType.SwordControlArt) && !run.HasArtifact(DemoArtifactType.SwordBox))))
+            {
+                return DemoReward.Gongfa(DemoGongfaType.SwordControlArt);
+            }
+
+            if ((context.ConsecutiveRewardsWithoutFocus >= 2 || context.Layer == 1)
+                && !HasComponent(context, run, "sword_focus"))
+            {
+                return DemoReward.FromCard(CreateCard("sword_focus"));
             }
 
             DemoCard card = PickCardFromPriority(
                 GetPriorityIds("card_reward_focus", focusStyle, FocusCardPriority),
-                usedCardIds);
+                context,
+                usedCardIds,
+                source);
 
             if (card == null)
             {
                 card = PickWeightedCard(
-                    layer,
+                    context,
                     focusStyle,
                     usedCardIds,
+                    source,
                     candidate => candidate.Style == focusStyle || candidate.Style == DemoSwordStyle.General);
             }
 
-            return DemoReward.FromCard(card.Clone());
+            return DemoReward.FromCard((card ?? CreateCard("sword_focus")).Clone());
         }
 
         private DemoReward CreateUtilityReward(
-            int layer,
+            DemoRewardContext context,
             DemoSwordStyle focusStyle,
             DemoRunState run,
-            HashSet<string> usedCardIds,
-            HashSet<string> usedRewardNames)
+            Random source,
+            ISet<string> usedCardIds,
+            ISet<string> usedRewardNames)
         {
-            if (run.CurrentHealth <= run.MaxHealth / 2)
+            if (run != null && run.CurrentHealth <= run.MaxHealth / 2)
             {
                 return DemoReward.Heal();
             }
 
-            int supportCardCount = run.Deck.Count(card => card.Type == DemoCardType.Defense || card.Type == DemoCardType.Resource);
-            if (supportCardCount < 4 || layer == 1)
+            int supportCardCount = run?.Deck.Count(card => card.Type == DemoCardType.Defense || card.Type == DemoCardType.Resource) ?? 0;
+            if (supportCardCount < 4 || context.Layer == 1)
             {
-                string[] utilityPriority = focusStyle == DemoSwordStyle.Blood
-                    ? new[] { "blood_guard", "scarlet_feast", "cloud_step", "spirit_draw", "meridian_breath" }
-                    : GeneralUtilityCards;
-
-                DemoCard utilityCard = PickCardFromPriority(utilityPriority, usedCardIds);
+                DemoCard utilityCard = PickCardFromPriority(GeneralUtilityCards, context, usedCardIds, source);
                 if (utilityCard != null)
                 {
                     return DemoReward.FromCard(utilityCard.Clone());
                 }
             }
 
-            if (layer >= 2 && run.BonusEnergy == 0 && !usedRewardNames.Contains("剑诀精修"))
+            if (context.Layer >= 2
+                && (run?.BonusEnergy ?? 0) == 0
+                && !usedRewardNames.Contains("剑诀精修"))
             {
                 return DemoReward.Upgrade();
             }
 
-            if (layer >= 3)
+            if (context.Layer >= 3)
             {
                 return DemoReward.Heal();
             }
 
-            DemoCard fallback = PickCardFromPriority(GeneralUtilityCards, usedCardIds)
-                ?? PickWeightedCard(layer, focusStyle, usedCardIds, candidate => candidate.Type == DemoCardType.Defense || candidate.Type == DemoCardType.Resource);
-            return DemoReward.FromCard(fallback.Clone());
+            DemoCard fallback = PickWeightedCard(
+                context,
+                focusStyle,
+                usedCardIds,
+                source,
+                candidate => candidate.Type == DemoCardType.Defense || candidate.Type == DemoCardType.Resource);
+
+            return fallback == null ? DemoReward.Heal() : DemoReward.FromCard(fallback.Clone());
         }
 
         private DemoReward CreateWildcardReward(
-            int layer,
+            DemoRewardContext context,
             DemoSwordStyle focusStyle,
             DemoRunState run,
-            HashSet<string> usedCardIds,
-            HashSet<string> usedRewardNames)
+            Random source,
+            ISet<string> usedCardIds,
+            ISet<string> usedRewardNames)
         {
-            string generalRelic = GetNextGeneralRelic(run, layer);
-            if (!string.IsNullOrEmpty(generalRelic) && !usedRewardNames.Contains(generalRelic))
+            if (context.Layer >= 3
+                && context.RouteRisk == DemoRouteRisk.Risky
+                && context.AllowsDivine
+                && (run == null || !run.HasGongfa(DemoGongfaType.WanjianReturn)))
             {
-                return DemoReward.Relic(generalRelic);
+                return DemoReward.Gongfa(DemoGongfaType.WanjianReturn);
+            }
+
+            if (context.Layer >= 2
+                && (run == null || !run.HasArtifact(DemoArtifactType.SwordBox))
+                && !usedRewardNames.Contains(DemoArtifactLibrary.Get(DemoArtifactType.SwordBox).Name))
+            {
+                return DemoReward.Artifact(DemoArtifactType.SwordBox);
             }
 
             DemoCard wildcardCard = PickCardFromPriority(
                 GetPriorityIds("card_reward_wildcard", focusStyle, WildcardCardPriority),
-                usedCardIds);
+                context,
+                usedCardIds,
+                source);
 
             if (wildcardCard == null)
             {
                 wildcardCard = PickWeightedCard(
-                    layer,
+                    context,
                     focusStyle,
                     usedCardIds,
-                    candidate => candidate.Quality >= DemoQuality.Mysterious || candidate.Type == DemoCardType.FlyingSword || candidate.Type == DemoCardType.Finisher);
+                    source,
+                    candidate => candidate.Quality >= DemoQuality.Mysterious
+                        || candidate.Type == DemoCardType.FlyingSword
+                        || (context.AllowsFinisher && candidate.Type == DemoCardType.Finisher));
             }
 
-            if (wildcardCard != null)
-            {
-                return DemoReward.FromCard(wildcardCard.Clone());
-            }
-
-            return run.CurrentHealth < run.MaxHealth ? DemoReward.Heal() : DemoReward.Upgrade();
+            return wildcardCard == null ? null : DemoReward.FromCard(wildcardCard.Clone());
         }
 
-        private DemoCard PickCardFromPriority(IEnumerable<string> ids, ISet<string> usedCardIds)
+        private DemoCard PickCardFromPriority(
+            IEnumerable<string> ids,
+            DemoRewardContext context,
+            ISet<string> usedCardIds,
+            Random source)
         {
             if (ids == null)
             {
@@ -179,7 +364,9 @@ namespace PathOfTenThousandWays.Demo.Rewards
             }
 
             List<string> candidates = ids
-                .Where(id => !string.IsNullOrEmpty(id) && !usedCardIds.Contains(id))
+                .Where(id => !string.IsNullOrEmpty(id))
+                .Where(id => !usedCardIds.Contains(id))
+                .Where(id => IsCardAllowed(id, context))
                 .ToList();
 
             if (candidates.Count == 0)
@@ -187,25 +374,23 @@ namespace PathOfTenThousandWays.Demo.Rewards
                 return null;
             }
 
-            return DemoCardLibrary.Create(candidates[random.Next(candidates.Count)]);
+            return CreateCard(candidates[source.Next(candidates.Count)]);
         }
 
         private DemoCard PickWeightedCard(
-            int layer,
+            DemoRewardContext context,
             DemoSwordStyle focusStyle,
             ISet<string> usedCardIds,
+            Random source,
             Func<DemoCard, bool> predicate)
         {
             List<DemoCard> weighted = new List<DemoCard>();
 
             foreach (DemoCard card in cardPool)
             {
-                if (usedCardIds.Contains(card.Id))
-                {
-                    continue;
-                }
-
-                if (predicate != null && !predicate(card))
+                if (usedCardIds.Contains(card.Id)
+                    || !IsCardAllowed(card.Id, context)
+                    || (predicate != null && !predicate(card)))
                 {
                     continue;
                 }
@@ -218,19 +403,83 @@ namespace PathOfTenThousandWays.Demo.Rewards
                     weighted.Add(card);
                 }
 
-                if (layer >= 2 && card.Type == DemoCardType.FlyingSword)
+                if (context.Layer >= 2 && card.Type == DemoCardType.FlyingSword)
                 {
                     weighted.Add(card);
                 }
 
-                if (layer >= 3 && (card.Type == DemoCardType.Finisher || card.Quality >= DemoQuality.Earth))
+                if (context.Layer >= 3 && context.AllowsFinisher
+                    && (card.Type == DemoCardType.Finisher || card.Quality >= DemoQuality.Earth))
                 {
                     weighted.Add(card);
                     weighted.Add(card);
                 }
             }
 
-            return weighted.Count == 0 ? null : weighted[random.Next(weighted.Count)];
+            return weighted.Count == 0 ? null : weighted[source.Next(weighted.Count)];
+        }
+
+        private static bool IsCardAllowed(string cardId, DemoRewardContext context)
+        {
+            if (string.IsNullOrEmpty(cardId))
+            {
+                return false;
+            }
+
+            if (context.Layer < 2 && LayerTwoOrLaterCards.Contains(cardId))
+            {
+                return false;
+            }
+
+            if ((context.Layer < 3 || !context.AllowsFinisher)
+                && string.Equals(cardId, "wanjian_burst", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            DemoCard card = CreateCard(cardId);
+            return card != null && (context.AllowsFinisher || card.Type != DemoCardType.Finisher);
+        }
+
+        private static bool HasComponent(DemoRewardContext context, DemoRunState run, string componentId)
+        {
+            return context.HasComponent(componentId) || (run != null && run.HasBuildComponent(componentId));
+        }
+
+        private static void TrackReward(
+            DemoReward reward,
+            ISet<string> usedCardIds,
+            ISet<string> usedRewardNames)
+        {
+            if (reward == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(reward.Name))
+            {
+                usedRewardNames.Add(reward.Name);
+            }
+
+            if (reward.Card != null)
+            {
+                usedCardIds.Add(reward.Card.Id);
+            }
+        }
+
+        private static string BuildFocusDelta(DemoRewardContext context, DemoRunState run)
+        {
+            if (context.Layer >= 3 && (run == null || !run.HasBuildComponent("wanjian_burst")))
+            {
+                return "距万剑收束：补入万剑诀";
+            }
+
+            if (context.Layer >= 2 && (run == null || !run.HasBuildComponent("sword_array")))
+            {
+                return "距剑阵运转：补入小诛仙剑阵";
+            }
+
+            return "当前主轴：飞剑增殖与剑意积累";
         }
 
         private static IEnumerable<string> GetPriorityIds(
@@ -247,72 +496,11 @@ namespace PathOfTenThousandWays.Demo.Rewards
             return fallback.ContainsKey(style) ? fallback[style] : fallback[DemoSwordStyle.General];
         }
 
-        private static string GetNextStyleRelic(DemoRunState run, DemoSwordStyle focusStyle, int layer)
+        private static DemoCard CreateCard(string id)
         {
-            if (run == null || layer < 2)
-            {
-                return null;
-            }
-
-            string[] relics = GetStyleRelicPriority(focusStyle);
-            int ownedCount = relics.Count(run.HasRelic);
-            int targetCount = Math.Min(layer - 1, relics.Length);
-
-            if (ownedCount >= targetCount)
-            {
-                return null;
-            }
-
-            return relics.FirstOrDefault(relicName => !run.HasRelic(relicName));
-        }
-
-        private static string GetNextGeneralRelic(DemoRunState run, int layer)
-        {
-            if (run == null || layer < 2)
-            {
-                return null;
-            }
-
-            List<string> priority = new List<string>();
-            if (run.HasArtifact(DemoArtifactType.HaotianMirror))
-            {
-                priority.Add("残破古镜");
-            }
-
-            if (run.CurrentHealth <= run.MaxHealth * 2 / 3)
-            {
-                priority.Add("护心镜");
-            }
-
-            priority.Add("聚灵符");
-            priority.Add("护心镜");
-
-            foreach (string relicName in priority)
-            {
-                if (!run.HasRelic(relicName))
-                {
-                    return relicName;
-                }
-            }
-
-            return null;
-        }
-
-        private static string[] GetStyleRelicPriority(DemoSwordStyle focusStyle)
-        {
-            switch (focusStyle)
-            {
-                case DemoSwordStyle.Thunder:
-                    return new[] { "雷心", "九霄雷印" };
-                case DemoSwordStyle.Blood:
-                    return new[] { "血剑胚", "血魔珠" };
-                case DemoSwordStyle.Wanjian:
-                default:
-                    return new[] { "剑骨", "剑冢残碑", "万剑剑匣" };
-            }
+            return DemoCardLibrary.Create(id);
         }
     }
-
     public sealed class DemoRouteRewardService
     {
         public List<DemoReward> CreateChoices(int layer, DemoRunState run)
@@ -341,11 +529,10 @@ namespace PathOfTenThousandWays.Demo.Rewards
                     "稳",
                     "稳定路线",
                     "矿口余烬",
-                    "沿旧矿外沿稳步推进，先把首战所得消化成第一批飞剑组件，再用修炼节点补足生存和灵气缺口。",
-                    new DemoMapNode(1, DemoNodeType.Battle, "矿口余烬"),
-                    new DemoMapNode(1, DemoNodeType.Reward, "飞剑组件"),
-                    new DemoMapNode(1, DemoNodeType.Training, "矿灯下调息"),
-                    new DemoMapNode(2, DemoNodeType.RouteChoice, "第二层岔路")),
+                    "普通战后在矿灯下调息并定向补启动缺口，以恢复换取稳定推进。",
+                    new DemoMapNode(1, DemoNodeType.Battle, "矿口余烬", "node_l1_stable_battle", "enemy_mine_ember", "reward_layer1_standard", null),
+                    new DemoMapNode(1, DemoNodeType.Training, "矿灯下调息", "node_l1_stable_training", null, null, "action_training_stable_l1"),
+                    new DemoMapNode(2, DemoNodeType.RouteChoice, "第二层岔路", "node_l1_stable_choice_l2", null, null, "choose_route_layer_2")),
                 CreateRouteReward(
                     "route_branch_risky",
                     focusStyle,
@@ -353,11 +540,10 @@ namespace PathOfTenThousandWays.Demo.Rewards
                     "险",
                     "冒险路线",
                     "塌井深处",
-                    "直接下探塌井深处，连续承受更高战斗压力，提前换取高价值补强和更快的成型速度。",
-                    new DemoMapNode(1, DemoNodeType.Battle, "塌井守卫"),
-                    new DemoMapNode(1, DemoNodeType.Reward, "塌井秘藏"),
-                    new DemoMapNode(1, DemoNodeType.Battle, "井底邪影"),
-                    new DemoMapNode(2, DemoNodeType.RouteChoice, "第二层岔路")),
+                    "连续挑战两名精英，不获免费恢复，以更早获得两次高档战斗奖励。",
+                    new DemoMapNode(1, DemoNodeType.Battle, "塌井守卫", "node_l1_risky_elite_1", "enemy_collapsed_well_guard", "reward_layer1_elite", null),
+                    new DemoMapNode(1, DemoNodeType.Battle, "井底邪影", "node_l1_risky_elite_2", "enemy_well_bottom_shadow", "reward_layer1_elite", null),
+                    new DemoMapNode(2, DemoNodeType.RouteChoice, "第二层岔路", "node_l1_risky_choice_l2", null, null, "choose_route_layer_2")),
                 CreateRouteReward(
                     "route_branch_build",
                     focusStyle,
@@ -365,11 +551,11 @@ namespace PathOfTenThousandWays.Demo.Rewards
                     "构",
                     "构筑路线",
                     "旧账暗室",
-                    "先绕进旧账暗室补功法与器物，再打一场验证当前循环，适合把首战奖励整理成明确构筑方向。",
-                    new DemoMapNode(1, DemoNodeType.Training, "暗室悟法"),
-                    new DemoMapNode(1, DemoNodeType.Shop, "旧账整备"),
-                    new DemoMapNode(1, DemoNodeType.Battle, "符债残影"),
-                    new DemoMapNode(2, DemoNodeType.RouteChoice, "第二层岔路"))
+                    "先悟法再整备，并以普通战验证循环，用较少随机性补齐万剑启动组件。",
+                    new DemoMapNode(1, DemoNodeType.Training, "暗室悟法", "node_l1_build_training", null, null, "action_training_focus_l1"),
+                    new DemoMapNode(1, DemoNodeType.Shop, "旧账整备", "node_l1_build_prepare", null, null, "action_prepare_build_l1"),
+                    new DemoMapNode(1, DemoNodeType.Battle, "符债残影", "node_l1_build_battle", "enemy_talisman_debt_wraith", "reward_layer1_build", null),
+                    new DemoMapNode(2, DemoNodeType.RouteChoice, "第二层岔路", "node_l1_build_choice_l2", null, null, "choose_route_layer_2"))
             };
         }
 
@@ -384,10 +570,10 @@ namespace PathOfTenThousandWays.Demo.Rewards
                     "稳",
                     "稳定路线",
                     "稳修收束",
-                    $"先用修炼补齐{GetStyleFocusText(focusStyle)}，再打一场常规斗法，让 build 在中段更稳地收束。",
-                    new DemoMapNode(2, DemoNodeType.Training, "法器与功法补强"),
-                    new DemoMapNode(2, DemoNodeType.Battle, "劫云守卫"),
-                    new DemoMapNode(3, DemoNodeType.RouteChoice, "第三层路口")),
+                    "先定向补小诛仙剑阵，再打一场普通战，稳定获得第二层核心。",
+                    new DemoMapNode(2, DemoNodeType.Training, "定向补缺", "node_l2_stable_fill", null, null, "action_directed_fill_l2"),
+                    new DemoMapNode(2, DemoNodeType.Battle, "劫云守卫", "node_l2_stable_battle", "enemy_calamity_guard", "reward_layer2_standard", null),
+                    new DemoMapNode(3, DemoNodeType.RouteChoice, "第三层路口", "node_l2_stable_choice_l3", null, null, "choose_route_layer_3")),
                 CreateRouteReward(
                     "route_middle_aggressive",
                     focusStyle,
@@ -395,11 +581,10 @@ namespace PathOfTenThousandWays.Demo.Rewards
                     "锋",
                     "冒险路线",
                     "追锋破阵",
-                    $"连续走两场斗法换一次额外补强，适合把{GetStyleFocusText(focusStyle)}直接压到中段高点。",
-                    new DemoMapNode(2, DemoNodeType.Battle, "裂空剑煞"),
-                    new DemoMapNode(2, DemoNodeType.Reward, "中段补强"),
-                    new DemoMapNode(2, DemoNodeType.Battle, "雷崖执兵"),
-                    new DemoMapNode(3, DemoNodeType.RouteChoice, "第三层路口")),
+                    "连续挑战两名第二层精英，以更高压力换取更早、更高品质的引擎补强。",
+                    new DemoMapNode(2, DemoNodeType.Battle, "裂空剑煞", "node_l2_aggressive_elite_1", "enemy_rift_sword_fiend", "reward_layer2_elite", null),
+                    new DemoMapNode(2, DemoNodeType.Battle, "雷崖执兵", "node_l2_aggressive_elite_2", "enemy_thunder_cliff_guard", "reward_layer2_elite", null),
+                    new DemoMapNode(3, DemoNodeType.RouteChoice, "第三层路口", "node_l2_aggressive_choice_l3", null, null, "choose_route_layer_3")),
                 CreateRouteReward(
                     "route_middle_artifact",
                     focusStyle,
@@ -407,10 +592,10 @@ namespace PathOfTenThousandWays.Demo.Rewards
                     "器",
                     "构筑路线",
                     "秘器共振",
-                    $"先去整备节点改写规则，再打一场试炼，让{GetStyleFocusText(focusStyle)}提前接上法器与神通。",
-                    new DemoMapNode(2, DemoNodeType.Shop, "秘器整备"),
-                    new DemoMapNode(2, DemoNodeType.Battle, "镜雷试炼"),
-                    new DemoMapNode(3, DemoNodeType.RouteChoice, "第三层路口"))
+                    "先在核心整备中补御剑诀或剑匣缺口，再进入精英试炼。",
+                    new DemoMapNode(2, DemoNodeType.Shop, "核心整备", "node_l2_artifact_prepare", null, null, "action_core_prepare_l2"),
+                    new DemoMapNode(2, DemoNodeType.Battle, "镜雷试炼", "node_l2_artifact_elite", "enemy_mirror_thunder_trial", "reward_layer2_core", null),
+                    new DemoMapNode(3, DemoNodeType.RouteChoice, "第三层路口", "node_l2_artifact_choice_l3", null, null, "choose_route_layer_3"))
             };
         }
 
@@ -425,10 +610,10 @@ namespace PathOfTenThousandWays.Demo.Rewards
                     "备",
                     "稳守路线",
                     "整备冲劫",
-                    $"先整备再渡劫，让{GetStyleFocusText(focusStyle)}在 Boss 战里稳定落地。",
-                    new DemoMapNode(3, DemoNodeType.Shop, "Boss 前整备"),
-                    new DemoMapNode(3, DemoNodeType.Boss, "天劫化身"),
-                    new DemoMapNode(4, DemoNodeType.Victory, "一世修行完成")),
+                    "Boss 前恢复并完成整备，以当前成形构筑稳定渡劫。",
+                    new DemoMapNode(3, DemoNodeType.Shop, "Boss 前整备", "node_l3_stable_prepare", null, null, "action_prepare_boss"),
+                    new DemoMapNode(3, DemoNodeType.Boss, "天劫化身", "node_l3_stable_boss", "enemy_tianjie_avatar", "reward_boss_completion", null),
+                    new DemoMapNode(4, DemoNodeType.Result, "一世结算", "node_l3_stable_result", null, null, "show_victory_result")),
                 CreateRouteReward(
                     "route_final_seclusion",
                     focusStyle,
@@ -436,11 +621,11 @@ namespace PathOfTenThousandWays.Demo.Rewards
                     "悟",
                     "爆发路线",
                     "闭关悟道",
-                    "再闭关一轮补足神通和续航，把爆发窗口完整地留给天劫降临那一刻。",
-                    new DemoMapNode(3, DemoNodeType.Training, "渡劫前闭关"),
-                    new DemoMapNode(3, DemoNodeType.Shop, "Boss 前整备"),
-                    new DemoMapNode(3, DemoNodeType.Boss, "天劫化身"),
-                    new DemoMapNode(4, DemoNodeType.Victory, "一世修行完成")),
+                    "先定向补万剑诀，再完成整备，把完整爆发窗口留给天劫。",
+                    new DemoMapNode(3, DemoNodeType.Training, "终结补强", "node_l3_seclusion_finisher", null, null, "action_finisher_fill_l3"),
+                    new DemoMapNode(3, DemoNodeType.Shop, "Boss 前整备", "node_l3_seclusion_prepare", null, null, "action_prepare_boss"),
+                    new DemoMapNode(3, DemoNodeType.Boss, "天劫化身", "node_l3_seclusion_boss", "enemy_tianjie_avatar", "reward_boss_completion", null),
+                    new DemoMapNode(4, DemoNodeType.Result, "一世结算", "node_l3_seclusion_result", null, null, "show_victory_result")),
                 CreateRouteReward(
                     "route_final_desperate",
                     focusStyle,
@@ -448,14 +633,12 @@ namespace PathOfTenThousandWays.Demo.Rewards
                     "劫",
                     "背水路线",
                     "背水破劫",
-                    "再打一场劫前守门换最后一次补强，用更高的风险把斩杀上限也一并抬上去。",
-                    new DemoMapNode(3, DemoNodeType.Battle, "劫前守门"),
-                    new DemoMapNode(3, DemoNodeType.Reward, "最后补强"),
-                    new DemoMapNode(3, DemoNodeType.Boss, "天劫化身"),
-                    new DemoMapNode(4, DemoNodeType.Victory, "一世修行完成"))
+                    "渡劫前再战一名高奖精英，并允许万剑归宗出现，以风险抬高上限。",
+                    new DemoMapNode(3, DemoNodeType.Battle, "劫前守门", "node_l3_desperate_elite", "enemy_calamity_gatekeeper", "reward_layer3_high", null),
+                    new DemoMapNode(3, DemoNodeType.Boss, "天劫化身", "node_l3_desperate_boss", "enemy_tianjie_avatar", "reward_boss_completion", null),
+                    new DemoMapNode(4, DemoNodeType.Result, "一世结算", "node_l3_desperate_result", null, null, "show_victory_result"))
             };
         }
-
         private static DemoReward CreateRouteReward(
             string routePlanId,
             DemoSwordStyle focusStyle,
@@ -481,7 +664,7 @@ namespace PathOfTenThousandWays.Demo.Rewards
             }
 
             return DemoReward.Route(
-                new DemoMapRoutePlan(fallbackName, fallbackDescription, fallbackNodes),
+                new DemoMapRoutePlan(routePlanId, fallbackName, fallbackDescription, fallbackNodes),
                 focusStyle,
                 fallbackQuality,
                 fallbackGlyph,

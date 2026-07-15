@@ -1,0 +1,14 @@
+action_profile_id,action_type,reward_profile_id,guaranteed_component_id,heal_amount,description
+opening_selection,opening,,,0,完成定根脚所携所往
+choose_route_layer_1,route_choice,,,0,选择第一层前路
+choose_route_layer_2,route_choice,,,0,选择第二层前路
+choose_route_layer_3,route_choice,,,0,选择第三层前路
+action_training_stable_l1,training,reward_layer1_standard,sword_focus,12,稳定线恢复并补万剑启动缺口
+action_training_focus_l1,training,reward_layer1_build,sword_focus,0,构筑线定向补万剑启动组件
+action_prepare_build_l1,preparation,reward_layer1_build,,0,整理牌组并预览下一阶段缺口
+action_directed_fill_l2,training,reward_layer2_standard,sword_array,8,第二层先补小诛仙剑阵再恢复少量生命
+action_core_prepare_l2,preparation,reward_layer2_core,engine_wanjian,0,第二层补御剑诀或剑匣中的缺失引擎
+action_prepare_boss,preparation,reward_layer3_standard,survival_boss,18,Boss 前恢复并保证玄门护身或紫金葫芦至少其一
+action_finisher_fill_l3,training,reward_layer3_standard,wanjian_burst,0,第三层定向补万剑诀收束
+show_victory_result,result,,,0,展示胜利的一世结算
+show_defeat_result,result,,,0,展示失败的一世结算
