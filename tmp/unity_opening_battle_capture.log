@@ -1,0 +1,678 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.3/staging' branch; Version is '6000.3.17f1 (cf0352b38e81) revision 13566802'; Using compiler version '194234433'; Build Type 'Release'
+OS: 'Windows 11  (10.0.26200) CoreCountrySpecific' Language: 'zh' Physical Memory: 16227 MB
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-张海桃" at "2026-07-16T15:26:29.607605Z"
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-07-16T15:26:29Z
+
+COMMAND LINE ARGUMENTS:
+D:\Unity Hub\Editor\Unity.exe
+-batchmode
+-projectPath
+D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY
+-executeMethod
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool.CaptureOpeningBattle
+-logFile
+D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\unity_opening_battle_capture.log
+Successfully changed project path to: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY
+D:/MyGame/Path_of_Ten_Thousand_Ways/UNITY
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+Player connection [9108]  Target information:
+
+Player connection [9108]  * "[IP] 192.168.1.2 [Port] 55504 [Flags] 2 [Guid] 3364485164 [EditorId] 3364485164 [Version] 1048832 [Id] WindowsEditor(7,MSI) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [9108] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [9108] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-18324" after 0.4 seconds.
+[Licensing::Module] Licensing is not yet initialized.
+[Licensing::Client] Error: HandshakeResponse reported an error:
+	ResponseCode: 505
+	ResponseStatus: Unsupported protocol version '1.18.1'.
+[Licensing::Module] Error: Failed to handshake to channel: "LicenseClient-张海桃"
+[Licensing::IpcConnector] LicenseClient-张海桃 channel disconnected successfully.
+[Licensing::IpcConnector] Channel LicenseClient-张海桃-6000.3.17 doesn't exist
+[Licensing::Module] Successfully launched the LicensingClient (PId: 9220)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-张海桃-6000.3.17" at "2026-07-16T15:26:32.248915Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 9220, path: "D:/Unity Hub/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.1+9fbee8e
+  Session Id:              f4b86da937b94a16a9c764b5d10f1a2f
+  Correlation Id:          52479df7dc2637862bc5b1eff2f60f4b
+  External correlation Id: 8299686156550159541
+  Machine Id:              B0U8yf2hWd9+tEz6yaV3sSlcK3A=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-张海桃-6000.3.17" (connect: 0.85s, validation: 0.19s, handshake: 0.01s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-张海桃-6000.3.17-notifications" at "2026-07-16T15:26:32.4563355Z"
+[Licensing::Module] Connected to LicensingClient (PId: 9220, launch time: 0.01, total connection time: 1.06s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: ewogICJzdWJzR3JvdXAiIDogInVuaXR5IGVkaXRvciIsCiAgIm5hbWVzcGFjZSIgOiAidW5pdHlfZWRpdG9yIiwKICAidHlwZSIgOiAiRURJVE9SIiwKICAidGFnIiA6ICJVbml0eVBlcnNvbmFsXXXX
+  Product: Unity Personal Version
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.01
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 2.91s
+[Licensing::Module] Licensing is initialized (took 2.33s).
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Refreshing native plugins compatible for Editor in 0.06 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.3.17f1 (cf0352b38e81)
+[Subsystems] Discovering subsystems at path D:/Unity Hub/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path D:/MyGame/Path_of_Ten_Thousand_Ways/UNITY/Assets
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce GTX 1660 Ti (ID=0x2191)
+    Vendor:   NVIDIA
+    VRAM:     5966 MB
+    Driver:   32.0.15.8115
+Initialize mono
+Mono path[0] = 'D:/Unity Hub/Editor/Data/Managed'
+Mono path[1] = 'D:/Unity Hub/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'D:/Unity Hub/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56324
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: D:/Unity Hub/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.001847 seconds.
+- Loaded All Assemblies, in  0.742 seconds
+Native extension for WindowsStandalone target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.552 seconds
+Domain Reload Profiling: 1294ms
+	BeginReloadAssembly (215ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (2ms)
+	RebuildCommonClasses (60ms)
+	RebuildNativeTypeToScriptingClass (21ms)
+	initialDomainReloadingComplete (71ms)
+	LoadAllAssembliesAndSetupDomain (374ms)
+		LoadAssemblies (213ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (370ms)
+			TypeCache.Refresh (367ms)
+				TypeCache.ScanAssembly (345ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (1ms)
+	FinalizeReload (553ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (493ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (80ms)
+			SetLoadedEditorAssemblies (5ms)
+			BeforeProcessingInitializeOnLoad (122ms)
+			ProcessInitializeOnLoadAttributes (177ms)
+			ProcessInitializeOnLoadMethodAttributes (108ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 12 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.inputsystem@1.14.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.inputsystem@7fe8299111a7)
+  Built-in packages:
+    com.unity.ugui@2.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.ugui@05e8dec4ac02)
+    com.unity.modules.adaptiveperformance@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.adaptiveperformance)
+    com.unity.modules.vectorgraphics@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.vectorgraphics)
+    com.unity.modules.uielements@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.imageconversion@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.subsystems@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.ui@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.jsonserialize@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.hierarchycore@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.modules.physics@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.physics)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.01 seconds
+Starting: D:\Unity Hub\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: D:/MyGame/Path_of_Ten_Thousand_Ways/UNITY
+DisplayProgressbar: Compiling Scripts
+ExitCode: 0 Duration: 0s92ms
+*** Tundra build success (0.05 seconds), 0 items updated, 235 evaluated
+AssetDatabase: script compilation time: 0.569849s
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.546 seconds
+Refreshing native plugins compatible for Editor in 0.48 ms, found 0 plugins.
+Native extension for WindowsStandalone target not found
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.757 seconds
+Domain Reload Profiling: 1302ms
+	BeginReloadAssembly (391ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (29ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (147ms)
+	RebuildCommonClasses (56ms)
+	RebuildNativeTypeToScriptingClass (21ms)
+	initialDomainReloadingComplete (23ms)
+	LoadAllAssembliesAndSetupDomain (54ms)
+		LoadAssemblies (183ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (43ms)
+			TypeCache.Refresh (30ms)
+				TypeCache.ScanAssembly (23ms)
+			BuildScriptInfoCaches (8ms)
+			ResolveRequiredComponents (3ms)
+	FinalizeReload (757ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (471ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (29ms)
+			SetLoadedEditorAssemblies (5ms)
+			BeforeProcessingInitializeOnLoad (158ms)
+			ProcessInitializeOnLoadAttributes (232ms)
+			ProcessInitializeOnLoadMethodAttributes (44ms)
+			AfterProcessingInitializeOnLoad (2ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (32ms)
+Start importing Assets/Resources/Art/VFX/vfx_opening_guard_ink_001.png using Guid(e260d522a31e70348a31824026cae9dc) (TextureImporter) -> (artifact id: '3531ffe0949b5015b4588157500ebb82') in 0.0727293 seconds
+Start importing Assets/Resources/Art/Characters/char_enemy_old_mine_wraith_battle_003.png using Guid(13895c7a05249ef4eab3f8e0ab0bc672) (TextureImporter) -> (artifact id: '9593ec434d7980c5aac95f877a38e77c') in 0.0182516 seconds
+Start importing Assets/Resources/Art/Characters/char_player_sword_cultivator_battle_003.png using Guid(73ebde768f305034abd47a73569865fe) (TextureImporter) -> (artifact id: '3f41a933d474d23bd62eb3a12f4b91ef') in 0.0222052 seconds
+Start importing Assets/Art/VFX/vfx_opening_cloud_draw_001.png using Guid(f3e7cb7964587b245a3fc50df9336007) (TextureImporter) -> (artifact id: 'd3d83649d73fc8ab29d0aaf53eb008da') in 0.0121738 seconds
+Start importing Assets/Art/Characters/char_player_sword_cultivator_battle_003.png using Guid(447930a8e84e98e448058971e730b284) (TextureImporter) -> (artifact id: 'ed9f482467f4a2cf52353cc06a003301') in 0.0184865 seconds
+Start importing Assets/Resources/Art/VFX/vfx_opening_flying_sword_002.png using Guid(54f86d117a0c0e54cbb245714b3299e4) (TextureImporter) -> (artifact id: 'b457e2bcb1f477a3d6ab5c353efaf646') in 0.006874 seconds
+Start importing Assets/Art/VFX/vfx_opening_sword_impact_002.png using Guid(84415e1afacaa2740ba55ac19d9d6c09) (TextureImporter) -> (artifact id: '591aae53ff6eb7b2f111057d54a38326') in 0.0163404 seconds
+Start importing Assets/Resources/Art/VFX/vfx_opening_cloud_draw_001.png using Guid(e5d83dce383e80347aead7f11740c45a) (TextureImporter) -> (artifact id: 'f1650b2b0d2db614b33327c300d56cd1') in 0.0104211 seconds
+Start importing Assets/Art/Characters/char_enemy_old_mine_wraith_battle_003.png using Guid(c88580a1b3d255848927baab7d3e91c7) (TextureImporter) -> (artifact id: '610002d2746fb4b95dc5e68efba95c63') in 0.0185805 seconds
+Start importing Assets/Resources/Art/Scenes/scene_battle_old_mine_opening_mid_002.png using Guid(d8f24e3f8f99cce4bbe0a67de5f02808) (TextureImporter) -> (artifact id: 'f854f8b87845d4c0b45a486dc2cf6cc3') in 0.1042749 seconds
+Start importing Assets/Art/Scenes/scene_battle_old_mine_opening_near_002.png using Guid(a9d292dae6143634fbe8cfa9d6dae9d9) (TextureImporter) -> (artifact id: '44a3412012c9409353d25f41aa0b8786') in 0.0787926 seconds
+Start importing Assets/Art/VFX/vfx_opening_guard_ink_001.png using Guid(d945f524000ab7843ac7b084c970cfba) (TextureImporter) -> (artifact id: 'cb22d9bf3d150440caa477997905de12') in 0.0124326 seconds
+Start importing Assets/Art/Scenes/scene_battle_old_mine_opening_mid_002.png using Guid(1cfff0daba69509468292be895be296d) (TextureImporter) -> (artifact id: 'e5cebefb81662cd6d0f3bf9fd68be1e6') in 0.1069375 seconds
+Start importing Assets/Resources/Art/VFX/vfx_opening_sword_impact_002.png using Guid(8e3d99b40b978e34dbef3e1d48c899da) (TextureImporter) -> (artifact id: 'e871f470fe92983713d174e79fdad977') in 0.0183495 seconds
+Start importing Assets/Art/VFX/vfx_opening_flying_sword_002.png using Guid(dec48054002d902408e10bc007e003aa) (TextureImporter) -> (artifact id: 'd6b01d60acfa2451183cc301a6bb57aa') in 0.0066448 seconds
+Start importing Assets/Resources/Art/Scenes/scene_battle_old_mine_opening_near_002.png using Guid(3fabc6ab5e5e8d241a21988ea2140af7) (TextureImporter) -> (artifact id: 'a61b774d7c17952342e4dd1a4bf53f84') in 0.0833044 seconds
+Refreshing native plugins compatible for Editor in 0.31 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=3a238bb9f60c5674b9839ef5de312616): Total: 2.828 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=16 (actual=16, local cache=0, cache server=0)
+		Asset DB Process Time: managed=6 ms, native=1587 ms
+		Asset DB Callback time: managed=89 ms, native=15 ms
+		Scripting: domain reloads=1, domain reload time=546 ms, compile time=573 ms, other=9 ms
+		Project Asset Count: scripts=226, non-scripts=439
+		Asset File Changes: new=0, changed=16, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.001ms
+	InvokePackagesCallback: 15.804ms
+	ApplyChangesToAssetFolders: 0.762ms
+	Scan: 97.893ms
+	OnSourceAssetsModified: 0.957ms
+	CategorizeAssetsWithTransientArtifact: 3.261ms
+	ProcessAssetsWithTransientArtifactChanges: 17.720ms
+	CategorizeAssets: 6.454ms
+	ImportOutOfDateAssets: 1374.191ms (186.624ms without children)
+		ImportManagerImport: 614.162ms (1.947ms without children)
+			ImportInProcess: 612.080ms
+			UpdateCategorizedAssets: 0.136ms
+		CompileScripts: 572.788ms
+		ReloadNativeAssets: 0.001ms
+		UnloadImportedAssets: 0.175ms
+		ReloadImportedAssets: 0.002ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.132ms
+		InitializingProgressBar: 0.006ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.000ms
+		OnDemandSchedulerStart: 0.301ms
+	PostProcessAllAssets: 89.954ms
+	Hotreload: 1.942ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.006ms
+	UnloadStreamsBegin: 2.187ms
+	PersistCurrentRevisions: 0.164ms
+	UnloadStreamsEnd: 0.001ms
+	GenerateScriptTypeHashes: 1.645ms
+	Untracked: 1216.742ms
+
+Application.AssetDatabase Initial Refresh End
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.04 seconds
+Scanning for USB devices : 1.654ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-UNITY
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 811 unused Assets / (0.7 MB). Loaded Objects now: 1444.
+Memory consumption went from 99.6 MB to 98.9 MB.
+Total: 5.938300 ms (FindLiveObjects: 0.126200 ms CreateObjectMapping: 0.052000 ms MarkObjects: 5.257900 ms  DeleteObjects: 0.501300 ms)
+
+[Project] Loading completed in 8.037 seconds
+	Project init time: 				7.751 seconds
+		Template init time: 		0.000 seconds
+		Package Manager init time: 		2.737 seconds
+		Asset Database init time: 		0.209 seconds
+		Global illumination init time: 	0.003 seconds
+		Assemblies load time: 			1.313 seconds
+		Unity extensions init time: 	0.001 seconds
+		Asset Database refresh time: 	2.828 seconds
+	Scene opening time: 			0.114 seconds
+##utp:{"type":"ProjectInfo","version":2,"phase":"Immediate","time":1784215597629,"processId":18324,"projectLoad":8.0371168,"projectInit":7.7511904,"templateInit":0.0,"packageManagerInit":2.737333,"assetDatabaseInit":0.2085268,"globalIlluminationInit":0.0025325,"assembliesLoad":1.313114,"unityExtensionsInit":0.0012374,"assetDatabaseRefresh":2.8281573,"sceneOpening":0.1143263}
+##utp:{"type":"EditorInfo","version":2,"phase":"Immediate","time":1784215597629,"processId":18324,"editorVersion":"6000.3.17f1 (cf0352b38e81)","branch":"6000.3/staging","buildType":"Release","platform":"Windows"}
+Reloading assemblies for play mode.
+Reloading assemblies after forced synchronous recompile.
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.421 seconds
+Refreshing native plugins compatible for Editor in 0.26 ms, found 0 plugins.
+Native extension for WindowsStandalone target not found
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.828 seconds
+Domain Reload Profiling: 1249ms
+	BeginReloadAssembly (273ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (23ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (48ms)
+	RebuildCommonClasses (58ms)
+	RebuildNativeTypeToScriptingClass (21ms)
+	initialDomainReloadingComplete (26ms)
+	LoadAllAssembliesAndSetupDomain (43ms)
+		LoadAssemblies (185ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (32ms)
+			TypeCache.Refresh (5ms)
+				TypeCache.ScanAssembly (0ms)
+			BuildScriptInfoCaches (20ms)
+			ResolveRequiredComponents (4ms)
+	FinalizeReload (829ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (529ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (33ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (156ms)
+			ProcessInitializeOnLoadAttributes (274ms)
+			ProcessInitializeOnLoadMethodAttributes (59ms)
+			AfterProcessingInitializeOnLoad (3ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (38ms)
+Asset Pipeline Refresh (id=dd71d441c37b41c458c75d7963a82689): Total: 1.321 seconds - Initiated by StopAssetImportingV2(ForceSynchronousImport | ForceDomainReload)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=878 ms
+		Asset DB Callback time: managed=16 ms, native=0 ms
+		Scripting: domain reloads=1, domain reload time=423 ms, compile time=3 ms, other=0 ms
+		Project Asset Count: scripts=226, non-scripts=439
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.001ms
+	InvokePackagesCallback: 2.583ms
+	ApplyChangesToAssetFolders: 0.095ms
+	Scan: 0.001ms
+	OnSourceAssetsModified: 0.001ms
+	CategorizeAssetsWithTransientArtifact: 0.002ms
+	ProcessAssetsWithTransientArtifactChanges: 0.799ms
+	CategorizeAssets: 7.566ms
+	ImportOutOfDateAssets: 830.788ms (827.506ms without children)
+		CompileScripts: 2.854ms
+		CollectScriptTypesHashes: 0.001ms
+		ReloadNativeAssets: 0.000ms
+		UnloadImportedAssets: 0.052ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.110ms
+		InitializingProgressBar: 0.001ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.000ms
+		OnDemandSchedulerStart: 0.266ms
+	PostProcessAllAssets: 16.122ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.027ms
+	UnloadStreamsBegin: 0.045ms
+	PersistCurrentRevisions: 0.028ms
+	UnloadStreamsEnd: 0.001ms
+	GenerateScriptTypeHashes: 1.805ms
+	Untracked: 463.357ms
+
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            0.386 ms
+	Integration:            1140.239 ms
+	Integration of assets:  0.002 ms
+	Thread Wait Time:       0.010 ms
+	Total Operation Time:   1140.637 ms
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+Start Indexing on Editor startup
+[Indexing] Starting Initial Indexing for Assets
+Created GICache directory at C:/Users/张海桃/AppData/LocalLow/Unity/Caches/GiCache. Took: 0.017s, timestamps: [10.634 - 10.651]
+[Licensing::Client] Successfully resolved entitlement details
+Capture pixel check battle_opening_intro_commercial.png: upper variance=4370.04, coverage=95.2%; middle variance=1969.78, coverage=99.8%; lower variance=2720.55, coverage=100.0%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:976)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:919)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:819)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 976)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\battle_opening_intro_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:824)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 824)
+
+Capture pixel check battle_opening_running_commercial.png: upper variance=5020.89, coverage=96.2%; middle variance=2604.44, coverage=99.7%; lower variance=3530.06, coverage=100.0%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:976)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:919)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:819)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 976)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\battle_opening_running_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:824)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 824)
+
+Capture pixel check battle_opening_running_commercial_1280x720.png: upper variance=5239.91, coverage=96.2%; middle variance=2836.40, coverage=99.8%; lower variance=3528.61, coverage=100.0%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:976)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:919)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:819)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 976)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\battle_opening_running_commercial_1280x720.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:824)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 824)
+
+Capture pixel check battle_opening_playable_hover_commercial.png: upper variance=5271.93, coverage=96.1%; middle variance=2960.39, coverage=99.7%; lower variance=2961.49, coverage=100.0%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:976)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:919)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:819)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 976)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\battle_opening_playable_hover_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:824)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 824)
+
+Capture pixel check battle_opening_energy_blocked_commercial.png: upper variance=5271.93, coverage=96.1%; middle variance=2836.80, coverage=99.7%; lower variance=2649.18, coverage=100.0%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:976)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:919)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:819)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 976)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\battle_opening_energy_blocked_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:824)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 824)
+
+Capture pixel check battle_opening_enemy_intent_commercial.png: upper variance=5271.36, coverage=96.1%; middle variance=2832.12, coverage=99.7%; lower variance=2643.03, coverage=100.0%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:976)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:919)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:819)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 976)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\battle_opening_enemy_intent_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:824)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 824)
+
+Opening battle victory dissolve started.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.UI.DemoBattleSceneView/<PlayOpeningVictoryDissolve>d__214:MoveNext () (at Assets/Scripts/UI/DemoBattleSceneView.cs:1317)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+UnityEngine.MonoBehaviour:StartCoroutineManaged2 (System.Collections.IEnumerator)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+PathOfTenThousandWays.Demo.UI.DemoBattleSceneView:Update () (at Assets/Scripts/UI/DemoBattleSceneView.cs:348)
+
+(Filename: Assets/Scripts/UI/DemoBattleSceneView.cs Line: 1317)
+
+Capture pixel check battle_opening_victory_commercial.png: upper variance=5343.49, coverage=96.1%; middle variance=2736.80, coverage=99.7%; lower variance=3207.46, coverage=100.0%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:976)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:919)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:819)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 976)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\battle_opening_victory_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:824)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:87)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 824)
+
+Opening battle victory dissolve completed.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.UI.DemoBattleSceneView/<PlayOpeningVictoryDissolve>d__214:MoveNext () (at Assets/Scripts/UI/DemoBattleSceneView.cs:1356)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UI/DemoBattleSceneView.cs Line: 1356)
+
+Opening battle victory transition check passed.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateOpeningBattleCapture (PathOfTenThousandWays.Demo.Systems.DemoGameController) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:274)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:113)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 274)
+
+Unloading 42 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            0.307 ms
+	Integration:            7.048 ms
+	Integration of assets:  0.001 ms
+	Thread Wait Time:       0.012 ms
+	Total Operation Time:   7.369 ms
+Unloading 42 unused Assets / (357.6 KB). Loaded Objects now: 1462.
+Memory consumption went from 139.4 MB to 139.0 MB.
+Total: 7.075400 ms (FindLiveObjects: 0.104200 ms CreateObjectMapping: 0.034000 ms MarkObjects: 6.631200 ms  DeleteObjects: 0.304900 ms)
+
+[UnityConnectServicesConfig] config is NOT valid, switching to default
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-张海桃-6000.3.17-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-张海桃-6000.3.17 channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+Checking for leaked weakptr:
+  Found no leaked weakptrs.
+[Package Manager] Server process was shutdown
+##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1784215604989,"processId":18324,"allocatedMemory":10590468,"memoryLabels":[{"Default":29313},{"Permanent":15236},{"NewDelete":67907},{"Thread":4230344},{"Manager":32381},{"VertexData":200},{"Geometry":816},{"Texture":296},{"Shader":79315},{"Material":24},{"GfxDevice":56016},{"Animation":392},{"Audio":2664},{"FreeType":8},{"FontEngine":736},{"Physics":2090},{"Physics2D":16},{"Serialization":720},{"Input":14984},{"JobScheduler":33024},{"TextLib":216},{"Mono":32},{"ScriptingNativeRuntime":155060},{"BaseObject":1641552},{"Resource":1336},{"Renderer":3000},{"Transform":4685},{"File":1016},{"WebCam":616},{"Culling":32},{"Terrain":11394},{"Wind":24},{"STL":40},{"String":33794},{"DynamicArray":80967},{"HashMap":57584},{"Utility":2660278},{"Curl":3507},{"PoolAlloc":2056},{"AI":80},{"TypeTree":5341},{"ScriptManager":512},{"RuntimeInitializeOnLoadManager":64},{"SpriteAtlas":112},{"GI":7792},{"Director":8240},{"CloudService":14112},{"WebRequest":808},{"VR":47994},{"SceneManager":504},{"Video":208},{"LazyScriptCache":32},{"Camera":17},{"Secure":2377},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":384},{"Hierarchy":608},{"CoreStats":13112},{"Identifiers":12960},{"Gui":96},{"EditorUtility":81021},{"VersionControl":4},{"Undo":947},{"AssetDatabase":775788},{"EditorGi":328},{"UnityConnect":29232},{"Upm":1896},{"AssetCompliance":64},{"DrivenProperties":72},{"LocalIPC":215},{"ProfilerEditor":9746},{"CoreBusinessMetrics":2859},{"Licensing":664},{"AssetReference":32},{"IPCStream":32}]}

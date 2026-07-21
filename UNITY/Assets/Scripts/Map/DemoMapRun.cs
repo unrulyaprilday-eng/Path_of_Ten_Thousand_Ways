@@ -68,18 +68,25 @@ namespace PathOfTenThousandWays.Demo.Map
         public string Id { get; }
         public string Name { get; }
         public string Description { get; }
+        public string Risk { get; }
         public List<DemoMapNode> Nodes { get; } = new List<DemoMapNode>();
 
         public DemoMapRoutePlan(string name, string description, params DemoMapNode[] nodes)
-            : this(null, name, description, nodes)
+            : this(null, name, description, null, nodes)
         {
         }
 
         public DemoMapRoutePlan(string id, string name, string description, params DemoMapNode[] nodes)
+            : this(id, name, description, null, nodes)
+        {
+        }
+
+        public DemoMapRoutePlan(string id, string name, string description, string risk, params DemoMapNode[] nodes)
         {
             Id = id;
             Name = name;
             Description = description;
+            Risk = risk;
 
             if (nodes == null)
             {
@@ -96,11 +103,106 @@ namespace PathOfTenThousandWays.Demo.Map
         }
     }
 
+    public sealed class DemoMapNodeRecord
+    {
+        public string NodeId { get; }
+        public string Name { get; }
+        public DemoNodeType Type { get; }
+        public int Layer { get; }
+        public string EncounterId { get; }
+        public string RewardProfileId { get; }
+        public string ActionProfileId { get; }
+        public bool IsCompleted { get; private set; }
+        public bool Succeeded { get; private set; }
+
+        internal DemoMapNodeRecord(DemoMapNode node, bool? succeeded)
+        {
+            NodeId = node?.NodeId ?? string.Empty;
+            Name = node?.Name ?? string.Empty;
+            Type = node?.Type ?? DemoNodeType.Start;
+            Layer = node?.Layer ?? 0;
+            EncounterId = node?.EncounterId ?? string.Empty;
+            RewardProfileId = node?.RewardProfileId ?? string.Empty;
+            ActionProfileId = node?.ActionProfileId ?? string.Empty;
+            IsCompleted = succeeded.HasValue;
+            Succeeded = succeeded ?? false;
+        }
+
+        internal void Complete(bool succeeded)
+        {
+            IsCompleted = true;
+            Succeeded = succeeded;
+        }
+    }
+
+    public sealed class DemoMapRouteRecord
+    {
+        private readonly List<DemoMapNodeRecord> nodes = new List<DemoMapNodeRecord>();
+
+        public string RouteId { get; }
+        public string Name { get; }
+        public int Layer { get; }
+        public string Risk { get; }
+        public IReadOnlyList<DemoMapNodeRecord> Nodes => nodes;
+
+        internal DemoMapRouteRecord(DemoMapRoutePlan routePlan, int layer, string risk)
+        {
+            RouteId = routePlan?.Id ?? string.Empty;
+            Name = routePlan?.Name ?? string.Empty;
+            Layer = Math.Max(0, layer);
+            Risk = risk ?? string.Empty;
+
+            if (routePlan == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < routePlan.Nodes.Count; i++)
+            {
+                DemoMapNode node = routePlan.Nodes[i];
+                if (node != null)
+                {
+                    nodes.Add(new DemoMapNodeRecord(node, null));
+                }
+            }
+        }
+
+        internal bool CompleteNode(DemoMapNode node, bool succeeded)
+        {
+            if (node == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                DemoMapNodeRecord record = nodes[i];
+                if (!string.IsNullOrEmpty(node.NodeId)
+                    && string.Equals(record.NodeId, node.NodeId, StringComparison.OrdinalIgnoreCase))
+                {
+                    record.Complete(succeeded);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
     public sealed class DemoMapRun
     {
+        private readonly List<DemoMapRouteRecord> selectedRoutes = new List<DemoMapRouteRecord>();
+        private readonly List<DemoMapNodeRecord> completedNodes = new List<DemoMapNodeRecord>();
+
         public List<DemoMapNode> Nodes { get; } = new List<DemoMapNode>();
         public int CurrentIndex { get; private set; }
         public bool? ResultVictory { get; private set; }
+        public IReadOnlyList<DemoMapRouteRecord> SelectedRoutes => selectedRoutes;
+        public IReadOnlyList<DemoMapNodeRecord> CompletedNodes => completedNodes;
+        public DemoMapRouteRecord CurrentRoute => selectedRoutes.Count == 0
+            ? null
+            : selectedRoutes[selectedRoutes.Count - 1];
+        public DemoMapNodeRecord FailedNode { get; private set; }
 
         public DemoMapNode CurrentNode => Nodes[CurrentIndex];
         public bool IsComplete => CurrentNode.Type == DemoNodeType.Victory || CurrentNode.Type == DemoNodeType.Result;
@@ -115,8 +217,11 @@ namespace PathOfTenThousandWays.Demo.Map
         public void Reset()
         {
             Nodes.Clear();
+            selectedRoutes.Clear();
+            completedNodes.Clear();
             CurrentIndex = 0;
             ResultVictory = null;
+            FailedNode = null;
             Nodes.Add(new DemoMapNode(
                 0,
                 DemoNodeType.Start,
@@ -146,12 +251,14 @@ namespace PathOfTenThousandWays.Demo.Map
 
         public void CompleteCurrentNode()
         {
-            if (CurrentNode.Type == DemoNodeType.RouteChoice || IsComplete)
+            if (CurrentNode.Type == DemoNodeType.RouteChoice || IsComplete || CurrentNode.Completed)
             {
                 return;
             }
 
             CurrentNode.Completed = true;
+            completedNodes.Add(new DemoMapNodeRecord(CurrentNode, true));
+            CompleteSelectedRouteNode(CurrentNode, true);
 
             if (CurrentIndex < Nodes.Count - 1)
             {
@@ -170,7 +277,17 @@ namespace PathOfTenThousandWays.Demo.Map
                 return;
             }
 
-            CurrentNode.Completed = true;
+            if (!CurrentNode.Completed)
+            {
+                CurrentNode.Completed = true;
+                DemoMapNodeRecord completed = new DemoMapNodeRecord(CurrentNode, victory);
+                completedNodes.Add(completed);
+                CompleteSelectedRouteNode(CurrentNode, victory);
+                if (!victory)
+                {
+                    FailedNode = completed;
+                }
+            }
 
             int resultIndex = CurrentIndex + 1;
             if (resultIndex < Nodes.Count)
@@ -191,7 +308,23 @@ namespace PathOfTenThousandWays.Demo.Map
             ResultVictory = victory;
         }
 
+        private void CompleteSelectedRouteNode(DemoMapNode node, bool succeeded)
+        {
+            for (int i = selectedRoutes.Count - 1; i >= 0; i--)
+            {
+                if (selectedRoutes[i].CompleteNode(node, succeeded))
+                {
+                    return;
+                }
+            }
+        }
+
         public void SelectRoute(DemoMapRoutePlan routePlan)
+        {
+            SelectRoute(routePlan, routePlan?.Risk);
+        }
+
+        public void SelectRoute(DemoMapRoutePlan routePlan, string risk)
         {
             if (routePlan == null || routePlan.Nodes.Count == 0 || CurrentNode.Type != DemoNodeType.RouteChoice)
             {
@@ -199,6 +332,11 @@ namespace PathOfTenThousandWays.Demo.Map
             }
 
             CurrentNode.Completed = true;
+            completedNodes.Add(new DemoMapNodeRecord(CurrentNode, true));
+            selectedRoutes.Add(new DemoMapRouteRecord(
+                routePlan,
+                Math.Max(CurrentNode.Layer, routePlan.Nodes[0].Layer),
+                string.IsNullOrWhiteSpace(risk) ? InferRouteRisk(routePlan.Id) : risk));
 
             int insertIndex = CurrentIndex + 1;
             for (int i = 0; i < routePlan.Nodes.Count; i++)
@@ -207,6 +345,30 @@ namespace PathOfTenThousandWays.Demo.Map
             }
 
             CurrentIndex = insertIndex;
+        }
+
+        private static string InferRouteRisk(string routeId)
+        {
+            if (string.IsNullOrWhiteSpace(routeId))
+            {
+                return string.Empty;
+            }
+
+            if (routeId.IndexOf("risky", StringComparison.OrdinalIgnoreCase) >= 0
+                || routeId.IndexOf("aggressive", StringComparison.OrdinalIgnoreCase) >= 0
+                || routeId.IndexOf("desperate", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "risky";
+            }
+
+            if (routeId.IndexOf("build", StringComparison.OrdinalIgnoreCase) >= 0
+                || routeId.IndexOf("artifact", StringComparison.OrdinalIgnoreCase) >= 0
+                || routeId.IndexOf("seclusion", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "build";
+            }
+
+            return "stable";
         }
 
         public void SetOpeningBattle(

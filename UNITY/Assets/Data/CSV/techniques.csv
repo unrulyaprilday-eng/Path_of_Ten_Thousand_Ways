@@ -1,0 +1,3 @@
+technique_id,name,kind,source_story_id,rules_text,visual_tag
+technique_breathing_recovery,吐纳归息,HeartFormula,opening_story_branch_ancestral_vault,"调息恢复并稳定灵气循环",jade_breath
+technique_incomplete_sword_scroll,残卷御剑式,SwordArt,opening_story_branch_ancestral_vault,"主动催动残剑胚并积累剑意",diagonal_sword

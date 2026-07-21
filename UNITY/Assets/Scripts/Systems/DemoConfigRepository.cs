@@ -19,6 +19,10 @@ namespace PathOfTenThousandWays.Demo.Systems
         private static Dictionary<string, DemoStyleConfig> stylesById = new Dictionary<string, DemoStyleConfig>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, DemoCard> cardsById = new Dictionary<string, DemoCard>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, List<DemoCardPoolEntryConfig>> cardPoolsById = new Dictionary<string, List<DemoCardPoolEntryConfig>>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, DemoCorePracticeDefinition> corePracticesById = new Dictionary<string, DemoCorePracticeDefinition>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, DemoTechniqueDefinition> techniquesById = new Dictionary<string, DemoTechniqueDefinition>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, DemoBearerDefinition> bearersById = new Dictionary<string, DemoBearerDefinition>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, DemoStartingPracticePackageDefinition> startingPackagesById = new Dictionary<string, DemoStartingPracticePackageDefinition>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, DemoRootDefinition> rootsById = new Dictionary<string, DemoRootDefinition>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, DemoTraceDefinition> tracesById = new Dictionary<string, DemoTraceDefinition>(StringComparer.OrdinalIgnoreCase);
         private static Dictionary<string, DemoRegionDefinition> regionsById = new Dictionary<string, DemoRegionDefinition>(StringComparer.OrdinalIgnoreCase);
@@ -56,6 +60,62 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
 
             card = null;
+            return false;
+        }
+
+        public static bool TryGetStartingPracticePackage(string packageId, out DemoStartingPracticePackageDefinition package)
+        {
+            EnsureLoaded();
+
+            if (!string.IsNullOrEmpty(packageId) && startingPackagesById.TryGetValue(packageId, out DemoStartingPracticePackageDefinition cached))
+            {
+                package = Clone(cached);
+                return true;
+            }
+
+            package = null;
+            return false;
+        }
+
+        public static bool TryGetCorePractice(string practiceId, out DemoCorePracticeDefinition practice)
+        {
+            EnsureLoaded();
+
+            if (!string.IsNullOrEmpty(practiceId) && corePracticesById.TryGetValue(practiceId, out DemoCorePracticeDefinition cached))
+            {
+                practice = Clone(cached);
+                return true;
+            }
+
+            practice = null;
+            return false;
+        }
+
+        public static bool TryGetTechnique(string techniqueId, out DemoTechniqueDefinition technique)
+        {
+            EnsureLoaded();
+
+            if (!string.IsNullOrEmpty(techniqueId) && techniquesById.TryGetValue(techniqueId, out DemoTechniqueDefinition cached))
+            {
+                technique = Clone(cached);
+                return true;
+            }
+
+            technique = null;
+            return false;
+        }
+
+        public static bool TryGetBearer(string bearerId, out DemoBearerDefinition bearer)
+        {
+            EnsureLoaded();
+
+            if (!string.IsNullOrEmpty(bearerId) && bearersById.TryGetValue(bearerId, out DemoBearerDefinition cached))
+            {
+                bearer = Clone(cached);
+                return true;
+            }
+
+            bearer = null;
             return false;
         }
 
@@ -605,6 +665,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                         OriginText = vessel.OriginText,
                         VesselType = vessel.VesselType,
                         StarterPoolId = vessel.StarterPoolId,
+                        StartingPracticePackageId = vessel.StartingPracticePackageId,
                         BaseStyle = vessel.BaseStyle,
                         StartingEffectText = vessel.StartingEffectText,
                         FirstRegionId = vessel.FirstRegionId,
@@ -636,6 +697,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                         CarryItemEffect = line.CarryItemEffect,
                         VesselType = line.VesselType,
                         StarterPoolId = line.StarterPoolId,
+                        StartingPracticePackageId = line.StartingPracticePackageId,
                         BaseStyle = line.BaseStyle,
                         IsAvailable = line.IsAvailable,
                         FirstRegionId = line.FirstRegionId,
@@ -658,6 +720,84 @@ namespace PathOfTenThousandWays.Demo.Systems
             if (runtime == null)
             {
                 return;
+            }
+
+            foreach (KeyValuePair<string, DemoCorePracticeConfig> pair in runtime.CorePractices)
+            {
+                DemoCorePracticeConfig practice = pair.Value;
+                if (practice == null)
+                {
+                    continue;
+                }
+
+                corePracticesById[pair.Key] = new DemoCorePracticeDefinition
+                {
+                    Id = string.IsNullOrEmpty(practice.Id) ? pair.Key : practice.Id,
+                    Name = practice.Name,
+                    PracticeType = ParseEnum(practice.PracticeType, DemoCorePracticeType.MindMethod),
+                    PassiveRuleText = practice.PassiveRuleText,
+                    GrantedTechniqueId = practice.GrantedTechniqueId,
+                    SourceStoryId = practice.SourceStoryId
+                };
+            }
+
+            foreach (KeyValuePair<string, DemoTechniqueConfig> pair in runtime.Techniques)
+            {
+                DemoTechniqueConfig technique = pair.Value;
+                if (technique == null)
+                {
+                    continue;
+                }
+
+                techniquesById[pair.Key] = new DemoTechniqueDefinition
+                {
+                    Id = string.IsNullOrEmpty(technique.Id) ? pair.Key : technique.Id,
+                    Name = technique.Name,
+                    Kind = ParseEnum(technique.Kind, DemoTechniqueKind.SwordArt),
+                    SourceStoryId = technique.SourceStoryId,
+                    RulesText = technique.RulesText,
+                    VisualTag = technique.VisualTag
+                };
+            }
+
+            foreach (KeyValuePair<string, DemoBearerConfig> pair in runtime.Bearers)
+            {
+                DemoBearerConfig bearer = pair.Value;
+                if (bearer == null)
+                {
+                    continue;
+                }
+
+                bearersById[pair.Key] = new DemoBearerDefinition
+                {
+                    Id = string.IsNullOrEmpty(bearer.Id) ? pair.Key : bearer.Id,
+                    Name = bearer.Name,
+                    Mode = ParseEnum(bearer.Mode, DemoBearerMode.Ground),
+                    ResourceKey = bearer.ResourceKey,
+                    IsRequired = bearer.IsRequired
+                };
+            }
+
+            foreach (KeyValuePair<string, DemoStartingPracticePackageConfig> pair in runtime.StartingPracticePackages)
+            {
+                DemoStartingPracticePackageConfig package = pair.Value;
+                if (package == null)
+                {
+                    continue;
+                }
+
+                startingPackagesById[pair.Key] = new DemoStartingPracticePackageDefinition
+                {
+                    Id = string.IsNullOrEmpty(package.Id) ? pair.Key : package.Id,
+                    RootId = package.RootId,
+                    SourceStoryId = package.SourceStoryId,
+                    InnateArtifactId = package.InnateArtifactId,
+                    CorePracticeId = package.CorePracticeId,
+                    PrimaryTechniqueId = package.PrimaryTechniqueId,
+                    BearerDefinitionId = package.BearerDefinitionId,
+                    IsAvailable = package.IsAvailable,
+                    ActiveTechniqueIds = package.ActiveTechniqueIds ?? new List<string>()
+                };
             }
 
             foreach (KeyValuePair<string, DemoCardConfig> pair in runtime.Cards)
@@ -921,6 +1061,10 @@ namespace PathOfTenThousandWays.Demo.Systems
 
             runtime.Cards = ReadObjectMap(raw, "cards", ParseCardConfig);
             runtime.CardPools = ReadObjectMapOfLists(raw, "cardPools", ParseCardPoolEntryConfig);
+            runtime.CorePractices = ReadObjectMap(raw, "corePractices", ParseCorePracticeConfig);
+            runtime.Techniques = ReadObjectMap(raw, "techniques", ParseTechniqueConfig);
+            runtime.Bearers = ReadObjectMap(raw, "bearers", ParseBearerConfig);
+            runtime.StartingPracticePackages = ReadObjectMap(raw, "startingPracticePackages", ParseStartingPracticePackageConfig);
             runtime.Gongfas = ReadObjectMap(raw, "gongfas", ParseGongfaConfig);
             runtime.Artifacts = ReadObjectMap(raw, "artifacts", ParseArtifactConfig);
             runtime.Relics = ReadObjectMap(raw, "relics", ParseRelicConfig);
@@ -1050,6 +1194,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 OriginText = GetString(raw, "originText"),
                 VesselType = GetString(raw, "vesselType"),
                 StarterPoolId = GetString(raw, "starterPoolId"),
+                StartingPracticePackageId = GetString(raw, "startingPracticePackageId"),
                 BaseStyle = GetString(raw, "baseStyle"),
                 StartingEffectText = GetString(raw, "startingEffectText"),
                 FirstRegionId = GetString(raw, "firstRegionId"),
@@ -1077,6 +1222,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 CarryItemEffect = GetString(raw, "carryItemEffect"),
                 VesselType = GetString(raw, "vesselType"),
                 StarterPoolId = GetString(raw, "starterPoolId"),
+                StartingPracticePackageId = GetString(raw, "startingPracticePackageId"),
                 BaseStyle = GetString(raw, "baseStyle"),
                 IsAvailable = raw.ContainsKey("isAvailable") ? GetBool(raw, "isAvailable") : true,
                 FirstRegionId = GetString(raw, "firstRegionId"),
@@ -1162,6 +1308,80 @@ namespace PathOfTenThousandWays.Demo.Systems
                 RefId = GetString(raw, "refId"),
                 Count = GetInt(raw, "count", 1),
                 Notes = GetString(raw, "notes")
+            };
+        }
+
+        private static DemoCorePracticeConfig ParseCorePracticeConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null)
+            {
+                return null;
+            }
+
+            return new DemoCorePracticeConfig
+            {
+                Id = GetString(raw, "id", key),
+                Name = GetString(raw, "name"),
+                PracticeType = GetString(raw, "practiceType"),
+                PassiveRuleText = GetString(raw, "passiveRuleText"),
+                GrantedTechniqueId = GetString(raw, "grantedTechniqueId"),
+                SourceStoryId = GetString(raw, "sourceStoryId")
+            };
+        }
+
+        private static DemoTechniqueConfig ParseTechniqueConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null)
+            {
+                return null;
+            }
+
+            return new DemoTechniqueConfig
+            {
+                Id = GetString(raw, "id", key),
+                Name = GetString(raw, "name"),
+                Kind = GetString(raw, "kind"),
+                SourceStoryId = GetString(raw, "sourceStoryId"),
+                RulesText = GetString(raw, "rulesText"),
+                VisualTag = GetString(raw, "visualTag")
+            };
+        }
+
+        private static DemoBearerConfig ParseBearerConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null)
+            {
+                return null;
+            }
+
+            return new DemoBearerConfig
+            {
+                Id = GetString(raw, "id", key),
+                Name = GetString(raw, "name"),
+                Mode = GetString(raw, "mode"),
+                ResourceKey = GetString(raw, "resourceKey"),
+                IsRequired = GetBool(raw, "isRequired")
+            };
+        }
+
+        private static DemoStartingPracticePackageConfig ParseStartingPracticePackageConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null)
+            {
+                return null;
+            }
+
+            return new DemoStartingPracticePackageConfig
+            {
+                Id = GetString(raw, "id", key),
+                RootId = GetString(raw, "rootId"),
+                SourceStoryId = GetString(raw, "sourceStoryId"),
+                InnateArtifactId = GetString(raw, "innateArtifactId"),
+                CorePracticeId = GetString(raw, "corePracticeId"),
+                PrimaryTechniqueId = GetString(raw, "primaryTechniqueId"),
+                BearerDefinitionId = GetString(raw, "bearerDefinitionId"),
+                IsAvailable = GetBool(raw, "isAvailable"),
+                ActiveTechniqueIds = ReadStringList(GetArray(raw, "activeTechniqueIds"))
             };
         }
 
@@ -1846,6 +2066,62 @@ namespace PathOfTenThousandWays.Demo.Systems
             };
         }
 
+        private static DemoCorePracticeDefinition Clone(DemoCorePracticeDefinition definition)
+        {
+            return new DemoCorePracticeDefinition
+            {
+                Id = definition.Id,
+                Name = definition.Name,
+                PracticeType = definition.PracticeType,
+                PassiveRuleText = definition.PassiveRuleText,
+                GrantedTechniqueId = definition.GrantedTechniqueId,
+                SourceStoryId = definition.SourceStoryId
+            };
+        }
+
+        private static DemoTechniqueDefinition Clone(DemoTechniqueDefinition definition)
+        {
+            return new DemoTechniqueDefinition
+            {
+                Id = definition.Id,
+                Name = definition.Name,
+                Kind = definition.Kind,
+                SourceStoryId = definition.SourceStoryId,
+                RulesText = definition.RulesText,
+                VisualTag = definition.VisualTag
+            };
+        }
+
+        private static DemoBearerDefinition Clone(DemoBearerDefinition definition)
+        {
+            return new DemoBearerDefinition
+            {
+                Id = definition.Id,
+                Name = definition.Name,
+                Mode = definition.Mode,
+                ResourceKey = definition.ResourceKey,
+                IsRequired = definition.IsRequired
+            };
+        }
+
+        private static DemoStartingPracticePackageDefinition Clone(DemoStartingPracticePackageDefinition definition)
+        {
+            return new DemoStartingPracticePackageDefinition
+            {
+                Id = definition.Id,
+                RootId = definition.RootId,
+                SourceStoryId = definition.SourceStoryId,
+                InnateArtifactId = definition.InnateArtifactId,
+                CorePracticeId = definition.CorePracticeId,
+                PrimaryTechniqueId = definition.PrimaryTechniqueId,
+                BearerDefinitionId = definition.BearerDefinitionId,
+                IsAvailable = definition.IsAvailable,
+                ActiveTechniqueIds = definition.ActiveTechniqueIds != null
+                    ? new List<string>(definition.ActiveTechniqueIds)
+                    : new List<string>()
+            };
+        }
+
         private static DemoJourneyVesselDefinition Clone(DemoJourneyVesselDefinition definition)
         {
             return new DemoJourneyVesselDefinition
@@ -1856,6 +2132,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 OriginText = definition.OriginText,
                 VesselType = definition.VesselType,
                 StarterPoolId = definition.StarterPoolId,
+                StartingPracticePackageId = definition.StartingPracticePackageId,
                 BaseStyle = definition.BaseStyle,
                 StartingEffectText = definition.StartingEffectText,
                 FirstRegionId = definition.FirstRegionId,
@@ -1876,6 +2153,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 OriginText = definition.OriginText,
                 VesselType = definition.VesselType,
                 StarterPoolId = definition.StarterPoolId,
+                StartingPracticePackageId = definition.StartingPracticePackageId,
                 BaseStyle = definition.BaseStyle,
                 StartingEffectText = definition.CarryItemEffect,
                 FirstRegionId = definition.FirstRegionId,
@@ -1898,6 +2176,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 CarryItemEffect = definition.StartingEffectText,
                 VesselType = definition.VesselType,
                 StarterPoolId = definition.StarterPoolId,
+                StartingPracticePackageId = definition.StartingPracticePackageId,
                 BaseStyle = definition.BaseStyle,
                 IsAvailable = definition.IsAvailable,
                 FirstRegionId = definition.FirstRegionId,
@@ -1946,6 +2225,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 CarryItemEffect = definition.CarryItemEffect,
                 VesselType = definition.VesselType,
                 StarterPoolId = definition.StarterPoolId,
+                StartingPracticePackageId = definition.StartingPracticePackageId,
                 BaseStyle = definition.BaseStyle,
                 IsAvailable = definition.IsAvailable,
                 FirstRegionId = definition.FirstRegionId,

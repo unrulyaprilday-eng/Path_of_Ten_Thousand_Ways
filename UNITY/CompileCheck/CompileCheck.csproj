@@ -9,11 +9,13 @@
     <Compile Include="..\Assets\Scripts\Battle\DemoBattleLog.cs" Link="Battle\DemoBattleLog.cs" />
     <Compile Include="..\Assets\Scripts\Battle\DemoBattlePresentationStep.cs" Link="Battle\DemoBattlePresentationStep.cs" />
     <Compile Include="..\Assets\Scripts\Battle\DemoBattleState.cs" Link="Battle\DemoBattleState.cs" />
+    <Compile Include="..\Assets\Scripts\Battle\DemoCombatTargetContracts.cs" Link="Battle\DemoCombatTargetContracts.cs" />
     <Compile Include="..\Assets\Scripts\Cards\DemoCard.cs" Link="Cards\DemoCard.cs" />
     <Compile Include="..\Assets\Scripts\Cards\DemoCardLibrary.cs" Link="Cards\DemoCardLibrary.cs" />
     <Compile Include="..\Assets\Scripts\Common\SimpleJsonParser.cs" Link="Common\SimpleJsonParser.cs" />
     <Compile Include="..\Assets\Scripts\Combatants\DemoCombatant.cs" Link="Combatants\DemoCombatant.cs" />
     <Compile Include="..\Assets\Scripts\Map\DemoMapRun.cs" Link="Map\DemoMapRun.cs" />
+    <Compile Include="..\Assets\Scripts\Map\DemoJourneyGraph.cs" Link="Map\DemoJourneyGraph.cs" />
     <Compile Include="..\Assets\Scripts\Rewards\DemoArtifactRewardService.cs" Link="Rewards\DemoArtifactRewardService.cs" />
     <Compile Include="..\Assets\Scripts\Rewards\DemoGongfaRewardService.cs" Link="Rewards\DemoGongfaRewardService.cs" />
     <Compile Include="..\Assets\Scripts\Rewards\DemoReward.cs" Link="Rewards\DemoReward.cs" />
@@ -23,9 +25,14 @@
     <Compile Include="..\Assets\Scripts\Systems\DemoConfigRepository.cs" Link="Systems\DemoConfigRepository.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoGongfa.cs" Link="Systems\DemoGongfa.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoMetaProgress.cs" Link="Systems\DemoMetaProgress.cs" />
+    <Compile Include="..\Assets\Scripts\Systems\DemoPracticeRuntimeState.cs" Link="Systems\DemoPracticeRuntimeState.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoQuality.cs" Link="Systems\DemoQuality.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoRelic.cs" Link="Systems\DemoRelic.cs" />
+    <Compile Include="..\Assets\Scripts\Systems\DemoRunSaveV2.cs" Link="Systems\DemoRunSaveV2.cs" />
+    <Compile Include="..\Assets\Scripts\Systems\DemoJourneyRunSession.cs" Link="Systems\DemoJourneyRunSession.cs" />
     <Compile Include="..\Assets\Scripts\Systems\DemoRunState.cs" Link="Systems\DemoRunState.cs" />
+    <Compile Include="..\Assets\Scripts\Systems\DemoStartingPracticePackage.cs" Link="Systems\DemoStartingPracticePackage.cs" />
+    <Compile Include="..\Assets\Scripts\Systems\DemoBattleLayoutContract.cs" Link="Systems\DemoBattleLayoutContract.cs" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,1012 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.3/staging' branch; Version is '6000.3.17f1 (cf0352b38e81) revision 13566802'; Using compiler version '194234433'; Build Type 'Release'
+[Licensing::IpcConnector] Channel LicenseClient-张海桃 doesn't exist
+OS: 'Windows 11  (10.0.26200) CoreCountrySpecific' Language: 'zh' Physical Memory: 16227 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-07-19T03:46:01Z
+[Licensing::Module] Successfully launched the LicensingClient (PId: 10984)
+
+COMMAND LINE ARGUMENTS:
+D:\Unity Hub\Editor\Unity.exe
+-batchmode
+-projectPath
+D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY
+-executeMethod
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool.Capture
+-logFile
+D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\unity_opening_battle_story_package_capture_final.log
+Successfully changed project path to: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY
+D:/MyGame/Path_of_Ten_Thousand_Ways/UNITY
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+Player connection [21420]  Target information:
+
+Player connection [21420]  * "[IP] 192.168.1.2 [Port] 55504 [Flags] 2 [Guid] 822595615 [EditorId] 822595615 [Version] 1048832 [Id] WindowsEditor(7,MSI) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [21420] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [21420] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-24220" after 0.6 seconds.
+[Licensing::Module] Licensing is not yet initialized.
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-张海桃" at "2026-07-19T03:46:03.3122147Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 10984, path: "D:/Unity Hub/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.1+9fbee8e
+  Session Id:              7214bad8e5694eaf9e4dc665e3a9ce32
+  Correlation Id:          9afe06b473c2bfb80c4b9d19f30d6687
+  External correlation Id: 6925240918397898935
+  Machine Id:              B0U8yf2hWd9+tEz6yaV3sSlcK3A=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-张海桃" (connect: 1.94s, validation: 0.13s, handshake: 0.12s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-张海桃-notifications" at "2026-07-19T03:46:03.561442Z"
+[Licensing::Module] Connected to LicensingClient (PId: 10984, launch time: 0.01, total connection time: 2.19s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: ewogICJzdWJzR3JvdXAiIDogInVuaXR5IGVkaXRvciIsCiAgIm5hbWVzcGFjZSIgOiAidW5pdHlfZWRpdG9yIiwKICAidHlwZSIgOiAiRURJVE9SIiwKICAidGFnIiA6ICJVbml0eVBlcnNvbmFsXXXX
+  Product: Unity Personal Version
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.02
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 2.28s
+[Licensing::Module] Licensing is initialized (took 0.82s).
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Refreshing native plugins compatible for Editor in 0.09 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.3.17f1 (cf0352b38e81)
+[Subsystems] Discovering subsystems at path D:/Unity Hub/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path D:/MyGame/Path_of_Ten_Thousand_Ways/UNITY/Assets
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce GTX 1660 Ti (ID=0x2191)
+    Vendor:   NVIDIA
+    VRAM:     5966 MB
+    Driver:   32.0.15.8115
+Initialize mono
+Mono path[0] = 'D:/Unity Hub/Editor/Data/Managed'
+Mono path[1] = 'D:/Unity Hub/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'D:/Unity Hub/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56220
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: D:/Unity Hub/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.002860 seconds.
+- Loaded All Assemblies, in  1.657 seconds
+Native extension for WindowsStandalone target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.296 seconds
+Domain Reload Profiling: 2953ms
+	BeginReloadAssembly (1026ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (13ms)
+	RebuildCommonClasses (83ms)
+	RebuildNativeTypeToScriptingClass (28ms)
+	initialDomainReloadingComplete (73ms)
+	LoadAllAssembliesAndSetupDomain (444ms)
+		LoadAssemblies (1012ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (438ms)
+			TypeCache.Refresh (435ms)
+				TypeCache.ScanAssembly (413ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (1ms)
+	FinalizeReload (1298ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1216ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (64ms)
+			SetLoadedEditorAssemblies (5ms)
+			BeforeProcessingInitializeOnLoad (127ms)
+			ProcessInitializeOnLoadAttributes (218ms)
+			ProcessInitializeOnLoadMethodAttributes (801ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 12 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.inputsystem@1.14.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.inputsystem@7fe8299111a7)
+  Built-in packages:
+    com.unity.ugui@2.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.ugui@05e8dec4ac02)
+    com.unity.modules.adaptiveperformance@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.adaptiveperformance)
+    com.unity.modules.vectorgraphics@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.vectorgraphics)
+    com.unity.modules.uielements@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.imageconversion@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.subsystems@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.ui@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.jsonserialize@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.hierarchycore@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.modules.physics@1.0.0 (location: D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Library\PackageCache\com.unity.modules.physics)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.01 seconds
+[ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+Starting: D:\Unity Hub\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: D:/MyGame/Path_of_Ten_Thousand_Ways/UNITY
+DisplayProgressbar: Compiling Scripts
+Starting: D:\Unity Hub\Editor\Data\netcorerun\netcorerun.exe "D:\Unity Hub\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1900b0aE.dag.json" "Library/Bee/1900b0aE-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+WorkingDir: D:/MyGame/Path_of_Ten_Thousand_Ways/UNITY
+ExitCode: 4 Duration: 7s342ms
+Rebuilding DAG because FileSignature timestamp changed: Library/Bee/1900b0aE-inputdata.json
+[BUSY       6s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll (+2 others)
+[229/235    6s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll (+2 others)
+*** Tundra requires additional run (7.09 seconds), 1 items updated, 228 evaluated
+ExitCode: 0 Duration: 2s890ms
+Starting: D:\Unity Hub\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --dagfilejson="Library\Bee\1900b0aE.dag.json" --profile="Library/Bee/backend2.traceevents" ScriptAssemblies
+WorkingDir: D:/MyGame/Path_of_Ten_Thousand_Ways/UNITY
+ExitCode: 0 Duration: 4s105ms
+Finished compiling graph: 238 nodes, 2047 flattened edges (1913 ToBuild, 22 ToUse), maximum node priority 123
+[187/235    0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.rsp
+[229/235    2s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll (+2 others)
+[230/235    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb
+[231/235    1s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+[232/235    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[233/235    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll
+[234/235    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+*** Tundra build success (4.05 seconds), 7 items updated, 235 evaluated
+AssetDatabase: script compilation time: 16.330930s
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  2.135 seconds
+Refreshing native plugins compatible for Editor in 0.39 ms, found 0 plugins.
+Native extension for WindowsStandalone target not found
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.166 seconds
+Domain Reload Profiling: 3301ms
+	BeginReloadAssembly (683ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (49ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (177ms)
+	RebuildCommonClasses (131ms)
+	RebuildNativeTypeToScriptingClass (35ms)
+	initialDomainReloadingComplete (43ms)
+	LoadAllAssembliesAndSetupDomain (1242ms)
+		LoadAssemblies (1539ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (50ms)
+			TypeCache.Refresh (33ms)
+				TypeCache.ScanAssembly (25ms)
+			BuildScriptInfoCaches (9ms)
+			ResolveRequiredComponents (4ms)
+	FinalizeReload (1167ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (809ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (44ms)
+			SetLoadedEditorAssemblies (7ms)
+			BeforeProcessingInitializeOnLoad (237ms)
+			ProcessInitializeOnLoadAttributes (407ms)
+			ProcessInitializeOnLoadMethodAttributes (108ms)
+			AfterProcessingInitializeOnLoad (5ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (82ms)
+Refreshing native plugins compatible for Editor in 0.49 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=8528a17f9cd4e044792f49f4805e7ffb): Total: 20.509 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=1757 ms
+		Asset DB Callback time: managed=226 ms, native=29 ms
+		Scripting: domain reloads=1, domain reload time=2135 ms, compile time=16336 ms, other=22 ms
+		Project Asset Count: scripts=226, non-scripts=439
+		Asset File Changes: new=3, changed=6, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.002ms
+	InvokePackagesCallback: 29.788ms
+	ApplyChangesToAssetFolders: 0.706ms
+	Scan: 197.015ms
+	OnSourceAssetsModified: 2.446ms
+	CategorizeAssetsWithTransientArtifact: 9.592ms
+	ProcessAssetsWithTransientArtifactChanges: 18.204ms
+	CategorizeAssets: 13.860ms
+	ImportOutOfDateAssets: 1225.825ms (-15111.288ms without children)
+		CompileScripts: 16335.667ms
+		ReloadNativeAssets: 0.001ms
+		UnloadImportedAssets: 0.132ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.345ms
+		InitializingProgressBar: 0.001ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.001ms
+		OnDemandSchedulerStart: 0.968ms
+	PostProcessAllAssets: 226.755ms
+	Hotreload: 2.524ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.006ms
+	UnloadStreamsBegin: 4.529ms
+	PersistCurrentRevisions: 0.041ms
+	UnloadStreamsEnd: 0.002ms
+	GenerateScriptTypeHashes: 4.444ms
+	Untracked: 18777.315ms
+
+Application.AssetDatabase Initial Refresh End
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.11 seconds
+Scanning for USB devices : 2.365ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-UNITY
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 817 unused Assets / (0.8 MB). Loaded Objects now: 1448.
+Memory consumption went from 100.7 MB to 99.9 MB.
+Total: 9.948200 ms (FindLiveObjects: 0.147500 ms CreateObjectMapping: 0.067400 ms MarkObjects: 9.097700 ms  DeleteObjects: 0.634000 ms)
+
+[Project] Loading completed in 28.611 seconds
+	Project init time: 				27.969 seconds
+		Template init time: 		0.000 seconds
+		Package Manager init time: 		1.438 seconds
+		Asset Database init time: 		0.507 seconds
+		Global illumination init time: 	0.016 seconds
+		Assemblies load time: 			3.030 seconds
+		Unity extensions init time: 	0.002 seconds
+		Asset Database refresh time: 	20.509 seconds
+	Scene opening time: 			0.342 seconds
+##utp:{"type":"ProjectInfo","version":2,"phase":"Immediate","time":1784432789948,"processId":24220,"projectLoad":28.6107975,"projectInit":27.968985,"templateInit":0.0,"packageManagerInit":1.4379543,"assetDatabaseInit":0.5071777,"globalIlluminationInit":0.0155963,"assembliesLoad":3.0298953,"unityExtensionsInit":0.0015102,"assetDatabaseRefresh":20.5088569,"sceneOpening":0.3424189}
+##utp:{"type":"EditorInfo","version":2,"phase":"Immediate","time":1784432789948,"processId":24220,"editorVersion":"6000.3.17f1 (cf0352b38e81)","branch":"6000.3/staging","buildType":"Release","platform":"Windows"}
+Reloading assemblies for play mode.
+Reloading assemblies after forced synchronous recompile.
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.593 seconds
+Refreshing native plugins compatible for Editor in 0.43 ms, found 0 plugins.
+Native extension for WindowsStandalone target not found
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.900 seconds
+Domain Reload Profiling: 1493ms
+	BeginReloadAssembly (403ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (45ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (67ms)
+	RebuildCommonClasses (77ms)
+	RebuildNativeTypeToScriptingClass (27ms)
+	initialDomainReloadingComplete (34ms)
+	LoadAllAssembliesAndSetupDomain (51ms)
+		LoadAssemblies (266ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (35ms)
+			TypeCache.Refresh (6ms)
+				TypeCache.ScanAssembly (0ms)
+			BuildScriptInfoCaches (23ms)
+			ResolveRequiredComponents (4ms)
+	FinalizeReload (901ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (568ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (32ms)
+			SetLoadedEditorAssemblies (5ms)
+			BeforeProcessingInitializeOnLoad (187ms)
+			ProcessInitializeOnLoadAttributes (269ms)
+			ProcessInitializeOnLoadMethodAttributes (71ms)
+			AfterProcessingInitializeOnLoad (5ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (51ms)
+Asset Pipeline Refresh (id=c8fb2206a22ab2847aa43fc21ac312a9): Total: 1.636 seconds - Initiated by StopAssetImportingV2(ForceSynchronousImport | ForceDomainReload)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=998 ms
+		Asset DB Callback time: managed=31 ms, native=0 ms
+		Scripting: domain reloads=1, domain reload time=600 ms, compile time=4 ms, other=0 ms
+		Project Asset Count: scripts=226, non-scripts=439
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.001ms
+	InvokePackagesCallback: 4.539ms
+	ApplyChangesToAssetFolders: 0.166ms
+	Scan: 0.001ms
+	OnSourceAssetsModified: 0.002ms
+	CategorizeAssetsWithTransientArtifact: 0.003ms
+	ProcessAssetsWithTransientArtifactChanges: 0.542ms
+	CategorizeAssets: 12.249ms
+	ImportOutOfDateAssets: 904.697ms (899.721ms without children)
+		CompileScripts: 4.062ms
+		CollectScriptTypesHashes: 0.001ms
+		ReloadNativeAssets: 0.001ms
+		UnloadImportedAssets: 0.081ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.252ms
+		InitializingProgressBar: 0.001ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.001ms
+		OnDemandSchedulerStart: 0.578ms
+	PostProcessAllAssets: 31.393ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.094ms
+	UnloadStreamsBegin: 0.073ms
+	PersistCurrentRevisions: 0.041ms
+	UnloadStreamsEnd: 0.002ms
+	GenerateScriptTypeHashes: 3.538ms
+	Untracked: 681.802ms
+
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            0.510 ms
+	Integration:            3196.767 ms
+	Integration of assets:  0.004 ms
+	Thread Wait Time:       0.014 ms
+	Total Operation Time:   3197.294 ms
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+Start Indexing on Editor startup
+[Indexing] Starting Initial Indexing for Assets
+Created GICache directory at C:/Users/张海桃/AppData/LocalLow/Unity/Caches/GiCache. Took: 0.046s, timestamps: [34.040 - 34.086]
+[Licensing::Client] Successfully resolved entitlement details
+Capture pixel check flow_home_commercial.png: upper variance=3138.33, coverage=48.8%; middle variance=1440.08, coverage=47.5%; lower variance=3996.69, coverage=59.4%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\flow_home_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check flow_opening_root_commercial.png: upper variance=3291.23, coverage=98.2%; middle variance=2757.99, coverage=100.0%; lower variance=3906.18, coverage=100.0%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\flow_opening_root_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check flow_opening_vessel_commercial.png: upper variance=3185.18, coverage=99.1%; middle variance=3761.27, coverage=100.0%; lower variance=4180.93, coverage=100.0%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\flow_opening_vessel_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check flow_opening_region_commercial.png: upper variance=1217.22, coverage=48.4%; middle variance=5480.20, coverage=93.7%; lower variance=2597.50, coverage=90.9%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\flow_opening_region_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check battle_opening_realtime.png: upper variance=1967.88, coverage=99.9%; middle variance=1375.49, coverage=100.0%; lower variance=1762.20, coverage=100.0%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\battle_opening_realtime.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check battle_opening_realtime_1280x720.png: upper variance=1952.60, coverage=99.9%; middle variance=1348.12, coverage=100.0%; lower variance=1860.78, coverage=100.0%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\battle_opening_realtime_1280x720.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check post_battle_reward_commercial.png: upper variance=606.58, coverage=39.6%; middle variance=350.67, coverage=61.0%; lower variance=171.19, coverage=92.6%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\post_battle_reward_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check post_battle_reward_commercial_1280x720.png: upper variance=635.95, coverage=39.9%; middle variance=385.77, coverage=61.8%; lower variance=172.04, coverage=93.0%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\post_battle_reward_commercial_1280x720.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check post_battle_route_commercial.png: upper variance=571.15, coverage=32.3%; middle variance=617.15, coverage=54.8%; lower variance=205.38, coverage=92.2%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\post_battle_route_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check post_battle_route_commercial_1280x720.png: upper variance=589.24, coverage=32.9%; middle variance=619.19, coverage=54.6%; lower variance=220.29, coverage=92.5%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\post_battle_route_commercial_1280x720.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check flow_encounter_intro_commercial.png: upper variance=723.92, coverage=39.9%; middle variance=1079.92, coverage=99.7%; lower variance=135.74, coverage=99.9%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\flow_encounter_intro_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check flow_training_commercial.png: upper variance=604.91, coverage=39.5%; middle variance=367.33, coverage=61.1%; lower variance=157.28, coverage=92.6%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\flow_training_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check flow_route_layer2_commercial.png: upper variance=590.89, coverage=32.4%; middle variance=640.42, coverage=55.6%; lower variance=213.21, coverage=92.2%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\flow_route_layer2_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check flow_training_layer2_commercial.png: upper variance=593.58, coverage=39.5%; middle variance=393.08, coverage=66.9%; lower variance=155.08, coverage=92.6%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\flow_training_layer2_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check flow_route_layer3_commercial.png: upper variance=594.32, coverage=32.4%; middle variance=628.10, coverage=55.0%; lower variance=218.33, coverage=92.2%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\flow_route_layer3_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check flow_final_reward_commercial.png: upper variance=612.14, coverage=39.5%; middle variance=382.29, coverage=67.2%; lower variance=168.96, coverage=92.6%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\flow_final_reward_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check flow_preparation_commercial.png: upper variance=631.97, coverage=39.6%; middle variance=416.54, coverage=54.7%; lower variance=151.40, coverage=92.6%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\flow_preparation_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check flow_boss_gate_commercial.png: upper variance=4942.70, coverage=45.4%; middle variance=4746.84, coverage=99.7%; lower variance=4521.68, coverage=99.9%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\flow_boss_gate_commercial.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check run_result_victory.png: upper variance=1136.70, coverage=40.2%; middle variance=532.51, coverage=99.8%; lower variance=341.63, coverage=97.4%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+Captured commercial UI screenshot: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\run_result_victory.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1072)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1072)
+
+Capture pixel check run_result_defeat.png: upper variance=923.70, coverage=40.1%; middle variance=327.78, coverage=99.8%; lower variance=180.26, coverage=97.4%.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+PathOfTenThousandWays.Editor.DisableUnityConnectOnLoad/UnityConnectTokenExchangeLogFilter:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[]) (at Assets/Editor/DisableUnityConnectOnLoad.cs:430)
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:ValidatePixels (UnityEngine.Texture2D) (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1224)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Capture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1167)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool/CaptureSession:Tick () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:1067)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture () (at Assets/Editor/DemoPostBattleScreenshotTool.cs:88)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 1224)
+
+IOException: Win32 IO returned 1224. Path: D:\MyGame\Path_of_Ten_Thousand_Ways\tmp\run_result_defeat.png
+  at System.IO.FileStream..ctor (System.String path, System.IO.FileMode mode, System.IO.FileAccess access, System.IO.FileShare share, System.Int32 bufferSize, System.Boolean anonymous, System.IO.FileOptions options) [0x0019e] in <41d29b352f6a475ab1bf7c6628b82790>:0 
+  at System.IO.FileStream..ctor (System.String path, System.IO.FileMode mode, System.IO.FileAccess access, System.IO.FileShare share) [0x00000] in <41d29b352f6a475ab1bf7c6628b82790>:0 
+  at (wrapper remoting-invoke-with-check) System.IO.FileStream..ctor(string,System.IO.FileMode,System.IO.FileAccess,System.IO.FileShare)
+  at System.IO.File.InternalWriteAllBytes (System.String path, System.Byte[] bytes) [0x00000] in <41d29b352f6a475ab1bf7c6628b82790>:0 
+  at System.IO.File.WriteAllBytes (System.String path, System.Byte[] bytes) [0x00039] in <41d29b352f6a475ab1bf7c6628b82790>:0 
+  at PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool+CaptureSession.Capture () [0x00080] in D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Assets\Editor\DemoPostBattleScreenshotTool.cs:1168 
+  at PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool+CaptureSession.Tick () [0x00049] in D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Assets\Editor\DemoPostBattleScreenshotTool.cs:1067 
+  at PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool.UpdateCapture () [0x00058] in D:\MyGame\Path_of_Ten_Thousand_Ways\UNITY\Assets\Editor\DemoPostBattleScreenshotTool.cs:88 
+UnityEngine.DebugLogHandler:Internal_LogException_Injected(Exception, IntPtr)
+UnityEngine.DebugLogHandler:Internal_LogException(Exception, Object)
+UnityEngine.DebugLogHandler:LogException(Exception, Object)
+PathOfTenThousandWays.Editor.UnityConnectTokenExchangeLogFilter:LogException(Exception, Object) (at Assets\Editor\DisableUnityConnectOnLoad.cs:420)
+UnityEngine.Logger:LogException(Exception, Object)
+UnityEngine.Debug:LogException(Exception)
+PathOfTenThousandWays.Demo.EditorTools.DemoPostBattleScreenshotTool:UpdateCapture() (at Assets\Editor\DemoPostBattleScreenshotTool.cs:228)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions()
+
+(Filename: Assets/Editor/DemoPostBattleScreenshotTool.cs Line: 228)
+
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-张海桃-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-张海桃 channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+Checking for leaked weakptr:
+  Found no leaked weakptrs.
+[Package Manager] Server process was shutdown
+##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1784432811425,"processId":24220,"allocatedMemory":10569813,"memoryLabels":[{"Default":29313},{"Permanent":15236},{"NewDelete":67803},{"Thread":4230344},{"Manager":32349},{"VertexData":200},{"Geometry":816},{"Texture":296},{"Shader":79315},{"Material":24},{"GfxDevice":56016},{"Animation":392},{"Audio":2664},{"FreeType":8},{"FontEngine":736},{"Physics":2090},{"Physics2D":16},{"Serialization":720},{"Input":14984},{"JobScheduler":33024},{"TextLib":216},{"Mono":32},{"ScriptingNativeRuntime":155060},{"BaseObject":1644800},{"Resource":1336},{"Renderer":3000},{"Transform":4685},{"File":1016},{"WebCam":616},{"Culling":32},{"Terrain":11394},{"Wind":24},{"STL":40},{"String":19082},{"DynamicArray":81196},{"HashMap":47788},{"Utility":2660278},{"Curl":2675},{"PoolAlloc":2056},{"AI":80},{"TypeTree":11341},{"ScriptManager":512},{"RuntimeInitializeOnLoadManager":64},{"SpriteAtlas":112},{"GI":7792},{"Director":8240},{"CloudService":8928},{"WebRequest":808},{"VR":47994},{"SceneManager":504},{"Video":208},{"LazyScriptCache":32},{"Camera":17},{"Secure":2377},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":384},{"Hierarchy":608},{"CoreStats":13112},{"Identifiers":12960},{"Gui":96},{"EditorUtility":81021},{"VersionControl":4},{"Undo":947},{"AssetDatabase":775748},{"EditorGi":328},{"UnityConnect":29232},{"Upm":1896},{"AssetCompliance":64},{"DrivenProperties":72},{"LocalIPC":215},{"ProfilerEditor":9746},{"CoreBusinessMetrics":2859},{"Licensing":1232},{"AssetReference":32},{"IPCStream":32}]}

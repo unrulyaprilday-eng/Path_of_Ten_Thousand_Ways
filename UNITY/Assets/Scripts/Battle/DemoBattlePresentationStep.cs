@@ -1,4 +1,4 @@
-﻿using PathOfTenThousandWays.Demo.Cards;
+using PathOfTenThousandWays.Demo.Cards;
 
 namespace PathOfTenThousandWays.Demo.Battle
 {
@@ -22,6 +22,7 @@ namespace PathOfTenThousandWays.Demo.Battle
         public float BattleTime;
         public DemoBattlePresentationStepType Type;
         public DemoSwordStyle Style;
+        public string SourceId;
         public string Label;
         public int Damage;
         public int HitCount;
@@ -31,11 +32,12 @@ namespace PathOfTenThousandWays.Demo.Battle
         public bool IsBossAction;
         public int PlayerShockDelta;
 
-        public static DemoBattlePresentationStep BattleStart(string enemyName, bool isBoss)
+        public static DemoBattlePresentationStep BattleStart(string enemyName, bool isBoss, string sourceId = null)
         {
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.BattleStart,
+                SourceId = sourceId,
                 Style = DemoSwordStyle.General,
                 Label = enemyName,
                 IsBossAction = isBoss
@@ -57,6 +59,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.CardCast,
+                SourceId = card.Id,
                 Style = card.Style,
                 Label = card.Name,
                 Damage = damage,
@@ -72,6 +75,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.CardDraw,
+                SourceId = card == null ? null : card.Id,
                 Style = card == null ? DemoSwordStyle.General : card.Style,
                 Label = card == null ? "抽牌" : card.Name,
                 HitCount = 1
@@ -93,6 +97,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.SwordVolley,
+                SourceId = "auto_sword_volley",
                 Style = style,
                 Label = swordCount <= 1 ? $"1 把{labelPrefix}试锋" : $"{swordCount} 把{labelPrefix}齐发",
                 Damage = damage,
@@ -110,6 +115,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.SwordStored,
+                SourceId = "auto_sword_store",
                 Style = style,
                 Label = $"{swordCount} 把飞剑收锋入鞘",
                 HitCount = swordCount,
@@ -118,11 +124,12 @@ namespace PathOfTenThousandWays.Demo.Battle
             };
         }
 
-        public static DemoBattlePresentationStep Enemy(string enemyName, int damage, bool isBoss)
+        public static DemoBattlePresentationStep Enemy(string enemyName, int damage, bool isBoss, string sourceId = null)
         {
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.EnemyAttack,
+                SourceId = sourceId,
                 Style = DemoSwordStyle.General,
                 Label = enemyName,
                 Damage = damage,
@@ -137,6 +144,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.BossCharge,
+                SourceId = "boss_charge",
                 Label = label,
                 IsBossAction = true,
                 TriggerShock = playerShockDelta > 0,
@@ -149,6 +157,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.Victory,
+                SourceId = "battle_victory",
                 Label = "剑光破局"
             };
         }
@@ -158,6 +167,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.Defeat,
+                SourceId = "battle_defeat",
                 Label = "道心受创"
             };
         }

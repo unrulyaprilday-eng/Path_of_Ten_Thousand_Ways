@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -7,8 +8,10 @@ using PathOfTenThousandWays.Demo.Cards;
 using PathOfTenThousandWays.Demo.Map;
 using PathOfTenThousandWays.Demo.Rewards;
 using PathOfTenThousandWays.Demo.Systems;
+using PathOfTenThousandWays.Demo.UI;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace PathOfTenThousandWays.Demo.EditorTools
 {
@@ -17,11 +20,13 @@ namespace PathOfTenThousandWays.Demo.EditorTools
     {
         private const string ActiveKey = "PathOfTenThousandWays.PostBattleCapture.Active";
         private const string StageKey = "PathOfTenThousandWays.PostBattleCapture.Stage";
+        private const string OpeningBattleOnlyKey = "PathOfTenThousandWays.PostBattleCapture.OpeningBattleOnly";
         private const int SettleFrames = 18;
         private const int CaptureWidth = 1920;
         private const int CaptureHeight = 1080;
 
         private static int waitFrames;
+        private static int victoryReadyPolls;
         private static CaptureSession captureSession;
 
         static DemoPostBattleScreenshotTool()
@@ -36,8 +41,22 @@ namespace PathOfTenThousandWays.Demo.EditorTools
         public static void Capture()
         {
             EditorPrefs.SetBool(ActiveKey, true);
+            EditorPrefs.SetBool(OpeningBattleOnlyKey, false);
             EditorPrefs.SetInt(StageKey, 0);
             waitFrames = 0;
+            victoryReadyPolls = 0;
+            EditorApplication.update -= UpdateCapture;
+            EditorApplication.update += UpdateCapture;
+            EditorApplication.isPlaying = true;
+        }
+
+        public static void CaptureOpeningBattle()
+        {
+            EditorPrefs.SetBool(ActiveKey, true);
+            EditorPrefs.SetBool(OpeningBattleOnlyKey, true);
+            EditorPrefs.SetInt(StageKey, 0);
+            waitFrames = 0;
+            victoryReadyPolls = 0;
             EditorApplication.update -= UpdateCapture;
             EditorApplication.update += UpdateCapture;
             EditorApplication.isPlaying = true;
@@ -90,80 +109,117 @@ namespace PathOfTenThousandWays.Demo.EditorTools
                 }
 
                 waitFrames = 0;
+                if (EditorPrefs.GetBool(OpeningBattleOnlyKey, false))
+                {
+                    UpdateOpeningBattleCapture(controller);
+                    return;
+                }
+
                 int stage = EditorPrefs.GetInt(StageKey, 0);
                 switch (stage)
                 {
                     case 0:
-                        AdvanceOpeningToBattle(controller);
-                        AdvanceStage();
+                        BeginCapture("flow_home_commercial.png");
                         break;
                     case 1:
-                        BeginCapture("battle_opening_realtime.png");
+                        AdvanceToOpeningRoot(controller);
+                        BeginCapture("flow_opening_root_commercial.png");
                         break;
                     case 2:
-                        BeginCapture("battle_opening_realtime_1280x720.png", 1280, 720);
+                        ClaimOpeningAvailable(controller, DemoRewardType.Root);
+                        BeginCapture("flow_opening_vessel_commercial.png");
                         break;
                     case 3:
-                        SkipOpeningBattle(controller);
-                        AdvanceStage();
+                        ClaimOpeningAvailable(controller, DemoRewardType.Vessel);
+                        BeginCapture("flow_opening_region_commercial.png");
                         break;
                     case 4:
-                        BeginCapture("post_battle_reward_commercial.png");
+                        ClaimOpeningAvailable(controller, DemoRewardType.OpeningScene);
+                        BeginCapture("battle_opening_realtime.png");
                         break;
                     case 5:
-                        BeginCapture("post_battle_reward_commercial_1280x720.png", 1280, 720);
+                        BeginCapture("battle_opening_realtime_1280x720.png", 1280, 720);
                         break;
                     case 6:
-                        ClaimFirstAvailable(controller);
-                        AdvanceStage();
+                        CompleteCurrentBattle(controller, true);
+                        SelectFirstCommercialChoice();
+                        BeginCapture("post_battle_reward_commercial.png");
                         break;
                     case 7:
-                        BeginCapture("post_battle_route_commercial.png");
+                        BeginCapture("post_battle_reward_commercial_1280x720.png", 1280, 720);
                         break;
                     case 8:
-                        BeginCapture("post_battle_route_commercial_1280x720.png", 1280, 720);
+                        ClaimPreferredReward(controller);
+                        SelectFirstCommercialChoice();
+                        BeginCapture("post_battle_route_commercial.png");
                         break;
                     case 9:
-                        StartMultiSwordPreview(controller);
-                        AdvanceStage();
+                        BeginCapture("post_battle_route_commercial_1280x720.png", 1280, 720);
                         break;
                     case 10:
-                        BeginCapture("battle_mid_multi_sword.png");
+                        ClaimRoute(controller, "route_branch_stable");
+                        BeginCapture("flow_encounter_intro_commercial.png");
                         break;
                     case 11:
-                        StartBossIntentPreview(controller);
-                        AdvanceStage();
+                        controller.BeginCurrentEncounter();
+                        CompleteCurrentBattle(controller, true);
+                        ClaimPreferredReward(controller);
+                        SelectFirstCommercialChoice();
+                        BeginCapture("flow_training_commercial.png");
                         break;
                     case 12:
-                        BeginCapture("battle_boss_intent.png");
+                        ClaimPreferredReward(controller);
+                        SelectFirstCommercialChoice();
+                        BeginCapture("flow_route_layer2_commercial.png");
                         break;
                     case 13:
-                        controller.Battle.ClearBattle();
-                        ClaimUtilityFirstRoute(controller);
-                        AdvanceStage();
+                        ClaimRoute(controller, "route_middle_stable");
+                        controller.BeginCurrentEncounter();
+                        CompleteCurrentBattle(controller, true);
+                        ClaimPreferredReward(controller);
+                        SelectFirstCommercialChoice();
+                        BeginCapture("flow_training_layer2_commercial.png");
                         break;
                     case 14:
-                        BeginCapture("post_battle_node_commercial.png");
+                        ClaimPreferredReward(controller);
+                        SelectFirstCommercialChoice();
+                        BeginCapture("flow_route_layer3_commercial.png");
                         break;
                     case 15:
-                        ForceRunResult(controller, true);
-                        AdvanceStage();
+                        ClaimRoute(controller, "route_final_stable");
+                        controller.BeginCurrentEncounter();
+                        CompleteCurrentBattle(controller, true);
+                        SelectFirstCommercialChoice();
+                        BeginCapture("flow_final_reward_commercial.png");
                         break;
                     case 16:
-                        BeginCapture("run_result_victory.png");
+                        ClaimPreferredReward(controller);
+                        SelectFirstCommercialChoice();
+                        BeginCapture("flow_preparation_commercial.png");
                         break;
                     case 17:
-                        controller.AdvanceUtilityNode();
-                        ForceRunResult(controller, false);
-                        AdvanceStage();
+                        ClaimPreferredReward(controller);
+                        BeginCapture("flow_boss_gate_commercial.png");
                         break;
                     case 18:
-                        BeginCapture("run_result_defeat.png");
+                        PrepareResultMetrics(controller, true);
+                        controller.BeginCurrentEncounter();
+                        CompleteCurrentBattle(controller, true);
+                        BeginCapture("run_result_victory.png");
                         break;
                     case 19:
+                        controller.StartNextRun();
+                        AdvanceOpeningToBattle(controller);
+                        PrepareResultMetrics(controller, false);
+                        CompleteCurrentBattle(controller, false);
+                        BeginCapture("run_result_defeat.png");
+                        break;
+                    case 20:
                         EditorPrefs.SetInt(StageKey, 99);
                         EditorApplication.isPlaying = false;
                         break;
+                    default:
+                        throw new InvalidOperationException("Unknown full-flow capture stage: " + stage);
                 }
             }
             catch (Exception exception)
@@ -174,6 +230,112 @@ namespace PathOfTenThousandWays.Demo.EditorTools
             }
         }
 
+        private static void UpdateOpeningBattleCapture(DemoGameController controller)
+        {
+            int stage = EditorPrefs.GetInt(StageKey, 0);
+            switch (stage)
+            {
+                case 0:
+                    AdvanceOpeningToBattle(controller);
+                    StartOpeningBattlePreview(controller, OpeningBattleCaptureState.Intro);
+                    AdvanceStage();
+                    break;
+                case 1:
+                    BeginCapture("battle_opening_intro_commercial.png");
+                    break;
+                case 2:
+                    StartOpeningBattlePreview(controller, OpeningBattleCaptureState.Playable);
+                    AdvanceStage();
+                    break;
+                case 3:
+                    BeginCapture("battle_opening_running_commercial.png");
+                    break;
+                case 4:
+                    StartOpeningBattlePreview(controller, OpeningBattleCaptureState.Playable);
+                    BeginCapture("battle_opening_running_commercial_1280x720.png", 1280, 720);
+                    break;
+                case 5:
+                    StartOpeningBattlePreview(controller, OpeningBattleCaptureState.Playable);
+                    HoverOpeningBattleCard();
+                    AdvanceStage();
+                    break;
+                case 6:
+                    BeginCapture("battle_opening_playable_hover_commercial.png");
+                    break;
+                case 7:
+                    StartOpeningBattlePreview(controller, OpeningBattleCaptureState.EnergyBlocked);
+                    AdvanceStage();
+                    break;
+                case 8:
+                    BeginCapture("battle_opening_energy_blocked_commercial.png");
+                    break;
+                case 9:
+                    StartOpeningBattlePreview(controller, OpeningBattleCaptureState.IntentWarning);
+                    AdvanceStage();
+                    break;
+                case 10:
+                    BeginCapture("battle_opening_enemy_intent_commercial.png");
+                    break;
+                case 11:
+                    StartOpeningBattlePreview(controller, OpeningBattleCaptureState.Victory);
+                    victoryReadyPolls = 0;
+                    AdvanceStage();
+                    break;
+                case 12:
+                    if (!IsOpeningVictoryPresentationReady())
+                    {
+                        if (++victoryReadyPolls > 40)
+                        {
+                            throw new InvalidOperationException("Opening victory dissolve did not become visible before capture.");
+                        }
+                        break;
+                    }
+                    BeginCapture("battle_opening_victory_commercial.png");
+                    break;
+                case 13:
+                    SetPrivateField(controller, "battleResultHandled", false);
+                    SetPrivateField(controller, "battleOutcomeDelay", 1.19f);
+                    AdvanceStage();
+                    break;
+                case 14:
+                    if (controller.HasBattle || controller.CurrentRewards.Count != 3)
+                    {
+                        throw new InvalidOperationException("Opening battle victory did not enter the three-choice reward flow after its presentation hold.");
+                    }
+
+                    Debug.Log("Opening battle victory transition check passed.");
+                    EditorPrefs.SetInt(StageKey, 99);
+                    EditorApplication.isPlaying = false;
+                    break;
+                default:
+                    throw new InvalidOperationException("Unknown opening battle capture stage: " + stage);
+            }
+        }
+
+        private static void HoverOpeningBattleCard()
+        {
+            DemoBattleCardView[] cards = UnityEngine.Object.FindObjectsByType<DemoBattleCardView>(FindObjectsSortMode.None);
+            if (cards.Length != 2)
+            {
+                throw new InvalidOperationException("Expected exactly two visible story techniques before hover capture.");
+            }
+
+            DemoBattleCardView card = cards
+                .OrderBy(view => view.transform.GetSiblingIndex())
+                .ElementAt(cards.Length / 2);
+            card.OnPointerEnter(null);
+        }
+
+        private static bool IsOpeningVictoryPresentationReady()
+        {
+            RectTransform enemyRoot = UnityEngine.Object.FindObjectsByType<RectTransform>(
+                    FindObjectsInactive.Exclude,
+                    FindObjectsSortMode.None)
+                .FirstOrDefault(rect => rect.name == "EnemyRoot");
+            CanvasGroup enemyGroup = enemyRoot != null ? enemyRoot.GetComponent<CanvasGroup>() : null;
+            return enemyGroup != null && enemyGroup.alpha <= 0.20f;
+        }
+
         private static void ClaimFirstAvailable(DemoGameController controller)
         {
             if (controller.CurrentRewards.Count == 0)
@@ -182,6 +344,114 @@ namespace PathOfTenThousandWays.Demo.EditorTools
             }
 
             controller.ClaimRewardAt(0);
+        }
+
+        private static void AdvanceToOpeningRoot(DemoGameController controller)
+        {
+            controller.StartNewRun();
+            if (controller.FlowPhase == DemoFlowPhase.OpeningTrace)
+            {
+                int noTrace = Enumerable.Range(0, controller.CurrentRewards.Count)
+                    .FirstOrDefault(index => string.IsNullOrEmpty(controller.CurrentRewards[index].TraceId));
+                controller.ClaimRewardAt(noTrace);
+            }
+
+            if (controller.FlowPhase != DemoFlowPhase.OpeningRoot)
+            {
+                throw new InvalidOperationException("New run did not reach the root ceremony.");
+            }
+        }
+
+        private static void ClaimOpeningAvailable(DemoGameController controller, DemoRewardType expectedType)
+        {
+            int index = Enumerable.Range(0, controller.CurrentRewards.Count)
+                .FirstOrDefault(i => IsOpeningRewardAvailable(controller.CurrentRewards[i])
+                    && (controller.CurrentRewards[i].Type == expectedType
+                        || expectedType == DemoRewardType.Vessel && controller.CurrentRewards[i].Type == DemoRewardType.Journey));
+            DemoReward reward = controller.CurrentRewards.Count > index ? controller.CurrentRewards[index] : null;
+            if (reward == null || !IsOpeningRewardAvailable(reward))
+            {
+                throw new InvalidOperationException("Opening ceremony had no available " + expectedType + " choice.");
+            }
+
+            controller.ClaimRewardAt(index);
+        }
+
+        private static void SelectFirstCommercialChoice()
+        {
+            DemoCommercialJourneyView view = UnityEngine.Object.FindAnyObjectByType<DemoCommercialJourneyView>(FindObjectsInactive.Include);
+            if (view == null)
+            {
+                throw new InvalidOperationException("Commercial journey view was unavailable before selection preview.");
+            }
+
+            view.RefreshNow();
+            Button choice = UnityEngine.Object.FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+                .FirstOrDefault(button => button.name.StartsWith("RewardCard_", StringComparison.Ordinal)
+                    || button.name.StartsWith("RouteCard_", StringComparison.Ordinal));
+            if (choice == null)
+            {
+                throw new InvalidOperationException("Commercial journey page had no selectable choice card.");
+            }
+
+            choice.onClick.Invoke();
+        }
+
+        private static void ClaimPreferredReward(DemoGameController controller)
+        {
+            if (controller.CurrentRewards.Count == 0)
+            {
+                throw new InvalidOperationException("Expected a reward before continuing the authentic flow.");
+            }
+
+            int index = Enumerable.Range(0, controller.CurrentRewards.Count)
+                .FirstOrDefault(i => controller.CurrentRewards[i].Slot == DemoRewardSlot.Focus);
+            controller.ClaimRewardAt(index);
+        }
+
+        private static void ClaimRoute(DemoGameController controller, string routeId)
+        {
+            if (controller.FlowPhase != DemoFlowPhase.RouteChoice)
+            {
+                throw new InvalidOperationException("Expected route choice before selecting " + routeId + ".");
+            }
+
+            int index = Enumerable.Range(0, controller.CurrentRewards.Count)
+                .FirstOrDefault(i => string.Equals(controller.CurrentRewards[i].RoutePlan?.Id, routeId, StringComparison.OrdinalIgnoreCase));
+            DemoReward reward = controller.CurrentRewards.Count > index ? controller.CurrentRewards[index] : null;
+            if (reward?.RoutePlan == null || !string.Equals(reward.RoutePlan.Id, routeId, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Route choice did not contain " + routeId + ".");
+            }
+
+            controller.ClaimRewardAt(index);
+        }
+
+        private static void CompleteCurrentBattle(DemoGameController controller, bool victory)
+        {
+            if (!controller.HasBattle)
+            {
+                throw new InvalidOperationException("Authentic flow skip expected an active battle.");
+            }
+
+            InvokePrivate(controller, victory ? "HandleBattleWon" : "HandleBattleLost", null);
+            if (victory && controller.HasBattle)
+            {
+                throw new InvalidOperationException("Battle victory skip did not leave the battle state.");
+            }
+
+            if (!victory && (!controller.HasRunResult || controller.FlowPhase != DemoFlowPhase.RunResult))
+            {
+                throw new InvalidOperationException("Battle defeat skip did not reach the authentic run result.");
+            }
+        }
+
+        private static void PrepareResultMetrics(DemoGameController controller, bool victory)
+        {
+            float targetDuration = victory ? 14f * 60f + 20f : 2f * 60f + 35f;
+            controller.Run.AdvanceElapsedTime(Mathf.Max(0f, targetDuration - controller.Run.ElapsedSeconds));
+            controller.Run.RecordSwordCount(victory ? 9 : 3);
+            controller.Run.RecordBurstDamage(victory ? 148 : 18);
         }
 
 
@@ -250,6 +520,89 @@ namespace PathOfTenThousandWays.Demo.EditorTools
             {
                 throw new InvalidOperationException("Opening battle did not enter the three-choice reward state.");
             }
+        }
+
+        private static void StartOpeningBattlePreview(
+            DemoGameController controller,
+            OpeningBattleCaptureState captureState)
+        {
+            if (!DemoConfigRepository.TryCreateDeckFromPool("starter_story_sword_package", out List<DemoCard> storyTechniques)
+                || storyTechniques.Count != 2)
+            {
+                throw new InvalidOperationException("Story starting package did not provide exactly two active techniques.");
+            }
+
+            DemoCard swordArt = storyTechniques.Single(card => card.Id == "technique_incomplete_sword_scroll");
+            int initialEnergy = captureState == OpeningBattleCaptureState.EnergyBlocked
+                || captureState == OpeningBattleCaptureState.IntentWarning ? 0 : 3;
+            float introSeconds = captureState == OpeningBattleCaptureState.Intro ? 30f : 0f;
+            float intentSeconds = captureState == OpeningBattleCaptureState.IntentWarning ? 30f : 6.4f;
+            bool frozenResourceState = captureState == OpeningBattleCaptureState.EnergyBlocked
+                || captureState == OpeningBattleCaptureState.IntentWarning;
+
+            if (captureState == OpeningBattleCaptureState.Victory)
+            {
+                swordArt.Cost = 0;
+                swordArt.Damage = 999;
+            }
+
+            controller.Battle.StartBattle(new DemoBattleSetup
+            {
+                Deck = storyTechniques,
+                EnemyId = "enemy_old_mine_entry",
+                EnemyName = "旧矿入口遭遇",
+                EnemyHealth = captureState == OpeningBattleCaptureState.Victory ? 72 : 105,
+                PlayerName = "凌云剑修",
+                PlayerHealth = 72,
+                PlayerMaxHealth = 72,
+                InitialEnergy = initialEnergy,
+                MaxEnergy = 5,
+                EnergyRegenerationPerSecond = frozenResourceState ? 0f : 1f,
+                InitialHandSize = 2,
+                HandLimit = 6,
+                DrawIntervalSeconds = captureState == OpeningBattleCaptureState.IntentWarning ? 100f : 4f,
+                FlyingSwordIntervalSeconds = captureState == OpeningBattleCaptureState.IntentWarning ? 100f : 2.2f,
+                EnemyIntentMinSeconds = intentSeconds,
+                EnemyIntentMaxSeconds = intentSeconds,
+                IntroSeconds = introSeconds,
+                IsOpeningBattle = true,
+                RandomSeed = 41
+            });
+            controller.BattleSpeed = 1f;
+            SetPrivateField(controller, "battleResultHandled", false);
+            SetPrivateField(controller, "battleOutcomeDelay", 0f);
+
+            if (captureState == OpeningBattleCaptureState.IntentWarning)
+            {
+                controller.Battle.Tick(28.8f);
+            }
+            else if (captureState == OpeningBattleCaptureState.Victory)
+            {
+                int swordArtIndex = Enumerable.Range(0, controller.Battle.Hand.Count)
+                    .FirstOrDefault(index => controller.Battle.Hand[index].Id == "technique_incomplete_sword_scroll");
+                if (!controller.Battle.TryPlayCard(swordArtIndex))
+                {
+                    throw new InvalidOperationException("Opening battle victory preview card could not be played.");
+                }
+
+                SetPrivateField(controller, "battleResultHandled", true);
+            }
+
+            DemoBattleSceneView battleScene = UnityEngine.Object.FindAnyObjectByType<DemoBattleSceneView>();
+            if (battleScene == null)
+            {
+                throw new InvalidOperationException("Opening battle scene view was unavailable for deterministic refresh.");
+            }
+
+            battleScene.RefreshForCurrentBattle(captureState == OpeningBattleCaptureState.Intro);
+
+            DemoBattleHudView battleHud = UnityEngine.Object.FindAnyObjectByType<DemoBattleHudView>(FindObjectsInactive.Include);
+            if (battleHud == null)
+            {
+                throw new InvalidOperationException("Opening battle HUD was unavailable for deterministic refresh.");
+            }
+
+            battleHud.RefreshNow();
         }
 
         private static void StartMultiSwordPreview(DemoGameController controller)
@@ -376,6 +729,19 @@ namespace PathOfTenThousandWays.Demo.EditorTools
                 throw new InvalidOperationException("A commercial UI capture is already in progress.");
             }
 
+            if (fileName.StartsWith("battle_opening_", StringComparison.OrdinalIgnoreCase)
+                && fileName.Contains("commercial"))
+            {
+                ValidateOpeningBattleCaptureState(fileName);
+            }
+
+            if (fileName.StartsWith("flow_", StringComparison.OrdinalIgnoreCase)
+                || fileName.StartsWith("post_battle_", StringComparison.OrdinalIgnoreCase)
+                || fileName.StartsWith("run_result_", StringComparison.OrdinalIgnoreCase))
+            {
+                ValidateFullFlowCaptureState(fileName);
+            }
+
             Canvas canvas = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None)
                 .FirstOrDefault(candidate => candidate.name == "DEMO_RuntimeCanvas");
             if (canvas == null)
@@ -387,6 +753,216 @@ namespace PathOfTenThousandWays.Demo.EditorTools
             Directory.CreateDirectory(outputDirectory);
             string outputPath = Path.Combine(outputDirectory, fileName);
             captureSession = new CaptureSession(canvas, outputPath, width, height);
+        }
+
+        private static void ValidateFullFlowCaptureState(string fileName)
+        {
+            DemoGameController controller = UnityEngine.Object.FindAnyObjectByType<DemoGameController>();
+            if (controller == null)
+            {
+                throw new InvalidOperationException("Full-flow capture had no controller.");
+            }
+
+            DemoFlowPhase expected;
+            if (fileName.Contains("home"))
+            {
+                expected = DemoFlowPhase.Home;
+            }
+            else if (fileName.Contains("opening_root"))
+            {
+                expected = DemoFlowPhase.OpeningRoot;
+            }
+            else if (fileName.Contains("opening_vessel"))
+            {
+                expected = DemoFlowPhase.OpeningVessel;
+            }
+            else if (fileName.Contains("opening_region"))
+            {
+                expected = DemoFlowPhase.OpeningRegion;
+            }
+            else if (fileName.Contains("encounter_intro"))
+            {
+                expected = DemoFlowPhase.EncounterIntro;
+            }
+            else if (fileName.Contains("training"))
+            {
+                expected = DemoFlowPhase.Training;
+            }
+            else if (fileName.Contains("preparation"))
+            {
+                expected = DemoFlowPhase.Preparation;
+            }
+            else if (fileName.Contains("boss_gate"))
+            {
+                expected = DemoFlowPhase.BossGate;
+            }
+            else if (fileName.Contains("route"))
+            {
+                expected = DemoFlowPhase.RouteChoice;
+            }
+            else if (fileName.Contains("reward"))
+            {
+                expected = DemoFlowPhase.RewardChoice;
+            }
+            else if (fileName.StartsWith("run_result_", StringComparison.OrdinalIgnoreCase))
+            {
+                expected = DemoFlowPhase.RunResult;
+            }
+            else
+            {
+                return;
+            }
+
+            if (controller.FlowPhase != expected)
+            {
+                throw new InvalidOperationException($"Capture {fileName} expected {expected} but found {controller.FlowPhase}.");
+            }
+
+            if (expected == DemoFlowPhase.RunResult)
+            {
+                bool expectedVictory = fileName.Contains("victory");
+                if (controller.RunSummary == null || controller.RunSummary.Victory != expectedVictory)
+                {
+                    throw new InvalidOperationException("Run result capture outcome did not match its filename.");
+                }
+            }
+
+            if (expected == DemoFlowPhase.Home
+                || expected == DemoFlowPhase.OpeningRoot
+                || expected == DemoFlowPhase.OpeningVessel
+                || expected == DemoFlowPhase.OpeningRegion)
+            {
+                return;
+            }
+
+            DemoCommercialJourneyView view = UnityEngine.Object.FindAnyObjectByType<DemoCommercialJourneyView>(FindObjectsInactive.Include);
+            view?.RefreshNow();
+            RectTransform surface = UnityEngine.Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+                .FirstOrDefault(rect => rect.name == "CommercialJourneySurface");
+            if (view == null || surface == null || !surface.gameObject.activeInHierarchy)
+            {
+                throw new InvalidOperationException("Commercial journey surface was not active for " + fileName + ".");
+            }
+        }
+
+        private static void ValidateOpeningBattleCaptureState(string fileName)
+        {
+            DemoGameController controller = UnityEngine.Object.FindAnyObjectByType<DemoGameController>();
+            DemoBattleHudView hud = UnityEngine.Object.FindAnyObjectByType<DemoBattleHudView>(FindObjectsInactive.Include);
+            if (controller == null || hud == null || !hud.gameObject.activeInHierarchy)
+            {
+                throw new InvalidOperationException("Opening battle capture did not have an active commercial HUD.");
+            }
+
+            RectTransform[] activeRects = UnityEngine.Object.FindObjectsByType<RectTransform>(
+                FindObjectsInactive.Exclude,
+                FindObjectsSortMode.None);
+            string[] requiredNames = { "PlayerRoot", "EnemyRoot", "PhaseSeal", "EnemyIntent", "Backdrop" };
+            for (int i = 0; i < requiredNames.Length; i++)
+            {
+                if (!activeRects.Any(rect => rect.name == requiredNames[i]))
+                {
+                    throw new InvalidOperationException("Opening battle capture was missing active element: " + requiredNames[i]);
+                }
+            }
+
+            Image backdrop = activeRects
+                .Where(rect => rect.name == "Backdrop")
+                .Select(rect => rect.GetComponent<Image>())
+                .FirstOrDefault(image => image != null
+                    && image.sprite != null
+                    && image.sprite.texture != null
+                    && (image.sprite.texture.name.Contains("scene_battle_old_mine_combat_far_001")
+                        || image.sprite.texture.name.Contains("scene_battle_old_mine_opening_far_002")));
+            string textureName = backdrop != null && backdrop.sprite != null && backdrop.sprite.texture != null
+                ? backdrop.sprite.texture.name
+                : string.Empty;
+            if (!textureName.Contains("scene_battle_old_mine_combat_far_001")
+                && !textureName.Contains("scene_battle_old_mine_opening_far_002"))
+            {
+                throw new InvalidOperationException("Opening battle backdrop did not load the old-mine opening resource: " + textureName);
+            }
+
+            DemoBattleCardView[] cards = UnityEngine.Object.FindObjectsByType<DemoBattleCardView>(
+                FindObjectsInactive.Exclude,
+                FindObjectsSortMode.None);
+            int expectedCards = fileName.Contains("victory") ? 0 : 2;
+            if (cards.Length != expectedCards)
+            {
+                throw new InvalidOperationException($"Opening battle capture expected {expectedCards} cards but found {cards.Length}.");
+            }
+
+            if (!fileName.Contains("playable_hover") && cards.Length == 2)
+            {
+                RectTransform[] cardRects = cards
+                    .Select(card => card.GetComponent<RectTransform>())
+                    .OrderBy(rect => rect.position.x)
+                    .ToArray();
+                for (int i = 1; i < cardRects.Length; i++)
+                {
+                    Vector3[] previousCorners = new Vector3[4];
+                    Vector3[] currentCorners = new Vector3[4];
+                    cardRects[i - 1].GetWorldCorners(previousCorners);
+                    cardRects[i].GetWorldCorners(currentCorners);
+                    float previousRight = previousCorners.Max(corner => corner.x);
+                    float currentLeft = currentCorners.Min(corner => corner.x);
+                    if (currentLeft < previousRight - 1f)
+                    {
+                        throw new InvalidOperationException("Opening battle starter cards overlapped before hover.");
+                    }
+                }
+            }
+
+            DemoBattleState battle = controller.Battle;
+            if (fileName.Contains("intro") && battle.Phase != DemoBattlePhase.Intro)
+            {
+                throw new InvalidOperationException("Opening intro capture left the Intro phase before rendering.");
+            }
+            if ((fileName.Contains("running") || fileName.Contains("playable_hover"))
+                && (battle.Phase != DemoBattlePhase.Running
+                    || !battle.Hand.Any(card => card.Id == "technique_breathing_recovery" && card.Cost <= battle.Energy)
+                    || !battle.Hand.Any(card => card.Id == "technique_incomplete_sword_scroll")))
+            {
+                throw new InvalidOperationException("Opening playable capture did not contain a playable starter card.");
+            }
+            if (fileName.Contains("energy_blocked")
+                && (battle.Energy != 0
+                    || !battle.Hand.Any(card => card.Id == "technique_breathing_recovery" && card.Cost == 0)
+                    || !battle.Hand.Any(card => card.Id == "technique_incomplete_sword_scroll" && card.Cost > battle.Energy)))
+            {
+                throw new InvalidOperationException("Opening zero-energy capture did not preserve the free heart formula and blocked sword art split.");
+            }
+            if (fileName.Contains("enemy_intent")
+                && (battle.EnemyIntentProgress < 0.90f || battle.EnemyActionCount != 0))
+            {
+                throw new InvalidOperationException("Opening intent capture was not inside the pre-impact warning window.");
+            }
+            if (fileName.Contains("victory") && battle.Phase != DemoBattlePhase.Won)
+            {
+                throw new InvalidOperationException("Opening victory capture was not held in the Won phase.");
+            }
+            if (fileName.Contains("victory")
+                && !activeRects.Any(rect => rect.name == "ResultBanner" && rect.gameObject.activeInHierarchy))
+            {
+                throw new InvalidOperationException("Opening victory capture did not switch to the compact result banner.");
+            }
+            if (fileName.Contains("playable_hover"))
+            {
+                RectTransform detail = activeRects.FirstOrDefault(rect => rect.name == "CardDetail");
+                if (detail == null || !detail.gameObject.activeInHierarchy || !cards.Any(card => card.transform.localScale.x > 1.02f))
+                {
+                    throw new InvalidOperationException("Opening playable capture did not expand hover rules and lift a card.");
+                }
+            }
+
+            string[] decorativeNames = { "OpeningBattleMid", "OpeningBattleNear" };
+            foreach (Image image in UnityEngine.Object.FindObjectsByType<Image>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                if (decorativeNames.Contains(image.name) && image.raycastTarget)
+                {
+                    throw new InvalidOperationException("Opening battle decorative layer intercepted raycasts: " + image.name);
+                }
+            }
         }
 
         private static void CancelCaptureSession()
@@ -752,8 +1328,18 @@ namespace PathOfTenThousandWays.Demo.EditorTools
             CancelCaptureSession();
             EditorPrefs.DeleteKey(ActiveKey);
             EditorPrefs.DeleteKey(StageKey);
+            EditorPrefs.DeleteKey(OpeningBattleOnlyKey);
             EditorApplication.update -= UpdateCapture;
             EditorApplication.Exit(exitCode);
+        }
+
+        private enum OpeningBattleCaptureState
+        {
+            Intro,
+            Playable,
+            EnergyBlocked,
+            IntentWarning,
+            Victory
         }
     }
 }

@@ -1,4 +1,6 @@
 card_id,name,icon_glyph,type,style,quality,cost,damage,block,draw,energy_gain,sword_intent,shock,bleed,temporary_swords,permanent_sword,consume_all_sword_intent,self_damage,special_effect,rules_override
+technique_breathing_recovery,吐纳归息,息,resource,general,mortal,0,0,4,0,1,0,0,0,0,false,false,0,none,"调息归元：获得 4 护体并回复 1 灵气。"
+technique_incomplete_sword_scroll,残卷御剑式,御,flying_sword,wanjian,mortal,1,5,0,0,0,1,0,0,1,false,false,0,none,"催动残剑胚造成 5 伤害，获得 1 剑意并生成 1 把临时飞剑。"
 sword_slash,剑气斩,斩,attack,general,mortal,1,8,0,0,0,1,0,0,0,false,false,0,none,
 guard_step,剑遁,遁,defense,general,mortal,1,0,8,0,0,0,0,0,0,false,false,0,none,
 cloud_step,踏云遁,踏,defense,general,spirit,1,0,6,1,0,0,0,0,0,false,false,0,none,

@@ -43,6 +43,10 @@ namespace PathOfTenThousandWays.Demo.Systems
     {
         public Dictionary<string, DemoCardConfig> Cards { get; set; } = new Dictionary<string, DemoCardConfig>();
         public Dictionary<string, List<DemoCardPoolEntryConfig>> CardPools { get; set; } = new Dictionary<string, List<DemoCardPoolEntryConfig>>();
+        public Dictionary<string, DemoCorePracticeConfig> CorePractices { get; set; } = new Dictionary<string, DemoCorePracticeConfig>();
+        public Dictionary<string, DemoTechniqueConfig> Techniques { get; set; } = new Dictionary<string, DemoTechniqueConfig>();
+        public Dictionary<string, DemoBearerConfig> Bearers { get; set; } = new Dictionary<string, DemoBearerConfig>();
+        public Dictionary<string, DemoStartingPracticePackageConfig> StartingPracticePackages { get; set; } = new Dictionary<string, DemoStartingPracticePackageConfig>();
         public Dictionary<string, DemoGongfaConfig> Gongfas { get; set; } = new Dictionary<string, DemoGongfaConfig>();
         public Dictionary<string, DemoArtifactConfig> Artifacts { get; set; } = new Dictionary<string, DemoArtifactConfig>();
         public Dictionary<string, DemoRelicConfig> Relics { get; set; } = new Dictionary<string, DemoRelicConfig>();
@@ -99,6 +103,7 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string CarryItemEffect { get; set; }
         public string VesselType { get; set; }
         public string StarterPoolId { get; set; }
+        public string StartingPracticePackageId { get; set; }
         public string BaseStyle { get; set; }
         public bool IsAvailable { get; set; }
         public string FirstRegionId { get; set; }
@@ -117,6 +122,7 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string OriginText { get; set; }
         public string VesselType { get; set; }
         public string StarterPoolId { get; set; }
+        public string StartingPracticePackageId { get; set; }
         public string BaseStyle { get; set; }
         public string StartingEffectText { get; set; }
         public string FirstRegionId { get; set; }
@@ -169,6 +175,48 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string RefId { get; set; }
         public int Count { get; set; }
         public string Notes { get; set; }
+    }
+
+    public sealed class DemoCorePracticeConfig
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string PracticeType { get; set; }
+        public string PassiveRuleText { get; set; }
+        public string GrantedTechniqueId { get; set; }
+        public string SourceStoryId { get; set; }
+    }
+
+    public sealed class DemoTechniqueConfig
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Kind { get; set; }
+        public string SourceStoryId { get; set; }
+        public string RulesText { get; set; }
+        public string VisualTag { get; set; }
+    }
+
+    public sealed class DemoBearerConfig
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Mode { get; set; }
+        public string ResourceKey { get; set; }
+        public bool IsRequired { get; set; }
+    }
+
+    public sealed class DemoStartingPracticePackageConfig
+    {
+        public string Id { get; set; }
+        public string RootId { get; set; }
+        public string SourceStoryId { get; set; }
+        public string InnateArtifactId { get; set; }
+        public string CorePracticeId { get; set; }
+        public string PrimaryTechniqueId { get; set; }
+        public string BearerDefinitionId { get; set; }
+        public bool IsAvailable { get; set; }
+        public List<string> ActiveTechniqueIds { get; set; } = new List<string>();
     }
 
     public sealed class DemoGongfaConfig
@@ -344,6 +392,7 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string OriginText;
         public string VesselType;
         public string StarterPoolId;
+        public string StartingPracticePackageId;
         public string BaseStyle;
         public string StartingEffectText;
         public string FirstRegionId;
@@ -363,6 +412,7 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string CarryItemEffect;
         public string VesselType;
         public string StarterPoolId;
+        public string StartingPracticePackageId;
         public string BaseStyle;
         public bool IsAvailable;
         public string FirstRegionId;

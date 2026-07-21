@@ -1,4 +1,6 @@
 pool_id,entry_order,entry_type,ref_id,count,notes
+starter_story_sword_package,1,card,technique_breathing_recovery,1,开局故事由旁支吐纳法授予主动心诀
+starter_story_sword_package,2,card,technique_incomplete_sword_scroll,1,开局故事交付的初阶剑诀
 starter_general,1,card,sword_slash,2,默认起始牌组
 starter_general,2,card,guard_step,2,默认起始牌组
 starter_general,3,card,cloud_step,1,默认起始牌组

@@ -1,10 +1,10 @@
 route_plan_id,layer,name,description,route_style,route_quality,route_glyph,route_tag
-route_branch_stable,1,矿口余烬,普通战后在矿灯下调息并定向补启动缺口以恢复换取稳定推进,general,spirit,稳,稳定路线
-route_branch_risky,1,塌井深处,连续挑战两名精英不获免费恢复以更早获得两次高档战斗奖励,general,heaven,险,冒险路线
-route_branch_build,1,旧账暗室,先悟法再整备并以普通战验证循环用较少随机性补齐万剑启动组件,general,mysterious,构,构筑路线
-route_middle_stable,2,稳修收束,先定向补小诛仙剑阵再打一场普通战稳定获得第二层核心,general,spirit,稳,稳定路线
-route_middle_aggressive,2,追锋破阵,连续挑战两名第二层精英以更高压力换取更早更高品质的引擎补强,general,heaven,锋,冒险路线
-route_middle_artifact,2,秘器共振,先在核心整备中补御剑诀或剑匣缺口再进入精英试炼,general,mysterious,器,构筑路线
-route_final_stable,3,整备冲劫,Boss 前恢复并完成整备以当前成形构筑稳定渡劫,general,spirit,备,稳守路线
-route_final_seclusion,3,闭关悟道,先定向补万剑诀再完成整备把完整爆发窗口留给天劫,general,mysterious,悟,爆发路线
-route_final_desperate,3,背水破劫,渡劫前再战一名高奖精英并允许万剑归宗出现以风险抬高上限,general,immortal,劫,背水路线
+route_branch_stable,1,矿口余烬,先打一场普通战获得基础奖励；随后修炼定向悟法并恢复 12 点气血,general,spirit,稳,稳定路线
+route_branch_risky,1,塌井深处,连续挑战两名第一层精英；每战获得精英奖励且路线不提供恢复,general,heaven,险,冒险路线
+route_branch_build,1,旧账暗室,先修炼定向补万剑启动组件；随后以普通战获得构筑奖励,general,mysterious,构,构筑路线
+route_middle_stable,2,稳修收束,先打一场普通战获得第二层核心奖励；随后修炼定向补剑阵并恢复 8 点气血,general,spirit,稳,稳定路线
+route_middle_aggressive,2,追锋破阵,连续挑战两名第二层精英；每战获得精英奖励且路线不提供恢复,general,heaven,锋,追锋路线
+route_middle_artifact,2,秘器共振,先整备一次并针对御剑诀或剑匣缺口作出选择；随后挑战精英获取核心奖励,general,mysterious,器,秘器路线
+route_final_stable,3,整备冲劫,先打一场普通战获得终结奖励；随后恢复并针对生存缺口整备一次再挑战天劫,general,spirit,稳,稳守路线
+route_final_seclusion,3,闭关悟道,先终结修炼定向补万剑诀；随后打一场普通战并直接挑战天劫,general,mysterious,悟,悟道路线
+route_final_desperate,3,背水破劫,先挑战可出现万剑归宗的高奖精英；随后不经恢复直接挑战天劫,general,immortal,劫,背水路线

@@ -204,6 +204,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private CanvasGroup rewardOverlayCanvasGroup;
         private Button rewardRerollButton;
         private Text rewardRerollButtonText;
+        private Button openingBackButton;
         private DemoBattleSceneView battleSceneView;
         private GameObject rewardPanelBody;
         private GameObject buildPanelBody;
@@ -240,6 +241,10 @@ namespace PathOfTenThousandWays.Demo.UI
         private Text openingSceneTransitionTitleText;
         private Text openingSceneTransitionHintText;
         private GameObject battleHudRoot;
+        private GameObject legacyBattleHintPanelRoot;
+        private GameObject legacyBattleHandPanelRoot;
+        private DemoBattleHudView commercialBattleHudView;
+        private DemoCommercialJourneyView commercialJourneyView;
         private GameObject nodeOverlayPanelRoot;
         private GameObject nodeJourneyBackdropRoot;
         private GameObject nodeMapPanelRoot;
@@ -323,6 +328,11 @@ namespace PathOfTenThousandWays.Demo.UI
             RefreshRewards();
             UpdateHomePresentation(Time.time);
             UpdateOpeningSceneTransition(Time.unscaledDeltaTime);
+            if (commercialJourneyView != null)
+            {
+                commercialJourneyView.RefreshNow();
+                ApplyCommercialJourneyVisibility();
+            }
         }
 
         private void EnsureEventSystem()
@@ -403,8 +413,61 @@ namespace PathOfTenThousandWays.Demo.UI
             BuildTopHud(canvasRect);
             BuildNodeOverlay(canvasRect);
             BuildRewardOverlay(canvasRect);
+            BuildOpeningBackButton(canvasRect);
             BuildBattleHud(canvasRect);
+            BuildCommercialJourneyView(canvasRect);
             BuildOpeningSceneTransitionOverlay(canvasRect);
+        }
+
+        private void BuildCommercialJourneyView(RectTransform parent)
+        {
+            GameObject viewObject = new GameObject(
+                "CommercialJourneyFlow",
+                typeof(RectTransform),
+                typeof(DemoCommercialJourneyView));
+            viewObject.transform.SetParent(parent, false);
+            RectTransform rect = viewObject.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            commercialJourneyView = viewObject.GetComponent<DemoCommercialJourneyView>();
+            commercialJourneyView.Initialize(controller, uiFont);
+        }
+
+        private void ApplyCommercialJourneyVisibility()
+        {
+            bool visible = IsCommercialJourneyPhase(controller.FlowPhase);
+            if (!visible)
+            {
+                return;
+            }
+
+            nodeOverlayRoot?.SetActive(false);
+            rewardOverlayRoot?.SetActive(false);
+            topHudRoot?.SetActive(false);
+            battleHudRoot?.SetActive(false);
+            openingBackButton?.gameObject.SetActive(false);
+        }
+
+        private static bool IsCommercialJourneyPhase(DemoFlowPhase phase)
+        {
+            switch (phase)
+            {
+                case DemoFlowPhase.JourneyMap:
+                case DemoFlowPhase.NodeScene:
+                case DemoFlowPhase.Breakthrough:
+                case DemoFlowPhase.EncounterIntro:
+                case DemoFlowPhase.RewardChoice:
+                case DemoFlowPhase.RouteChoice:
+                case DemoFlowPhase.Training:
+                case DemoFlowPhase.Preparation:
+                case DemoFlowPhase.BossGate:
+                case DemoFlowPhase.RunResult:
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         private void CreateBackdrop(RectTransform parent)
@@ -1847,6 +1910,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(-340f, 182f),
                 new Vector2(340f, 236f),
                 new Color(0.94f, 0.92f, 0.86f, 0.72f));
+            legacyBattleHintPanelRoot = hintPanel.gameObject;
             battleStateText = CreateText(hintPanel, "BattleStateText", string.Empty, 13, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.22f, 0.22f, 0.20f, 0.94f));
             StretchText(battleStateText.rectTransform, new Vector2(16f, 22f), new Vector2(-16f, -4f));
             battleHintText = CreateText(hintPanel, "BattleHintText", string.Empty, 11, FontStyle.Normal, TextAnchor.MiddleCenter, new Color(0.38f, 0.40f, 0.38f, 0.88f));
@@ -1861,6 +1925,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(-42f, 16f),
                 new Vector2(1320f, 224f),
                 new Color(0.10f, 0.10f, 0.095f, 0.78f));
+            legacyBattleHandPanelRoot = handPanel.gameObject;
 
 
             BuildBattleDeckSurface(handPanel);
@@ -1926,6 +1991,47 @@ namespace PathOfTenThousandWays.Demo.UI
 
             battleActionButton.onClick.AddListener(OnBattleActionClicked);
             BuildBattleDaoDock(handPanel);
+
+            hintPanel.gameObject.SetActive(false);
+            handPanel.gameObject.SetActive(false);
+
+            GameObject commercialHudObject = new GameObject(
+                "OpeningBattleCommercialHud",
+                typeof(RectTransform),
+                typeof(DemoBattleHudView));
+            commercialHudObject.transform.SetParent(battleHudRoot.transform, false);
+            RectTransform commercialHudRect = commercialHudObject.GetComponent<RectTransform>();
+            commercialHudRect.anchorMin = Vector2.zero;
+            commercialHudRect.anchorMax = Vector2.one;
+            commercialHudRect.offsetMin = Vector2.zero;
+            commercialHudRect.offsetMax = Vector2.zero;
+            commercialBattleHudView = commercialHudObject.GetComponent<DemoBattleHudView>();
+            commercialBattleHudView.Initialize(controller, uiFont);
+            RefreshBattleHudMode();
+        }
+
+        private void BuildOpeningBackButton(RectTransform parent)
+        {
+            openingBackButton = CreateActionButton(
+                parent,
+                "OpeningBackButton",
+                out Text backText,
+                new Color(0.92f, 0.88f, 0.77f, 0.94f),
+                new Color(0.22f, 0.20f, 0.16f, 0.96f));
+            RectTransform rect = openingBackButton.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(44f, -38f);
+            rect.sizeDelta = new Vector2(120f, 44f);
+            backText.text = "返回上一步";
+            backText.fontSize = 14;
+            openingBackButton.onClick.AddListener(() =>
+            {
+                controller.BackOpeningStep();
+                rewardSignature = string.Empty;
+            });
+            openingBackButton.gameObject.SetActive(false);
         }
         private void BuildBattleDeckSurface(RectTransform handPanel)
         {
@@ -2148,6 +2254,11 @@ namespace PathOfTenThousandWays.Demo.UI
             bool showMinimalRewardPanels = showStartOpeningRewards || showRouteChoiceRewards;
             bool showPostBattleJourney = showingRewards && !showStartOpeningRewards;
 
+            if (openingBackButton != null)
+            {
+                openingBackButton.gameObject.SetActive(showStartOpeningRewards && controller.CanBackOpening);
+            }
+
             if (nodeOverlayRoot != null)
             {
                 nodeOverlayRoot.SetActive(!showingBattle && !showingRewards);
@@ -2258,7 +2369,7 @@ namespace PathOfTenThousandWays.Demo.UI
             bool hasContinuableRun = HasContinuableRun();
             if (homeContinueButton != null)
             {
-                homeContinueButton.gameObject.SetActive(showStartHome);
+                homeContinueButton.gameObject.SetActive(false);
                 homeContinueButton.interactable = hasContinuableRun;
             }
 
@@ -2272,13 +2383,13 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (homeCodexButton != null)
             {
-                homeCodexButton.gameObject.SetActive(showStartHome);
+                homeCodexButton.gameObject.SetActive(false);
                 homeCodexButton.interactable = true;
             }
 
             if (homeSettingsButton != null)
             {
-                homeSettingsButton.gameObject.SetActive(showStartHome);
+                homeSettingsButton.gameObject.SetActive(false);
                 homeSettingsButton.interactable = true;
             }
 
@@ -2588,6 +2699,13 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private void RefreshHand()
         {
+            if (RefreshBattleHudMode())
+            {
+                commercialBattleHudView.RefreshNow();
+                handSignature = string.Empty;
+                return;
+            }
+
             if (!controller.HasBattle)
             {
                 string idleSignature = controller.GetHandStatus() + "|idle";
@@ -2698,7 +2816,10 @@ namespace PathOfTenThousandWays.Demo.UI
                     }
                 }
 
-                if (!claimable)
+                bool openingCardHasIntegratedLockState = reward.Type == DemoRewardType.Journey
+                    || reward.Type == DemoRewardType.Vessel
+                    || reward.Type == DemoRewardType.OpeningScene;
+                if (!claimable && !openingCardHasIntegratedLockState)
                 {
                     Text lockedText = CreateText(
                         rewardRect,
@@ -2717,6 +2838,30 @@ namespace PathOfTenThousandWays.Demo.UI
 
                 rewardEntries.Add(rewardObject);
             }
+        }
+
+        private bool RefreshBattleHudMode()
+        {
+            bool useCommercialHud = controller != null
+                && controller.HasBattle;
+
+            if (commercialBattleHudView != null)
+            {
+                commercialBattleHudView.gameObject.SetActive(useCommercialHud);
+            }
+
+            // The legacy hint panel was intentionally hidden before the opening-battle HUD existed.
+            if (legacyBattleHintPanelRoot != null)
+            {
+                legacyBattleHintPanelRoot.SetActive(false);
+            }
+
+            if (legacyBattleHandPanelRoot != null)
+            {
+                legacyBattleHandPanelRoot.SetActive(controller != null && controller.HasBattle && !useCommercialHud);
+            }
+
+            return useCommercialHud;
         }
 
         private void BeginOpeningSceneTransition(int rewardIndex, RectTransform sourceRect, DemoReward reward)
@@ -3410,8 +3555,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             DemoMapNode currentNode = controller.Run.Map.CurrentNode;
             return currentNode.Type == DemoNodeType.Battle
-                && currentNode.Layer == 1
-                && controller.Run.OpeningSelection.FirstRegion != null;
+                && string.Equals(currentNode.NodeId, "node_opening_battle", System.StringComparison.OrdinalIgnoreCase);
         }
 
         private string GetBattlePhaseShortLabel()
@@ -3488,7 +3632,9 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (controller.IsRunComplete)
             {
-                return "天劫已渡：回看本局是如何从定根脚、所携、所往，一路走到收束成型。";
+                return controller.RunSummary != null && controller.RunSummary.Victory
+                    ? "天劫已渡：回看本局是如何从定根脚、所携、所往，一路走到收束成型。"
+                    : "此世止步：回看路线、构筑里程碑与最后一场失利，明确下一世先补什么。";
             }
 
             if (controller.HasBattle)
@@ -4941,6 +5087,7 @@ namespace PathOfTenThousandWays.Demo.UI
             DemoJourneyLineDefinition line = reward.JourneyLine;
             Color accent = GetRewardAccentColor(reward);
             Sprite heroSprite = LoadOpeningSprite(reward);
+            bool claimable = IsRewardClaimable(reward);
 
             GameObject cardObject = new GameObject("OpeningItemChoice_" + reward.Name, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
             cardObject.transform.SetParent(parent, false);
@@ -5133,7 +5280,7 @@ namespace PathOfTenThousandWays.Demo.UI
             Text sealText = CreateText(actionSeal, "OpeningItemSealText", "选", 17, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(1f, 0.86f, 0.68f, 0f));
             StretchText(sealText.rectTransform, new Vector2(5f, 5f), new Vector2(-5f, -5f));
 
-            Text actionText = CreateText(bottomWash, "OpeningItemAction", "带上此物", 17, FontStyle.Bold, TextAnchor.LowerRight, new Color(0.36f, 0.20f, 0.08f, 0.96f));
+            Text actionText = CreateText(bottomWash, "OpeningItemAction", claimable ? "带上此物" : "尚未开放", 17, FontStyle.Bold, TextAnchor.LowerRight, new Color(0.36f, 0.20f, 0.08f, claimable ? 0.96f : 0.58f));
             actionText.rectTransform.anchorMin = new Vector2(0f, 0f);
             actionText.rectTransform.anchorMax = new Vector2(1f, 0f);
             actionText.rectTransform.offsetMin = new Vector2(20f, 9f);
@@ -5166,7 +5313,7 @@ namespace PathOfTenThousandWays.Demo.UI
             fx.Register(actionSeal, new Vector2(1.2f, 0.8f), 0.34f, 1.5f + GetStableChoiceIndex(itemName, 9), 0.7f, 0.006f);
 
             DemoOpeningItemCardFx cardFx = cardObject.AddComponent<DemoOpeningItemCardFx>();
-            cardFx.Configure(cardRect, cardImage, hoverWashImage, actionSeal.GetComponent<Image>(), sealText, actionText, frameAccent);
+            cardFx.Configure(cardRect, cardImage, hoverWashImage, actionSeal.GetComponent<Image>(), sealText, actionText, frameAccent, claimable);
             AddOpeningItemCardEvents(cardObject, cardFx);
             DisableChildRaycastsExcept(cardObject, cardImage);
 
@@ -5410,6 +5557,7 @@ namespace PathOfTenThousandWays.Demo.UI
             Sprite sceneSprite = LoadOpeningSprite(reward);
             string regionId = (reward.Region?.Id ?? string.Empty).ToLowerInvariant();
             bool isPrimary = IsPrimaryOpeningScene(reward);
+            bool claimable = IsRewardClaimable(reward);
             float cardWidth = isPrimary ? 512f : 468f;
             float cardHeight = isPrimary ? 680f : 640f;
 
@@ -5562,7 +5710,7 @@ namespace PathOfTenThousandWays.Demo.UI
             actionImage.raycastTarget = false;
             DecorateFrame(actionGround, new Color(accent.r, accent.g, accent.b, 0.46f), new Color(0.98f, 0.90f, 0.68f, 0.16f), 1f, false);
 
-            Text actionText = CreateText(actionGround, "SceneAction", "踏入此境", 19, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.23f, 0.12f, 0.06f, 0.96f));
+            Text actionText = CreateText(actionGround, "SceneAction", claimable ? "踏入此境" : "尚未开放", 19, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(0.23f, 0.12f, 0.06f, claimable ? 0.96f : 0.58f));
             StretchText(actionText.rectTransform, new Vector2(8f, 3f), new Vector2(-8f, -3f));
 
             RectTransform accentLine = CreateStretchPanel(
@@ -5588,7 +5736,7 @@ namespace PathOfTenThousandWays.Demo.UI
             hoverWashImage.raycastTarget = false;
 
             DemoOpeningSceneCardFx sceneFx = cardObject.AddComponent<DemoOpeningSceneCardFx>();
-            sceneFx.Configure(cardRect, cardImage, hoverWashImage, actionImage, actionText, accentLineImage, affinitySealImage, accent, isPrimary);
+            sceneFx.Configure(cardRect, cardImage, hoverWashImage, actionImage, actionText, accentLineImage, affinitySealImage, accent, isPrimary, claimable);
             AddOpeningSceneCardEvents(cardObject, sceneFx);
 
             DisableChildRaycastsExcept(cardObject, cardImage);
@@ -7579,6 +7727,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoNodeType.Boss:
                     return "Boss";
                 case DemoNodeType.Victory:
+                case DemoNodeType.Result:
                     return "结算";
                 default:
                     return "节点";
@@ -7607,6 +7756,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoNodeType.RouteChoice:
                     return new Color(0.62f, 0.66f, 0.72f, 0.92f);
                 case DemoNodeType.Victory:
+                case DemoNodeType.Result:
                     return new Color(0.90f, 0.78f, 0.48f, 0.95f);
                 default:
                     return fallback;
@@ -8895,6 +9045,16 @@ namespace PathOfTenThousandWays.Demo.UI
                     return "剑意";
                 case "recovery":
                     return "恢复";
+                case "alchemy":
+                    return "丹炼";
+                case "refinement":
+                    return "炼化";
+                case "spell":
+                    return "术法";
+                case "seal":
+                    return "符印";
+                case "thunder":
+                    return "雷法";
                 case "defense":
                     return "防御";
                 case "resource":
@@ -9137,6 +9297,7 @@ namespace PathOfTenThousandWays.Demo.UI
             private bool hover;
             private bool pressed;
             private bool primary;
+            private bool claimable;
             private float pressHoldTimer;
             private float pulsePhase;
 
@@ -9149,7 +9310,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 Image accentLineImage,
                 Image affinitySealImage,
                 Color accent,
-                bool primary)
+                bool primary,
+                bool claimable)
             {
                 this.cardRect = cardRect;
                 this.cardImage = cardImage;
@@ -9160,6 +9322,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 this.affinitySealImage = affinitySealImage;
                 this.accent = accent;
                 this.primary = primary;
+                this.claimable = claimable;
                 pulsePhase = Mathf.Abs(accent.r * 11.7f + accent.g * 17.3f + accent.b * 23.1f);
 
                 if (cardRect != null)
@@ -9170,13 +9333,13 @@ namespace PathOfTenThousandWays.Demo.UI
 
             public void SetHover(bool hover)
             {
-                this.hover = hover;
+                this.hover = claimable && hover;
             }
 
             public void SetPressed(bool pressed)
             {
-                this.pressed = pressed;
-                if (pressed)
+                this.pressed = claimable && pressed;
+                if (this.pressed)
                 {
                     pressHoldTimer = 0.28f;
                 }
@@ -9224,9 +9387,10 @@ namespace PathOfTenThousandWays.Demo.UI
 
                 if (actionText != null)
                 {
+                    actionText.text = claimable ? "踏入此境" : "尚未开放";
                     Color target = activePress || hover
                         ? new Color(0.30f, 0.13f, 0.05f, 0.99f)
-                        : new Color(0.23f, 0.12f, 0.06f, 0.96f);
+                        : new Color(0.23f, 0.12f, 0.06f, claimable ? 0.96f : 0.58f);
                     actionText.color = Color.Lerp(actionText.color, target, follow);
                 }
 
@@ -9258,6 +9422,7 @@ namespace PathOfTenThousandWays.Demo.UI
             private Vector3 baseScale = Vector3.one;
             private bool hover;
             private bool pressed;
+            private bool claimable;
             private float sealHoldTimer;
 
             public void Configure(
@@ -9267,7 +9432,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 Image sealImage,
                 Text sealText,
                 Text actionText,
-                Color accent)
+                Color accent,
+                bool claimable)
             {
                 this.cardRect = cardRect;
                 this.cardImage = cardImage;
@@ -9276,6 +9442,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 this.sealText = sealText;
                 this.actionText = actionText;
                 this.accent = accent;
+                this.claimable = claimable;
 
                 if (cardRect != null)
                 {
@@ -9285,13 +9452,13 @@ namespace PathOfTenThousandWays.Demo.UI
 
             public void SetHover(bool hover)
             {
-                this.hover = hover;
+                this.hover = claimable && hover;
             }
 
             public void SetPressed(bool pressed)
             {
-                this.pressed = pressed;
-                if (pressed)
+                this.pressed = claimable && pressed;
+                if (this.pressed)
                 {
                     sealHoldTimer = 0.48f;
                 }
@@ -9345,8 +9512,8 @@ namespace PathOfTenThousandWays.Demo.UI
 
                 if (actionText != null)
                 {
-                    actionText.text = "带上此物";
-                    Color target = new Color(0.36f, 0.20f, 0.08f, 0.96f);
+                    actionText.text = claimable ? "带上此物" : "尚未开放";
+                    Color target = new Color(0.36f, 0.20f, 0.08f, claimable ? 0.96f : 0.58f);
                     actionText.color = Color.Lerp(actionText.color, target, follow);
                 }
             }

@@ -25,11 +25,13 @@ namespace PathOfTenThousandWays.Demo.Battle
 
     public sealed class DemoBattleSetup
     {
+        public IReadOnlyList<DemoBattleEnemySetup> Enemies;
         public IReadOnlyList<DemoCard> Deck;
         public IReadOnlyList<DemoArtifactType> Artifacts;
         public IReadOnlyList<DemoGongfaType> Gongfas;
         public IReadOnlyCollection<string> Relics;
         public string PlayerName = "剑修";
+        public string EnemyId;
         public int PlayerMaxHealth;
         public int PlayerHealth = 72;
         public string EnemyName = "拦路妖物";
@@ -52,6 +54,19 @@ namespace PathOfTenThousandWays.Demo.Battle
         public int RandomSeed = -1;
     }
 
+    public sealed class DemoBattleEnemySetup
+    {
+        public string CombatantId;
+        public string DefinitionId;
+        public string Name = "拦路妖物";
+        public string PositionId = "enemy_slot_primary";
+        public int Depth;
+        public int MaxHealth = 46;
+        public int ThreatPriority;
+        public bool CanLock = true;
+        public bool RequiredForVictory = true;
+    }
+
     public sealed class DemoBattleState
     {
         private const float TimerEpsilon = 0.0001f;
@@ -69,8 +84,10 @@ namespace PathOfTenThousandWays.Demo.Battle
         private readonly List<DemoArtifactType> activeArtifacts = new List<DemoArtifactType>();
         private readonly List<DemoGongfaType> activeGongfas = new List<DemoGongfaType>();
         private readonly HashSet<string> activeRelics = new HashSet<string>();
+        private readonly List<DemoCombatTarget> enemies = new List<DemoCombatTarget>();
 
         private DemoBattleSetup setup;
+        private DemoTargetResolver targetResolver;
         private bool isBossBattle;
         private bool calamityCharged;
         private bool mirrorAvailable;
@@ -95,7 +112,30 @@ namespace PathOfTenThousandWays.Demo.Battle
         private long nextPresentationSequence;
 
         public DemoCombatant Player { get; private set; }
-        public DemoCombatant Enemy { get; private set; }
+        public IReadOnlyList<DemoCombatTarget> Enemies => enemies;
+        public int ActiveEnemyCount => enemies.Count(target => target != null && target.IsActive && !target.IsDead);
+        public DemoCombatant Enemy
+        {
+            get
+            {
+                DemoCombatant target = ResolveAutoTarget();
+                if (target != null)
+                {
+                    return target;
+                }
+
+                // The legacy result path reads Enemy after the final target dies.
+                return enemies.Count > 0 ? enemies[0].Combatant : null;
+            }
+        }
+        public string LockedTargetId
+        {
+            get
+            {
+                DemoCombatTarget target = targetResolver == null ? null : targetResolver.LockedTarget;
+                return target == null ? string.Empty : target.CombatantId;
+            }
+        }
         public DemoBattlePhase Phase { get; private set; } = DemoBattlePhase.Intro;
         public DemoBossPhase BossPhase { get; private set; }
         public DemoBattleLog Log { get; } = new DemoBattleLog();
@@ -118,6 +158,9 @@ namespace PathOfTenThousandWays.Demo.Battle
         public float PhaseTimer { get; private set; }
         public float DrawTimer => drawRemaining;
         public float FlyingSwordTimer => volleyRemaining;
+        public float FlyingSwordInterval => setup == null
+            ? 0f
+            : Math.Max(TimerEpsilon, setup.FlyingSwordIntervalSeconds);
         public float EnemyIntentRemaining => enemyIntentRemaining;
         public float EnemyIntentDuration => enemyIntentDuration;
         public float EnemyIntentProgress => enemyIntentDuration <= TimerEpsilon
@@ -135,6 +178,7 @@ namespace PathOfTenThousandWays.Demo.Battle
         public int ExecutionSequenceVersion { get; private set; }
         public string EnemyIntentText { get; private set; } = string.Empty;
         public string BossIntentText { get; private set; } = string.Empty;
+        public string EnemyId { get; private set; } = string.Empty;
         public bool IsBossBattle => isBossBattle;
         public bool IsOpeningBattlePacing => openingBattlePacing;
         public IReadOnlyList<DemoArtifactType> ActiveArtifacts => activeArtifacts;
@@ -148,13 +192,15 @@ namespace PathOfTenThousandWays.Demo.Battle
         public void ClearBattle(bool clearLog = false)
         {
             Player = null;
-            Enemy = null;
+            enemies.Clear();
+            targetResolver = null;
             setup = null;
             Phase = DemoBattlePhase.Intro;
             BossPhase = DemoBossPhase.None;
             PhaseTimer = 0f;
             EnemyIntentText = string.Empty;
             BossIntentText = string.Empty;
+            EnemyId = string.Empty;
             isBossBattle = false;
             calamityCharged = false;
             mirrorAvailable = false;
@@ -219,6 +265,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             ClearBattle(true);
             BeginPresentationOperation();
             setup = battleSetup;
+            EnemyId = battleSetup.EnemyId ?? string.Empty;
             random = battleSetup.RandomSeed >= 0 ? new Random(battleSetup.RandomSeed) : new Random();
 
             int playerMaxHealth = battleSetup.PlayerMaxHealth > 0 ? battleSetup.PlayerMaxHealth : BasePlayerMaxHealth;
@@ -227,8 +274,9 @@ namespace PathOfTenThousandWays.Demo.Battle
                 playerMaxHealth);
             Player.Health = Math.Min(Player.MaxHealth, Math.Max(1, battleSetup.PlayerHealth));
 
-            string enemyName = string.IsNullOrWhiteSpace(battleSetup.EnemyName) ? "拦路妖物" : battleSetup.EnemyName;
-            Enemy = new DemoCombatant(enemyName, Math.Max(1, battleSetup.EnemyHealth));
+            AddConfiguredEnemies(battleSetup);
+            targetResolver = new DemoTargetResolver(enemies);
+            EnemyId = enemies[0].CombatantId;
 
             if (battleSetup.Artifacts != null)
             {
@@ -300,7 +348,7 @@ namespace PathOfTenThousandWays.Demo.Battle
                 ? battleSetup.InitialHandSize
                 : openingBattlePacing ? 3 : 4;
             DrawCards(Math.Min(HandLimit, Math.Max(0, initialHandSize)));
-            if (openingBattlePacing)
+            if (openingBattlePacing && Deck.Count > 2)
             {
                 EnsureOpeningPathCardInHand();
             }
@@ -313,8 +361,79 @@ namespace PathOfTenThousandWays.Demo.Battle
             Phase = introRemaining > TimerEpsilon ? DemoBattlePhase.Intro : DemoBattlePhase.Running;
             PhaseTimer = Phase == DemoBattlePhase.Intro ? introRemaining : enemyIntentRemaining;
             Log.Add(isBossBattle ? "天劫化身显现，劫云开始聚拢。" : $"{Enemy.Name} 拦路，斗法持续演算。");
-            Emit(DemoBattlePresentationStep.BattleStart(Enemy.Name, isBossBattle));
+            Emit(DemoBattlePresentationStep.BattleStart(Enemy.Name, isBossBattle, EnemyId));
             PublishPresentationOperation();
+        }
+
+        public bool LockTarget(string combatantId)
+        {
+            return targetResolver != null && targetResolver.LockTarget(combatantId);
+        }
+
+        public DemoCombatant ResolveAutoTarget()
+        {
+            DemoCombatTarget target = targetResolver == null ? null : targetResolver.ResolveAutoTarget();
+            return target == null ? null : target.Combatant;
+        }
+
+        private void AddConfiguredEnemies(DemoBattleSetup battleSetup)
+        {
+            if (battleSetup.Enemies != null && battleSetup.Enemies.Count > 0)
+            {
+                int count = Math.Min(3, battleSetup.Enemies.Count);
+                for (int i = 0; i < count; i++)
+                {
+                    DemoBattleEnemySetup enemySetup = battleSetup.Enemies[i];
+                    if (enemySetup == null)
+                    {
+                        continue;
+                    }
+
+                    string combatantId = string.IsNullOrWhiteSpace(enemySetup.CombatantId)
+                        ? "encounter_enemy_" + (i + 1)
+                        : enemySetup.CombatantId;
+                    string definitionId = string.IsNullOrWhiteSpace(enemySetup.DefinitionId)
+                        ? combatantId
+                        : enemySetup.DefinitionId;
+                    string positionId = string.IsNullOrWhiteSpace(enemySetup.PositionId)
+                        ? "enemy_slot_" + (i + 1)
+                        : enemySetup.PositionId;
+                    string name = string.IsNullOrWhiteSpace(enemySetup.Name)
+                        ? "拦路妖物"
+                        : enemySetup.Name;
+                    enemies.Add(new DemoCombatTarget(
+                        combatantId,
+                        definitionId,
+                        positionId,
+                        Math.Max(0, enemySetup.Depth),
+                        enemySetup.CanLock,
+                        enemySetup.RequiredForVictory,
+                        enemySetup.ThreatPriority,
+                        new DemoCombatant(name, Math.Max(1, enemySetup.MaxHealth))));
+                }
+            }
+
+            if (enemies.Count == 0)
+            {
+                string enemyName = string.IsNullOrWhiteSpace(battleSetup.EnemyName) ? "拦路妖物" : battleSetup.EnemyName;
+                string stableEnemyId = string.IsNullOrWhiteSpace(battleSetup.EnemyId)
+                    ? "encounter_enemy_primary"
+                    : battleSetup.EnemyId;
+                enemies.Add(new DemoCombatTarget(
+                    stableEnemyId,
+                    stableEnemyId,
+                    "enemy_slot_primary",
+                    0,
+                    true,
+                    true,
+                    0,
+                    new DemoCombatant(enemyName, Math.Max(1, battleSetup.EnemyHealth))));
+            }
+
+            if (!enemies.Any(target => target.RequiredForVictory))
+            {
+                enemies[0].RequiredForVictory = true;
+            }
         }
 
         public void StartBattle(
@@ -913,7 +1032,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             int damage = 7 + Math.Min(3, Math.Max(0, EnemyActionCount - 1) / 3);
             int dealt = ApplyIncomingDamage(damage, Enemy.Name, false, out bool gourdTriggered);
             Log.Add($"{Enemy.Name} 读条完成，造成 {dealt} 点伤害。");
-            DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy(Enemy.Name, dealt, false);
+            DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy(Enemy.Name, dealt, false, EnemyId);
             if (gourdTriggered)
             {
                 step.Label = $"{Enemy.Name} / 葫芦收煞";
@@ -931,7 +1050,7 @@ namespace PathOfTenThousandWays.Demo.Battle
                     int dealt = ApplyIncomingDamage(damage, "雷云压境", true, out bool gourdTriggered);
                     Player.Shock += 1;
                     Log.Add($"雷云压境造成 {dealt} 伤害并施加 1 感电。");
-                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("雷云压境", dealt, true);
+                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("雷云压境", dealt, true, EnemyId);
                     step.TriggerShock = true;
                     step.PlayerShockDelta = 1;
                     if (gourdTriggered)
@@ -947,7 +1066,7 @@ namespace PathOfTenThousandWays.Demo.Battle
                     Player.Shock += 2;
                     energyRegenerationSuppressedRemaining = Math.Max(energyRegenerationSuppressedRemaining, 2f);
                     Log.Add($"天雷锁魂造成 {dealt} 伤害、施加 2 感电，并压制灵气恢复 2 秒。");
-                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("天雷锁魂", dealt, true);
+                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("天雷锁魂", dealt, true, EnemyId);
                     step.TriggerShock = true;
                     step.PlayerShockDelta = 2;
                     if (gourdTriggered)
@@ -972,7 +1091,7 @@ namespace PathOfTenThousandWays.Demo.Battle
                     Player.Shock += 1;
                     calamityCharged = false;
                     Log.Add($"天劫降临造成 {dealt} 伤害并施加 1 感电。");
-                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("天劫降临", dealt, true);
+                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("天劫降临", dealt, true, EnemyId);
                     step.TriggerShock = true;
                     step.PlayerShockDelta = 1;
                     step.HeavyImpact = true;
@@ -983,7 +1102,7 @@ namespace PathOfTenThousandWays.Demo.Battle
                     return step;
                 }
                 default:
-                    return DemoBattlePresentationStep.Enemy(Enemy.Name, 0, true);
+                    return DemoBattlePresentationStep.Enemy(Enemy.Name, 0, true, EnemyId);
             }
         }
 
@@ -1085,7 +1204,11 @@ namespace PathOfTenThousandWays.Demo.Battle
 
         private void CheckForBattleResult()
         {
-            if (Enemy != null && Enemy.IsDead)
+            bool allRequiredEnemiesDefeated = enemies.Count > 0
+                && enemies
+                    .Where(target => target != null && target.RequiredForVictory)
+                    .All(target => target.IsDead);
+            if (allRequiredEnemiesDefeated)
             {
                 SetBattleResult(DemoBattlePhase.Won);
             }

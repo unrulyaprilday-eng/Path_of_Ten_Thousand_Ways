@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using PathOfTenThousandWays.Demo.Battle;
@@ -36,6 +37,17 @@ namespace PathOfTenThousandWays.Demo.Systems
         private DemoMetaProgress metaProgress;
         private int rewardSeed;
         private int lastReachedLayer;
+        private DemoMapNode pendingEncounter;
+        private DemoJourneyNode pendingJourneyNode;
+        private DemoJourneyNode activeJourneyBattleNode;
+        private DemoJourneyRunSession journeySession;
+        private IDemoRunSaveStore journeySaveStore;
+        private string journeyError = string.Empty;
+
+        private const string JourneyConfigSchemaVersion = "2";
+        private const string JourneyContentVersion = "old_mine_vertical_slice_1";
+        private const string JourneyMapAlgorithmVersion = "journey_graph_v1";
+        private const string JourneySaveSlotName = "old_mine_run_v2";
 
         public DemoRunState Run => run;
         public DemoBattleState Battle => battle;
@@ -47,6 +59,18 @@ namespace PathOfTenThousandWays.Demo.Systems
         public bool HasRunResult => runSummary != null;
         public DemoRunSummary RunSummary => runSummary;
         public DemoMetaProgress MetaProgress => metaProgress;
+        public DemoFlowPhase FlowPhase => run.Flow.Phase;
+        public DemoFlowSnapshot FlowSnapshot => run.Flow.Snapshot;
+        public DemoMapNode PendingEncounter => pendingEncounter;
+        public DemoJourneyNode PendingJourneyNode => pendingJourneyNode;
+        public DemoJourneyRunSession JourneySession => journeySession;
+        public DemoJourneyGraph JourneyGraph => journeySession?.Graph;
+        public DemoRunSaveV2 JourneySnapshot => journeySession?.Snapshot;
+        public bool HasJourneySession => journeySession != null;
+        public string JourneyError => journeyError;
+        public bool HasPendingEncounter => pendingEncounter != null;
+        public bool CanBackOpening => run.Map.CurrentNode.Type == DemoNodeType.Start
+            && FlowPhase != DemoFlowPhase.Home;
         public bool CanAdvanceUtilityNode => currentRewards.Count == 0 && (HasRunResult || IsAdvanceNode(run.Map.CurrentNode.Type));
         public string UtilityActionLabel => GetUtilityActionLabel(run.Map.CurrentNode.Type);
         public string BattleActionLabel => GetBattleActionLabel();
@@ -56,6 +80,8 @@ namespace PathOfTenThousandWays.Demo.Systems
             && run.OpeningRewardRerolls > 0;
 
         public float BattleSpeed { get; set; } = 1f;
+
+        public event Action<DemoFlowPhase> FlowPhaseChanged;
 
         private void Awake()
         {
@@ -68,6 +94,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             openingStage = metaProgress.HasUnlock(DemoMetaProgress.BrokenSwordTraceId)
                 ? DemoOpeningStage.SelectTrace
                 : DemoOpeningStage.SelectRoot;
+            SetFlowPhase(DemoFlowPhase.Home);
             EnterCurrentNode();
         }
 
@@ -80,6 +107,16 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
 
             battle.Tick(Time.deltaTime);
+
+            if (FlowPhase != DemoFlowPhase.Home && FlowPhase != DemoFlowPhase.RunResult)
+            {
+                run.AdvanceElapsedTime(Time.unscaledDeltaTime);
+            }
+
+            if (HasBattle && (battle.Phase == DemoBattlePhase.Won || battle.Phase == DemoBattlePhase.Lost))
+            {
+                SetFlowPhase(DemoFlowPhase.BattleOutcome);
+            }
 
             if (HasBattle)
             {
@@ -131,7 +168,7 @@ namespace PathOfTenThousandWays.Demo.Systems
 
             if (battle.Phase == DemoBattlePhase.Lost)
             {
-                RestartRun();
+                StartNextRun();
             }
         }
 
@@ -149,7 +186,13 @@ namespace PathOfTenThousandWays.Demo.Systems
         {
             if (HasRunResult)
             {
-                RestartRun();
+                StartNextRun();
+                return;
+            }
+
+            if (HasPendingEncounter)
+            {
+                BeginCurrentEncounter();
                 return;
             }
 
@@ -157,6 +200,244 @@ namespace PathOfTenThousandWays.Demo.Systems
             {
                 CompleteUtilityNode();
             }
+        }
+
+        public void StartNewRun()
+        {
+            if (HasRunResult || run.Map.CurrentNode.Type != DemoNodeType.Start)
+            {
+                ResetRun();
+            }
+
+            PrepareOpeningChoices();
+        }
+
+        public void StartNextRun()
+        {
+            ResetRun();
+            PrepareOpeningChoices();
+        }
+
+        public void ReturnHome()
+        {
+            ResetRun();
+        }
+
+        public void BeginCurrentEncounter()
+        {
+            if (pendingEncounter == null || HasBattle)
+            {
+                return;
+            }
+
+            DemoMapNode encounter = pendingEncounter;
+            pendingEncounter = null;
+            if (pendingJourneyNode != null && pendingJourneyNode.IsCombat)
+            {
+                activeJourneyBattleNode = pendingJourneyNode;
+            }
+            StartBattle(encounter);
+        }
+
+        public bool BeginConfiguredJourney(DemoRegionDefinition region, int? rootSeed = null)
+        {
+            if (region == null || !region.IsAvailable)
+            {
+                journeyError = "可进入的境域配置缺失。";
+                return false;
+            }
+
+            int seed = rootSeed ?? CreateJourneySeed();
+            DemoJourneyGraph graph = DemoJourneyGraphGenerator.Generate(seed);
+            journeySaveStore = new DemoFileRunSaveStore(
+                Application.persistentDataPath,
+                JourneySaveSlotName);
+            DemoJourneyRunSessionOptions options = BuildJourneySessionOptions(region, seed);
+            if (!DemoJourneyRunSession.TryCreateNew(
+                    graph,
+                    journeySaveStore,
+                    options,
+                    seed,
+                    out journeySession,
+                    out journeyError))
+            {
+                journeySession = null;
+                return false;
+            }
+
+            pendingJourneyNode = null;
+            activeJourneyBattleNode = null;
+            pendingEncounter = null;
+            battle.ClearBattle(true);
+            currentRewards.Clear();
+            currentRewardContext = null;
+            SetFlowPhase(DemoFlowPhase.JourneyMap);
+            return true;
+        }
+
+        public bool TryResumeConfiguredJourney()
+        {
+            DemoFileRunSaveStore store = new DemoFileRunSaveStore(
+                Application.persistentDataPath,
+                JourneySaveSlotName);
+            if (!store.TryLoadLatestOrPrevious(
+                    out DemoRunSaveV2 saved,
+                    out _,
+                    out journeyError))
+            {
+                return false;
+            }
+
+            DemoJourneyGraph graph = DemoJourneyGraphGenerator.Generate(saved.RootSeed);
+            if (!DemoJourneyRunSession.TryRestore(
+                    graph,
+                    store,
+                    JourneyConfigSchemaVersion,
+                    JourneyContentVersion,
+                    JourneyMapAlgorithmVersion,
+                    saved.RegionId,
+                    out journeySession,
+                    out _,
+                    out journeyError))
+            {
+                journeySession = null;
+                return false;
+            }
+
+            journeySaveStore = store;
+            RestoreRunFromJourneySnapshot(journeySession.Snapshot);
+            DemoRunSaveV2 snapshot = journeySession.Snapshot;
+            journeySession.Graph.TryGetNode(snapshot.CurrentNodeId, out pendingJourneyNode);
+            activeJourneyBattleNode = null;
+            pendingEncounter = null;
+            if (snapshot.FlowPhaseId == DemoRunFlowPhaseId.EncounterIntro && pendingJourneyNode != null)
+            {
+                pendingEncounter = ToLegacyEncounterNode(pendingJourneyNode, snapshot.PendingEncounterId);
+                SetFlowPhase(pendingJourneyNode.Type == DemoJourneyNodeType.Boss
+                    ? DemoFlowPhase.BossGate
+                    : DemoFlowPhase.EncounterIntro);
+            }
+            else if (snapshot.FlowPhaseId == DemoRunFlowPhaseId.Breakthrough && pendingJourneyNode != null)
+            {
+                SetFlowPhase(DemoFlowPhase.Breakthrough);
+            }
+            else if (snapshot.FlowPhaseId == DemoRunFlowPhaseId.NodeScene && pendingJourneyNode != null)
+            {
+                SetFlowPhase(DemoFlowPhase.NodeScene);
+            }
+            else
+            {
+                pendingJourneyNode = null;
+                SetFlowPhase(DemoFlowPhase.JourneyMap);
+            }
+            return true;
+        }
+
+        public bool SelectJourneyNode(string nodeId)
+        {
+            if (journeySession == null
+                || FlowPhase != DemoFlowPhase.JourneyMap
+                || !journeySession.Graph.TryGetNode(nodeId, out DemoJourneyNode node))
+            {
+                return false;
+            }
+
+            pendingJourneyNode = node;
+            if (node.IsCombat)
+            {
+                string encounterId = ResolveJourneyEncounterId(node);
+                if (!journeySession.TrySelectEncounter(
+                        node.NodeId,
+                        encounterId,
+                        out _,
+                        out journeyError))
+                {
+                    pendingJourneyNode = null;
+                    return false;
+                }
+
+                pendingEncounter = ToLegacyEncounterNode(node, encounterId);
+                battle.ClearBattle();
+                SetFlowPhase(node.Type == DemoJourneyNodeType.Boss
+                    ? DemoFlowPhase.BossGate
+                    : DemoFlowPhase.EncounterIntro);
+                return true;
+            }
+
+            if (!journeySession.TrySelectReachableNode(
+                    node.NodeId,
+                    out _,
+                    out journeyError))
+            {
+                pendingJourneyNode = null;
+                return false;
+            }
+
+            battle.ClearBattle();
+            SetFlowPhase(node.Type == DemoJourneyNodeType.Breakthrough
+                ? DemoFlowPhase.Breakthrough
+                : DemoFlowPhase.NodeScene);
+            return true;
+        }
+
+        public bool CompleteJourneyNode()
+        {
+            if (journeySession == null || pendingJourneyNode == null || pendingJourneyNode.IsCombat)
+            {
+                return false;
+            }
+
+            ApplyJourneyNodeImmediateEffect(pendingJourneyNode);
+            DemoJourneyNodeOutcome outcome = BuildJourneyNodeOutcome(pendingJourneyNode, false);
+            if (!journeySession.TryCompleteCurrentNode(
+                    outcome,
+                    out _,
+                    out journeyError))
+            {
+                return false;
+            }
+
+            pendingJourneyNode = null;
+            pendingEncounter = null;
+            SetFlowPhase(DemoFlowPhase.JourneyMap);
+            return true;
+        }
+
+        public void BackOpeningStep()
+        {
+            if (!CanBackOpening)
+            {
+                return;
+            }
+
+            if (openingStage == DemoOpeningStage.SelectOpeningScene)
+            {
+                DemoRootDefinition root = run.OpeningSelection.Root;
+                run.SetRoot(root);
+                openingStage = DemoOpeningStage.SelectOpeningItem;
+                PrepareOpeningChoices();
+                return;
+            }
+
+            if (openingStage == DemoOpeningStage.SelectOpeningItem)
+            {
+                run.SetRoot(null);
+                openingStage = DemoOpeningStage.SelectRoot;
+                PrepareOpeningChoices();
+                return;
+            }
+
+            if (openingStage == DemoOpeningStage.SelectRoot
+                && metaProgress.HasUnlock(DemoMetaProgress.BrokenSwordTraceId))
+            {
+                run.EquippedTraceId = string.Empty;
+                run.OpeningRewardRerolls = 0;
+                openingStage = DemoOpeningStage.SelectTrace;
+                PrepareOpeningChoices();
+                return;
+            }
+
+            ReturnHome();
         }
 
         public void RerollCurrentRewards()
@@ -302,32 +583,22 @@ namespace PathOfTenThousandWays.Demo.Systems
             currentRewardContext = null;
             awaitingBattleReward = false;
             battleOutcomeDelay = 0f;
+            pendingEncounter = null;
 
             if (node.Type == DemoNodeType.Battle || node.Type == DemoNodeType.Boss)
             {
-                DemoEnemyDefinition enemy = ResolveEnemy(node);
-                bool boss = node.Type == DemoNodeType.Boss || (enemy != null && enemy.IsBoss);
                 bool openingBattle = string.Equals(node.NodeId, "node_opening_battle", System.StringComparison.OrdinalIgnoreCase);
-                battleResultHandled = false;
-                BattleSpeed = 1f;
-                battle.StartBattle(new DemoBattleSetup
+                if (openingBattle)
                 {
-                    Deck = run.Deck,
-                    Artifacts = run.Artifacts,
-                    Gongfas = run.GetLearnedGongfas().ToList(),
-                    Relics = run.Relics,
-                    PlayerMaxHealth = run.MaxHealth,
-                    PlayerHealth = run.CurrentHealth,
-                    EnemyName = enemy?.Name ?? node.Name,
-                    EnemyHealth = enemy?.MaxHealth ?? (boss ? 900 : node.Layer == 1 ? 110 : node.Layer == 2 ? 180 : 260),
-                    IsBoss = boss,
-                    IsOpeningBattle = openingBattle,
-                    BonusEnergyCapacity = run.BonusEnergy,
-                    BonusPermanentSwords = run.BonusPermanentSwords,
-                    EnemyIntentMinSeconds = boss ? 5f : IsElite(enemy) ? 4.8f : 5.8f,
-                    EnemyIntentMaxSeconds = boss ? 6f : IsElite(enemy) ? 5.6f : 7f,
-                    RandomSeed = 1000 + run.BattlesWon * 37 + node.Layer * 101
-                });
+                    StartBattle(node);
+                    return;
+                }
+
+                battle.ClearBattle();
+                pendingEncounter = node;
+                SetFlowPhase(node.Type == DemoNodeType.Boss
+                    ? DemoFlowPhase.BossGate
+                    : DemoFlowPhase.EncounterIntro);
                 return;
             }
 
@@ -335,6 +606,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             {
                 battle.ClearBattle();
                 currentRewards = routeRewards.CreateChoices(node.Layer, run);
+                SetFlowPhase(DemoFlowPhase.RouteChoice);
                 return;
             }
 
@@ -342,6 +614,14 @@ namespace PathOfTenThousandWays.Demo.Systems
             {
                 battle.ClearBattle();
                 OpenRewardsForNode(node);
+                SetFlowPhase(DemoFlowPhase.RewardChoice);
+                return;
+            }
+
+            if (node.Type == DemoNodeType.Training || node.Type == DemoNodeType.Shop)
+            {
+                battle.ClearBattle();
+                OpenUtilityNode(node);
                 return;
             }
 
@@ -349,7 +629,60 @@ namespace PathOfTenThousandWays.Demo.Systems
             if (node.Type == DemoNodeType.Result || node.Type == DemoNodeType.Victory)
             {
                 FinishRun(node.Type == DemoNodeType.Victory || run.Map.WasVictory, run.Map.WasVictory);
+                SetFlowPhase(DemoFlowPhase.RunResult);
+                return;
             }
+
+
+            if (node.Type == DemoNodeType.Start && currentRewards.Count == 0)
+            {
+                SetFlowPhase(DemoFlowPhase.Home);
+            }
+        }
+
+        private void StartBattle(DemoMapNode node)
+        {
+            DemoEnemyDefinition enemy = ResolveEnemy(node);
+            bool boss = node.Type == DemoNodeType.Boss || (enemy != null && enemy.IsBoss);
+            bool openingBattle = string.Equals(node.NodeId, "node_opening_battle", StringComparison.OrdinalIgnoreCase);
+            IReadOnlyList<DemoBattleEnemySetup> journeyEnemies = activeJourneyBattleNode == null
+                ? null
+                : BuildJourneyEnemySet(activeJourneyBattleNode, enemy);
+            if (activeJourneyBattleNode != null && run.BattlesWon == 0)
+            {
+                openingBattle = true;
+            }
+            battleResultHandled = false;
+            battleOutcomeDelay = 0f;
+            BattleSpeed = 1f;
+            battle.StartBattle(new DemoBattleSetup
+            {
+                Deck = run.Deck,
+                Enemies = journeyEnemies,
+                Artifacts = run.Artifacts,
+                Gongfas = run.GetLearnedGongfas().ToList(),
+                Relics = run.Relics,
+                PlayerMaxHealth = run.MaxHealth,
+                PlayerHealth = run.CurrentHealth,
+                EnemyId = enemy?.Id ?? node.EncounterId,
+                EnemyName = enemy?.Name ?? node.Name,
+                EnemyHealth = enemy?.MaxHealth ?? (boss ? 900 : node.Layer == 1 ? 110 : node.Layer == 2 ? 180 : 260),
+                IsBoss = boss,
+                IsOpeningBattle = openingBattle,
+                BonusEnergyCapacity = run.BonusEnergy,
+                BonusPermanentSwords = run.BonusPermanentSwords,
+                MaxEnergy = run.Realm.Stage >= 2 ? 6 : 5,
+                InitialEnergy = 3,
+                EnergyRegenerationPerSecond = run.Realm.Stage >= 2 ? 1.25f : 1f,
+                HandLimit = 6,
+                InitialHandSize = 2,
+                FlyingSwordIntervalSeconds = Mathf.Max(1.55f, 2.2f - 0.12f * Mathf.Max(0, run.InnateArtifact.RefinementStage - 1)),
+                EnemyIntentMinSeconds = boss ? 5f : IsElite(enemy) ? 4.8f : 5.8f,
+                EnemyIntentMaxSeconds = boss ? 6f : IsElite(enemy) ? 5.6f : 7f,
+                RandomSeed = journeySession?.Snapshot.PendingEncounterSeed
+                    ?? (1000 + run.BattlesWon * 37 + node.Layer * 101)
+            });
+            SetFlowPhase(DemoFlowPhase.Battle);
         }
 
         private DemoEnemyDefinition ResolveEnemy(DemoMapNode node)
@@ -380,6 +713,51 @@ namespace PathOfTenThousandWays.Demo.Systems
 
             battleResultHandled = true;
             BattleSpeed = 1f;
+            if (journeySession != null && activeJourneyBattleNode != null)
+            {
+                DemoJourneyNode completedJourneyBattle = activeJourneyBattleNode;
+                lastReachedLayer = (completedJourneyBattle.ActIndex - 1) * 8
+                    + completedJourneyBattle.DepthIndex + 1;
+                bool defeatedJourneyBoss = completedJourneyBattle.Type == DemoJourneyNodeType.Boss;
+                run.CurrentHealth = battle.Player.Health;
+                run.RecordBattleVictory(battle.MaxSwordsReached, battle.HighestBurstDamage);
+                DemoJourneyNodeOutcome journeyOutcome = BuildJourneyNodeOutcome(
+                    completedJourneyBattle,
+                    true);
+                journeyOutcome.BattlesWonDelta = 1;
+                journeyOutcome.MaxSwordCount = battle.MaxSwordsReached;
+                journeyOutcome.HighestBurstDamage = battle.HighestBurstDamage;
+                if (completedJourneyBattle.Type == DemoJourneyNodeType.MiniBoss)
+                {
+                    journeyOutcome.MiniBossesDefeatedDelta = 1;
+                }
+
+                if (!journeySession.TryCompleteCurrentNode(
+                        journeyOutcome,
+                        out _,
+                        out journeyError))
+                {
+                    battleResultHandled = false;
+                    return;
+                }
+
+                battle.ClearBattle();
+                activeJourneyBattleNode = null;
+                pendingJourneyNode = null;
+                pendingEncounter = null;
+                if (defeatedJourneyBoss)
+                {
+                    run.Map.CompleteWithResult(true);
+                    FinishRun(true, true);
+                    SetFlowPhase(DemoFlowPhase.RunResult);
+                }
+                else
+                {
+                    SetFlowPhase(DemoFlowPhase.JourneyMap);
+                }
+                return;
+            }
+
             DemoMapNode completedBattle = run.Map.CurrentNode;
             lastReachedLayer = completedBattle.Layer;
             bool defeatedBoss = completedBattle.Type == DemoNodeType.Boss || battle.IsBossBattle;
@@ -391,6 +769,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 battle.ClearBattle();
                 run.Map.CompleteWithResult(true);
                 FinishRun(true, true);
+                SetFlowPhase(DemoFlowPhase.RunResult);
                 return;
             }
 
@@ -404,7 +783,10 @@ namespace PathOfTenThousandWays.Demo.Systems
             {
                 run.Map.CompleteCurrentNode();
                 EnterCurrentNode();
+                return;
             }
+
+            SetFlowPhase(DemoFlowPhase.RewardChoice);
         }
 
         private void HandleBattleLost()
@@ -416,19 +798,71 @@ namespace PathOfTenThousandWays.Demo.Systems
 
             battleResultHandled = true;
             BattleSpeed = 1f;
-            lastReachedLayer = run.Map.CurrentNode.Layer;
+            if (journeySession != null && activeJourneyBattleNode != null)
+            {
+                lastReachedLayer = (activeJourneyBattleNode.ActIndex - 1) * 8
+                    + activeJourneyBattleNode.DepthIndex + 1;
+            }
+            else
+            {
+                lastReachedLayer = run.Map.CurrentNode.Layer;
+            }
             run.CurrentHealth = 0;
             run.RecordSwordCount(battle.MaxSwordsReached);
             run.RecordBurstDamage(battle.HighestBurstDamage);
             battle.ClearBattle();
+            activeJourneyBattleNode = null;
+            pendingJourneyNode = null;
+            pendingEncounter = null;
             run.Map.CompleteWithResult(false);
             FinishRun(false, false);
+            SetFlowPhase(DemoFlowPhase.RunResult);
         }
         private void OpenRewardsForNode(DemoMapNode node)
         {
             currentRewardContext = DemoRewardContext.FromNode(node, run, ++rewardSeed);
             currentRewards = rewards.CreateChoices(currentRewardContext, run);
             awaitingBattleReward = false;
+        }
+
+        private void OpenUtilityNode(DemoMapNode node)
+        {
+            currentRewardContext = DemoRewardContext.FromNode(node, run, ++rewardSeed);
+            currentRewards = rewards.CreateChoices(currentRewardContext, run);
+
+            if (!string.IsNullOrEmpty(node.ActionProfileId)
+                && DemoConfigRepository.TryGetNodeActionProfile(node.ActionProfileId, out DemoNodeActionProfileDefinition action))
+            {
+                if (!string.IsNullOrEmpty(action.GuaranteedComponentId))
+                {
+                    DemoReward guaranteed = rewards.CreateGuaranteedReward(action.GuaranteedComponentId, run);
+                    if (currentRewards.Count == 0)
+                    {
+                        currentRewards.Add(guaranteed);
+                    }
+                    else
+                    {
+                        int matchingSlot = currentRewards.FindIndex(candidate => candidate.Slot == guaranteed.Slot);
+                        currentRewards[matchingSlot >= 0 ? matchingSlot : 0] = guaranteed;
+                    }
+                }
+
+                if (action.HealAmount > 0)
+                {
+                    run.Heal(action.HealAmount);
+                }
+            }
+
+            if (currentRewards.Count == 0)
+            {
+                run.Map.CompleteCurrentNode();
+                EnterCurrentNode();
+                return;
+            }
+
+            SetFlowPhase(node.Type == DemoNodeType.Training
+                ? DemoFlowPhase.Training
+                : DemoFlowPhase.Preparation);
         }
 
         private void FinishRun(bool victory, bool defeatedBoss)
@@ -438,26 +872,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 return;
             }
 
-            runSummary = new DemoRunSummary
-            {
-                Victory = victory,
-                DefeatedBoss = defeatedBoss,
-                ReachedLayer = lastReachedLayer,
-                BattlesWon = run.BattlesWon,
-                MaxSwordCount = run.MaxSwordCount,
-                HighestBurstDamage = run.HighestBurstDamage,
-                MainGongfaName = run.MainGongfa == DemoGongfaType.None
-                    ? "未定主修"
-                    : DemoGongfaLibrary.Get(run.MainGongfa).Name,
-                CoreArtifactName = run.Artifacts.Count == 0
-                    ? "未获核心法器"
-                    : DemoArtifactLibrary.Get(run.Artifacts[0]).Name
-            };
-
-            foreach (string componentId in run.GetBuildComponentIds())
-            {
-                runSummary.CoreComponents.Add(componentId);
-            }
+            runSummary = run.CreateSummary(victory, defeatedBoss, lastReachedLayer);
 
             metaProgress.RecordRun(runSummary);
             foreach (DemoCard card in run.Deck)
@@ -489,11 +904,19 @@ namespace PathOfTenThousandWays.Demo.Systems
             string unlock = runSummary.NewUnlocks.Count > 0
                 ? "\n新解锁：残剑道痕 · 下一世首战所得可重铸一次"
                 : string.Empty;
+            int durationSeconds = Mathf.Max(0, Mathf.RoundToInt(runSummary.DurationSeconds));
+            string routeLine = runSummary.RouteHistory.Count > 0
+                ? "\n前路：" + string.Join(" → ", runSummary.RouteHistory.Select(route => route.RouteName))
+                : string.Empty;
+            string failureLine = !runSummary.Victory && !string.IsNullOrEmpty(runSummary.FailureNodeName)
+                ? $"\n止步：{runSummary.FailureNodeName}"
+                : string.Empty;
             return
                 $"{outcome}\n" +
-                $"抵达：第 {runSummary.ReachedLayer} 层  ·  胜战 {runSummary.BattlesWon}\n" +
+                $"抵达：第 {runSummary.ReachedLayer} 层  ·  胜战 {runSummary.BattlesWon}  ·  用时 {durationSeconds / 60:00}:{durationSeconds % 60:00}\n" +
                 $"最大飞剑：{runSummary.MaxSwordCount}  ·  最高爆发：{runSummary.HighestBurstDamage}\n" +
                 $"主修：{runSummary.MainGongfaName}  ·  法器：{runSummary.CoreArtifactName}" +
+                routeLine + failureLine +
                 unlock;
         }
         private void ClaimReward(DemoReward reward)
@@ -551,14 +974,17 @@ namespace PathOfTenThousandWays.Demo.Systems
                     return;
                 }
 
-                run.Map.SetOpeningBattle(
-                    BuildOpeningEncounterId(reward.Region),
-                    BuildOpeningBattleName(reward.Region),
-                    "reward_opening_battle");
                 openingStage = DemoOpeningStage.Complete;
                 currentRewards.Clear();
-                run.Map.CompleteCurrentNode();
-                EnterCurrentNode();
+                if (!BeginConfiguredJourney(reward.Region))
+                {
+                    run.Map.SetOpeningBattle(
+                        BuildOpeningEncounterId(reward.Region),
+                        BuildOpeningBattleName(reward.Region),
+                        "reward_opening_battle");
+                    run.Map.CompleteCurrentNode();
+                    EnterCurrentNode();
+                }
                 return;
             }
 
@@ -624,45 +1050,8 @@ namespace PathOfTenThousandWays.Demo.Systems
                 return;
             }
 
-            DemoMapNode node = run.Map.CurrentNode;
-            if (node.Type != DemoNodeType.Training && node.Type != DemoNodeType.Shop && node.Type != DemoNodeType.Reward)
-            {
-                run.Map.CompleteCurrentNode();
-                EnterCurrentNode();
-                return;
-            }
-
-            currentRewardContext = DemoRewardContext.FromNode(node, run, ++rewardSeed);
-            currentRewards = rewards.CreateChoices(currentRewardContext, run);
-
-            if (!string.IsNullOrEmpty(node.ActionProfileId)
-                && DemoConfigRepository.TryGetNodeActionProfile(node.ActionProfileId, out DemoNodeActionProfileDefinition action))
-            {
-                if (!string.IsNullOrEmpty(action.GuaranteedComponentId))
-                {
-                    DemoReward guaranteed = rewards.CreateGuaranteedReward(action.GuaranteedComponentId, run);
-                    if (currentRewards.Count == 0)
-                    {
-                        currentRewards.Add(guaranteed);
-                    }
-                    else
-                    {
-                        int matchingSlot = currentRewards.FindIndex(candidate => candidate.Slot == guaranteed.Slot);
-                        currentRewards[matchingSlot >= 0 ? matchingSlot : 0] = guaranteed;
-                    }
-                }
-
-                if (action.HealAmount > 0)
-                {
-                    run.Heal(action.HealAmount);
-                }
-            }
-
-            if (currentRewards.Count == 0)
-            {
-                run.Map.CompleteCurrentNode();
-                EnterCurrentNode();
-            }
+            run.Map.CompleteCurrentNode();
+            EnterCurrentNode();
         }
         private static bool IsAdvanceNode(DemoNodeType type)
         {
@@ -688,6 +1077,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 case DemoNodeType.Boss:
                     return "Boss";
                 case DemoNodeType.Victory:
+                case DemoNodeType.Result:
                     return "结算";
                 default:
                     return type.ToString();
@@ -780,7 +1170,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             return string.Empty;
         }
 
-        private void RestartRun()
+        private void ResetRun()
         {
             BattleSpeed = 1f;
             Time.timeScale = 1f;
@@ -794,9 +1184,16 @@ namespace PathOfTenThousandWays.Demo.Systems
             battleOutcomeDelay = 0f;
             rewardSeed = 0;
             lastReachedLayer = 0;
+            pendingEncounter = null;
+            pendingJourneyNode = null;
+            activeJourneyBattleNode = null;
+            journeySession = null;
+            journeySaveStore = null;
+            journeyError = string.Empty;
             openingStage = metaProgress.HasUnlock(DemoMetaProgress.BrokenSwordTraceId)
                 ? DemoOpeningStage.SelectTrace
                 : DemoOpeningStage.SelectRoot;
+            SetFlowPhase(DemoFlowPhase.Home);
             EnterCurrentNode();
         }
         private IEnumerable<string> GetGongfaNames()
@@ -829,6 +1226,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                     DemoMetaProgress.BrokenSwordTraceId,
                     "残剑道痕",
                     "首战所得可重铸一次；只改变选择，不继承上一世战力。"));
+                SetFlowPhase(DemoFlowPhase.OpeningTrace);
                 return;
             }
 
@@ -838,6 +1236,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 currentRewards = roots.Count == 0
                     ? BuildFallbackRootChoices()
                     : roots.Select(DemoReward.FromRoot).ToList();
+                SetFlowPhase(DemoFlowPhase.OpeningRoot);
                 return;
             }
 
@@ -850,18 +1249,21 @@ namespace PathOfTenThousandWays.Demo.Systems
                 if (vessels.Count == 0)
                 {
                     currentRewards = BuildFallbackJourneyChoices(run.OpeningSelection.Root);
+                    SetFlowPhase(DemoFlowPhase.OpeningVessel);
                     return;
                 }
 
                 currentRewards = vessels
                     .Select(vessel => DemoReward.FromVessel(vessel, run.OpeningSelection.Root))
                     .ToList();
+                SetFlowPhase(DemoFlowPhase.OpeningVessel);
                 return;
             }
 
             if (openingStage == DemoOpeningStage.SelectOpeningScene && run.OpeningSelection.Vessel != null)
             {
                 currentRewards = BuildOpeningSceneChoices(run.OpeningSelection.Vessel);
+                SetFlowPhase(DemoFlowPhase.OpeningRegion);
                 return;
             }
 
@@ -869,6 +1271,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             {
                 openingStage = DemoOpeningStage.SelectRoot;
                 currentRewards = BuildFallbackRootChoices();
+                SetFlowPhase(DemoFlowPhase.OpeningRoot);
                 return;
             }
 
@@ -876,6 +1279,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             {
                 openingStage = DemoOpeningStage.SelectOpeningItem;
                 currentRewards = BuildFallbackJourneyChoices(run.OpeningSelection.Root);
+                SetFlowPhase(DemoFlowPhase.OpeningVessel);
                 return;
             }
 
@@ -883,12 +1287,24 @@ namespace PathOfTenThousandWays.Demo.Systems
             {
                 openingStage = DemoOpeningStage.SelectOpeningScene;
                 currentRewards = BuildOpeningSceneChoices(run.OpeningSelection.Vessel);
+                SetFlowPhase(DemoFlowPhase.OpeningRegion);
                 return;
             }
 
             openingStage = DemoOpeningStage.Complete;
             run.Map.CompleteCurrentNode();
             EnterCurrentNode();
+        }
+
+        private void SetFlowPhase(DemoFlowPhase next)
+        {
+            if (FlowPhase == next)
+            {
+                return;
+            }
+
+            DemoFlowSnapshot snapshot = run.Flow.TransitionToRun(next, run);
+            FlowPhaseChanged?.Invoke(snapshot.Phase);
         }
 
         private List<DemoReward> BuildOpeningSceneChoices(DemoJourneyVesselDefinition vessel)
@@ -1061,6 +1477,349 @@ namespace PathOfTenThousandWays.Demo.Systems
             };
 
             return vessels.Select(vessel => DemoReward.FromVessel(vessel, root)).ToList();
+        }
+
+        private static int CreateJourneySeed()
+        {
+            unchecked
+            {
+                int seed = Environment.TickCount ^ (int)DateTime.UtcNow.Ticks;
+                seed &= 0x7fffffff;
+                return seed == 0 ? 1 : seed;
+            }
+        }
+
+        private DemoJourneyRunSessionOptions BuildJourneySessionOptions(DemoRegionDefinition region, int seed)
+        {
+            DemoStartingPracticePackageDefinition package = run.OpeningSelection.StartingPracticePackage;
+            return new DemoJourneyRunSessionOptions
+            {
+                RunId = "old_mine_" + seed + "_" + DateTime.UtcNow.Ticks,
+                ConfigSchemaVersion = JourneyConfigSchemaVersion,
+                ContentVersion = JourneyContentVersion,
+                MapAlgorithmVersion = JourneyMapAlgorithmVersion,
+                RegionId = region.Id,
+                Build = new DemoRunBuildSnapshot
+                {
+                    StartingPracticePackageId = package?.Id ?? string.Empty,
+                    MindMethodId = run.CorePractice.DefinitionId,
+                    MindMethodLevel = Math.Max(1, run.CorePractice.Level),
+                    InnateArtifactId = run.InnateArtifact.DefinitionId,
+                    InnateArtifactRefinementStage = Math.Max(1, run.InnateArtifact.RefinementStage),
+                    TechniqueIds = run.Deck
+                        .Where(card => card != null && !string.IsNullOrWhiteSpace(card.Id))
+                        .Select(card => card.Id)
+                        .Distinct(StringComparer.Ordinal)
+                        .ToList()
+                },
+                Realm = BuildRealmSnapshot(),
+                MaxHealth = run.MaxHealth,
+                CurrentHealth = run.CurrentHealth
+            };
+        }
+
+        private DemoRunRealmSnapshot BuildRealmSnapshot()
+        {
+            return new DemoRunRealmSnapshot
+            {
+                RealmId = run.Realm.RealmId,
+                Stage = Math.Max(1, run.Realm.Stage),
+                FoundationRuleId = run.Realm.FoundationRuleId,
+                BreakthroughSourceIds = run.Realm.BreakthroughSourceIds
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .Distinct(StringComparer.Ordinal)
+                    .ToList()
+            };
+        }
+
+        private DemoRunBuildSnapshot BuildPracticeSnapshot()
+        {
+            return new DemoRunBuildSnapshot
+            {
+                StartingPracticePackageId = run.OpeningSelection.StartingPracticePackage?.Id ?? string.Empty,
+                MindMethodId = run.CorePractice.DefinitionId,
+                MindMethodLevel = Math.Max(1, run.CorePractice.Level),
+                InnateArtifactId = run.InnateArtifact.DefinitionId,
+                InnateArtifactRefinementStage = Math.Max(1, run.InnateArtifact.RefinementStage),
+                TechniqueIds = run.Deck
+                    .Where(card => card != null && !string.IsNullOrWhiteSpace(card.Id))
+                    .Select(card => card.Id)
+                    .Distinct(StringComparer.Ordinal)
+                    .Take(9)
+                    .ToList()
+            };
+        }
+
+        private void RestoreRunFromJourneySnapshot(DemoRunSaveV2 snapshot)
+        {
+            run.RestoreJourneyState(snapshot);
+        }
+
+        private string ResolveJourneyEncounterId(DemoJourneyNode node)
+        {
+            if (node == null)
+            {
+                return "enemy_old_mine_entry";
+            }
+
+            if (node.Type == DemoJourneyNodeType.Boss)
+            {
+                return "enemy_xuantie_mine_sword_puppet";
+            }
+
+            if (node.Type == DemoJourneyNodeType.MiniBoss)
+            {
+                return node.ActIndex == 1
+                    ? "enemy_ironback_mine_beast"
+                    : "enemy_sword_eating_mine_spirit";
+            }
+
+            if (node.ActIndex == 1)
+            {
+                return node.Type == DemoJourneyNodeType.Elite
+                    ? "enemy_old_mine_contract_guard"
+                    : "enemy_old_mine_entry";
+            }
+
+            if (node.ActIndex == 2)
+            {
+                return node.Type == DemoJourneyNodeType.Elite
+                    ? "enemy_collapsed_well_guard"
+                    : "enemy_old_mine_wraith";
+            }
+
+            return node.Type == DemoJourneyNodeType.Elite
+                ? "enemy_sword_furnace_elite"
+                : "enemy_sword_furnace_guard";
+        }
+
+        private static DemoMapNode ToLegacyEncounterNode(DemoJourneyNode node, string encounterId)
+        {
+            DemoNodeType type = node.Type == DemoJourneyNodeType.Boss
+                ? DemoNodeType.Boss
+                : DemoNodeType.Battle;
+            return new DemoMapNode(
+                node.ActIndex,
+                type,
+                node.Name,
+                node.NodeId,
+                encounterId,
+                string.Empty,
+                string.Empty);
+        }
+
+        private IReadOnlyList<DemoBattleEnemySetup> BuildJourneyEnemySet(
+            DemoJourneyNode node,
+            DemoEnemyDefinition primary)
+        {
+            int baseHealth = primary?.MaxHealth ?? (node.Type == DemoJourneyNodeType.Boss ? 3200 : 130 + node.ActIndex * 55);
+            string baseId = primary?.Id ?? ResolveJourneyEncounterId(node);
+            string baseName = primary?.Name ?? node.Name;
+
+            if (node.Type == DemoJourneyNodeType.Boss)
+            {
+                return new[]
+                {
+                    new DemoBattleEnemySetup
+                    {
+                        CombatantId = baseId + "_armor",
+                        DefinitionId = baseId,
+                        Name = "玄铁甲片",
+                        PositionId = "boss_upper_armor",
+                        Depth = 0,
+                        MaxHealth = Math.Max(1, baseHealth * 38 / 100),
+                        ThreatPriority = 3,
+                        RequiredForVictory = true
+                    },
+                    new DemoBattleEnemySetup
+                    {
+                        CombatantId = baseId + "_contract_spike",
+                        DefinitionId = "target_contract_spike",
+                        Name = "朱砂契钉",
+                        PositionId = "boss_contract_spike",
+                        Depth = 1,
+                        MaxHealth = Math.Max(1, baseHealth * 24 / 100),
+                        ThreatPriority = 4,
+                        RequiredForVictory = true
+                    },
+                    new DemoBattleEnemySetup
+                    {
+                        CombatantId = baseId + "_core",
+                        DefinitionId = "target_sword_furnace_core",
+                        Name = "剑炉核心",
+                        PositionId = "boss_furnace_core",
+                        Depth = 2,
+                        MaxHealth = Math.Max(1, baseHealth * 38 / 100),
+                        ThreatPriority = 5,
+                        RequiredForVictory = true
+                    }
+                };
+            }
+
+            int count = node.Type == DemoJourneyNodeType.Elite || (node.ActIndex >= 2 && node.Type == DemoJourneyNodeType.Battle)
+                ? 3
+                : node.Type == DemoJourneyNodeType.MiniBoss ? 2 : 1 + Math.Abs(node.NodeId.GetHashCode()) % 2;
+            List<DemoBattleEnemySetup> enemies = new List<DemoBattleEnemySetup>();
+            for (int i = 0; i < count; i++)
+            {
+                int health = count == 1 ? baseHealth : Math.Max(24, baseHealth / count + i * 8);
+                enemies.Add(new DemoBattleEnemySetup
+                {
+                    CombatantId = baseId + "_" + (i + 1),
+                    DefinitionId = baseId,
+                    Name = i == 0 ? baseName : BuildJourneySupportEnemyName(node.ActIndex, i),
+                    PositionId = i == 0 ? "enemy_front" : i == 1 ? "enemy_middle" : "enemy_rear",
+                    Depth = i,
+                    MaxHealth = health,
+                    ThreatPriority = count - i,
+                    RequiredForVictory = true
+                });
+            }
+            return enemies;
+        }
+
+        private static string BuildJourneySupportEnemyName(int actIndex, int index)
+        {
+            if (actIndex == 1)
+            {
+                return index == 1 ? "契屑矿蜉" : "浅道矿兽";
+            }
+
+            if (actIndex == 2)
+            {
+                return index == 1 ? "塌井残魂" : "吞剑幼魈";
+            }
+
+            return index == 1 ? "封契剑影" : "炉心构造体";
+        }
+
+        private void ApplyJourneyNodeImmediateEffect(DemoJourneyNode node)
+        {
+            if (node == null)
+            {
+                return;
+            }
+
+            switch (node.Type)
+            {
+                case DemoJourneyNodeType.Start:
+                    run.Story.AddExperience("experience_entered_old_mine");
+                    break;
+                case DemoJourneyNodeType.Event:
+                case DemoJourneyNodeType.Story:
+                    string flag = node.ActIndex == 1
+                        ? "experience_mine_contract_clue"
+                        : node.ActIndex == 2
+                            ? "experience_miner_spirit_helped"
+                            : "experience_old_contract_witnessed";
+                    run.Story.AddExperience(flag);
+                    if (node.ActIndex == 2)
+                    {
+                        run.Heal(8);
+                    }
+                    break;
+                case DemoJourneyNodeType.Cultivation:
+                    run.CorePractice.Level++;
+                    TryGrantJourneyTechnique(node, node.ActIndex == 1 ? "sword_focus" : node.ActIndex == 2 ? "returning_array" : "wanjian_burst");
+                    run.Heal(10);
+                    break;
+                case DemoJourneyNodeType.Secret:
+                    TryGrantJourneyTechnique(node, node.ActIndex == 1 ? "summon_sword" : node.ActIndex == 2 ? "sword_rain" : "sword_tide");
+                    run.Story.AddExperience("experience_secret_act_" + node.ActIndex);
+                    break;
+                case DemoJourneyNodeType.Refinement:
+                    run.InnateArtifact.RefinementStage++;
+                    run.BonusPermanentSwords = Math.Max(run.BonusPermanentSwords, run.InnateArtifact.RefinementStage - 1);
+                    run.Heal(6);
+                    break;
+                case DemoJourneyNodeType.Breakthrough:
+                    run.Realm.RealmId = "realm_foundation_establishment";
+                    run.Realm.Stage = 2;
+                    run.Realm.FoundationRuleId = ResolveFoundationRuleId();
+                    if (!run.Realm.BreakthroughSourceIds.Contains(node.ContentId))
+                    {
+                        run.Realm.BreakthroughSourceIds.Add(node.ContentId);
+                    }
+                    run.MaxHealth += 12;
+                    run.CurrentHealth = run.MaxHealth;
+                    run.BonusEnergy += 1;
+                    run.Story.AddExperience("experience_foundation_established");
+                    break;
+            }
+        }
+
+        private void TryGrantJourneyTechnique(DemoJourneyNode node, string techniqueId)
+        {
+            if (run.Deck.Count >= 9 || !DemoConfigRepository.TryCreateCard(techniqueId, out DemoCard card))
+            {
+                return;
+            }
+
+            if (run.Deck.Any(existing => string.Equals(existing.Id, techniqueId, StringComparison.OrdinalIgnoreCase)))
+            {
+                return;
+            }
+
+            run.AddCard(card);
+            run.Techniques.Add(new DemoTechniqueState
+            {
+                DefinitionId = techniqueId,
+                Level = 1,
+                SourceNodeId = node.NodeId
+            });
+        }
+
+        private string ResolveFoundationRuleId()
+        {
+            if (run.Story.HasExperience("experience_miner_spirit_helped"))
+            {
+                return "foundation_clear_spirit";
+            }
+
+            if (run.Story.HasExperience("experience_secret_act_2"))
+            {
+                return "foundation_thunder_meridian";
+            }
+
+            return "foundation_sword_bone";
+        }
+
+        private DemoJourneyNodeOutcome BuildJourneyNodeOutcome(DemoJourneyNode node, bool battleVictory)
+        {
+            DemoJourneyNodeOutcome outcome = new DemoJourneyNodeOutcome
+            {
+                Build = BuildPracticeSnapshot(),
+                Realm = BuildRealmSnapshot(),
+                CurrentHealth = run.CurrentHealth,
+                MaxHealth = run.MaxHealth,
+                ElapsedSecondsDelta = battleVictory ? battle.ElapsedSeconds : 0f
+            };
+            foreach (string id in run.Story.ExperienceFlagIds)
+            {
+                outcome.AddExperienceFlag(id);
+            }
+            foreach (string id in run.Story.ConsumedUniqueContentIds)
+            {
+                outcome.ConsumeUniqueContent(id);
+            }
+            foreach (string id in run.Story.PendingMetaDiscoveryIds)
+            {
+                outcome.AddPendingMetaDiscovery(id);
+            }
+
+            if (node != null)
+            {
+                outcome.ConsumeUniqueContent(node.ContentId);
+                if (node.Type == DemoJourneyNodeType.MiniBoss)
+                {
+                    string flag = node.ActIndex == 1
+                        ? "experience_ironback_beast_defeated"
+                        : "experience_sword_eater_defeated";
+                    outcome.AddExperienceFlag(flag);
+                    run.Story.AddExperience(flag);
+                }
+            }
+            return outcome;
         }
         private static DemoSwordStyle ResolveJourneyStyle(DemoJourneyLineDefinition line)
         {

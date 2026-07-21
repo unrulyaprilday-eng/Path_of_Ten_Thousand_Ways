@@ -1,6 +1,6 @@
 {
     "meta":  {
-                 "generatedAt":  "2026-07-14T22:19:47+08:00",
+                 "generatedAt":  "2026-07-19T11:58:51+08:00",
                  "source":  "UNITY/Assets/Data/CSV",
                  "purpose":  "Program-readable complete config tables for opening system and current Unity DEMO runtime content."
              },
@@ -1042,9 +1042,10 @@
                                                                             "title":  "残剑胚",
                                                                             "originText":  "祖龛坍塌后匣中只余一枚未成的剑胚它与你腕上的旧伤一同发热",
                                                                             "carryItemName":  "残剑胚",
-                                                                            "carryItemEffect":  "一把飞剑与五张基础剑术从此随你上路",
+                                                                            "carryItemEffect":  "旁支吐纳法授予吐纳归息残卷御剑式催动残剑胚",
                                                                             "vesselType":  "sword",
-                                                                            "starterPoolId":  "starter_sword_embryo",
+                                                                            "starterPoolId":  "starter_story_sword_package",
+                                                                            "startingPracticePackageId":  "package_branch_sword_embryo",
                                                                             "baseStyle":  "wanjian",
                                                                             "isAvailable":  true,
                                                                             "firstRegionId":  "region_old_mine",
@@ -1075,6 +1076,7 @@
                                                                                 "originText":  "族谱夹层里藏着一本无字法书每逢雷雨纸页便浮出一行陌生字迹",
                                                                                 "vesselType":  "spellbook",
                                                                                 "starterPoolId":  "starter_general",
+                                                                                "startingPracticePackageId":  "",
                                                                                 "baseStyle":  "general",
                                                                                 "startingEffectText":  "法书无字只可驱动最基础的符术",
                                                                                 "firstRegionId":  "region_ancestral_vault",
@@ -1098,6 +1100,7 @@
                                                                               "originText":  "旁支药房被查封前婶母把一口满是药痕的旧鼎塞入你怀中",
                                                                               "vesselType":  "cauldron",
                                                                               "starterPoolId":  "starter_general",
+                                                                              "startingPracticePackageId":  "",
                                                                               "baseStyle":  "general",
                                                                               "startingEffectText":  "旧鼎尚未成器只保留最基础的炼化手段",
                                                                               "firstRegionId":  "region_herb_forest",
@@ -1120,9 +1123,10 @@
                                                                               "name":  "残剑胚",
                                                                               "originText":  "祖龛坍塌后匣中只余一枚未成的剑胚它与你腕上的旧伤一同发热",
                                                                               "vesselType":  "sword",
-                                                                              "starterPoolId":  "starter_sword_embryo",
+                                                                              "starterPoolId":  "starter_story_sword_package",
+                                                                              "startingPracticePackageId":  "package_branch_sword_embryo",
                                                                               "baseStyle":  "wanjian",
-                                                                              "startingEffectText":  "一把飞剑与五张基础剑术从此随你上路",
+                                                                              "startingEffectText":  "旁支吐纳法授予吐纳归息残卷御剑式催动残剑胚",
                                                                               "firstRegionId":  "region_old_mine",
                                                                               "regionCandidateIds":  [
                                                                                                          "region_old_mine",
@@ -1515,6 +1519,28 @@
                                                     "specialEffect":  "none",
                                                     "rulesOverride":  ""
                                                 },
+                               "technique_breathing_recovery":  {
+                                                                    "id":  "technique_breathing_recovery",
+                                                                    "name":  "吐纳归息",
+                                                                    "iconGlyph":  "息",
+                                                                    "type":  "resource",
+                                                                    "style":  "general",
+                                                                    "quality":  "mortal",
+                                                                    "cost":  0,
+                                                                    "damage":  0,
+                                                                    "block":  4,
+                                                                    "draw":  0,
+                                                                    "energyGain":  1,
+                                                                    "swordIntent":  0,
+                                                                    "shock":  0,
+                                                                    "bleed":  0,
+                                                                    "temporarySwords":  0,
+                                                                    "permanentSword":  false,
+                                                                    "consumeAllSwordIntent":  false,
+                                                                    "selfDamage":  0,
+                                                                    "specialEffect":  "none",
+                                                                    "rulesOverride":  "调息归元：获得 4 护体并回复 1 灵气。"
+                                                                },
                                "jade_barrier":  {
                                                     "id":  "jade_barrier",
                                                     "name":  "玄门护身",
@@ -1713,6 +1739,28 @@
                                                             "specialEffect":  "none",
                                                             "rulesOverride":  "失去 6 点生命获得 2 灵气 2 剑意并备好 2 把临时飞剑"
                                                         },
+                               "technique_incomplete_sword_scroll":  {
+                                                                         "id":  "technique_incomplete_sword_scroll",
+                                                                         "name":  "残卷御剑式",
+                                                                         "iconGlyph":  "御",
+                                                                         "type":  "flying_sword",
+                                                                         "style":  "wanjian",
+                                                                         "quality":  "mortal",
+                                                                         "cost":  1,
+                                                                         "damage":  5,
+                                                                         "block":  0,
+                                                                         "draw":  0,
+                                                                         "energyGain":  0,
+                                                                         "swordIntent":  1,
+                                                                         "shock":  0,
+                                                                         "bleed":  0,
+                                                                         "temporarySwords":  1,
+                                                                         "permanentSword":  false,
+                                                                         "consumeAllSwordIntent":  false,
+                                                                         "selfDamage":  0,
+                                                                         "specialEffect":  "none",
+                                                                         "rulesOverride":  "催动残剑胚造成 5 伤害，获得 1 剑意并生成 1 把临时飞剑。"
+                                                                     },
                                "blood_tide_array":  {
                                                         "id":  "blood_tide_array",
                                                         "name":  "血潮剑阵",
@@ -1781,6 +1829,20 @@
                                                }
                            },
                  "cardPools":  {
+                                   "starter_story_sword_package":  [
+                                                                       {
+                                                                           "entryType":  "card",
+                                                                           "refId":  "technique_breathing_recovery",
+                                                                           "count":  1,
+                                                                           "notes":  "开局故事由旁支吐纳法授予主动心诀"
+                                                                       },
+                                                                       {
+                                                                           "entryType":  "card",
+                                                                           "refId":  "technique_incomplete_sword_scroll",
+                                                                           "count":  1,
+                                                                           "notes":  "开局故事交付的初阶剑诀"
+                                                                       }
+                                                                   ],
                                    "starter_blood":  [
                                                          {
                                                              "entryType":  "card",
@@ -1807,52 +1869,6 @@
                                                              "notes":  "血剑主修起始牌组"
                                                          }
                                                      ],
-                                   "starter_sword_embryo":  [
-                                                                {
-                                                                    "entryType":  "card",
-                                                                    "refId":  "sword_slash",
-                                                                    "count":  2,
-                                                                    "notes":  "残剑胚起手基础剑术"
-                                                                },
-                                                                {
-                                                                    "entryType":  "card",
-                                                                    "refId":  "guard_step",
-                                                                    "count":  2,
-                                                                    "notes":  "残剑胚起手基础剑术"
-                                                                },
-                                                                {
-                                                                    "entryType":  "card",
-                                                                    "refId":  "cloud_step",
-                                                                    "count":  1,
-                                                                    "notes":  "残剑胚起手基础剑术"
-                                                                }
-                                                            ],
-                                   "starter_general":  [
-                                                           {
-                                                               "entryType":  "card",
-                                                               "refId":  "sword_slash",
-                                                               "count":  2,
-                                                               "notes":  "默认起始牌组"
-                                                           },
-                                                           {
-                                                               "entryType":  "card",
-                                                               "refId":  "guard_step",
-                                                               "count":  2,
-                                                               "notes":  "默认起始牌组"
-                                                           },
-                                                           {
-                                                               "entryType":  "card",
-                                                               "refId":  "cloud_step",
-                                                               "count":  1,
-                                                               "notes":  "默认起始牌组"
-                                                           },
-                                                           {
-                                                               "entryType":  "card",
-                                                               "refId":  "jade_barrier",
-                                                               "count":  1,
-                                                               "notes":  "默认起始牌组"
-                                                           }
-                                                       ],
                                    "starter_thunder":  [
                                                            {
                                                                "entryType":  "card",
@@ -1883,6 +1899,78 @@
                                                                "refId":  "thunder_lead",
                                                                "count":  1,
                                                                "notes":  "雷剑主修起始牌组"
+                                                           }
+                                                       ],
+                                   "starter_sword_embryo":  [
+                                                                {
+                                                                    "entryType":  "card",
+                                                                    "refId":  "sword_slash",
+                                                                    "count":  2,
+                                                                    "notes":  "残剑胚起手基础剑术"
+                                                                },
+                                                                {
+                                                                    "entryType":  "card",
+                                                                    "refId":  "guard_step",
+                                                                    "count":  2,
+                                                                    "notes":  "残剑胚起手基础剑术"
+                                                                },
+                                                                {
+                                                                    "entryType":  "card",
+                                                                    "refId":  "cloud_step",
+                                                                    "count":  1,
+                                                                    "notes":  "残剑胚起手基础剑术"
+                                                                }
+                                                            ],
+                                   "starter_wanjian":  [
+                                                           {
+                                                               "entryType":  "card",
+                                                               "refId":  "sword_slash",
+                                                               "count":  2,
+                                                               "notes":  "万剑主修起始牌组"
+                                                           },
+                                                           {
+                                                               "entryType":  "card",
+                                                               "refId":  "guard_step",
+                                                               "count":  2,
+                                                               "notes":  "万剑主修起始牌组"
+                                                           },
+                                                           {
+                                                               "entryType":  "card",
+                                                               "refId":  "cloud_step",
+                                                               "count":  1,
+                                                               "notes":  "万剑主修起始牌组"
+                                                           },
+                                                           {
+                                                               "entryType":  "card",
+                                                               "refId":  "sword_focus",
+                                                               "count":  2,
+                                                               "notes":  "万剑主修起始牌组"
+                                                           }
+                                                       ],
+                                   "starter_general":  [
+                                                           {
+                                                               "entryType":  "card",
+                                                               "refId":  "sword_slash",
+                                                               "count":  2,
+                                                               "notes":  "默认起始牌组"
+                                                           },
+                                                           {
+                                                               "entryType":  "card",
+                                                               "refId":  "guard_step",
+                                                               "count":  2,
+                                                               "notes":  "默认起始牌组"
+                                                           },
+                                                           {
+                                                               "entryType":  "card",
+                                                               "refId":  "cloud_step",
+                                                               "count":  1,
+                                                               "notes":  "默认起始牌组"
+                                                           },
+                                                           {
+                                                               "entryType":  "card",
+                                                               "refId":  "jade_barrier",
+                                                               "count":  1,
+                                                               "notes":  "默认起始牌组"
                                                            }
                                                        ],
                                    "reward_pool":  [
@@ -2060,34 +2148,61 @@
                                                            "count":  1,
                                                            "notes":  "奖励池"
                                                        }
-                                                   ],
-                                   "starter_wanjian":  [
-                                                           {
-                                                               "entryType":  "card",
-                                                               "refId":  "sword_slash",
-                                                               "count":  2,
-                                                               "notes":  "万剑主修起始牌组"
-                                                           },
-                                                           {
-                                                               "entryType":  "card",
-                                                               "refId":  "guard_step",
-                                                               "count":  2,
-                                                               "notes":  "万剑主修起始牌组"
-                                                           },
-                                                           {
-                                                               "entryType":  "card",
-                                                               "refId":  "cloud_step",
-                                                               "count":  1,
-                                                               "notes":  "万剑主修起始牌组"
-                                                           },
-                                                           {
-                                                               "entryType":  "card",
-                                                               "refId":  "sword_focus",
-                                                               "count":  2,
-                                                               "notes":  "万剑主修起始牌组"
-                                                           }
-                                                       ]
+                                                   ]
                                },
+                 "corePractices":  {
+                                       "practice_branch_breathing":  {
+                                                                         "id":  "practice_branch_breathing",
+                                                                         "name":  "旁支吐纳法",
+                                                                         "practiceType":  "MindMethod",
+                                                                         "passiveRuleText":  "常驻提供基础灵气恢复与轻回复规则",
+                                                                         "grantedTechniqueId":  "technique_breathing_recovery",
+                                                                         "sourceStoryId":  "opening_story_branch_ancestral_vault"
+                                                                     }
+                                   },
+                 "techniques":  {
+                                    "technique_breathing_recovery":  {
+                                                                         "id":  "technique_breathing_recovery",
+                                                                         "name":  "吐纳归息",
+                                                                         "kind":  "HeartFormula",
+                                                                         "sourceStoryId":  "opening_story_branch_ancestral_vault",
+                                                                         "rulesText":  "调息恢复并稳定灵气循环",
+                                                                         "visualTag":  "jade_breath"
+                                                                     },
+                                    "technique_incomplete_sword_scroll":  {
+                                                                              "id":  "technique_incomplete_sword_scroll",
+                                                                              "name":  "残卷御剑式",
+                                                                              "kind":  "SwordArt",
+                                                                              "sourceStoryId":  "opening_story_branch_ancestral_vault",
+                                                                              "rulesText":  "主动催动残剑胚并积累剑意",
+                                                                              "visualTag":  "diagonal_sword"
+                                                                          }
+                                },
+                 "bearers":  {
+                                 "bearer_old_mine_ground":  {
+                                                                "id":  "bearer_old_mine_ground",
+                                                                "name":  "旧矿断台",
+                                                                "mode":  "Ground",
+                                                                "resourceKey":  "Art/VFX/vfx_battle_player_ground_old_mine_001",
+                                                                "isRequired":  true
+                                                            }
+                             },
+                 "startingPracticePackages":  {
+                                                  "package_branch_sword_embryo":  {
+                                                                                      "id":  "package_branch_sword_embryo",
+                                                                                      "rootId":  "root_branch",
+                                                                                      "sourceStoryId":  "opening_story_branch_ancestral_vault",
+                                                                                      "innateArtifactId":  "artifact_broken_sword_embryo",
+                                                                                      "corePracticeId":  "practice_branch_breathing",
+                                                                                      "primaryTechniqueId":  "technique_incomplete_sword_scroll",
+                                                                                      "bearerDefinitionId":  "bearer_old_mine_ground",
+                                                                                      "isAvailable":  true,
+                                                                                      "activeTechniqueIds":  [
+                                                                                                                 "technique_breathing_recovery",
+                                                                                                                 "technique_incomplete_sword_scroll"
+                                                                                                             ]
+                                                                                  }
+                                              },
                  "gongfas":  {
                                  "gongfa_sword_heart_resonance":  {
                                                                       "id":  "gongfa_sword_heart_resonance",
@@ -2325,7 +2440,7 @@
                                                                 "id":  "route_branch_stable",
                                                                 "layer":  1,
                                                                 "name":  "矿口余烬",
-                                                                "description":  "普通战后在矿灯下调息并定向补启动缺口以恢复换取稳定推进",
+                                                                "description":  "先打一场普通战获得基础奖励；随后修炼定向悟法并恢复 12 点气血",
                                                                 "routeStyle":  "general",
                                                                 "routeQuality":  "spirit",
                                                                 "routeGlyph":  "稳",
@@ -2367,7 +2482,7 @@
                                                                 "id":  "route_middle_stable",
                                                                 "layer":  2,
                                                                 "name":  "稳修收束",
-                                                                "description":  "先定向补小诛仙剑阵再打一场普通战稳定获得第二层核心",
+                                                                "description":  "先打一场普通战获得第二层核心奖励；随后修炼定向补剑阵并恢复 8 点气血",
                                                                 "routeStyle":  "general",
                                                                 "routeQuality":  "spirit",
                                                                 "routeGlyph":  "稳",
@@ -2376,22 +2491,22 @@
                                                                               {
                                                                                   "seq":  1,
                                                                                   "layer":  2,
-                                                                                  "nodeType":  "training",
-                                                                                  "nodeName":  "定向补缺",
-                                                                                  "nodeId":  "node_l2_stable_fill",
-                                                                                  "encounterId":  "",
-                                                                                  "rewardProfileId":  "",
-                                                                                  "actionProfileId":  "action_directed_fill_l2"
-                                                                              },
-                                                                              {
-                                                                                  "seq":  2,
-                                                                                  "layer":  2,
                                                                                   "nodeType":  "battle",
                                                                                   "nodeName":  "劫云守卫",
                                                                                   "nodeId":  "node_l2_stable_battle",
                                                                                   "encounterId":  "enemy_calamity_guard",
                                                                                   "rewardProfileId":  "reward_layer2_standard",
                                                                                   "actionProfileId":  ""
+                                                                              },
+                                                                              {
+                                                                                  "seq":  2,
+                                                                                  "layer":  2,
+                                                                                  "nodeType":  "training",
+                                                                                  "nodeName":  "劫云下悟法",
+                                                                                  "nodeId":  "node_l2_stable_fill",
+                                                                                  "encounterId":  "",
+                                                                                  "rewardProfileId":  "",
+                                                                                  "actionProfileId":  "action_directed_fill_l2"
                                                                               },
                                                                               {
                                                                                   "seq":  3,
@@ -2409,11 +2524,11 @@
                                                                   "id":  "route_middle_artifact",
                                                                   "layer":  2,
                                                                   "name":  "秘器共振",
-                                                                  "description":  "先在核心整备中补御剑诀或剑匣缺口再进入精英试炼",
+                                                                  "description":  "先整备一次并针对御剑诀或剑匣缺口作出选择；随后挑战精英获取核心奖励",
                                                                   "routeStyle":  "general",
                                                                   "routeQuality":  "mysterious",
                                                                   "routeGlyph":  "器",
-                                                                  "routeTag":  "构筑路线",
+                                                                  "routeTag":  "秘器路线",
                                                                   "nodes":  [
                                                                                 {
                                                                                     "seq":  1,
@@ -2451,7 +2566,7 @@
                                                                   "id":  "route_final_desperate",
                                                                   "layer":  3,
                                                                   "name":  "背水破劫",
-                                                                  "description":  "渡劫前再战一名高奖精英并允许万剑归宗出现以风险抬高上限",
+                                                                  "description":  "先挑战可出现万剑归宗的高奖精英；随后不经恢复直接挑战天劫",
                                                                   "routeStyle":  "general",
                                                                   "routeQuality":  "immortal",
                                                                   "routeGlyph":  "劫",
@@ -2476,16 +2591,6 @@
                                                                                     "encounterId":  "enemy_tianjie_avatar",
                                                                                     "rewardProfileId":  "reward_boss_completion",
                                                                                     "actionProfileId":  ""
-                                                                                },
-                                                                                {
-                                                                                    "seq":  3,
-                                                                                    "layer":  4,
-                                                                                    "nodeType":  "result",
-                                                                                    "nodeName":  "一世结算",
-                                                                                    "nodeId":  "node_l3_desperate_result",
-                                                                                    "encounterId":  "",
-                                                                                    "rewardProfileId":  "",
-                                                                                    "actionProfileId":  "show_victory_result"
                                                                                 }
                                                                             ]
                                                               },
@@ -2493,17 +2598,17 @@
                                                                   "id":  "route_final_seclusion",
                                                                   "layer":  3,
                                                                   "name":  "闭关悟道",
-                                                                  "description":  "先定向补万剑诀再完成整备把完整爆发窗口留给天劫",
+                                                                  "description":  "先终结修炼定向补万剑诀；随后打一场普通战并直接挑战天劫",
                                                                   "routeStyle":  "general",
                                                                   "routeQuality":  "mysterious",
                                                                   "routeGlyph":  "悟",
-                                                                  "routeTag":  "爆发路线",
+                                                                  "routeTag":  "悟道路线",
                                                                   "nodes":  [
                                                                                 {
                                                                                     "seq":  1,
                                                                                     "layer":  3,
                                                                                     "nodeType":  "training",
-                                                                                    "nodeName":  "终结补强",
+                                                                                    "nodeName":  "终结悟道",
                                                                                     "nodeId":  "node_l3_seclusion_finisher",
                                                                                     "encounterId":  "",
                                                                                     "rewardProfileId":  "",
@@ -2512,12 +2617,12 @@
                                                                                 {
                                                                                     "seq":  2,
                                                                                     "layer":  3,
-                                                                                    "nodeType":  "shop",
-                                                                                    "nodeName":  "Boss 前整备",
-                                                                                    "nodeId":  "node_l3_seclusion_prepare",
-                                                                                    "encounterId":  "",
-                                                                                    "rewardProfileId":  "",
-                                                                                    "actionProfileId":  "action_prepare_boss"
+                                                                                    "nodeType":  "battle",
+                                                                                    "nodeName":  "悟道试锋",
+                                                                                    "nodeId":  "node_l3_seclusion_battle",
+                                                                                    "encounterId":  "enemy_calamity_guard",
+                                                                                    "rewardProfileId":  "reward_layer3_standard",
+                                                                                    "actionProfileId":  ""
                                                                                 },
                                                                                 {
                                                                                     "seq":  3,
@@ -2528,16 +2633,6 @@
                                                                                     "encounterId":  "enemy_tianjie_avatar",
                                                                                     "rewardProfileId":  "reward_boss_completion",
                                                                                     "actionProfileId":  ""
-                                                                                },
-                                                                                {
-                                                                                    "seq":  4,
-                                                                                    "layer":  4,
-                                                                                    "nodeType":  "result",
-                                                                                    "nodeName":  "一世结算",
-                                                                                    "nodeId":  "node_l3_seclusion_result",
-                                                                                    "encounterId":  "",
-                                                                                    "rewardProfileId":  "",
-                                                                                    "actionProfileId":  "show_victory_result"
                                                                                 }
                                                                             ]
                                                               },
@@ -2545,7 +2640,7 @@
                                                                "id":  "route_branch_build",
                                                                "layer":  1,
                                                                "name":  "旧账暗室",
-                                                               "description":  "先悟法再整备并以普通战验证循环用较少随机性补齐万剑启动组件",
+                                                               "description":  "先修炼定向补万剑启动组件；随后以普通战获得构筑奖励",
                                                                "routeStyle":  "general",
                                                                "routeQuality":  "mysterious",
                                                                "routeGlyph":  "构",
@@ -2564,16 +2659,6 @@
                                                                              {
                                                                                  "seq":  2,
                                                                                  "layer":  1,
-                                                                                 "nodeType":  "shop",
-                                                                                 "nodeName":  "旧账整备",
-                                                                                 "nodeId":  "node_l1_build_prepare",
-                                                                                 "encounterId":  "",
-                                                                                 "rewardProfileId":  "",
-                                                                                 "actionProfileId":  "action_prepare_build_l1"
-                                                                             },
-                                                                             {
-                                                                                 "seq":  3,
-                                                                                 "layer":  1,
                                                                                  "nodeType":  "battle",
                                                                                  "nodeName":  "符债残影",
                                                                                  "nodeId":  "node_l1_build_battle",
@@ -2582,7 +2667,7 @@
                                                                                  "actionProfileId":  ""
                                                                              },
                                                                              {
-                                                                                 "seq":  4,
+                                                                                 "seq":  3,
                                                                                  "layer":  2,
                                                                                  "nodeType":  "route_choice",
                                                                                  "nodeName":  "第二层岔路",
@@ -2597,24 +2682,34 @@
                                                                "id":  "route_final_stable",
                                                                "layer":  3,
                                                                "name":  "整备冲劫",
-                                                               "description":  "Boss 前恢复并完成整备以当前成形构筑稳定渡劫",
+                                                               "description":  "先打一场普通战获得终结奖励；随后恢复并针对生存缺口整备一次再挑战天劫",
                                                                "routeStyle":  "general",
                                                                "routeQuality":  "spirit",
-                                                               "routeGlyph":  "备",
+                                                               "routeGlyph":  "稳",
                                                                "routeTag":  "稳守路线",
                                                                "nodes":  [
                                                                              {
                                                                                  "seq":  1,
                                                                                  "layer":  3,
+                                                                                 "nodeType":  "battle",
+                                                                                 "nodeName":  "劫云守关",
+                                                                                 "nodeId":  "node_l3_stable_battle",
+                                                                                 "encounterId":  "enemy_calamity_guard",
+                                                                                 "rewardProfileId":  "reward_layer3_standard",
+                                                                                 "actionProfileId":  ""
+                                                                             },
+                                                                             {
+                                                                                 "seq":  2,
+                                                                                 "layer":  3,
                                                                                  "nodeType":  "shop",
-                                                                                 "nodeName":  "Boss 前整备",
+                                                                                 "nodeName":  "天劫前整备",
                                                                                  "nodeId":  "node_l3_stable_prepare",
                                                                                  "encounterId":  "",
                                                                                  "rewardProfileId":  "",
                                                                                  "actionProfileId":  "action_prepare_boss"
                                                                              },
                                                                              {
-                                                                                 "seq":  2,
+                                                                                 "seq":  3,
                                                                                  "layer":  3,
                                                                                  "nodeType":  "boss",
                                                                                  "nodeName":  "天劫化身",
@@ -2622,16 +2717,6 @@
                                                                                  "encounterId":  "enemy_tianjie_avatar",
                                                                                  "rewardProfileId":  "reward_boss_completion",
                                                                                  "actionProfileId":  ""
-                                                                             },
-                                                                             {
-                                                                                 "seq":  3,
-                                                                                 "layer":  4,
-                                                                                 "nodeType":  "result",
-                                                                                 "nodeName":  "一世结算",
-                                                                                 "nodeId":  "node_l3_stable_result",
-                                                                                 "encounterId":  "",
-                                                                                 "rewardProfileId":  "",
-                                                                                 "actionProfileId":  "show_victory_result"
                                                                              }
                                                                          ]
                                                            },
@@ -2639,7 +2724,7 @@
                                                                "id":  "route_branch_risky",
                                                                "layer":  1,
                                                                "name":  "塌井深处",
-                                                               "description":  "连续挑战两名精英不获免费恢复以更早获得两次高档战斗奖励",
+                                                               "description":  "连续挑战两名第一层精英；每战获得精英奖励且路线不提供恢复",
                                                                "routeStyle":  "general",
                                                                "routeQuality":  "heaven",
                                                                "routeGlyph":  "险",
@@ -2681,11 +2766,11 @@
                                                                     "id":  "route_middle_aggressive",
                                                                     "layer":  2,
                                                                     "name":  "追锋破阵",
-                                                                    "description":  "连续挑战两名第二层精英以更高压力换取更早更高品质的引擎补强",
+                                                                    "description":  "连续挑战两名第二层精英；每战获得精英奖励且路线不提供恢复",
                                                                     "routeStyle":  "general",
                                                                     "routeQuality":  "heaven",
                                                                     "routeGlyph":  "锋",
-                                                                    "routeTag":  "冒险路线",
+                                                                    "routeTag":  "追锋路线",
                                                                     "nodes":  [
                                                                                   {
                                                                                       "seq":  1,
@@ -2819,7 +2904,7 @@
                                                                              "rewardProfileId":  "reward_layer1_build",
                                                                              "guaranteedComponentId":  "sword_focus",
                                                                              "healAmount":  0,
-                                                                             "description":  "构筑线定向补万剑启动组件"
+                                                                             "description":  "定向悟法并从当前万剑启动缺口中完成一次补强"
                                                                          },
                                             "choose_route_layer_1":  {
                                                                          "id":  "choose_route_layer_1",
@@ -2835,7 +2920,7 @@
                                                                             "rewardProfileId":  "reward_layer1_build",
                                                                             "guaranteedComponentId":  "",
                                                                             "healAmount":  0,
-                                                                            "description":  "整理牌组并预览下一阶段缺口"
+                                                                            "description":  "针对当前构筑缺口完成一次补强选择"
                                                                         },
                                             "action_training_stable_l1":  {
                                                                               "id":  "action_training_stable_l1",
@@ -2843,7 +2928,7 @@
                                                                               "rewardProfileId":  "reward_layer1_standard",
                                                                               "guaranteedComponentId":  "sword_focus",
                                                                               "healAmount":  12,
-                                                                              "description":  "稳定线恢复并补万剑启动缺口"
+                                                                              "description":  "定向悟法补万剑启动缺口并恢复 12 点气血"
                                                                           },
                                             "choose_route_layer_2":  {
                                                                          "id":  "choose_route_layer_2",
@@ -2867,7 +2952,7 @@
                                                                             "rewardProfileId":  "reward_layer2_standard",
                                                                             "guaranteedComponentId":  "sword_array",
                                                                             "healAmount":  8,
-                                                                            "description":  "第二层先补小诛仙剑阵再恢复少量生命"
+                                                                            "description":  "定向悟法补小诛仙剑阵并恢复 8 点气血"
                                                                         },
                                             "show_victory_result":  {
                                                                         "id":  "show_victory_result",
@@ -2883,7 +2968,7 @@
                                                                            "rewardProfileId":  "reward_layer2_core",
                                                                            "guaranteedComponentId":  "engine_wanjian",
                                                                            "healAmount":  0,
-                                                                           "description":  "第二层补御剑诀或剑匣中的缺失引擎"
+                                                                           "description":  "针对当前引擎缺口在御剑诀或剑匣中完成一次选择"
                                                                        },
                                             "action_prepare_boss":  {
                                                                         "id":  "action_prepare_boss",
@@ -2891,7 +2976,7 @@
                                                                         "rewardProfileId":  "reward_layer3_standard",
                                                                         "guaranteedComponentId":  "survival_boss",
                                                                         "healAmount":  18,
-                                                                        "description":  "Boss 前恢复并保证玄门护身或紫金葫芦至少其一"
+                                                                        "description":  "恢复 18 点气血并针对渡劫生存缺口完成一次选择"
                                                                     },
                                             "action_finisher_fill_l3":  {
                                                                             "id":  "action_finisher_fill_l3",
@@ -2899,7 +2984,7 @@
                                                                             "rewardProfileId":  "reward_layer3_standard",
                                                                             "guaranteedComponentId":  "wanjian_burst",
                                                                             "healAmount":  0,
-                                                                            "description":  "第三层定向补万剑诀收束"
+                                                                            "description":  "终结修炼中定向悟法并补入万剑诀"
                                                                         },
                                             "show_defeat_result":  {
                                                                        "id":  "show_defeat_result",

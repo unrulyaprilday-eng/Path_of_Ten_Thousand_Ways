@@ -92,6 +92,10 @@ function Build-Config {
         journeyLineRewardBiases = Read-CsvFile (Join-Path $RootDir "journey_line_reward_biases.csv")
         cards = Read-CsvFile (Join-Path $RootDir "cards.csv")
         cardPools = Read-CsvFile (Join-Path $RootDir "card_pools.csv")
+        corePractices = Read-CsvFile (Join-Path $RootDir "core_practices.csv")
+        techniques = Read-CsvFile (Join-Path $RootDir "techniques.csv")
+        bearers = Read-CsvFile (Join-Path $RootDir "bearers.csv")
+        startingPracticePackages = Read-CsvFile (Join-Path $RootDir "starting_practice_packages.csv")
         gongfas = Read-CsvFile (Join-Path $RootDir "gongfas.csv")
         artifacts = Read-CsvFile (Join-Path $RootDir "artifacts.csv")
         relics = Read-CsvFile (Join-Path $RootDir "relics.csv")
@@ -202,6 +206,7 @@ function Build-Config {
             originText = $vessel.origin_text
             vesselType = $vessel.vessel_type
             starterPoolId = $vessel.starter_pool_id
+            startingPracticePackageId = $vessel.starting_practice_package_id
             baseStyle = $vessel.base_style
             startingEffectText = $vessel.starting_effect_text
             firstRegionId = $vessel.first_region_id
@@ -224,6 +229,7 @@ function Build-Config {
             carryItemEffect = $vessel.starting_effect_text
             vesselType = $vessel.vessel_type
             starterPoolId = $vessel.starter_pool_id
+            startingPracticePackageId = $vessel.starting_practice_package_id
             baseStyle = $vessel.base_style
             isAvailable = $true
             firstRegionId = $vessel.first_region_id
@@ -273,6 +279,56 @@ function Build-Config {
                     notes = $_.notes
                 }
             })
+    }
+
+    $corePracticeById = @{}
+    foreach ($practice in $csv.corePractices) {
+        $corePracticeById[$practice.practice_id] = [ordered]@{
+            id = $practice.practice_id
+            name = $practice.name
+            practiceType = $practice.practice_type
+            passiveRuleText = $practice.passive_rule_text
+            grantedTechniqueId = $practice.granted_technique_id
+            sourceStoryId = $practice.source_story_id
+        }
+    }
+
+    $techniqueById = @{}
+    foreach ($technique in $csv.techniques) {
+        $techniqueById[$technique.technique_id] = [ordered]@{
+            id = $technique.technique_id
+            name = $technique.name
+            kind = $technique.kind
+            sourceStoryId = $technique.source_story_id
+            rulesText = $technique.rules_text
+            visualTag = $technique.visual_tag
+        }
+    }
+
+    $bearerById = @{}
+    foreach ($bearer in $csv.bearers) {
+        $bearerById[$bearer.bearer_id] = [ordered]@{
+            id = $bearer.bearer_id
+            name = $bearer.name
+            mode = $bearer.mode
+            resourceKey = $bearer.resource_key
+            isRequired = [System.Convert]::ToBoolean($bearer.is_required)
+        }
+    }
+
+    $startingPracticePackageById = @{}
+    foreach ($package in $csv.startingPracticePackages) {
+        $startingPracticePackageById[$package.package_id] = [ordered]@{
+            id = $package.package_id
+            rootId = $package.root_id
+            sourceStoryId = $package.source_story_id
+            innateArtifactId = $package.innate_artifact_id
+            corePracticeId = $package.core_practice_id
+            primaryTechniqueId = $package.primary_technique_id
+            bearerDefinitionId = $package.bearer_definition_id
+            isAvailable = [System.Convert]::ToBoolean($package.is_available)
+            activeTechniqueIds = @($package.active_technique_ids -split "\|" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
+        }
     }
 
     $gongfaById = @{}
@@ -400,6 +456,10 @@ function Build-Config {
     Assert-UniqueColumn $csv.regions "region_id" "regions.csv"
     Assert-UniqueColumn $csv.journeyVessels "vessel_id" "journey_vessels.csv"
     Assert-UniqueColumn $csv.cards "card_id" "cards.csv"
+    Assert-UniqueColumn $csv.corePractices "practice_id" "core_practices.csv"
+    Assert-UniqueColumn $csv.techniques "technique_id" "techniques.csv"
+    Assert-UniqueColumn $csv.bearers "bearer_id" "bearers.csv"
+    Assert-UniqueColumn $csv.startingPracticePackages "package_id" "starting_practice_packages.csv"
     Assert-UniqueColumn $csv.gongfas "gongfa_id" "gongfas.csv"
     Assert-UniqueColumn $csv.artifacts "artifact_id" "artifacts.csv"
     Assert-UniqueColumn $csv.relics "relic_id" "relics.csv"
@@ -413,6 +473,10 @@ function Build-Config {
     $regionIds = @($csv.regions.region_id)
     $poolIds = @($csv.cardPools.pool_id | Sort-Object -Unique)
     $cardIds = @($csv.cards.card_id)
+    $practiceIds = @($csv.corePractices.practice_id)
+    $techniqueIds = @($csv.techniques.technique_id)
+    $bearerIds = @($csv.bearers.bearer_id)
+    $startingPracticePackageIds = @($csv.startingPracticePackages.package_id)
     $gongfaIds = @($csv.gongfas.gongfa_id)
     $artifactIds = @($csv.artifacts.artifact_id)
     $relicIds = @($csv.relics.relic_id)
@@ -424,6 +488,7 @@ function Build-Config {
     foreach ($vessel in $csv.journeyVessels) {
         Assert-Reference $vessel.root_id $rootIds "journey_vessels[$($vessel.vessel_id)].root_id"
         Assert-Reference $vessel.starter_pool_id $poolIds "journey_vessels[$($vessel.vessel_id)].starter_pool_id"
+        Assert-Reference $vessel.starting_practice_package_id $startingPracticePackageIds "journey_vessels[$($vessel.vessel_id)].starting_practice_package_id" -AllowEmpty
         Assert-Reference $vessel.first_region_id $regionIds "journey_vessels[$($vessel.vessel_id)].first_region_id"
         foreach ($regionId in @($vessel.region_candidate_ids.Split([char]124) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })) {
             Assert-Reference $regionId.Trim() $regionIds "journey_vessels[$($vessel.vessel_id)].region_candidate_ids"
@@ -433,6 +498,31 @@ function Build-Config {
     foreach ($entry in $csv.cardPools) {
         if ($entry.entry_type -eq "card") {
             Assert-Reference $entry.ref_id $cardIds "card_pools[$($entry.pool_id)].ref_id"
+        }
+    }
+
+    foreach ($practice in $csv.corePractices) {
+        Assert-Reference $practice.granted_technique_id $techniqueIds "core_practices[$($practice.practice_id)].granted_technique_id"
+    }
+
+    foreach ($package in $csv.startingPracticePackages) {
+        Assert-Reference $package.root_id $rootIds "starting_practice_packages[$($package.package_id)].root_id"
+        Assert-Reference $package.core_practice_id $practiceIds "starting_practice_packages[$($package.package_id)].core_practice_id"
+        Assert-Reference $package.primary_technique_id $techniqueIds "starting_practice_packages[$($package.package_id)].primary_technique_id"
+        Assert-Reference $package.bearer_definition_id $bearerIds "starting_practice_packages[$($package.package_id)].bearer_definition_id"
+
+        $activeTechniqueIds = @($package.active_technique_ids -split "\|" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
+        if ($activeTechniqueIds.Count -ne 2) {
+            throw "starting_practice_packages[$($package.package_id)] must expose exactly two active techniques."
+        }
+
+        foreach ($techniqueId in $activeTechniqueIds) {
+            Assert-Reference $techniqueId $techniqueIds "starting_practice_packages[$($package.package_id)].active_technique_ids"
+        }
+
+        $practice = $csv.corePractices | Where-Object { $_.practice_id -eq $package.core_practice_id } | Select-Object -First 1
+        if ($activeTechniqueIds -notcontains $practice.granted_technique_id -or $activeTechniqueIds -notcontains $package.primary_technique_id) {
+            throw "starting_practice_packages[$($package.package_id)] must contain the practice-granted and primary techniques."
         }
     }
 
@@ -523,6 +613,10 @@ function Build-Config {
         demo = [ordered]@{
             cards = $cardById
             cardPools = $cardPools
+            corePractices = $corePracticeById
+            techniques = $techniqueById
+            bearers = $bearerById
+            startingPracticePackages = $startingPracticePackageById
             gongfas = $gongfaById
             artifacts = $artifactById
             relics = $relicById

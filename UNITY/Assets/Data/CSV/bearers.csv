@@ -1,0 +1,2 @@
+bearer_id,name,mode,resource_key,is_required
+bearer_old_mine_ground,旧矿断台,Ground,Art/VFX/vfx_battle_player_ground_old_mine_001,true

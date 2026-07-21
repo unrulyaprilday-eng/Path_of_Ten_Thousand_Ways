@@ -4,6 +4,34 @@ using System.Collections.Generic;
 namespace PathOfTenThousandWays.Demo.Systems
 {
     [Serializable]
+    public sealed class DemoRunNodeSummary
+    {
+        public string NodeId = string.Empty;
+        public string NodeName = string.Empty;
+        public string NodeType = string.Empty;
+        public int Layer;
+        public bool Completed;
+        public bool Succeeded;
+    }
+
+    [Serializable]
+    public sealed class DemoRunRouteSummary
+    {
+        public string RouteId = string.Empty;
+        public string RouteName = string.Empty;
+        public int Layer;
+        public string Risk = string.Empty;
+        public List<DemoRunNodeSummary> NodeSequence = new List<DemoRunNodeSummary>();
+    }
+
+    [Serializable]
+    public sealed class DemoRunComponentSummary
+    {
+        public string Id = string.Empty;
+        public string DisplayName = string.Empty;
+    }
+
+    [Serializable]
     public sealed class DemoRunSummary
     {
         public bool Victory;
@@ -12,10 +40,52 @@ namespace PathOfTenThousandWays.Demo.Systems
         public int BattlesWon;
         public int MaxSwordCount;
         public int HighestBurstDamage;
+        public float DurationSeconds;
+        public string FailureNodeId = string.Empty;
+        public string FailureNodeName = string.Empty;
+        public string FailureNodeType = string.Empty;
+        public string MainGongfaId = string.Empty;
         public string MainGongfaName = string.Empty;
+        public string CoreArtifactId = string.Empty;
         public string CoreArtifactName = string.Empty;
-        public readonly List<string> CoreComponents = new List<string>();
-        public readonly List<string> NewUnlocks = new List<string>();
+        public List<DemoRunRouteSummary> RouteHistory = new List<DemoRunRouteSummary>();
+        public List<DemoRunNodeSummary> CompletedNodeHistory = new List<DemoRunNodeSummary>();
+        public List<string> CoreComponents = new List<string>();
+        public List<DemoRunComponentSummary> CoreComponentDetails = new List<DemoRunComponentSummary>();
+        public List<string> NewUnlocks = new List<string>();
+
+        public float TotalDurationSeconds => DurationSeconds;
+
+        public void Normalize()
+        {
+            FailureNodeId = FailureNodeId ?? string.Empty;
+            FailureNodeName = FailureNodeName ?? string.Empty;
+            FailureNodeType = FailureNodeType ?? string.Empty;
+            MainGongfaId = MainGongfaId ?? string.Empty;
+            MainGongfaName = MainGongfaName ?? string.Empty;
+            CoreArtifactId = CoreArtifactId ?? string.Empty;
+            CoreArtifactName = CoreArtifactName ?? string.Empty;
+            RouteHistory = RouteHistory ?? new List<DemoRunRouteSummary>();
+            CompletedNodeHistory = CompletedNodeHistory ?? new List<DemoRunNodeSummary>();
+            CoreComponents = CoreComponents ?? new List<string>();
+            CoreComponentDetails = CoreComponentDetails ?? new List<DemoRunComponentSummary>();
+            NewUnlocks = NewUnlocks ?? new List<string>();
+
+            for (int i = 0; i < RouteHistory.Count; i++)
+            {
+                DemoRunRouteSummary route = RouteHistory[i];
+                if (route == null)
+                {
+                    RouteHistory[i] = new DemoRunRouteSummary();
+                    continue;
+                }
+
+                route.RouteId = route.RouteId ?? string.Empty;
+                route.RouteName = route.RouteName ?? string.Empty;
+                route.Risk = route.Risk ?? string.Empty;
+                route.NodeSequence = route.NodeSequence ?? new List<DemoRunNodeSummary>();
+            }
+        }
     }
 
     [Serializable]
@@ -44,6 +114,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 return false;
             }
 
+            summary.Normalize();
             CompletedRuns++;
             if (!summary.DefeatedBoss)
             {
