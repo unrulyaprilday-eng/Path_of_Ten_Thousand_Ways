@@ -1,0 +1,7 @@
+event_id,name,scene_id,act_index,is_critical,required_story_flag_id
+event_miner_spirit_first,契索下的微光,scene_old_mine_miner_spirit_001,1,true,
+event_old_contract_trace,矿壁旧契,scene_old_mine_contract_wall_001,1,true,
+event_miner_spirit_return,塌井再会,scene_old_mine_miner_spirit_002,2,true,
+event_thunder_vein,井底雷髓,scene_old_mine_thunder_vein_001,2,false,
+event_old_contract_truth,祭炼真相,scene_old_mine_contract_truth_001,2,true,
+event_sword_furnace_contract,剑炉断契,scene_old_mine_sword_furnace_001,3,true,experience_old_contract_truth

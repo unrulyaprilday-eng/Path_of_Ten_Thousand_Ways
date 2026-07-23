@@ -1,0 +1,4 @@
+method_id,level,energy_regen_multiplier,recovery_amount,artifact_cooldown_multiplier,rules_text
+practice_branch_breathing,1,1.00,4,1.00,每轮可用吐纳归息稳定气血
+practice_branch_breathing,2,1.10,6,0.94,吐纳后加快下一次残剑胚自动攻击
+practice_branch_breathing,3,1.18,8,0.88,溢出的恢复转为短暂护体

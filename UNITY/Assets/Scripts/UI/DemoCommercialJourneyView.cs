@@ -16,14 +16,14 @@ namespace PathOfTenThousandWays.Demo.UI
     public sealed class DemoCommercialJourneyView : MonoBehaviour
     {
         private const string SceneResourcePath = "Art/Scenes/scene_battle_old_mine_entry_001";
-        private const string BossResourcePath = "Art/Boss/boss_tianjie_halfbody_001";
+        private const string BossResourcePath = "Art/Boss/boss_xuantie_mine_sword_puppet_001";
         private const string NormalEnemyResourcePath = "Art/Characters/char_enemy_old_mine_wraith_battle_003";
 
-        private static readonly Color Ink = new Color(0.15f, 0.13f, 0.10f, 1f);
-        private static readonly Color SoftInk = new Color(0.31f, 0.29f, 0.24f, 1f);
-        private static readonly Color FaintInk = new Color(0.48f, 0.45f, 0.37f, 1f);
-        private static readonly Color Paper = new Color(0.965f, 0.945f, 0.875f, 0.97f);
-        private static readonly Color PaperWash = new Color(0.94f, 0.92f, 0.85f, 0.89f);
+        private static readonly Color Ink = new Color(0.063f, 0.082f, 0.082f, 1f);
+        private static readonly Color SoftInk = new Color(0.22f, 0.27f, 0.26f, 1f);
+        private static readonly Color FaintInk = new Color(0.40f, 0.46f, 0.45f, 1f);
+        private static readonly Color Paper = new Color(0.93f, 0.95f, 0.94f, 0.97f);
+        private static readonly Color PaperWash = new Color(0.88f, 0.91f, 0.90f, 0.58f);
         private static readonly Color Gold = new Color(0.64f, 0.48f, 0.22f, 1f);
         private static readonly Color Cinnabar = new Color(0.65f, 0.23f, 0.18f, 1f);
         private static readonly Color Jade = new Color(0.24f, 0.49f, 0.43f, 1f);
@@ -94,24 +94,25 @@ namespace PathOfTenThousandWays.Demo.UI
             BuildPageChrome(snapshot.Phase);
             switch (snapshot.Phase)
             {
+                case DemoFlowPhase.OpeningStory:
+                    BuildOpeningStory();
+                    break;
+                case DemoFlowPhase.RegionChoice:
+                    BuildRegionChoice();
+                    break;
                 case DemoFlowPhase.JourneyMap:
                     BuildJourneyMap();
                     break;
                 case DemoFlowPhase.NodeScene:
                 case DemoFlowPhase.Breakthrough:
-                    BuildJourneyNodeScene(snapshot.Phase == DemoFlowPhase.Breakthrough);
-                    break;
-                case DemoFlowPhase.RewardChoice:
-                case DemoFlowPhase.Training:
-                case DemoFlowPhase.Preparation:
-                    BuildRewardChoice(snapshot.Phase);
-                    break;
-                case DemoFlowPhase.RouteChoice:
-                    BuildRouteChoice();
+                    BuildJourneyChoiceScene(snapshot.Phase == DemoFlowPhase.Breakthrough);
                     break;
                 case DemoFlowPhase.EncounterIntro:
                 case DemoFlowPhase.BossGate:
                     BuildEncounter(snapshot.Phase == DemoFlowPhase.BossGate);
+                    break;
+                case DemoFlowPhase.BattleOutcome:
+                    BuildBattleOutcome();
                     break;
                 case DemoFlowPhase.RunResult:
                     BuildRunResult();
@@ -137,7 +138,8 @@ namespace PathOfTenThousandWays.Demo.UI
             RectTransform background = CreatePanel(contentRoot, "Scene", Vector2.zero, Vector2.one, Color.white);
             ApplySprite(background.GetComponent<Image>(), LoadSprite(SceneResourcePath), Color.white, false);
             CreatePanel(contentRoot, "PaperWash", Vector2.zero, Vector2.one, PaperWash);
-            CreatePanel(contentRoot, "TopWash", new Vector2(0f, 0.79f), Vector2.one, new Color(0.98f, 0.96f, 0.90f, 0.94f));
+            CreatePanel(contentRoot, "ColdInkVeil", Vector2.zero, Vector2.one, new Color(0.08f, 0.12f, 0.12f, 0.06f));
+            CreatePanel(contentRoot, "TopWash", new Vector2(0f, 0.79f), Vector2.one, new Color(0.94f, 0.97f, 0.96f, 0.86f));
             RectTransform topRule = CreatePanel(contentRoot, "TopRule", new Vector2(0f, 0.79f), new Vector2(1f, 0.79f), new Color(Gold.r, Gold.g, Gold.b, 0.42f));
             topRule.offsetMin = new Vector2(72f, -1f);
             topRule.offsetMax = new Vector2(-72f, 1f);
@@ -168,13 +170,13 @@ namespace PathOfTenThousandWays.Demo.UI
         private void BuildRunSummaryStrip()
         {
             DemoRunState run = controller.Run;
-            string gongfa = run.MainGongfa == DemoGongfaType.None
-                ? "未定"
-                : DemoGongfaLibrary.Get(run.MainGongfa).Name;
-            string artifact = run.Artifacts.Count == 0
-                ? "未得"
-                : DemoArtifactLibrary.Get(run.Artifacts[0]).Name;
-            string summary = $"气血  {run.CurrentHealth}/{run.MaxHealth}     牌组  {run.Deck.Count}     主修  {gongfa}     法器  {artifact}";
+            string practice = DemoConfigRepository.TryGetCorePractice(run.CorePractice.DefinitionId, out DemoCorePracticeDefinition practiceDefinition)
+                ? practiceDefinition.Name + " " + Mathf.Max(1, run.CorePractice.Level) + "阶"
+                : "旁支吐纳法";
+            string artifact = DemoConfigRepository.TryGetInnateArtifact(run.InnateArtifact.DefinitionId, out DemoInnateArtifactConfig artifactDefinition)
+                ? artifactDefinition.Name + " · 炼形" + Mathf.Max(1, run.InnateArtifact.RefinementStage)
+                : "残剑胚";
+            string summary = $"气血  {run.CurrentHealth}/{run.MaxHealth}     法诀  {run.Deck.Count}     心法  {practice}     本命  {artifact}";
 
             Text text = CreateText(contentRoot, "RunSummary", bodyFont, 16, FontStyle.Bold, TextAnchor.UpperRight, Ink);
             text.text = summary;
@@ -183,8 +185,12 @@ namespace PathOfTenThousandWays.Demo.UI
             text.resizeTextMaxSize = 16;
             SetFixed(text.rectTransform, Vector2.one, Vector2.one, new Vector2(-76f, -52f), new Vector2(930f, 34f));
 
-            DemoMapNode node = run.Map.CurrentNode;
-            string place = node == null ? "道途未定" : $"第 {Mathf.Max(1, node.Layer)} 层 · {node.Name}";
+            DemoJourneyNode journeyNode = controller.PendingJourneyNode;
+            string place = journeyNode != null
+                ? $"第 {journeyNode.ActIndex} 幕 · {GetJourneyNodeDisplayName(journeyNode)}"
+                : controller.HasJourneySession
+                    ? $"第 {Mathf.Clamp(controller.JourneySnapshot?.ActIndex ?? 1, 1, 3)} 幕 · 旧矿长卷"
+                    : "祖龛旧契 · 道途未定";
             Text placeText = CreateText(contentRoot, "CurrentPlace", bodyFont, 13, FontStyle.Normal, TextAnchor.UpperRight, FaintInk);
             placeText.text = place;
             SetFixed(placeText.rectTransform, Vector2.one, Vector2.one, new Vector2(-76f, -91f), new Vector2(700f, 28f));
@@ -195,7 +201,7 @@ namespace PathOfTenThousandWays.Demo.UI
             bool configuredJourney = controller.HasJourneySession;
             string[] labels = configuredJourney
                 ? new[] { "矿门", "浅层", "铁脊", "塌井", "筑基", "剑炉", "剑傀" }
-                : new[] { "首战", "战后", "一层", "二层", "三层", "天劫", "结算" };
+                : new[] { "祖龛", "所携", "所往", "入矿", "历练", "剑炉", "归卷" };
             int active = GetProgressIndex(phase);
             float left = 96f;
             float width = 1728f;
@@ -219,6 +225,353 @@ namespace PathOfTenThousandWays.Demo.UI
             }
         }
 
+        private void BuildOpeningStory()
+        {
+            Text chapter = CreateText(contentRoot, "OpeningChapter", bodyFont, 14, FontStyle.Bold, TextAnchor.UpperLeft, Cinnabar);
+            chapter.text = "祖龛坍塌之夜";
+            SetFixed(chapter.rectTransform, Vector2.up, Vector2.up, new Vector2(120f, -286f), new Vector2(760f, 28f));
+
+            Text title = CreateText(contentRoot, "OpeningTitle", titleFont, 44, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
+            title.text = "残剑应契";
+            SetFixed(title.rectTransform, Vector2.up, Vector2.up, new Vector2(116f, -324f), new Vector2(760f, 64f));
+
+            Text story = CreateText(contentRoot, "OpeningNarrative", bodyFont, 19, FontStyle.Normal, TextAnchor.UpperLeft, SoftInk);
+            story.text =
+                "祖龛在异动中坍塌，旁支旧契从断木与尘灰间显出朱砂余痕。案台下只剩一枚残剑胚，与你腕上的旧痕同时发热。\n\n" +
+                "族中无人替你解释这份来历。你拾起剑胚，旁支吐纳法与一式残缺御剑诀随共鸣归入识海；矿契指向的旧矿，也在墨迹中重新显形。";
+            SetFixed(story.rectTransform, Vector2.up, Vector2.up, new Vector2(120f, -405f), new Vector2(820f, 230f));
+
+            RectTransform origin = CreateFixedPanel(
+                contentRoot, "OpeningOrigin", new Vector2(1f, 1f), new Vector2(1f, 1f),
+                new Vector2(-120f, -286f), new Vector2(700f, 430f), new Color(0.93f, 0.95f, 0.94f, 0.78f));
+            CreateBorder(origin, new Color(Ink.r, Ink.g, Ink.b, 0.16f), 1f);
+
+            Text originTitle = CreateText(origin, "OriginTitle", titleFont, 25, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
+            originTitle.text = "这一世从何而来";
+            SetAnchors(originTitle.rectTransform, new Vector2(0.07f, 0.82f), new Vector2(0.93f, 0.95f));
+
+            BuildOpeningGift(origin, 0.66f, "根脚", "世家旁支", "旧契不是职业标签，而是你必须亲自查清的来历。", Cinnabar);
+            BuildOpeningGift(origin, 0.46f, "本命法器", "残剑胚", "独立冷却自动出剑；炼形会改变攻击与承载方式。", Jade);
+            BuildOpeningGift(origin, 0.26f, "一阶心法", "旁支吐纳法 · 吐纳归息", "稳住灵气循环，并保留一门偏回复的心诀。", Azure);
+            BuildOpeningGift(origin, 0.06f, "初始剑诀", "残卷御剑式", "开局两门主动法诀之一，另一门来自心法。", Gold);
+
+            CreateActionButton(
+                contentRoot,
+                "CompleteOpeningStory",
+                new Vector2(0.34f, 0f),
+                new Vector2(0.5f, 0f),
+                new Vector2(0f, 58f),
+                new Vector2(430f, 70f),
+                "拾起残剑胚 · 应下旧契",
+                Cinnabar,
+                true,
+                CompleteOpeningStory);
+        }
+
+        private void BuildOpeningGift(RectTransform parent, float normalizedY, string label, string name, string description, Color accent)
+        {
+            RectTransform mark = CreateFixedPanel(
+                parent, "GiftMark_" + label, new Vector2(0.08f, normalizedY), new Vector2(0.5f, 0.5f),
+                Vector2.zero, new Vector2(8f, 52f), new Color(accent.r, accent.g, accent.b, 0.78f));
+            mark.GetComponent<Image>().raycastTarget = false;
+
+            Text labelText = CreateText(parent, "GiftLabel_" + label, bodyFont, 12, FontStyle.Bold, TextAnchor.UpperLeft, accent);
+            labelText.text = label;
+            SetFixed(labelText.rectTransform, new Vector2(0.12f, normalizedY), new Vector2(0f, 0.5f), Vector2.zero, new Vector2(150f, 22f));
+
+            Text nameText = CreateText(parent, "GiftName_" + label, titleFont, 19, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
+            nameText.text = name;
+            SetFixed(nameText.rectTransform, new Vector2(0.32f, normalizedY), new Vector2(0f, 0.5f), Vector2.zero, new Vector2(300f, 28f));
+
+            Text detail = CreateText(parent, "GiftDetail_" + label, bodyFont, 13, FontStyle.Normal, TextAnchor.UpperLeft, SoftInk);
+            detail.text = description;
+            SetFixed(detail.rectTransform, new Vector2(0.12f, normalizedY), new Vector2(0f, 1f), new Vector2(0f, -23f), new Vector2(560f, 42f));
+        }
+
+        private void BuildRegionChoice()
+        {
+            List<DemoReward> regions = controller.CurrentRewards
+                .Where(reward => reward != null && reward.Type == DemoRewardType.OpeningScene && reward.Region != null)
+                .ToList();
+
+            Text lead = CreateText(contentRoot, "RegionLead", bodyFont, 17, FontStyle.Bold, TextAnchor.MiddleCenter, Jade);
+            lead.text = "残剑胚的共鸣展开旧图。所往另选，但当前只踏入一处大境域并把这条线走透。";
+            SetFixed(lead.rectTransform, Vector2.up, Vector2.up, new Vector2(0f, -268f), new Vector2(1420f, 42f));
+
+            if (regions.Count == 0)
+            {
+                Text unavailable = CreateText(contentRoot, "RegionUnavailable", bodyFont, 20, FontStyle.Normal, TextAnchor.MiddleCenter, SoftInk);
+                unavailable.text = "矿契仍在显形，暂时没有可进入的境域。";
+                Stretch(unavailable.rectTransform, new Vector2(120f, 300f), new Vector2(-120f, -170f));
+                return;
+            }
+
+            float width = regions.Count == 1 ? 760f : Mathf.Min(500f, 1500f / regions.Count - 28f);
+            float total = width * regions.Count + 28f * (regions.Count - 1);
+            for (int i = 0; i < regions.Count; i++)
+            {
+                DemoReward reward = regions[i];
+                float x = -total * 0.5f + width * 0.5f + i * (width + 28f);
+                BuildRegionCard(reward, i, x, width);
+            }
+        }
+
+        private void BuildRegionCard(DemoReward reward, int rewardIndex, float x, float width)
+        {
+            bool available = reward.Region.IsAvailable;
+            Color accent = available ? Jade : FaintInk;
+            RectTransform card = CreateFixedPanel(
+                contentRoot, "RegionChoice_" + reward.Region.Id, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(x, -62f), new Vector2(width, 470f), new Color(0.92f, 0.95f, 0.94f, available ? 0.92f : 0.64f));
+            CreateBorder(card, new Color(accent.r, accent.g, accent.b, available ? 0.72f : 0.24f), available ? 2f : 1f);
+
+            string regionArtId = (reward.Region.Id ?? string.Empty).Replace("region_", string.Empty);
+            RectTransform sceneArt = CreatePanel(card, "SceneArt", new Vector2(0f, 0.43f), Vector2.one, Color.clear);
+            ApplySprite(
+                sceneArt.GetComponent<Image>(),
+                LoadSprite("Art/UI/ui_opening_scene_" + regionArtId + "_001"),
+                available ? new Color(1f, 1f, 1f, 0.72f) : new Color(0.72f, 0.74f, 0.72f, 0.34f),
+                false);
+            CreatePanel(card, "SceneArtWash", new Vector2(0f, 0.43f), Vector2.one, new Color(0.92f, 0.95f, 0.94f, 0.24f));
+            CreatePanel(card, "DescriptionPaper", Vector2.zero, new Vector2(1f, 0.48f), new Color(0.93f, 0.95f, 0.94f, 0.94f));
+
+            Image image = card.GetComponent<Image>();
+            image.raycastTarget = available;
+            if (available)
+            {
+                Button button = card.gameObject.AddComponent<Button>();
+                button.targetGraphic = image;
+                button.interactable = true;
+                ConfigureChoiceButton(button);
+                button.onClick.AddListener(() => ClaimRegion(rewardIndex));
+            }
+
+            Text status = CreateText(card, "Status", bodyFont, 12, FontStyle.Bold, TextAnchor.UpperLeft, accent);
+            status.text = available ? "本次可往" : "远景未启";
+            SetAnchors(status.rectTransform, new Vector2(0.07f, 0.85f), new Vector2(0.93f, 0.94f));
+
+            Text name = CreateText(card, "Name", titleFont, 30, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
+            name.text = reward.Region.Name;
+            name.resizeTextForBestFit = true;
+            name.resizeTextMinSize = 22;
+            name.resizeTextMaxSize = 30;
+            SetAnchors(name.rectTransform, new Vector2(0.07f, 0.68f), new Vector2(0.93f, 0.84f));
+
+            Text description = CreateText(card, "Description", bodyFont, 16, FontStyle.Normal, TextAnchor.UpperLeft, SoftInk);
+            description.text = reward.Region.Description;
+            SetAnchors(description.rectTransform, new Vector2(0.07f, 0.22f), new Vector2(0.93f, 0.42f));
+            description.horizontalOverflow = HorizontalWrapMode.Wrap;
+            description.verticalOverflow = VerticalWrapMode.Truncate;
+
+            Text route = CreateText(card, "RoutePromise", bodyFont, 13, FontStyle.Bold, TextAnchor.UpperLeft, available ? Gold : FaintInk);
+            route.text = available ? "三幕纵深 · 两处怪兽守关 · 剑炉终战" : "此境因果尚未启封";
+            SetAnchors(route.rectTransform, new Vector2(0.07f, 0.13f), new Vector2(0.93f, 0.21f));
+
+            Text action = CreateText(card, "Action", bodyFont, 15, FontStyle.Bold, TextAnchor.LowerLeft, available ? Jade : FaintInk);
+            action.text = available ? "循矿契进入" : "待有完整来历后开放";
+            SetAnchors(action.rectTransform, new Vector2(0.07f, 0.04f), new Vector2(0.93f, 0.12f));
+        }
+
+        private void BuildJourneyChoiceScene(bool breakthrough)
+        {
+            DemoJourneyNode node = controller.PendingJourneyNode;
+            IReadOnlyList<DemoJourneyChoice> choices = controller.CurrentJourneyChoices;
+            if (node == null)
+            {
+                Text unavailable = CreateText(contentRoot, "NodeUnavailable", bodyFont, 20, FontStyle.Normal, TextAnchor.MiddleCenter, SoftInk);
+                unavailable.text = "此处场景已散入矿雾。";
+                Stretch(unavailable.rectTransform, new Vector2(80f, 230f), new Vector2(-80f, -120f));
+                return;
+            }
+
+            Color accent = breakthrough ? Gold : GetJourneyNodeAccent(node.Type);
+            Text location = CreateText(contentRoot, "ChoiceLocation", bodyFont, 13, FontStyle.Bold, TextAnchor.MiddleCenter, accent);
+            location.text = $"第 {node.ActIndex} 幕 · 纵深 {node.DepthIndex + 1} · {GetJourneyNodeTypeLabel(node.Type)}";
+            SetFixed(location.rectTransform, Vector2.up, Vector2.up, new Vector2(0f, -256f), new Vector2(1180f, 30f));
+
+            Text title = CreateText(contentRoot, "ChoiceSceneTitle", titleFont, 34, FontStyle.Bold, TextAnchor.MiddleCenter, Ink);
+            title.text = breakthrough ? "旧矿灵眼 · 以此筑基" : GetJourneyNodeDisplayName(node);
+            SetFixed(title.rectTransform, Vector2.up, Vector2.up, new Vector2(0f, -290f), new Vector2(1180f, 52f));
+
+            Text narrative = CreateText(contentRoot, "ChoiceSceneNarrative", bodyFont, 16, FontStyle.Normal, TextAnchor.UpperCenter, SoftInk);
+            narrative.text = BuildJourneyNodeNarrative(node, breakthrough);
+            SetFixed(narrative.rectTransform, Vector2.up, Vector2.up, new Vector2(0f, -350f), new Vector2(1320f, 82f));
+
+            if (choices == null || choices.Count == 0)
+            {
+                Text missing = CreateText(contentRoot, "ChoiceMissing", bodyFont, 18, FontStyle.Bold, TextAnchor.MiddleCenter, Cinnabar);
+                missing.text = "此处尚未生成可提交的场景选择。";
+                Stretch(missing.rectTransform, new Vector2(100f, 470f), new Vector2(-100f, -180f));
+                return;
+            }
+
+            BuildJourneyChoiceGrid(choices, -116f, 318f);
+        }
+
+        private void BuildJourneyChoiceGrid(IReadOnlyList<DemoJourneyChoice> choices, float centerY, float height)
+        {
+            int count = Mathf.Clamp(choices.Count, 1, 5);
+            if (count == 1)
+            {
+                height = Mathf.Min(height, 244f);
+            }
+
+            float gap = count >= 4 ? 20f : 28f;
+            float width = count == 1 ? 880f : count == 2 ? 590f : Mathf.Min(440f, (1600f - gap * (count - 1)) / count);
+            float total = width * count + gap * (count - 1);
+            for (int i = 0; i < count; i++)
+            {
+                DemoJourneyChoice choice = choices[i];
+                float x = -total * 0.5f + width * 0.5f + i * (width + gap);
+                BuildJourneyChoiceCard(choice, x, centerY, width, height);
+            }
+        }
+
+        private void BuildJourneyChoiceCard(DemoJourneyChoice choice, float x, float y, float width, float height)
+        {
+            Color accent = GetJourneyChoiceAccent(choice.Kind);
+            RectTransform card = CreateFixedPanel(
+                contentRoot, "JourneyChoice_" + choice.ChoiceId, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(x, y), new Vector2(width, height), new Color(0.925f, 0.945f, 0.935f, 0.94f));
+            CreateBorder(card, new Color(accent.r, accent.g, accent.b, choice.IsRecommended ? 0.92f : 0.56f), choice.IsRecommended ? 3f : 1.5f);
+            Image image = card.GetComponent<Image>();
+            image.raycastTarget = true;
+            Button button = card.gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            ConfigureChoiceButton(button);
+            string choiceId = choice.ChoiceId;
+            button.onClick.AddListener(() => ChooseJourneyOption(choiceId));
+
+            Text sigil = CreateText(card, "ChoiceSigil", titleFont, 96, FontStyle.Bold, TextAnchor.MiddleRight, new Color(accent.r, accent.g, accent.b, 0.075f));
+            sigil.text = GetJourneyChoiceGlyph(choice.Kind);
+            SetAnchors(sigil.rectTransform, new Vector2(0.48f, 0.12f), new Vector2(0.94f, 0.65f));
+            sigil.raycastTarget = false;
+
+            Text kind = CreateText(card, "Kind", bodyFont, 12, FontStyle.Bold, TextAnchor.UpperLeft, accent);
+            kind.text = GetJourneyChoiceKindLabel(choice.Kind) + (choice.IsRecommended ? " · 契合此世" : string.Empty);
+            SetAnchors(kind.rectTransform, new Vector2(0.07f, 0.84f), new Vector2(0.93f, 0.94f));
+
+            Text title = CreateText(card, "Title", titleFont, 24, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
+            title.text = choice.Title;
+            title.resizeTextForBestFit = true;
+            title.resizeTextMinSize = 18;
+            title.resizeTextMaxSize = 24;
+            SetAnchors(title.rectTransform, new Vector2(0.07f, 0.66f), new Vector2(0.93f, 0.83f));
+
+            Text description = CreateText(card, "Description", bodyFont, 15, FontStyle.Normal, TextAnchor.UpperLeft, SoftInk);
+            description.text = choice.Description;
+            SetAnchors(description.rectTransform, new Vector2(0.07f, 0.36f), new Vector2(0.93f, 0.64f));
+            description.horizontalOverflow = HorizontalWrapMode.Wrap;
+            description.verticalOverflow = VerticalWrapMode.Truncate;
+
+            RectTransform rule = CreatePanel(card, "ChoiceRule", new Vector2(0.07f, 0.31f), new Vector2(0.93f, 0.315f), new Color(accent.r, accent.g, accent.b, 0.38f));
+            rule.GetComponent<Image>().raycastTarget = false;
+
+            Text consequence = CreateText(card, "Consequence", bodyFont, 14, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
+            consequence.text = choice.Consequence;
+            SetAnchors(consequence.rectTransform, new Vector2(0.07f, 0.08f), new Vector2(0.93f, 0.28f));
+            consequence.horizontalOverflow = HorizontalWrapMode.Wrap;
+            consequence.verticalOverflow = VerticalWrapMode.Truncate;
+        }
+
+        private static string GetJourneyChoiceGlyph(DemoJourneyChoiceKind kind)
+        {
+            switch (kind)
+            {
+                case DemoJourneyChoiceKind.Cultivation:
+                    return "修";
+                case DemoJourneyChoiceKind.Secret:
+                    return "秘";
+                case DemoJourneyChoiceKind.Refinement:
+                    return "炼";
+                case DemoJourneyChoiceKind.Breakthrough:
+                    return "基";
+                case DemoJourneyChoiceKind.Story:
+                    return "因";
+                default:
+                    return "行";
+            }
+        }
+
+        private void BuildBattleOutcome()
+        {
+            IReadOnlyList<DemoJourneyChoice> choices = controller.CurrentJourneyChoices;
+            Text mark = CreateText(contentRoot, "BattleOutcomeMark", titleFont, 112, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(Jade.r, Jade.g, Jade.b, 0.12f));
+            mark.text = "破";
+            SetFixed(mark.rectTransform, new Vector2(0.24f, 0.52f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(280f, 280f));
+
+            Text title = CreateText(contentRoot, "BattleOutcomeTitle", titleFont, 38, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
+            title.text = "战痕归卷";
+            SetFixed(title.rectTransform, new Vector2(0.43f, 0.68f), Vector2.up, Vector2.zero, new Vector2(780f, 58f));
+
+            Text body = CreateText(contentRoot, "BattleOutcomeBody", bodyFont, 18, FontStyle.Normal, TextAnchor.UpperLeft, SoftInk);
+            body.text = "此战的损耗、所得线索与小 Boss 因果已经写入长卷。这里不发放悬空的通用三选一；只有战场真实留下的事物，才会成为可提交的后续。";
+            SetFixed(body.rectTransform, new Vector2(0.43f, 0.68f), Vector2.up, new Vector2(0f, -78f), new Vector2(820f, 120f));
+
+            if (choices != null && choices.Count > 0)
+            {
+                BuildJourneyChoiceGrid(choices, -168f, 300f);
+            }
+        }
+
+        private void CompleteOpeningStory()
+        {
+            renderedSignature = string.Empty;
+            controller.CompleteOpeningStory();
+            RefreshNow();
+        }
+
+        private void ClaimRegion(int rewardIndex)
+        {
+            renderedSignature = string.Empty;
+            controller.ClaimRewardAt(rewardIndex);
+            RefreshNow();
+        }
+
+        private void ChooseJourneyOption(string choiceId)
+        {
+            renderedSignature = string.Empty;
+            controller.ChooseJourneyOption(choiceId);
+            RefreshNow();
+        }
+
+        private static Color GetJourneyChoiceAccent(DemoJourneyChoiceKind kind)
+        {
+            switch (kind)
+            {
+                case DemoJourneyChoiceKind.Cultivation:
+                    return Jade;
+                case DemoJourneyChoiceKind.Secret:
+                case DemoJourneyChoiceKind.Refinement:
+                    return Gold;
+                case DemoJourneyChoiceKind.Breakthrough:
+                    return Azure;
+                case DemoJourneyChoiceKind.Story:
+                    return Cinnabar;
+                default:
+                    return SoftInk;
+            }
+        }
+
+        private static string GetJourneyChoiceKindLabel(DemoJourneyChoiceKind kind)
+        {
+            switch (kind)
+            {
+                case DemoJourneyChoiceKind.Cultivation:
+                    return "修炼";
+                case DemoJourneyChoiceKind.Secret:
+                    return "秘藏";
+                case DemoJourneyChoiceKind.Refinement:
+                    return "炼形";
+                case DemoJourneyChoiceKind.Breakthrough:
+                    return "筑基";
+                case DemoJourneyChoiceKind.Story:
+                    return "因果";
+                default:
+                    return "继续";
+            }
+        }
+
         private void BuildJourneyMap()
         {
             DemoJourneyGraph graph = controller.JourneyGraph;
@@ -236,6 +589,12 @@ namespace PathOfTenThousandWays.Demo.UI
             HashSet<string> frontier = new HashSet<string>(snapshot.ReachableNodeIds ?? new List<string>(), StringComparer.Ordinal);
             List<DemoJourneyNode> actNodes = graph.GetActNodes(act).ToList();
             Dictionary<string, Vector2> positions = new Dictionary<string, Vector2>(StringComparer.Ordinal);
+            int maximumDepth = Mathf.Max(1, actNodes.Count == 0 ? 1 : actNodes.Max(node => node.DepthIndex));
+            int completedDepth = actNodes
+                .Where(node => completed.Contains(node.NodeId))
+                .Select(node => node.DepthIndex)
+                .DefaultIfEmpty(-1)
+                .Max();
 
             Text guidance = CreateText(contentRoot, "JourneyGuidance", bodyFont, 15, FontStyle.Bold, TextAnchor.MiddleCenter, Jade);
             guidance.text = "墨迹自下向上延伸。亮起之处可进入，未显之路只保留矿脉轮廓。";
@@ -246,10 +605,10 @@ namespace PathOfTenThousandWays.Demo.UI
                 "JourneyMapWash",
                 new Vector2(0.06f, 0.075f),
                 new Vector2(0.94f, 0.765f),
-                new Color(0.94f, 0.93f, 0.88f, 0.34f));
-            CreateBorder(mapWash, new Color(Ink.r, Ink.g, Ink.b, 0.14f), 1f);
+                new Color(0.72f, 0.79f, 0.77f, 0.24f));
+            CreateBorder(mapWash, new Color(Ink.r, Ink.g, Ink.b, 0.22f), 1.5f);
 
-            for (int depth = 0; depth < 8; depth++)
+            for (int depth = 0; depth <= maximumDepth; depth++)
             {
                 List<DemoJourneyNode> layer = actNodes
                     .Where(node => node.DepthIndex == depth)
@@ -257,9 +616,9 @@ namespace PathOfTenThousandWays.Demo.UI
                     .ToList();
                 for (int index = 0; index < layer.Count; index++)
                 {
-                    float spacing = 270f;
+                    float spacing = 390f;
                     float x = (index - (layer.Count - 1) * 0.5f) * spacing;
-                    float y = -742f + depth * 72f;
+                    float y = -674f + depth * (548f / maximumDepth);
                     positions[layer[index].NodeId] = new Vector2(x, y);
                 }
             }
@@ -274,14 +633,24 @@ namespace PathOfTenThousandWays.Demo.UI
 
                 bool travelled = completed.Contains(edge.FromNodeId)
                     && (completed.Contains(edge.ToNodeId) || frontier.Contains(edge.ToNodeId));
-                CreateJourneyMapEdge(mapWash, from, to, travelled ? Jade : new Color(Ink.r, Ink.g, Ink.b, 0.16f), travelled ? 4f : 2f);
+                float horizontalTravel = Mathf.Abs(to.x - from.x);
+                bool quietBranch = horizontalTravel <= 210f
+                    || (Mathf.Abs(from.x) <= 1f && Mathf.Abs(to.x) <= 410f)
+                    || (Mathf.Abs(to.x) <= 1f && Mathf.Abs(from.x) <= 410f);
+                if (!travelled && !quietBranch)
+                {
+                    continue;
+                }
+
+                CreateJourneyMapEdge(mapWash, from, to, travelled ? Jade : new Color(Ink.r, Ink.g, Ink.b, 0.20f), travelled ? 5f : 2.5f);
             }
 
             foreach (DemoJourneyNode node in actNodes.OrderBy(item => item.DepthIndex).ThenBy(item => item.LaneIndex))
             {
                 bool isCompleted = completed.Contains(node.NodeId);
                 bool isReachable = frontier.Contains(node.NodeId) && !isCompleted;
-                BuildJourneyMapNode(mapWash, node, positions[node.NodeId], isCompleted, isReachable);
+                bool isClosed = !isCompleted && !isReachable && node.DepthIndex <= completedDepth;
+                BuildJourneyMapNode(mapWash, node, positions[node.NodeId], isCompleted, isReachable, isClosed);
             }
 
             Text actMark = CreateText(mapWash, "ActMark", titleFont, 56, FontStyle.Bold, TextAnchor.UpperLeft, new Color(Ink.r, Ink.g, Ink.b, 0.075f));
@@ -290,7 +659,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             Text progress = CreateText(mapWash, "ActProgress", bodyFont, 14, FontStyle.Bold, TextAnchor.UpperRight, SoftInk);
             int completedInAct = actNodes.Count(node => completed.Contains(node.NodeId));
-            progress.text = $"本幕已行 {completedInAct}/8    全程 {snapshot.CompletedNodeIds.Count}/24";
+            progress.text = $"本幕已行 {completedInAct}/{maximumDepth + 1}    全程已过 {snapshot.CompletedNodeIds.Count} 节";
             SetFixed(progress.rectTransform, Vector2.one, Vector2.one, new Vector2(-34f, -28f), new Vector2(520f, 32f));
 
             if (!string.IsNullOrWhiteSpace(controller.JourneyError))
@@ -320,15 +689,18 @@ namespace PathOfTenThousandWays.Demo.UI
             DemoJourneyNode node,
             Vector2 position,
             bool completed,
-            bool reachable)
+            bool reachable,
+            bool closed)
         {
             Color accent = GetJourneyNodeAccent(node.Type);
-            float size = node.Type == DemoJourneyNodeType.Boss ? 76f : node.Type == DemoJourneyNodeType.MiniBoss ? 66f : 54f;
+            float size = node.Type == DemoJourneyNodeType.Boss ? 104f : node.Type == DemoJourneyNodeType.MiniBoss ? 88f : 72f;
             Color surface = completed
                 ? new Color(Ink.r, Ink.g, Ink.b, 0.84f)
                 : reachable
                     ? Color.Lerp(Paper, accent, 0.20f)
-                    : new Color(0.76f, 0.75f, 0.70f, 0.48f);
+                    : closed
+                        ? new Color(0.50f, 0.55f, 0.54f, 0.32f)
+                        : new Color(0.78f, 0.82f, 0.81f, 0.42f);
             RectTransform mark = CreateFixedPanel(
                 parent,
                 "JourneyNode_" + node.NodeId,
@@ -350,84 +722,21 @@ namespace PathOfTenThousandWays.Demo.UI
                 button.onClick.AddListener(() => SelectJourneyMapNode(capturedNodeId));
             }
 
-            Text glyph = CreateText(mark, "Glyph", titleFont, node.Type == DemoJourneyNodeType.Boss ? 28 : 22, FontStyle.Bold, TextAnchor.MiddleCenter, completed ? Paper : Ink);
+            Text glyph = CreateText(mark, "Glyph", titleFont, node.Type == DemoJourneyNodeType.Boss ? 34 : 25, FontStyle.Bold, TextAnchor.MiddleCenter, completed ? Paper : Ink);
             glyph.text = GetJourneyNodeGlyph(node.Type);
             Stretch(glyph.rectTransform, new Vector2(3f, 3f), new Vector2(-3f, -3f));
 
-            Text label = CreateText(parent, "JourneyLabel_" + node.NodeId, bodyFont, 12, reachable ? FontStyle.Bold : FontStyle.Normal, TextAnchor.UpperCenter, reachable ? Ink : FaintInk);
-            label.text = GetJourneyNodeDisplayName(node);
-            SetFixed(label.rectTransform, new Vector2(0.5f, 1f), Vector2.up, position + new Vector2(0f, -size * 0.55f - 7f), new Vector2(210f, 36f));
-        }
-
-        private void BuildJourneyNodeScene(bool breakthrough)
-        {
-            DemoJourneyNode node = controller.PendingJourneyNode;
-            if (node == null)
-            {
-                Text unavailable = CreateText(contentRoot, "NodeUnavailable", bodyFont, 20, FontStyle.Normal, TextAnchor.MiddleCenter, SoftInk);
-                unavailable.text = "此处场景已散入矿雾。";
-                Stretch(unavailable.rectTransform, new Vector2(80f, 230f), new Vector2(-80f, -120f));
-                return;
-            }
-
-            Color accent = breakthrough ? Gold : GetJourneyNodeAccent(node.Type);
-            Text glyph = CreateText(contentRoot, "NodeGlyph", titleFont, 128, FontStyle.Bold, TextAnchor.MiddleCenter, new Color(accent.r, accent.g, accent.b, 0.16f));
-            glyph.text = GetJourneyNodeGlyph(node.Type);
-            SetFixed(glyph.rectTransform, new Vector2(0.24f, 0.52f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(310f, 310f));
-
-            Text title = CreateText(contentRoot, "NodeTitle", titleFont, breakthrough ? 42 : 34, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
-            title.text = breakthrough ? "旧矿灵眼 · 以此筑基" : GetJourneyNodeDisplayName(node);
-            title.resizeTextForBestFit = true;
-            title.resizeTextMinSize = 25;
-            title.resizeTextMaxSize = breakthrough ? 42 : 34;
-            SetFixed(title.rectTransform, new Vector2(0.44f, 0.68f), Vector2.up, Vector2.zero, new Vector2(820f, 70f));
-
-            Text location = CreateText(contentRoot, "NodeLocation", bodyFont, 14, FontStyle.Bold, TextAnchor.UpperLeft, accent);
-            location.text = $"第 {node.ActIndex} 幕 · 纵深 {node.DepthIndex + 1}/8 · {GetJourneyNodeTypeLabel(node.Type)}";
-            SetFixed(location.rectTransform, new Vector2(0.44f, 0.68f), Vector2.up, new Vector2(0f, -76f), new Vector2(780f, 30f));
-
-            Text narrative = CreateText(contentRoot, "NodeNarrative", bodyFont, 19, FontStyle.Normal, TextAnchor.UpperLeft, SoftInk);
-            narrative.text = BuildJourneyNodeNarrative(node, breakthrough);
-            SetFixed(narrative.rectTransform, new Vector2(0.44f, 0.68f), Vector2.up, new Vector2(0f, -122f), new Vector2(800f, 190f));
-
-            RectTransform rule = CreateFixedPanel(
-                contentRoot,
-                "NodeRule",
-                new Vector2(0.44f, 0.68f),
-                Vector2.up,
-                new Vector2(0f, -330f),
-                new Vector2(720f, 2f),
-                new Color(accent.r, accent.g, accent.b, 0.42f));
-            rule.pivot = Vector2.up;
-
-            Text consequence = CreateText(contentRoot, "NodeConsequence", bodyFont, 16, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
-            consequence.text = BuildJourneyNodeConsequence(node, breakthrough);
-            SetFixed(consequence.rectTransform, new Vector2(0.44f, 0.68f), Vector2.up, new Vector2(0f, -356f), new Vector2(780f, 92f));
-
-            CreateActionButton(
-                contentRoot,
-                "CompleteJourneyNode",
-                new Vector2(0.66f, 0f),
-                new Vector2(0.5f, 0f),
-                new Vector2(0f, 58f),
-                new Vector2(390f, 66f),
-                breakthrough ? "引气贯脉 · 筑成道基" : GetJourneyNodeActionLabel(node.Type),
-                accent,
-                true,
-                CompleteJourneyNode);
+            Text label = CreateText(parent, "JourneyLabel_" + node.NodeId, bodyFont, 13, reachable ? FontStyle.Bold : FontStyle.Normal, TextAnchor.UpperCenter, reachable ? Ink : FaintInk);
+            label.text = completed || reachable
+                ? GetJourneyNodeDisplayName(node)
+                : closed ? "此路已合" : string.Empty;
+            SetFixed(label.rectTransform, new Vector2(0.5f, 1f), Vector2.up, position + new Vector2(0f, -size * 0.55f - 6f), new Vector2(190f, 34f));
         }
 
         private void SelectJourneyMapNode(string nodeId)
         {
             renderedSignature = string.Empty;
             controller.SelectJourneyNode(nodeId);
-            RefreshNow();
-        }
-
-        private void CompleteJourneyNode()
-        {
-            renderedSignature = string.Empty;
-            controller.CompleteJourneyNode();
             RefreshNow();
         }
 
@@ -679,11 +988,11 @@ namespace PathOfTenThousandWays.Demo.UI
                 contentRoot, "EncounterAccent", new Vector2(0f, 1f), new Vector2(0f, 1f),
                 new Vector2(116f, -282f), new Vector2(4f, 514f), new Color(accent.r, accent.g, accent.b, 0.84f));
             Text preface = CreateText(contentRoot, "EncounterPreface", bodyFont, 15, FontStyle.Bold, TextAnchor.UpperLeft, accent);
-            preface.text = bossGate ? "渡劫门前 · 构筑终检" : "前情已明 · 即将交锋";
+            preface.text = bossGate ? "剑炉门前 · 构筑终检" : "前情已明 · 即将交锋";
             SetFixed(preface.rectTransform, Vector2.up, Vector2.up, new Vector2(146f, -278f), new Vector2(730f, 28f));
 
             Text enemyName = CreateText(contentRoot, "EnemyName", titleFont, bossGate ? 44 : 38, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
-            enemyName.text = enemy?.Name ?? node?.Name ?? (bossGate ? "天劫化身" : "旧矿来敌");
+            enemyName.text = enemy?.Name ?? node?.Name ?? (bossGate ? "玄铁镇矿剑傀" : "旧矿来敌");
             enemyName.resizeTextForBestFit = true;
             enemyName.resizeTextMinSize = 28;
             enemyName.resizeTextMaxSize = bossGate ? 44 : 38;
@@ -697,7 +1006,7 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             Text facts = CreateText(contentRoot, "EncounterFacts", bodyFont, 17, FontStyle.Bold, TextAnchor.UpperLeft, SoftInk);
-            facts.text = $"风险  {risk}     敌方气血  {Mathf.Max(0, enemy?.MaxHealth ?? 0)}     奖励档  {GetRewardTierLabel(rewardProfile?.Tier)}";
+            facts.text = $"风险  {risk}     敌方气血  {Mathf.Max(0, enemy?.MaxHealth ?? 0)}     {(bossGate ? "职责  终局断契" : "职责  验证当前修行")}";
             SetFixed(facts.rectTransform, Vector2.up, Vector2.up, new Vector2(146f, -392f), new Vector2(800f, 34f));
 
             Text notes = CreateText(contentRoot, "EncounterNotes", bodyFont, 17, FontStyle.Normal, TextAnchor.UpperLeft, SoftInk);
@@ -728,7 +1037,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 new Vector2(0.5f, 0f),
                 new Vector2(0f, 52f),
                 new Vector2(410f, 68f),
-                bossGate ? "引劫 · 直面天劫化身" : "入阵 · 开始此战",
+                bossGate ? "入炉 · 直面镇矿剑傀" : "入阵 · 开始此战",
                 accent,
                 controller.HasPendingEncounter,
                 BeginEncounter);
@@ -743,7 +1052,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 ? "飞剑循环能否稳定运转，并在敌方意图落下前建立优势。"
                 : profile.Description;
             Text body = CreateText(contentRoot, "EncounterPromiseBody", bodyFont, 18, FontStyle.Normal, TextAnchor.UpperLeft, SoftInk);
-            body.text = profileText + "\n\n胜后立即进入战后所得，再由新组件决定下一段前路。";
+            body.text = profileText + "\n\n胜后只记录战痕、线索与真实掉落，随后回到旧矿长卷。";
             SetFixed(body.rectTransform, Vector2.up, Vector2.up, position + new Vector2(0f, -58f), new Vector2(650f, 190f));
             RectTransform rule = CreateFixedPanel(
                 contentRoot, "EncounterPromiseRule", Vector2.up, Vector2.up,
@@ -755,7 +1064,7 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             DemoRunState run = controller.Run;
             Text heading = CreateText(contentRoot, "ReadinessTitle", titleFont, 22, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
-            heading.text = "渡劫构筑门槛";
+            heading.text = "剑炉构筑门槛";
             SetFixed(heading.rectTransform, Vector2.up, Vector2.up, position, new Vector2(680f, 38f));
 
             bool growth = run.BonusPermanentSwords > 0 || run.Deck.Any(card => card != null && (card.PermanentSword || card.TemporarySwords > 0));
@@ -797,17 +1106,17 @@ namespace PathOfTenThousandWays.Demo.UI
             RectTransform portrait = CreateFixedPanel(
                 contentRoot, "ResultBossEcho", new Vector2(1f, 0.5f), new Vector2(1f, 0.5f),
                 new Vector2(-48f, -25f), new Vector2(690f, 690f), Color.clear);
-            ApplySprite(portrait.GetComponent<Image>(), LoadSprite(BossResourcePath), new Color(1f, 1f, 1f, summary.Victory ? 0.22f : 0.12f), true);
+            ApplySprite(portrait.GetComponent<Image>(), LoadSprite(BossResourcePath), new Color(1f, 1f, 1f, summary.Victory ? 0.10f : 0.06f), true);
 
             Text outcome = CreateText(contentRoot, "Outcome", titleFont, 42, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
-            outcome.text = summary.Victory ? "天劫已渡，道途留痕" : "此世止步，道途归卷";
+            outcome.text = summary.Victory ? "剑傀已止，旧契归卷" : "此世止步，道途归卷";
             outcome.resizeTextForBestFit = true;
             outcome.resizeTextMinSize = 28;
             outcome.resizeTextMaxSize = 42;
             SetFixed(outcome.rectTransform, Vector2.up, Vector2.up, new Vector2(116f, -275f), new Vector2(900f, 66f));
             Text resultDetail = CreateText(contentRoot, "OutcomeDetail", bodyFont, 16, FontStyle.Normal, TextAnchor.UpperLeft, SoftInk);
             resultDetail.text = summary.Victory
-                ? $"抵达第 {summary.ReachedLayer} 层，击破天劫化身。本世构筑已完整走完一次验证。"
+                ? $"抵达旧矿第 {summary.ReachedLayer} 步，击破玄铁镇矿剑傀。离矿时带走的不是统一胜利文案，而是这一世亲手留下的四段因果。"
                 : BuildFailureText(summary);
             SetFixed(resultDetail.rectTransform, Vector2.up, Vector2.up, new Vector2(120f, -344f), new Vector2(910f, 58f));
 
@@ -817,10 +1126,10 @@ namespace PathOfTenThousandWays.Demo.UI
             BuildMetric(new Vector2(810f, -425f), "用时", FormatDuration(summary.DurationSeconds), accent);
 
             Text routeTitle = CreateText(contentRoot, "RouteHistoryTitle", bodyFont, 13, FontStyle.Bold, TextAnchor.UpperLeft, accent);
-            routeTitle.text = "所行前路";
+            routeTitle.text = "此世轨迹";
             SetFixed(routeTitle.rectTransform, Vector2.up, Vector2.up, new Vector2(120f, -565f), new Vector2(840f, 26f));
             Text routes = CreateText(contentRoot, "RouteHistory", titleFont, 21, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
-            routes.text = BuildRouteHistory(summary);
+            routes.text = BuildJourneyHistory(summary);
             SetFixed(routes.rectTransform, Vector2.up, Vector2.up, new Vector2(120f, -596f), new Vector2(900f, 58f));
 
             Text buildTitle = CreateText(contentRoot, "BuildTitle", bodyFont, 13, FontStyle.Bold, TextAnchor.UpperLeft, accent);
@@ -831,16 +1140,28 @@ namespace PathOfTenThousandWays.Demo.UI
             SetFixed(build.rectTransform, Vector2.up, Vector2.up, new Vector2(120f, -708f), new Vector2(910f, 70f));
 
             Text schools = CreateText(contentRoot, "Schools", bodyFont, 15, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
-            schools.text = $"主修  {Fallback(summary.MainGongfaName, "未定主修")}     法器  {Fallback(summary.CoreArtifactName, "未获核心法器")}";
+            schools.text = $"境界  {GetFoundationDisplayName(controller.Run.Realm.FoundationRuleId)}     本命  残剑胚 · 炼形{Mathf.Max(1, controller.Run.InnateArtifact.RefinementStage)}";
             SetFixed(schools.rectTransform, Vector2.up, Vector2.up, new Vector2(120f, -792f), new Vector2(930f, 34f));
 
-            RectTransform unlockWash = CreatePanel(contentRoot, "UnlockWash", new Vector2(0.58f, 0.24f), new Vector2(0.94f, 0.48f), new Color(accent.r, accent.g, accent.b, 0.075f));
+            RectTransform causeLedger = CreateFixedPanel(
+                contentRoot, "CauseLedger", new Vector2(1f, 0.5f), new Vector2(1f, 0.5f),
+                new Vector2(-92f, -36f), new Vector2(700f, 520f), new Color(0.91f, 0.94f, 0.93f, 0.78f));
+            CreateBorder(causeLedger, new Color(accent.r, accent.g, accent.b, 0.32f), 1f);
+            Text causeTitle = CreateText(causeLedger, "CauseTitle", titleFont, 24, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
+            causeTitle.text = "旧矿回声";
+            SetAnchors(causeTitle.rectTransform, new Vector2(0.07f, 0.87f), new Vector2(0.93f, 0.96f));
+            BuildCauseRow(causeLedger, 0.74f, "矿灵", BuildMinerSpiritEnding(), Jade);
+            BuildCauseRow(causeLedger, 0.54f, "旧契", BuildOldContractEnding(), Cinnabar);
+            BuildCauseRow(causeLedger, 0.34f, "道基", BuildFoundationEnding(), Azure);
+            BuildCauseRow(causeLedger, 0.14f, "本命", BuildInnateArtifactEnding(), Gold);
+
+            RectTransform unlockWash = CreatePanel(contentRoot, "UnlockWash", new Vector2(0.58f, 0.10f), new Vector2(0.94f, 0.22f), new Color(accent.r, accent.g, accent.b, 0.075f));
             Text unlockTitle = CreateText(unlockWash, "UnlockTitle", titleFont, 22, FontStyle.Bold, TextAnchor.UpperLeft, Ink);
             unlockTitle.text = summary.NewUnlocks != null && summary.NewUnlocks.Count > 0 ? "新解锁" : "卷后所得";
-            SetAnchors(unlockTitle.rectTransform, new Vector2(0.07f, 0.70f), new Vector2(0.93f, 0.92f));
+            SetAnchors(unlockTitle.rectTransform, new Vector2(0.07f, 0.64f), new Vector2(0.34f, 0.91f));
             Text unlock = CreateText(unlockWash, "Unlock", bodyFont, 17, FontStyle.Normal, TextAnchor.UpperLeft, SoftInk);
             unlock.text = BuildUnlockText(summary);
-            SetAnchors(unlock.rectTransform, new Vector2(0.07f, 0.14f), new Vector2(0.93f, 0.66f));
+            SetAnchors(unlock.rectTransform, new Vector2(0.36f, 0.18f), new Vector2(0.93f, 0.85f));
 
             CreateActionButton(
                 contentRoot, "NextRun", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
@@ -848,6 +1169,123 @@ namespace PathOfTenThousandWays.Demo.UI
             CreateSecondaryButton(
                 contentRoot, "ReturnHome", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(210f, 50f), new Vector2(300f, 66f), "归于开卷", ReturnHome);
+        }
+
+        private void BuildCauseRow(RectTransform parent, float normalizedY, string label, string body, Color accent)
+        {
+            RectTransform mark = CreateFixedPanel(
+                parent, "CauseMark_" + label, new Vector2(0.075f, normalizedY), new Vector2(0.5f, 0.5f),
+                Vector2.zero, new Vector2(5f, 58f), new Color(accent.r, accent.g, accent.b, 0.80f));
+            mark.GetComponent<Image>().raycastTarget = false;
+            Text labelText = CreateText(parent, "CauseLabel_" + label, bodyFont, 12, FontStyle.Bold, TextAnchor.UpperLeft, accent);
+            labelText.text = label;
+            SetFixed(labelText.rectTransform, new Vector2(0.105f, normalizedY), new Vector2(0f, 0.5f), Vector2.zero, new Vector2(76f, 24f));
+            Text bodyText = CreateText(parent, "CauseBody_" + label, bodyFont, 14, FontStyle.Normal, TextAnchor.UpperLeft, Ink);
+            bodyText.text = body;
+            SetFixed(bodyText.rectTransform, new Vector2(0.23f, normalizedY), new Vector2(0f, 0.5f), Vector2.zero, new Vector2(470f, 58f));
+        }
+
+        private string BuildMinerSpiritEnding()
+        {
+            DemoStoryState story = controller.Run.Story;
+            if (story.HasExperience("experience_miner_spirit_helped"))
+            {
+                return "得你相助的矿灵保有自由，并在剑炉前留下最后一道引路青光。";
+            }
+            if (story.HasExperience("experience_miner_spirit_bound"))
+            {
+                return "受缚矿灵随残剑一同离矿；力量归你，新的契债也归你。";
+            }
+            if (story.HasExperience("experience_miner_spirit_refined") || story.HasExperience("experience_miner_spirit_killed"))
+            {
+                return "矿灵不再回应，它的余烬已经化成残剑上的朱砂凶痕。";
+            }
+            if (story.HasExperience("experience_miner_spirit_ignored"))
+            {
+                return "你没有介入它的命运，离矿时也没有青光前来送行。";
+            }
+            return "这一世未与矿灵结下足以改变终局的因果。";
+        }
+
+        private string BuildOldContractEnding()
+        {
+            DemoStoryState story = controller.Run.Story;
+            if (story.HasExperience("experience_old_contract_broken") || story.HasExperience("experience_old_contract_burned"))
+            {
+                return "旁支旧契在炉火中断去，矿工与后人不再被同一纸契文驱使。";
+            }
+            if (story.HasExperience("experience_old_contract_claimed") || story.HasExperience("experience_old_contract_inherited"))
+            {
+                return "你把旧契炼入自身道途，剑傀停下了，契约的代价却没有消失。";
+            }
+            if (story.HasExperience("experience_old_contract_witnessed") || story.HasExperience("experience_old_contract_truth"))
+            {
+                return "你带走完整见证，让旧矿真相不再只留在封死的矿壁里。";
+            }
+            return "剑傀虽止，旁支旧契仍只留下残缺而沉默的证据。";
+        }
+
+        private string BuildFoundationEnding()
+        {
+            switch (controller.Run.Realm.FoundationRuleId)
+            {
+                case "foundation_sword_bone":
+                    return "剑骨道基已成，境界把每一门已学剑诀和本命齐射一同托高。";
+                case "foundation_clear_spirit":
+                    return "清灵道基已成，矿灵归还的清气仍在吐纳与转火间流转。";
+                case "foundation_thunder_meridian":
+                    return "雷脉道基已成，冷白雷痕沿剑路在多个目标间继续传递。";
+                case "foundation_baleful_contract":
+                case "foundation_blood_contract":
+                    return "煞契道基已成，朱砂剑痕带来锋锐，也把反噬写进了往后修行。";
+                default:
+                    return "稳固道基已成，灵力循环与全部法诀得到一致而可靠的提升。";
+            }
+        }
+
+        private string BuildInnateArtifactEnding()
+        {
+            int stage = Mathf.Max(1, controller.Run.InnateArtifact.RefinementStage);
+            if (stage >= 3)
+            {
+                return "残剑胚历经剑炉开锋，已能分化剑光并承载这一世留下的契痕。";
+            }
+            if (stage == 2)
+            {
+                return "残剑胚完成矿火炼形，回锋墨痕使自动出剑不再只是单次斩击。";
+            }
+            return "残剑胚仍保留初得时的残缺轮廓，等待下一次真正的炼形。";
+        }
+
+        private string BuildJourneyHistory(DemoRunSummary summary)
+        {
+            DemoRunSaveV2 snapshot = controller.JourneySnapshot;
+            if (snapshot != null)
+            {
+                return $"旧矿三幕 · 已行 {snapshot.CompletedNodeIds.Count} 处 · 胜战 {summary.BattlesWon} 场";
+            }
+
+            return BuildRouteHistory(summary);
+        }
+
+        private static string GetFoundationDisplayName(string foundationRuleId)
+        {
+            switch (foundationRuleId)
+            {
+                case "foundation_sword_bone":
+                    return "剑骨道基";
+                case "foundation_clear_spirit":
+                    return "清灵道基";
+                case "foundation_thunder_meridian":
+                    return "雷脉道基";
+                case "foundation_baleful_contract":
+                case "foundation_blood_contract":
+                    return "煞契道基";
+                case "foundation_stable":
+                    return "稳固道基";
+                default:
+                    return "炼气未竟";
+            }
         }
 
         private void BuildMetric(Vector2 position, string label, string value, Color accent)
@@ -968,6 +1406,14 @@ namespace PathOfTenThousandWays.Demo.UI
                     .Append(reward?.BuildDelta).Append(':').Append(reward?.RoutePlan?.Id);
             }
 
+            for (int i = 0; i < controller.CurrentJourneyChoices.Count; i++)
+            {
+                DemoJourneyChoice choice = controller.CurrentJourneyChoices[i];
+                builder.Append("|c:").Append(choice?.ChoiceId).Append(':').Append(choice?.Kind)
+                    .Append(':').Append(choice?.Title).Append(':').Append(choice?.Consequence)
+                    .Append(':').Append(choice?.FoundationRuleId).Append(':').Append(choice?.IsRecommended);
+            }
+
             DemoRunSummary summary = controller.RunSummary;
             if (summary != null)
             {
@@ -1006,15 +1452,14 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             switch (phase)
             {
+                case DemoFlowPhase.OpeningStory:
+                case DemoFlowPhase.RegionChoice:
                 case DemoFlowPhase.JourneyMap:
                 case DemoFlowPhase.NodeScene:
                 case DemoFlowPhase.Breakthrough:
                 case DemoFlowPhase.EncounterIntro:
-                case DemoFlowPhase.RewardChoice:
-                case DemoFlowPhase.RouteChoice:
-                case DemoFlowPhase.Training:
-                case DemoFlowPhase.Preparation:
                 case DemoFlowPhase.BossGate:
+                case DemoFlowPhase.BattleOutcome:
                 case DemoFlowPhase.RunResult:
                     return true;
                 default:
@@ -1026,22 +1471,20 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             switch (phase)
             {
+                case DemoFlowPhase.OpeningStory:
+                    return "祖龛旧契";
+                case DemoFlowPhase.RegionChoice:
+                    return "择定所往";
                 case DemoFlowPhase.JourneyMap:
                     return "旧矿长卷";
                 case DemoFlowPhase.NodeScene:
                     return "矿中一遇";
                 case DemoFlowPhase.Breakthrough:
                     return "炼气筑基";
-                case DemoFlowPhase.RewardChoice:
-                    return "战后所得";
-                case DemoFlowPhase.RouteChoice:
-                    return "择前路";
-                case DemoFlowPhase.Training:
-                    return "静修悟法";
-                case DemoFlowPhase.Preparation:
-                    return "整备道基";
                 case DemoFlowPhase.BossGate:
                     return "剑傀镇炉";
+                case DemoFlowPhase.BattleOutcome:
+                    return "战痕归卷";
                 case DemoFlowPhase.RunResult:
                     return "一世结算";
                 default:
@@ -1053,22 +1496,20 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             switch (phase)
             {
+                case DemoFlowPhase.OpeningStory:
+                    return "根脚与所携在同一段故事中成立；不是职业卡，也不是菜单装备。";
+                case DemoFlowPhase.RegionChoice:
+                    return "所往回答这一世先去哪里；当前纵切只开放能够完整走透的旧矿。";
                 case DemoFlowPhase.JourneyMap:
                     return "循着已走墨迹选择下一处可达节点，三幕始终属于同一座旧矿。";
                 case DemoFlowPhase.NodeScene:
                     return "能力、线索与代价都从眼前场景而来，不在战后凭空出现。";
                 case DemoFlowPhase.Breakthrough:
                     return "前两幕所得在此汇成道基，基础方案永远可用，经历决定额外规则。";
-                case DemoFlowPhase.RewardChoice:
-                    return "所得只取其一。先看规则如何改变，再看它把构筑推向何处。";
-                case DemoFlowPhase.RouteChoice:
-                    return "前路不是流派重选；节点先后、风险和恢复才是这一页的决定。";
-                case DemoFlowPhase.Training:
-                    return "此处修炼用于定向补缺，在下一场斗法前把关键环节接上。";
-                case DemoFlowPhase.Preparation:
-                    return "整备重在器物、循环与生存，为之后的连续斗法留出余地。";
                 case DemoFlowPhase.BossGate:
                     return "玄铁甲片、朱砂契钉与剑炉核心俱在上方，锁定并逐一击破。";
+                case DemoFlowPhase.BattleOutcome:
+                    return "胜负先回到故事与地图，再由真实线索、媒介和器物决定后续所得。";
                 case DemoFlowPhase.RunResult:
                     return "把走过的路、形成的构筑和真正打出的高点留在此卷。";
                 default:
@@ -1080,22 +1521,20 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             switch (phase)
             {
+                case DemoFlowPhase.OpeningStory:
+                    return "这一世的来历";
+                case DemoFlowPhase.RegionChoice:
+                    return "残契所指";
                 case DemoFlowPhase.JourneyMap:
                     return "旧矿三幕";
                 case DemoFlowPhase.NodeScene:
                     return "此处所求";
                 case DemoFlowPhase.Breakthrough:
                     return "第二幕终章";
-                case DemoFlowPhase.RewardChoice:
-                    return "破敌之后";
-                case DemoFlowPhase.RouteChoice:
-                    return "三路分岔";
-                case DemoFlowPhase.Training:
-                    return "修炼节点";
-                case DemoFlowPhase.Preparation:
-                    return "整备节点";
                 case DemoFlowPhase.BossGate:
                     return "剑炉之前";
+                case DemoFlowPhase.BattleOutcome:
+                    return "斗法余响";
                 case DemoFlowPhase.RunResult:
                     return "此世归卷";
                 default:
@@ -1107,21 +1546,19 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             switch (phase)
             {
+                case DemoFlowPhase.OpeningStory:
+                    return Cinnabar;
+                case DemoFlowPhase.RegionChoice:
+                    return Jade;
                 case DemoFlowPhase.JourneyMap:
                 case DemoFlowPhase.NodeScene:
                     return Jade;
                 case DemoFlowPhase.Breakthrough:
                     return Gold;
-                case DemoFlowPhase.RewardChoice:
-                    return Cinnabar;
-                case DemoFlowPhase.Training:
-                    return Jade;
-                case DemoFlowPhase.RouteChoice:
                 case DemoFlowPhase.EncounterIntro:
                     return Azure;
-                case DemoFlowPhase.Preparation:
-                    return Gold;
                 case DemoFlowPhase.BossGate:
+                case DemoFlowPhase.BattleOutcome:
                     return Cinnabar;
                 default:
                     return Gold;
@@ -1130,6 +1567,16 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private int GetProgressIndex(DemoFlowPhase phase)
         {
+            if (phase == DemoFlowPhase.OpeningStory)
+            {
+                return 0;
+            }
+
+            if (phase == DemoFlowPhase.RegionChoice)
+            {
+                return 2;
+            }
+
             if (controller.HasJourneySession)
             {
                 DemoRunSaveV2 snapshot = controller.JourneySnapshot;
@@ -1598,7 +2045,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoNodeType.Reward:
                     return "所得";
                 case DemoNodeType.Boss:
-                    return "天劫";
+                    return "剑傀";
                 case DemoNodeType.RouteChoice:
                     return "路口";
                 default:
@@ -1610,7 +2057,7 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (bossGate || enemy?.IsBoss == true)
             {
-                return "天劫 · 极高";
+                return "镇矿 · 极高";
             }
 
             string role = (enemy?.BattleRole ?? string.Empty).ToLowerInvariant();
@@ -1633,7 +2080,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case "finisher":
                     return "收束";
                 case "boss":
-                    return "渡劫";
+                    return "剑炉";
                 default:
                     return "标准";
             }
@@ -1646,14 +2093,14 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (bossGate)
             {
-                return "天劫化身以三段雷意持续压迫气血，最终蓄雷窗口是万剑爆发的主要时机。门槛不是强制锁门，而是提醒这一局还缺哪一环。";
+                return "玄铁镇矿剑傀会拆解飞剑循环、封锁承载法器，并在剑炉蓄势后斩断当前攻势。这里检验的是一路所得能否真正连成一条道途。";
             }
 
             string enemyText = string.IsNullOrWhiteSpace(enemy?.Notes)
                 ? "敌方会按意图持续行动，需要在飞剑自动齐射之间用手牌稳定循环。"
                 : enemy.Notes;
             string rewardText = string.IsNullOrWhiteSpace(profile?.Description)
-                ? "胜后从三槽奖励中选择一项长期补强。"
+                ? "胜后留下战痕与线索，所得由当前敌人与因果决定。"
                 : profile.Description;
             return enemyText + "\n胜后所得：" + rewardText;
         }
@@ -1700,7 +2147,7 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             if (summary.NewUnlocks == null || summary.NewUnlocks.Count == 0)
             {
-                return "本世没有新增局外战力。下一世仍从一把飞剑与基础牌开始。";
+                return "本世见闻已归档；下一世仍从残剑胚、心法心诀与初始剑诀开始。";
             }
 
             return string.Join(" · ", summary.NewUnlocks.Select(unlock =>

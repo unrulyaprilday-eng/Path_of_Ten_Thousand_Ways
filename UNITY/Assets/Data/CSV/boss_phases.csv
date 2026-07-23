@@ -2,3 +2,10 @@ boss_id,phase_id,phase_order,name,health_ratio_max,intent_text,charge_turn,base_
 enemy_tianjie_avatar,thunder_cloud,1,雷云压境,1.00,雷云压境：稳定压血轻度感电,false,12,1,Boss 第一阶段
 enemy_tianjie_avatar,soul_lock,2,天雷锁魂,0.70,天雷锁魂：高压伤害并压制接下来 3 秒灵气恢复,false,14,2,Boss 第二阶段
 enemy_tianjie_avatar,calamity_descends,3,天劫降临,0.35,天劫蓄雷：读条结束后释放重击,true,22,1,Boss 第三阶段
+enemy_ironback_mine_beast,ironback_charge,1,铁脊冲阵,1.00,铁脊压低，冲撞当前锁定修士,false,13,0,矿兽常态
+enemy_ironback_mine_beast,ore_frenzy,2,矿髓暴走,0.42,震落矿石并连续扑击,true,20,0,矿兽低血阶段
+enemy_sword_eating_mine_spirit,sword_gnaw,1,吞剑啮灵,1.00,啃食飞剑余势并反噬灵气,false,16,0,矿魈常态
+enemy_sword_eating_mine_spirit,hollow_howl,2,空井魈啸,0.48,召来吞剑幼魈并压迫回灵,true,24,0,矿魈低血阶段
+enemy_xuantie_mine_sword_puppet,xuantie_armor,1,玄铁甲片,1.00,甲片闭合，剑傀以重剑横扫,false,18,0,先破玄铁甲片
+enemy_xuantie_mine_sword_puppet,contract_spike,2,朱砂契钉,0.62,契钉显形，旧契抽取气血,true,23,0,甲片破后契钉可锁定
+enemy_xuantie_mine_sword_puppet,sword_furnace_core,3,剑炉核心,0.28,核心暴露，炉火催动终局斩击,true,31,0,最终阶段

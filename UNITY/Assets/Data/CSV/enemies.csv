@@ -18,3 +18,19 @@ enemy_thunder_cliff_guard,雷崖执兵,elite,false,1100,elite_layer_2,第二层�
 enemy_mirror_thunder_trial,镜雷试炼,elite,false,1050,elite_layer_2,第二层法器试炼目标 80 至 110 秒
 enemy_calamity_gatekeeper,劫前守门,elite,false,1600,elite_layer_3,第三层高奖精英目标 80 至 110 秒
 enemy_tianjie_avatar,天劫化身,boss,true,3800,boss_tianjie,终局 Boss 目标 150 至 210 秒
+enemy_old_mine_contract_guard,契骨矿卒,elite,false,330,elite_act_1,第一幕矿契守卫与多目标精英主位
+enemy_old_mine_wraith,塌井残魂,normal,false,230,normal_act_2,第二幕普通多目标主位
+enemy_sword_furnace_guard,封契剑影,normal,false,285,normal_act_3,筑基后多目标验证战主位
+enemy_sword_furnace_elite,炉心构造体,elite,false,460,elite_act_3,第三幕剑炉精英主位
+enemy_ironback_mine_beast,铁脊矿兽,mini_boss,true,920,mini_boss_act_1,第一幕怪兽型小 Boss
+enemy_sword_eating_mine_spirit,吞剑矿魈,mini_boss,true,1350,mini_boss_act_2,第二幕怪兽型小 Boss
+enemy_xuantie_mine_sword_puppet,玄铁镇矿剑傀,boss,true,3600,boss_sword_puppet,旧矿纵切最终 Boss
+enemy_contract_midge,契屑矿蜉,support,false,95,support_act_1,第一幕多目标支援位
+enemy_shallow_mine_beast,浅道矿兽,support,false,120,support_act_1,第一幕多目标后位
+enemy_collapsed_wraith,塌井残魂,support,false,145,support_act_2,第二幕多目标支援位
+enemy_young_sword_eater,吞剑幼魈,support,false,165,support_act_2,第二幕多目标后位
+enemy_contract_sword_shadow,封契剑影,support,false,185,support_act_3,第三幕多目标支援位
+enemy_furnace_construct,炉心构造体,support,false,215,support_act_3,第三幕多目标后位
+target_xuantie_armor,玄铁甲片,boss_part,false,1368,boss_part_armor,剑傀第一阶段可锁部位
+target_contract_spike,朱砂契钉,boss_part,false,864,boss_part_contract,剑傀第二阶段可锁部位
+target_sword_furnace_core,剑炉核心,boss_part,false,1368,boss_part_core,剑傀第三阶段可锁部位

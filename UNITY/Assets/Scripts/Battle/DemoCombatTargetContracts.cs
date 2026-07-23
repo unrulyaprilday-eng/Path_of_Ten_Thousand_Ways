@@ -155,6 +155,8 @@ namespace PathOfTenThousandWays.Demo.Battle
                     BehaviorId = string.Empty,
                     TargetCombatantId = string.Empty,
                     RemainingSeconds = float.PositiveInfinity,
+                    DurationSeconds = 0f,
+                    DisplayText = string.Empty,
                     IsPending = false,
                     IsKnown = false,
                     ThreatPriority = 0
@@ -165,6 +167,8 @@ namespace PathOfTenThousandWays.Demo.Battle
         public string BehaviorId { get; set; }
         public string TargetCombatantId { get; set; }
         public float RemainingSeconds { get; set; }
+        public float DurationSeconds { get; set; }
+        public string DisplayText { get; set; }
         public bool IsPending { get; set; }
         public bool IsKnown { get; set; }
         public int ThreatPriority { get; set; }
@@ -176,6 +180,8 @@ namespace PathOfTenThousandWays.Demo.Battle
                 BehaviorId = BehaviorId,
                 TargetCombatantId = TargetCombatantId,
                 RemainingSeconds = RemainingSeconds,
+                DurationSeconds = DurationSeconds,
+                DisplayText = DisplayText,
                 IsPending = IsPending,
                 IsKnown = IsKnown,
                 ThreatPriority = ThreatPriority

@@ -6,6 +6,8 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
+using PathOfTenThousandWays.Demo.Map;
+
 namespace PathOfTenThousandWays.Demo.Systems
 {
     public static class DemoRunFlowPhaseId
@@ -40,6 +42,25 @@ namespace PathOfTenThousandWays.Demo.Systems
     }
 
     [DataContract]
+    public sealed class DemoRunTechniqueSnapshot
+    {
+        [DataMember(Order = 1)] public string DefinitionId { get; set; } = string.Empty;
+        [DataMember(Order = 2)] public int Level { get; set; } = 1;
+        [DataMember(Order = 3)] public string SourceNodeId { get; set; } = string.Empty;
+        [DataMember(Order = 4)] public string SourceEventId { get; set; } = string.Empty;
+        [DataMember(Order = 5)] public string VariantId { get; set; } = string.Empty;
+
+        internal void Normalize()
+        {
+            DefinitionId = DefinitionId ?? string.Empty;
+            Level = Math.Max(1, Level);
+            SourceNodeId = SourceNodeId ?? string.Empty;
+            SourceEventId = SourceEventId ?? string.Empty;
+            VariantId = VariantId ?? string.Empty;
+        }
+    }
+
+    [DataContract]
     public sealed class DemoRunBuildSnapshot
     {
         [DataMember(Order = 1)] public string StartingPracticePackageId { get; set; } = string.Empty;
@@ -49,6 +70,15 @@ namespace PathOfTenThousandWays.Demo.Systems
         [DataMember(Order = 5)] public int InnateArtifactRefinementStage { get; set; }
         [DataMember(Order = 6)] public List<string> TechniqueIds { get; set; } = new List<string>();
         [DataMember(Order = 7)] public List<string> AcquiredArtifactIds { get; set; } = new List<string>();
+        [DataMember(Order = 8)] public List<DemoRunTechniqueSnapshot> TechniqueStates { get; set; } = new List<DemoRunTechniqueSnapshot>();
+        [DataMember(Order = 9)] public string MindMethodBranchId { get; set; } = string.Empty;
+        [DataMember(Order = 10)] public List<string> MindMethodGrantedTechniqueIds { get; set; } = new List<string>();
+        [DataMember(Order = 11)] public string InnateArtifactBearerDefinitionId { get; set; } = string.Empty;
+        [DataMember(Order = 12)] public string InnateArtifactBearerVisualId { get; set; } = string.Empty;
+        [DataMember(Order = 13)] public List<string> InnateArtifactAttackVariantIds { get; set; } = new List<string>();
+        [DataMember(Order = 14)] public float InnateArtifactCooldownRemaining { get; set; }
+        [DataMember(Order = 15)] public int BonusEnergyCapacity { get; set; }
+        [DataMember(Order = 16)] public int BonusPermanentSwords { get; set; }
 
         internal void Normalize()
         {
@@ -57,6 +87,45 @@ namespace PathOfTenThousandWays.Demo.Systems
             InnateArtifactId = InnateArtifactId ?? string.Empty;
             TechniqueIds = TechniqueIds ?? new List<string>();
             AcquiredArtifactIds = AcquiredArtifactIds ?? new List<string>();
+            TechniqueStates = TechniqueStates ?? new List<DemoRunTechniqueSnapshot>();
+            MindMethodBranchId = MindMethodBranchId ?? string.Empty;
+            MindMethodGrantedTechniqueIds = MindMethodGrantedTechniqueIds ?? new List<string>();
+            InnateArtifactBearerDefinitionId = InnateArtifactBearerDefinitionId ?? string.Empty;
+            InnateArtifactBearerVisualId = InnateArtifactBearerVisualId ?? string.Empty;
+            InnateArtifactAttackVariantIds = InnateArtifactAttackVariantIds ?? new List<string>();
+            for (int i = TechniqueStates.Count - 1; i >= 0; i--)
+            {
+                DemoRunTechniqueSnapshot technique = TechniqueStates[i];
+                if (technique == null)
+                {
+                    TechniqueStates.RemoveAt(i);
+                    continue;
+                }
+
+                technique.Normalize();
+            }
+
+            if (TechniqueStates.Count == 0)
+            {
+                for (int i = 0; i < TechniqueIds.Count; i++)
+                {
+                    TechniqueStates.Add(new DemoRunTechniqueSnapshot
+                    {
+                        DefinitionId = TechniqueIds[i],
+                        Level = 1,
+                        SourceNodeId = "legacy_checkpoint"
+                    });
+                }
+            }
+
+            foreach (DemoRunTechniqueSnapshot technique in TechniqueStates)
+            {
+                if (!string.IsNullOrWhiteSpace(technique.DefinitionId)
+                    && !TechniqueIds.Contains(technique.DefinitionId))
+                {
+                    TechniqueIds.Add(technique.DefinitionId);
+                }
+            }
         }
     }
 
@@ -96,6 +165,210 @@ namespace PathOfTenThousandWays.Demo.Systems
     }
 
     [DataContract]
+    public sealed class DemoJourneyNodeSnapshot
+    {
+        [DataMember(Order = 1)] public string NodeId { get; set; } = string.Empty;
+        [DataMember(Order = 2)] public int ActIndex { get; set; }
+        [DataMember(Order = 3)] public int DepthIndex { get; set; }
+        [DataMember(Order = 4)] public int LaneIndex { get; set; }
+        [DataMember(Order = 5)] public string NodeTypeId { get; set; } = string.Empty;
+        [DataMember(Order = 6)] public string ContentId { get; set; } = string.Empty;
+        [DataMember(Order = 7)] public string Name { get; set; } = string.Empty;
+        [DataMember(Order = 8)] public string RequiredStoryFlagId { get; set; } = string.Empty;
+        [DataMember(Order = 9)] public bool IsHidden { get; set; }
+
+        internal void Normalize()
+        {
+            NodeId = NodeId ?? string.Empty;
+            NodeTypeId = NodeTypeId ?? string.Empty;
+            ContentId = ContentId ?? string.Empty;
+            Name = Name ?? string.Empty;
+            RequiredStoryFlagId = RequiredStoryFlagId ?? string.Empty;
+        }
+    }
+
+    [DataContract]
+    public sealed class DemoJourneyEdgeSnapshot
+    {
+        [DataMember(Order = 1)] public string FromNodeId { get; set; } = string.Empty;
+        [DataMember(Order = 2)] public string ToNodeId { get; set; } = string.Empty;
+
+        internal void Normalize()
+        {
+            FromNodeId = FromNodeId ?? string.Empty;
+            ToNodeId = ToNodeId ?? string.Empty;
+        }
+    }
+
+    public static class DemoJourneyGraphSnapshotCodec
+    {
+        public static List<DemoJourneyNodeSnapshot> CaptureNodes(DemoJourneyGraph graph)
+        {
+            if (graph == null) return new List<DemoJourneyNodeSnapshot>();
+            return graph.Nodes.Select(node => new DemoJourneyNodeSnapshot
+            {
+                NodeId = node.NodeId,
+                ActIndex = node.ActIndex,
+                DepthIndex = node.DepthIndex,
+                LaneIndex = node.LaneIndex,
+                NodeTypeId = node.Type.ToString(),
+                ContentId = node.ContentId,
+                Name = node.Name,
+                RequiredStoryFlagId = node.RequiredStoryFlagId,
+                IsHidden = node.IsHidden
+            }).ToList();
+        }
+
+        public static List<DemoJourneyEdgeSnapshot> CaptureEdges(DemoJourneyGraph graph)
+        {
+            if (graph == null) return new List<DemoJourneyEdgeSnapshot>();
+            return graph.Edges.Select(edge => new DemoJourneyEdgeSnapshot
+            {
+                FromNodeId = edge.FromNodeId,
+                ToNodeId = edge.ToNodeId
+            }).ToList();
+        }
+
+        public static bool TryRestore(
+            int seed,
+            IReadOnlyList<DemoJourneyNodeSnapshot> nodeSnapshots,
+            IReadOnlyList<DemoJourneyEdgeSnapshot> edgeSnapshots,
+            out DemoJourneyGraph graph,
+            out string error)
+        {
+            graph = null;
+            if (nodeSnapshots == null || nodeSnapshots.Count == 0)
+            {
+                error = "The journey graph node snapshot is empty.";
+                return false;
+            }
+
+            List<DemoJourneyNode> nodes = new List<DemoJourneyNode>();
+            HashSet<string> nodeIds = new HashSet<string>(StringComparer.Ordinal);
+            string startNodeId = string.Empty;
+            for (int i = 0; i < nodeSnapshots.Count; i++)
+            {
+                DemoJourneyNodeSnapshot snapshot = nodeSnapshots[i];
+                if (snapshot == null
+                    || string.IsNullOrWhiteSpace(snapshot.NodeId)
+                    || !Enum.TryParse(snapshot.NodeTypeId, true, out DemoJourneyNodeType nodeType)
+                    || !nodeIds.Add(snapshot.NodeId))
+                {
+                    error = "The journey graph contains an invalid or duplicate node snapshot.";
+                    return false;
+                }
+
+                DemoJourneyNode node = new DemoJourneyNode(
+                    snapshot.NodeId,
+                    snapshot.ActIndex,
+                    snapshot.DepthIndex,
+                    snapshot.LaneIndex,
+                    nodeType,
+                    snapshot.ContentId,
+                    snapshot.Name,
+                    snapshot.RequiredStoryFlagId,
+                    snapshot.IsHidden);
+                nodes.Add(node);
+                if (nodeType == DemoJourneyNodeType.Start)
+                {
+                    if (!string.IsNullOrEmpty(startNodeId))
+                    {
+                        error = "The journey graph snapshot contains multiple start nodes.";
+                        return false;
+                    }
+                    startNodeId = node.NodeId;
+                }
+            }
+
+            List<DemoJourneyEdge> edges = new List<DemoJourneyEdge>();
+            HashSet<string> edgeIds = new HashSet<string>(StringComparer.Ordinal);
+            if (edgeSnapshots != null)
+            {
+                for (int i = 0; i < edgeSnapshots.Count; i++)
+                {
+                    DemoJourneyEdgeSnapshot snapshot = edgeSnapshots[i];
+                    string edgeId = snapshot == null
+                        ? string.Empty
+                        : snapshot.FromNodeId + ">" + snapshot.ToNodeId;
+                    if (snapshot == null
+                        || !nodeIds.Contains(snapshot.FromNodeId)
+                        || !nodeIds.Contains(snapshot.ToNodeId)
+                        || !edgeIds.Add(edgeId))
+                    {
+                        error = "The journey graph contains an invalid or duplicate edge snapshot.";
+                        return false;
+                    }
+                    edges.Add(new DemoJourneyEdge(snapshot.FromNodeId, snapshot.ToNodeId));
+                }
+            }
+
+            if (string.IsNullOrEmpty(startNodeId))
+            {
+                error = "The journey graph snapshot has no start node.";
+                return false;
+            }
+
+            DemoJourneyGraph restored = new DemoJourneyGraph(seed, startNodeId, nodes, edges);
+            if (!restored.Validate(out IReadOnlyList<string> validationErrors))
+            {
+                error = "Restored journey graph validation failed: " + string.Join(" ", validationErrors);
+                return false;
+            }
+
+            graph = restored;
+            error = string.Empty;
+            return true;
+        }
+
+        public static bool Matches(DemoJourneyGraph graph, DemoRunSaveV2 save)
+        {
+            if (graph == null || save == null || save.ResolvedGraphNodes.Count == 0) return true;
+            List<DemoJourneyNodeSnapshot> nodes = CaptureNodes(graph);
+            List<DemoJourneyEdgeSnapshot> edges = CaptureEdges(graph);
+            return nodes.Count == save.ResolvedGraphNodes.Count
+                && edges.Count == save.ResolvedGraphEdges.Count
+                && nodes.Zip(save.ResolvedGraphNodes, SameNode).All(match => match)
+                && edges.Zip(save.ResolvedGraphEdges, SameEdge).All(match => match);
+        }
+
+        public static bool MatchesGraphSnapshots(DemoRunSaveV2 left, DemoRunSaveV2 right)
+        {
+            if (left == null || right == null) return false;
+            if (left.ResolvedGraphNodes.Count == 0 || right.ResolvedGraphNodes.Count == 0)
+            {
+                return left.ResolvedGraphNodes.Count == right.ResolvedGraphNodes.Count
+                    && left.ResolvedGraphEdges.Count == right.ResolvedGraphEdges.Count;
+            }
+
+            return left.ResolvedGraphNodes.Count == right.ResolvedGraphNodes.Count
+                && left.ResolvedGraphEdges.Count == right.ResolvedGraphEdges.Count
+                && left.ResolvedGraphNodes.Zip(right.ResolvedGraphNodes, SameNode).All(match => match)
+                && left.ResolvedGraphEdges.Zip(right.ResolvedGraphEdges, SameEdge).All(match => match);
+        }
+
+        private static bool SameNode(DemoJourneyNodeSnapshot left, DemoJourneyNodeSnapshot right)
+        {
+            return right != null
+                && string.Equals(left.NodeId, right.NodeId, StringComparison.Ordinal)
+                && left.ActIndex == right.ActIndex
+                && left.DepthIndex == right.DepthIndex
+                && left.LaneIndex == right.LaneIndex
+                && string.Equals(left.NodeTypeId, right.NodeTypeId, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(left.ContentId, right.ContentId, StringComparison.Ordinal)
+                && string.Equals(left.Name, right.Name, StringComparison.Ordinal)
+                && string.Equals(left.RequiredStoryFlagId, right.RequiredStoryFlagId, StringComparison.Ordinal)
+                && left.IsHidden == right.IsHidden;
+        }
+
+        private static bool SameEdge(DemoJourneyEdgeSnapshot left, DemoJourneyEdgeSnapshot right)
+        {
+            return right != null
+                && string.Equals(left.FromNodeId, right.FromNodeId, StringComparison.Ordinal)
+                && string.Equals(left.ToNodeId, right.ToNodeId, StringComparison.Ordinal);
+        }
+    }
+
+    [DataContract]
     public sealed class DemoRunSaveV2
     {
         public const int CurrentSaveVersion = 2;
@@ -126,6 +399,9 @@ namespace PathOfTenThousandWays.Demo.Systems
         [DataMember(Order = 24)] public DemoRunStatisticsSnapshot Statistics { get; set; } = new DemoRunStatisticsSnapshot();
         [DataMember(Order = 25)] public int MaxHealth { get; set; } = 72;
         [DataMember(Order = 26)] public int CurrentHealth { get; set; } = 72;
+        [DataMember(Order = 27)] public List<string> ChosenJourneyChoiceIds { get; set; } = new List<string>();
+        [DataMember(Order = 28)] public List<DemoJourneyNodeSnapshot> ResolvedGraphNodes { get; set; } = new List<DemoJourneyNodeSnapshot>();
+        [DataMember(Order = 29)] public List<DemoJourneyEdgeSnapshot> ResolvedGraphEdges { get; set; } = new List<DemoJourneyEdgeSnapshot>();
 
         public string MetaCommitIdempotencyKey => RunId;
 
@@ -147,6 +423,27 @@ namespace PathOfTenThousandWays.Demo.Systems
             ExperienceFlagIds = ExperienceFlagIds ?? new List<string>();
             ConsumedUniqueContentIds = ConsumedUniqueContentIds ?? new List<string>();
             PendingMetaDiscoveryIds = PendingMetaDiscoveryIds ?? new List<string>();
+            ChosenJourneyChoiceIds = ChosenJourneyChoiceIds ?? new List<string>();
+            ResolvedGraphNodes = ResolvedGraphNodes ?? new List<DemoJourneyNodeSnapshot>();
+            ResolvedGraphEdges = ResolvedGraphEdges ?? new List<DemoJourneyEdgeSnapshot>();
+            for (int i = ResolvedGraphNodes.Count - 1; i >= 0; i--)
+            {
+                if (ResolvedGraphNodes[i] == null)
+                {
+                    ResolvedGraphNodes.RemoveAt(i);
+                    continue;
+                }
+                ResolvedGraphNodes[i].Normalize();
+            }
+            for (int i = ResolvedGraphEdges.Count - 1; i >= 0; i--)
+            {
+                if (ResolvedGraphEdges[i] == null)
+                {
+                    ResolvedGraphEdges.RemoveAt(i);
+                    continue;
+                }
+                ResolvedGraphEdges[i].Normalize();
+            }
             MinerSpiritLife = MinerSpiritLife ?? new DemoMinerSpiritLifeSnapshot();
             PendingEncounterId = PendingEncounterId ?? string.Empty;
             Statistics = Statistics ?? new DemoRunStatisticsSnapshot();
@@ -187,14 +484,61 @@ namespace PathOfTenThousandWays.Demo.Systems
             ValidateStableIds(errors, ExperienceFlagIds, "experience_flag_ids");
             ValidateStableIds(errors, ConsumedUniqueContentIds, "consumed_unique_content_ids");
             ValidateStableIds(errors, PendingMetaDiscoveryIds, "pending_meta_discovery_ids");
+            ValidateStableIds(errors, ChosenJourneyChoiceIds, "chosen_journey_choice_ids");
             ValidateStableIds(errors, Build.TechniqueIds, "technique_ids");
             ValidateStableIds(errors, Build.AcquiredArtifactIds, "acquired_artifact_ids");
+            ValidateStableIds(errors, Build.MindMethodGrantedTechniqueIds, "mind_method_granted_technique_ids");
+            ValidateStableIds(errors, Build.InnateArtifactAttackVariantIds, "innate_artifact_attack_variant_ids");
             ValidateStableIds(errors, Realm.BreakthroughSourceIds, "breakthrough_source_ids");
+
+            HashSet<string> techniqueStateIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (DemoRunTechniqueSnapshot technique in Build.TechniqueStates)
+            {
+                if (string.IsNullOrWhiteSpace(technique.DefinitionId))
+                {
+                    errors.Add("technique_states contains an empty definition ID.");
+                }
+                else if (!techniqueStateIds.Add(technique.DefinitionId))
+                {
+                    errors.Add("technique_states contains duplicate ID: " + technique.DefinitionId + ".");
+                }
+            }
 
             HashSet<string> graphIds = new HashSet<string>(ResolvedGraphNodeSnapshotIds, StringComparer.Ordinal);
             if (graphIds.Count == 0)
             {
                 errors.Add("The resolved graph snapshot cannot be empty.");
+            }
+
+            if (ResolvedGraphNodes.Count > 0)
+            {
+                HashSet<string> snapshotNodeIds = new HashSet<string>(StringComparer.Ordinal);
+                foreach (DemoJourneyNodeSnapshot node in ResolvedGraphNodes)
+                {
+                    if (string.IsNullOrWhiteSpace(node.NodeId)
+                        || !snapshotNodeIds.Add(node.NodeId)
+                        || !Enum.TryParse(node.NodeTypeId, true, out DemoJourneyNodeType _))
+                    {
+                        errors.Add("resolved_graph_nodes contains an invalid or duplicate node snapshot.");
+                        break;
+                    }
+                }
+                if (!snapshotNodeIds.SetEquals(graphIds))
+                {
+                    errors.Add("resolved_graph_nodes must match resolved_graph_node_snapshot_ids.");
+                }
+
+                HashSet<string> snapshotEdgeIds = new HashSet<string>(StringComparer.Ordinal);
+                foreach (DemoJourneyEdgeSnapshot edge in ResolvedGraphEdges)
+                {
+                    if (!snapshotNodeIds.Contains(edge.FromNodeId)
+                        || !snapshotNodeIds.Contains(edge.ToNodeId)
+                        || !snapshotEdgeIds.Add(edge.FromNodeId + ">" + edge.ToNodeId))
+                    {
+                        errors.Add("resolved_graph_edges contains an invalid or duplicate edge snapshot.");
+                        break;
+                    }
+                }
             }
             else
             {
@@ -218,7 +562,14 @@ namespace PathOfTenThousandWays.Demo.Systems
                 errors.Add("pending_encounter_id and pending_encounter_seed must be written together.");
             }
 
-            if (Build.MindMethodLevel < 0 || Build.InnateArtifactRefinementStage < 0 || Realm.Stage < 0)
+            if (Build.MindMethodLevel < 0
+                || Build.InnateArtifactRefinementStage < 0
+                || Build.BonusEnergyCapacity < 0
+                || Build.BonusPermanentSwords < 0
+                || Build.InnateArtifactCooldownRemaining < 0f
+                || float.IsNaN(Build.InnateArtifactCooldownRemaining)
+                || float.IsInfinity(Build.InnateArtifactCooldownRemaining)
+                || Realm.Stage < 0)
             {
                 errors.Add("Build and realm progression values cannot be negative.");
             }

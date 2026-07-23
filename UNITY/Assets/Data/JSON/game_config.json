@@ -1,6 +1,6 @@
 {
     "meta":  {
-                 "generatedAt":  "2026-07-19T11:58:51+08:00",
+                 "generatedAt":  "2026-07-22T19:21:27+08:00",
                  "source":  "UNITY/Assets/Data/CSV",
                  "purpose":  "Program-readable complete config tables for opening system and current Unity DEMO runtime content."
              },
@@ -2161,14 +2161,54 @@
                                                                      }
                                    },
                  "techniques":  {
-                                    "technique_breathing_recovery":  {
-                                                                         "id":  "technique_breathing_recovery",
-                                                                         "name":  "吐纳归息",
-                                                                         "kind":  "HeartFormula",
-                                                                         "sourceStoryId":  "opening_story_branch_ancestral_vault",
-                                                                         "rulesText":  "调息恢复并稳定灵气循环",
-                                                                         "visualTag":  "jade_breath"
-                                                                     },
+                                    "sword_rain":  {
+                                                       "id":  "sword_rain",
+                                                       "name":  "剑雨横空",
+                                                       "kind":  "SwordArt",
+                                                       "sourceStoryId":  "event_collapsed_well_echo",
+                                                       "rulesText":  "对多个目标落下斜向剑雨",
+                                                       "visualTag":  "fan_sword"
+                                                   },
+                                    "thunder_sword":  {
+                                                          "id":  "thunder_sword",
+                                                          "name":  "雷剑",
+                                                          "kind":  "SwordArt",
+                                                          "sourceStoryId":  "event_thunder_vein",
+                                                          "rulesText":  "飞剑命中时在不同目标间引出雷链",
+                                                          "visualTag":  "lightning_zigzag"
+                                                      },
+                                    "wanjian_burst":  {
+                                                          "id":  "wanjian_burst",
+                                                          "name":  "万剑诀",
+                                                          "kind":  "SwordArt",
+                                                          "sourceStoryId":  "event_sword_furnace_insight",
+                                                          "rulesText":  "消耗剑意向右上扇形爆发",
+                                                          "visualTag":  "fan_sword"
+                                                      },
+                                    "summon_sword":  {
+                                                         "id":  "summon_sword",
+                                                         "name":  "御剑诀",
+                                                         "kind":  "SwordArt",
+                                                         "sourceStoryId":  "event_hidden_sword_cave",
+                                                         "rulesText":  "增添一柄常驻飞剑并缩短齐射间隔",
+                                                         "visualTag":  "diagonal_sword"
+                                                     },
+                                    "blood_sword":  {
+                                                        "id":  "blood_sword",
+                                                        "name":  "血剑胚",
+                                                        "kind":  "ForbiddenArt",
+                                                        "sourceStoryId":  "event_contract_refinement",
+                                                        "rulesText":  "以气血换取朱砂剑痕与高额单体伤害",
+                                                        "visualTag":  "cinnabar_hook"
+                                                    },
+                                    "returning_array":  {
+                                                            "id":  "returning_array",
+                                                            "name":  "回锋剑阵",
+                                                            "kind":  "SwordArt",
+                                                            "sourceStoryId":  "event_miner_spirit_return",
+                                                            "rulesText":  "飞剑回旋并再次命中锁定目标",
+                                                            "visualTag":  "returning_arc"
+                                                        },
                                     "technique_incomplete_sword_scroll":  {
                                                                               "id":  "technique_incomplete_sword_scroll",
                                                                               "name":  "残卷御剑式",
@@ -2176,7 +2216,23 @@
                                                                               "sourceStoryId":  "opening_story_branch_ancestral_vault",
                                                                               "rulesText":  "主动催动残剑胚并积累剑意",
                                                                               "visualTag":  "diagonal_sword"
-                                                                          }
+                                                                          },
+                                    "sword_focus":  {
+                                                        "id":  "sword_focus",
+                                                        "name":  "凝剑诀",
+                                                        "kind":  "HeartFormula",
+                                                        "sourceStoryId":  "event_shallow_sword_mark",
+                                                        "rulesText":  "凝神收束剑意并强化下一轮御剑",
+                                                        "visualTag":  "jade_focus"
+                                                    },
+                                    "technique_breathing_recovery":  {
+                                                                         "id":  "technique_breathing_recovery",
+                                                                         "name":  "吐纳归息",
+                                                                         "kind":  "HeartFormula",
+                                                                         "sourceStoryId":  "opening_story_branch_ancestral_vault",
+                                                                         "rulesText":  "调息恢复并稳定灵气循环",
+                                                                         "visualTag":  "jade_breath"
+                                                                     }
                                 },
                  "bearers":  {
                                  "bearer_old_mine_ground":  {
@@ -2203,6 +2259,1150 @@
                                                                                                              ]
                                                                                   }
                                               },
+                 "innateArtifacts":  {
+                                         "artifact_broken_sword_embryo":  {
+                                                                              "id":  "artifact_broken_sword_embryo",
+                                                                              "name":  "残剑胚",
+                                                                              "bearerDefinitionId":  "bearer_old_mine_ground",
+                                                                              "visualResourceKey":  "Art/VFX/vfx_battle_broken_sword_auto_001",
+                                                                              "baseCooldown":  3.8,
+                                                                              "stages":  [
+                                                                                             {
+                                                                                                 "stage":  1,
+                                                                                                 "name":  "残胚初鸣",
+                                                                                                 "baseDamage":  8,
+                                                                                                 "cooldown":  3.8,
+                                                                                                 "attackVariantId":  "broken_sword_single",
+                                                                                                 "rulesText":  "按冷却自动斩向锁定目标"
+                                                                                             },
+                                                                                             {
+                                                                                                 "stage":  2,
+                                                                                                 "name":  "矿火炼形",
+                                                                                                 "baseDamage":  11,
+                                                                                                 "cooldown":  3.3,
+                                                                                                 "attackVariantId":  "broken_sword_return",
+                                                                                                 "rulesText":  "命中后留下一道回锋墨痕"
+                                                                                             },
+                                                                                             {
+                                                                                                 "stage":  3,
+                                                                                                 "name":  "剑炉开锋",
+                                                                                                 "baseDamage":  15,
+                                                                                                 "cooldown":  2.9,
+                                                                                                 "attackVariantId":  "broken_sword_fan",
+                                                                                                 "rulesText":  "齐射末端向邻近目标分出一剑"
+                                                                                             }
+                                                                                         ]
+                                                                          }
+                                     },
+                 "mindMethods":  {
+                                     "practice_branch_breathing":  {
+                                                                       "id":  "practice_branch_breathing",
+                                                                       "name":  "旁支吐纳法",
+                                                                       "grantedTechniqueId":  "technique_breathing_recovery",
+                                                                       "levels":  [
+                                                                                      {
+                                                                                          "level":  1,
+                                                                                          "energyRegenMultiplier":  1,
+                                                                                          "recoveryAmount":  4,
+                                                                                          "artifactCooldownMultiplier":  1,
+                                                                                          "rulesText":  "每轮可用吐纳归息稳定气血"
+                                                                                      },
+                                                                                      {
+                                                                                          "level":  2,
+                                                                                          "energyRegenMultiplier":  1.1,
+                                                                                          "recoveryAmount":  6,
+                                                                                          "artifactCooldownMultiplier":  0.94,
+                                                                                          "rulesText":  "吐纳后加快下一次残剑胚自动攻击"
+                                                                                      },
+                                                                                      {
+                                                                                          "level":  3,
+                                                                                          "energyRegenMultiplier":  1.18,
+                                                                                          "recoveryAmount":  8,
+                                                                                          "artifactCooldownMultiplier":  0.88,
+                                                                                          "rulesText":  "溢出的恢复转为短暂护体"
+                                                                                      }
+                                                                                  ]
+                                                                   }
+                                 },
+                 "realmBreakthroughs":  {
+                                            "breakthrough_qi_to_foundation":  {
+                                                                                  "id":  "breakthrough_qi_to_foundation",
+                                                                                  "fromRealmId":  "realm_qi_refining",
+                                                                                  "toRealmId":  "realm_foundation",
+                                                                                  "maxEnergy":  6,
+                                                                                  "energyRegenMultiplier":  1.25,
+                                                                                  "techniquePowerMultiplier":  1.18,
+                                                                                  "requiredNodeType":  "Breakthrough",
+                                                                                  "sceneId":  "scene_old_mine_spirit_eye"
+                                                                              }
+                                        },
+                 "foundationRules":  {
+                                         "foundation_stable":  {
+                                                                   "id":  "foundation_stable",
+                                                                   "name":  "稳固道基",
+                                                                   "requiredStoryFlagId":  "",
+                                                                   "ruleKind":  "opening_energy",
+                                                                   "ruleValue":  1,
+                                                                   "rulesText":  "开战额外获得一点灵力",
+                                                                   "visualTag":  "ink_white"
+                                                               },
+                                         "foundation_clear_spirit":  {
+                                                                         "id":  "foundation_clear_spirit",
+                                                                         "name":  "清灵道基",
+                                                                         "requiredStoryFlagId":  "experience_miner_spirit_helped",
+                                                                         "ruleKind":  "retarget_refund",
+                                                                         "ruleValue":  1,
+                                                                         "rulesText":  "每场首次击杀后立刻返还一点灵力",
+                                                                         "visualTag":  "jade_breath"
+                                                                     },
+                                         "foundation_sword_bone":  {
+                                                                       "id":  "foundation_sword_bone",
+                                                                       "name":  "剑骨道基",
+                                                                       "requiredStoryFlagId":  "experience_ironback_beast_essence",
+                                                                       "ruleKind":  "sword_power",
+                                                                       "ruleValue":  0.18,
+                                                                       "rulesText":  "本命法器与剑诀伤害提高百分之十八",
+                                                                       "visualTag":  "jade_sword"
+                                                                   },
+                                         "foundation_thunder_meridian":  {
+                                                                             "id":  "foundation_thunder_meridian",
+                                                                             "name":  "雷脉道基",
+                                                                             "requiredStoryFlagId":  "experience_thunder_vein_touched",
+                                                                             "ruleKind":  "chain_bonus",
+                                                                             "ruleValue":  1,
+                                                                             "rulesText":  "感电命中额外跳向一个合法目标",
+                                                                             "visualTag":  "lightning_white"
+                                                                         },
+                                         "foundation_baleful_contract":  {
+                                                                             "id":  "foundation_baleful_contract",
+                                                                             "name":  "煞契道基",
+                                                                             "requiredStoryFlagId":  "experience_miner_spirit_bound",
+                                                                             "ruleKind":  "blood_contract",
+                                                                             "ruleValue":  0.12,
+                                                                             "rulesText":  "失去气血时为残剑胚积蓄朱砂剑痕",
+                                                                             "visualTag":  "cinnabar_contract"
+                                                                         }
+                                     },
+                 "encounterGroups":  {
+                                         "encounter_act2_wraiths":  {
+                                                                        "id":  "encounter_act2_wraiths",
+                                                                        "name":  "塌井残魂群",
+                                                                        "actIndex":  2,
+                                                                        "encounterRole":  "battle",
+                                                                        "members":  [
+                                                                                        {
+                                                                                            "slot":  1,
+                                                                                            "enemyId":  "enemy_old_mine_wraith",
+                                                                                            "positionId":  "enemy_front",
+                                                                                            "threatPriority":  3,
+                                                                                            "requiredForVictory":  true
+                                                                                        },
+                                                                                        {
+                                                                                            "slot":  2,
+                                                                                            "enemyId":  "enemy_collapsed_wraith",
+                                                                                            "positionId":  "enemy_middle",
+                                                                                            "threatPriority":  2,
+                                                                                            "requiredForVictory":  true
+                                                                                        },
+                                                                                        {
+                                                                                            "slot":  3,
+                                                                                            "enemyId":  "enemy_young_sword_eater",
+                                                                                            "positionId":  "enemy_rear",
+                                                                                            "threatPriority":  1,
+                                                                                            "requiredForVictory":  true
+                                                                                        }
+                                                                                    ]
+                                                                    },
+                                         "encounter_act1_elite":  {
+                                                                      "id":  "encounter_act1_elite",
+                                                                      "name":  "矿契守卫群",
+                                                                      "actIndex":  1,
+                                                                      "encounterRole":  "elite",
+                                                                      "members":  [
+                                                                                      {
+                                                                                          "slot":  1,
+                                                                                          "enemyId":  "enemy_old_mine_contract_guard",
+                                                                                          "positionId":  "enemy_front",
+                                                                                          "threatPriority":  4,
+                                                                                          "requiredForVictory":  true
+                                                                                      },
+                                                                                      {
+                                                                                          "slot":  2,
+                                                                                          "enemyId":  "enemy_contract_midge",
+                                                                                          "positionId":  "enemy_middle",
+                                                                                          "threatPriority":  2,
+                                                                                          "requiredForVictory":  true
+                                                                                      },
+                                                                                      {
+                                                                                          "slot":  3,
+                                                                                          "enemyId":  "enemy_shallow_mine_beast",
+                                                                                          "positionId":  "enemy_rear",
+                                                                                          "threatPriority":  1,
+                                                                                          "requiredForVictory":  true
+                                                                                      }
+                                                                                  ]
+                                                                  },
+                                         "encounter_act1_miniboss":  {
+                                                                         "id":  "encounter_act1_miniboss",
+                                                                         "name":  "铁脊矿兽巢",
+                                                                         "actIndex":  1,
+                                                                         "encounterRole":  "mini_boss",
+                                                                         "members":  [
+                                                                                         {
+                                                                                             "slot":  1,
+                                                                                             "enemyId":  "enemy_ironback_mine_beast",
+                                                                                             "positionId":  "mini_boss_front",
+                                                                                             "threatPriority":  4,
+                                                                                             "requiredForVictory":  true
+                                                                                         },
+                                                                                         {
+                                                                                             "slot":  2,
+                                                                                             "enemyId":  "enemy_contract_midge",
+                                                                                             "positionId":  "enemy_rear",
+                                                                                             "threatPriority":  1,
+                                                                                             "requiredForVictory":  false
+                                                                                         }
+                                                                                     ]
+                                                                     },
+                                         "encounter_act3_elite":  {
+                                                                      "id":  "encounter_act3_elite",
+                                                                      "name":  "炉心构造阵",
+                                                                      "actIndex":  3,
+                                                                      "encounterRole":  "elite",
+                                                                      "members":  [
+                                                                                      {
+                                                                                          "slot":  1,
+                                                                                          "enemyId":  "enemy_sword_furnace_elite",
+                                                                                          "positionId":  "enemy_front",
+                                                                                          "threatPriority":  4,
+                                                                                          "requiredForVictory":  true
+                                                                                      },
+                                                                                      {
+                                                                                          "slot":  2,
+                                                                                          "enemyId":  "enemy_contract_sword_shadow",
+                                                                                          "positionId":  "enemy_middle",
+                                                                                          "threatPriority":  2,
+                                                                                          "requiredForVictory":  true
+                                                                                      }
+                                                                                  ]
+                                                                  },
+                                         "encounter_act3_boss":  {
+                                                                     "id":  "encounter_act3_boss",
+                                                                     "name":  "玄铁镇矿剑傀",
+                                                                     "actIndex":  3,
+                                                                     "encounterRole":  "boss",
+                                                                     "members":  [
+                                                                                     {
+                                                                                         "slot":  1,
+                                                                                         "enemyId":  "target_xuantie_armor",
+                                                                                         "positionId":  "boss_upper_armor",
+                                                                                         "threatPriority":  5,
+                                                                                         "requiredForVictory":  true
+                                                                                     },
+                                                                                     {
+                                                                                         "slot":  2,
+                                                                                         "enemyId":  "target_contract_spike",
+                                                                                         "positionId":  "boss_contract_spike",
+                                                                                         "threatPriority":  4,
+                                                                                         "requiredForVictory":  true
+                                                                                     },
+                                                                                     {
+                                                                                         "slot":  3,
+                                                                                         "enemyId":  "target_sword_furnace_core",
+                                                                                         "positionId":  "boss_furnace_core",
+                                                                                         "threatPriority":  3,
+                                                                                         "requiredForVictory":  true
+                                                                                     }
+                                                                                 ]
+                                                                 },
+                                         "encounter_act3_furnace":  {
+                                                                        "id":  "encounter_act3_furnace",
+                                                                        "name":  "封契剑影阵",
+                                                                        "actIndex":  3,
+                                                                        "encounterRole":  "battle",
+                                                                        "members":  [
+                                                                                        {
+                                                                                            "slot":  1,
+                                                                                            "enemyId":  "enemy_sword_furnace_guard",
+                                                                                            "positionId":  "enemy_front",
+                                                                                            "threatPriority":  3,
+                                                                                            "requiredForVictory":  true
+                                                                                        },
+                                                                                        {
+                                                                                            "slot":  2,
+                                                                                            "enemyId":  "enemy_contract_sword_shadow",
+                                                                                            "positionId":  "enemy_middle",
+                                                                                            "threatPriority":  2,
+                                                                                            "requiredForVictory":  true
+                                                                                        },
+                                                                                        {
+                                                                                            "slot":  3,
+                                                                                            "enemyId":  "enemy_furnace_construct",
+                                                                                            "positionId":  "enemy_rear",
+                                                                                            "threatPriority":  1,
+                                                                                            "requiredForVictory":  true
+                                                                                        }
+                                                                                    ]
+                                                                    },
+                                         "encounter_act2_elite":  {
+                                                                      "id":  "encounter_act2_elite",
+                                                                      "name":  "吞剑群落",
+                                                                      "actIndex":  2,
+                                                                      "encounterRole":  "elite",
+                                                                      "members":  [
+                                                                                      {
+                                                                                          "slot":  1,
+                                                                                          "enemyId":  "enemy_collapsed_well_guard",
+                                                                                          "positionId":  "enemy_front",
+                                                                                          "threatPriority":  4,
+                                                                                          "requiredForVictory":  true
+                                                                                      },
+                                                                                      {
+                                                                                          "slot":  2,
+                                                                                          "enemyId":  "enemy_young_sword_eater",
+                                                                                          "positionId":  "enemy_middle",
+                                                                                          "threatPriority":  2,
+                                                                                          "requiredForVictory":  true
+                                                                                      }
+                                                                                  ]
+                                                                  },
+                                         "encounter_act2_miniboss":  {
+                                                                         "id":  "encounter_act2_miniboss",
+                                                                         "name":  "吞剑矿魈巢",
+                                                                         "actIndex":  2,
+                                                                         "encounterRole":  "mini_boss",
+                                                                         "members":  [
+                                                                                         {
+                                                                                             "slot":  1,
+                                                                                             "enemyId":  "enemy_sword_eating_mine_spirit",
+                                                                                             "positionId":  "mini_boss_front",
+                                                                                             "threatPriority":  4,
+                                                                                             "requiredForVictory":  true
+                                                                                         },
+                                                                                         {
+                                                                                             "slot":  2,
+                                                                                             "enemyId":  "enemy_young_sword_eater",
+                                                                                             "positionId":  "enemy_rear",
+                                                                                             "threatPriority":  1,
+                                                                                             "requiredForVictory":  false
+                                                                                         }
+                                                                                     ]
+                                                                     },
+                                         "encounter_act1_patrol":  {
+                                                                       "id":  "encounter_act1_patrol",
+                                                                       "name":  "浅层契骨巡队",
+                                                                       "actIndex":  1,
+                                                                       "encounterRole":  "battle",
+                                                                       "members":  [
+                                                                                       {
+                                                                                           "slot":  1,
+                                                                                           "enemyId":  "enemy_old_mine_entry",
+                                                                                           "positionId":  "enemy_front",
+                                                                                           "threatPriority":  3,
+                                                                                           "requiredForVictory":  true
+                                                                                       },
+                                                                                       {
+                                                                                           "slot":  2,
+                                                                                           "enemyId":  "enemy_contract_midge",
+                                                                                           "positionId":  "enemy_middle",
+                                                                                           "threatPriority":  2,
+                                                                                           "requiredForVictory":  true
+                                                                                       }
+                                                                                   ]
+                                                                   }
+                                     },
+                 "mapTemplates":  {
+                                      "map_old_mine_three_act":  {
+                                                                     "id":  "map_old_mine_three_act",
+                                                                     "regionId":  "region_old_mine",
+                                                                     "actCount":  3,
+                                                                     "standardDepthCount":  8,
+                                                                     "nodes":  [
+                                                                                   {
+                                                                                       "slotId":  "a1_d0",
+                                                                                       "actIndex":  1,
+                                                                                       "depthIndex":  0,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Start",
+                                                                                       "requiredContentId":  "story_old_mine_entry",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a1_d1_l",
+                                                                                       "actIndex":  1,
+                                                                                       "depthIndex":  1,
+                                                                                       "laneIndex":  -1,
+                                                                                       "allowedNodeTypes":  "Battle|Event",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a1_d1_r",
+                                                                                       "actIndex":  1,
+                                                                                       "depthIndex":  1,
+                                                                                       "laneIndex":  1,
+                                                                                       "allowedNodeTypes":  "Battle|Cultivation",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a1_d2",
+                                                                                       "actIndex":  1,
+                                                                                       "depthIndex":  2,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Story",
+                                                                                       "requiredContentId":  "event_miner_spirit_first",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a1_d3_l",
+                                                                                       "actIndex":  1,
+                                                                                       "depthIndex":  3,
+                                                                                       "laneIndex":  -1,
+                                                                                       "allowedNodeTypes":  "Battle|Cultivation",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a1_d3_r",
+                                                                                       "actIndex":  1,
+                                                                                       "depthIndex":  3,
+                                                                                       "laneIndex":  1,
+                                                                                       "allowedNodeTypes":  "Event|Secret",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a1_d4",
+                                                                                       "actIndex":  1,
+                                                                                       "depthIndex":  4,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Battle|Elite",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a1_d5_l",
+                                                                                       "actIndex":  1,
+                                                                                       "depthIndex":  5,
+                                                                                       "laneIndex":  -1,
+                                                                                       "allowedNodeTypes":  "Cultivation|Refinement",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a1_d5_r",
+                                                                                       "actIndex":  1,
+                                                                                       "depthIndex":  5,
+                                                                                       "laneIndex":  1,
+                                                                                       "allowedNodeTypes":  "Event|Secret",
+                                                                                       "requiredContentId":  "event_old_contract_trace",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a1_d6",
+                                                                                       "actIndex":  1,
+                                                                                       "depthIndex":  6,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Refinement|Cultivation",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a1_d7",
+                                                                                       "actIndex":  1,
+                                                                                       "depthIndex":  7,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "MiniBoss",
+                                                                                       "requiredContentId":  "encounter_act1_miniboss",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a2_d0",
+                                                                                       "actIndex":  2,
+                                                                                       "depthIndex":  0,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Story",
+                                                                                       "requiredContentId":  "story_collapsed_well_entry",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a2_d1_l",
+                                                                                       "actIndex":  2,
+                                                                                       "depthIndex":  1,
+                                                                                       "laneIndex":  -1,
+                                                                                       "allowedNodeTypes":  "Battle|Elite",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a2_d1_r",
+                                                                                       "actIndex":  2,
+                                                                                       "depthIndex":  1,
+                                                                                       "laneIndex":  1,
+                                                                                       "allowedNodeTypes":  "Battle|Event",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a2_d2",
+                                                                                       "actIndex":  2,
+                                                                                       "depthIndex":  2,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Story",
+                                                                                       "requiredContentId":  "event_miner_spirit_return",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a2_d3_l",
+                                                                                       "actIndex":  2,
+                                                                                       "depthIndex":  3,
+                                                                                       "laneIndex":  -1,
+                                                                                       "allowedNodeTypes":  "Battle|Cultivation",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a2_d3_r",
+                                                                                       "actIndex":  2,
+                                                                                       "depthIndex":  3,
+                                                                                       "laneIndex":  1,
+                                                                                       "allowedNodeTypes":  "Secret|Event",
+                                                                                       "requiredContentId":  "event_thunder_vein",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a2_d4",
+                                                                                       "actIndex":  2,
+                                                                                       "depthIndex":  4,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Battle|Elite",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a2_d5_l",
+                                                                                       "actIndex":  2,
+                                                                                       "depthIndex":  5,
+                                                                                       "laneIndex":  -1,
+                                                                                       "allowedNodeTypes":  "Cultivation|Refinement",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a2_d5_r",
+                                                                                       "actIndex":  2,
+                                                                                       "depthIndex":  5,
+                                                                                       "laneIndex":  1,
+                                                                                       "allowedNodeTypes":  "Secret|Battle",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a2_d6",
+                                                                                       "actIndex":  2,
+                                                                                       "depthIndex":  6,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Story",
+                                                                                       "requiredContentId":  "event_old_contract_truth",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a2_d7",
+                                                                                       "actIndex":  2,
+                                                                                       "depthIndex":  7,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "MiniBoss",
+                                                                                       "requiredContentId":  "encounter_act2_miniboss",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a3_d0",
+                                                                                       "actIndex":  3,
+                                                                                       "depthIndex":  0,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Breakthrough",
+                                                                                       "requiredContentId":  "breakthrough_qi_to_foundation",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a3_d1",
+                                                                                       "actIndex":  3,
+                                                                                       "depthIndex":  1,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Battle",
+                                                                                       "requiredContentId":  "encounter_act3_furnace",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a3_d2_l",
+                                                                                       "actIndex":  3,
+                                                                                       "depthIndex":  2,
+                                                                                       "laneIndex":  -1,
+                                                                                       "allowedNodeTypes":  "Cultivation|Refinement",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a3_d2_r",
+                                                                                       "actIndex":  3,
+                                                                                       "depthIndex":  2,
+                                                                                       "laneIndex":  1,
+                                                                                       "allowedNodeTypes":  "Event|Secret",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a3_d3",
+                                                                                       "actIndex":  3,
+                                                                                       "depthIndex":  3,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Battle|Elite",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a3_d4_l",
+                                                                                       "actIndex":  3,
+                                                                                       "depthIndex":  4,
+                                                                                       "laneIndex":  -1,
+                                                                                       "allowedNodeTypes":  "Secret|Refinement",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a3_d4_r",
+                                                                                       "actIndex":  3,
+                                                                                       "depthIndex":  4,
+                                                                                       "laneIndex":  1,
+                                                                                       "allowedNodeTypes":  "Event|Cultivation",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a3_d5",
+                                                                                       "actIndex":  3,
+                                                                                       "depthIndex":  5,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Battle|Elite",
+                                                                                       "requiredContentId":  "",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a3_d6",
+                                                                                       "actIndex":  3,
+                                                                                       "depthIndex":  6,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Story",
+                                                                                       "requiredContentId":  "event_sword_furnace_contract",
+                                                                                       "requiredStoryFlagId":  "experience_old_contract_truth",
+                                                                                       "hidden":  false
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a3_hidden_contract",
+                                                                                       "actIndex":  3,
+                                                                                       "depthIndex":  6,
+                                                                                       "laneIndex":  1,
+                                                                                       "allowedNodeTypes":  "Secret",
+                                                                                       "requiredContentId":  "hidden_contract_cache",
+                                                                                       "requiredStoryFlagId":  "experience_miner_spirit_bound",
+                                                                                       "hidden":  true
+                                                                                   },
+                                                                                   {
+                                                                                       "slotId":  "a3_d7",
+                                                                                       "actIndex":  3,
+                                                                                       "depthIndex":  7,
+                                                                                       "laneIndex":  0,
+                                                                                       "allowedNodeTypes":  "Boss",
+                                                                                       "requiredContentId":  "encounter_act3_boss",
+                                                                                       "requiredStoryFlagId":  "",
+                                                                                       "hidden":  false
+                                                                                   }
+                                                                               ],
+                                                                     "edges":  [
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d0",
+                                                                                       "toSlotId":  "a1_d1_l"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d0",
+                                                                                       "toSlotId":  "a1_d1_r"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d1_l",
+                                                                                       "toSlotId":  "a1_d2"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d1_r",
+                                                                                       "toSlotId":  "a1_d2"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d2",
+                                                                                       "toSlotId":  "a1_d3_l"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d2",
+                                                                                       "toSlotId":  "a1_d3_r"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d3_l",
+                                                                                       "toSlotId":  "a1_d4"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d3_r",
+                                                                                       "toSlotId":  "a1_d4"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d4",
+                                                                                       "toSlotId":  "a1_d5_l"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d4",
+                                                                                       "toSlotId":  "a1_d5_r"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d5_l",
+                                                                                       "toSlotId":  "a1_d6"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d5_r",
+                                                                                       "toSlotId":  "a1_d6"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d6",
+                                                                                       "toSlotId":  "a1_d7"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a1_d7",
+                                                                                       "toSlotId":  "a2_d0"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d0",
+                                                                                       "toSlotId":  "a2_d1_l"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d0",
+                                                                                       "toSlotId":  "a2_d1_r"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d1_l",
+                                                                                       "toSlotId":  "a2_d2"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d1_r",
+                                                                                       "toSlotId":  "a2_d2"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d2",
+                                                                                       "toSlotId":  "a2_d3_l"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d2",
+                                                                                       "toSlotId":  "a2_d3_r"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d3_l",
+                                                                                       "toSlotId":  "a2_d4"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d3_r",
+                                                                                       "toSlotId":  "a2_d4"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d4",
+                                                                                       "toSlotId":  "a2_d5_l"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d4",
+                                                                                       "toSlotId":  "a2_d5_r"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d5_l",
+                                                                                       "toSlotId":  "a2_d6"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d5_r",
+                                                                                       "toSlotId":  "a2_d6"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d6",
+                                                                                       "toSlotId":  "a2_d7"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a2_d7",
+                                                                                       "toSlotId":  "a3_d0"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_d0",
+                                                                                       "toSlotId":  "a3_d1"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_d1",
+                                                                                       "toSlotId":  "a3_d2_l"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_d1",
+                                                                                       "toSlotId":  "a3_d2_r"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_d2_l",
+                                                                                       "toSlotId":  "a3_d3"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_d2_r",
+                                                                                       "toSlotId":  "a3_d3"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_d3",
+                                                                                       "toSlotId":  "a3_d4_l"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_d3",
+                                                                                       "toSlotId":  "a3_d4_r"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_d4_l",
+                                                                                       "toSlotId":  "a3_d5"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_d4_r",
+                                                                                       "toSlotId":  "a3_d5"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_d5",
+                                                                                       "toSlotId":  "a3_d6"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_d5",
+                                                                                       "toSlotId":  "a3_hidden_contract"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_d6",
+                                                                                       "toSlotId":  "a3_d7"
+                                                                                   },
+                                                                                   {
+                                                                                       "fromSlotId":  "a3_hidden_contract",
+                                                                                       "toSlotId":  "a3_d7"
+                                                                                   }
+                                                                               ]
+                                                                 }
+                                  },
+                 "events":  {
+                                "event_miner_spirit_first":  {
+                                                                 "id":  "event_miner_spirit_first",
+                                                                 "name":  "契索下的微光",
+                                                                 "sceneId":  "scene_old_mine_miner_spirit_001",
+                                                                 "actIndex":  1,
+                                                                 "critical":  true,
+                                                                 "requiredStoryFlagId":  "",
+                                                                 "choices":  [
+                                                                                 {
+                                                                                     "choiceId":  "choice_miner_spirit_help",
+                                                                                     "label":  "替它松开契索",
+                                                                                     "description":  "保留它的自由并记住它指向的矿路",
+                                                                                     "requiredStoryFlagId":  "",
+                                                                                     "grantedStoryFlagId":  "experience_miner_spirit_helped",
+                                                                                     "effectKind":  "heal",
+                                                                                     "effectValue":  "10"
+                                                                                 },
+                                                                                 {
+                                                                                     "choiceId":  "choice_miner_spirit_bind",
+                                                                                     "label":  "以残剑胚收束它",
+                                                                                     "description":  "让它替你探路但背负新的契",
+                                                                                     "requiredStoryFlagId":  "",
+                                                                                     "grantedStoryFlagId":  "experience_miner_spirit_bound",
+                                                                                     "effectKind":  "artifact_refine",
+                                                                                     "effectValue":  "1"
+                                                                                 },
+                                                                                 {
+                                                                                     "choiceId":  "choice_miner_spirit_kill",
+                                                                                     "label":  "击杀炼化",
+                                                                                     "description":  "夺取精魄换取即时开锋",
+                                                                                     "requiredStoryFlagId":  "",
+                                                                                     "grantedStoryFlagId":  "experience_miner_spirit_refined",
+                                                                                     "effectKind":  "learn_technique",
+                                                                                     "effectValue":  "blood_sword"
+                                                                                 },
+                                                                                 {
+                                                                                     "choiceId":  "choice_miner_spirit_ignore",
+                                                                                     "label":  "转身深入",
+                                                                                     "description":  "不替它承担因果",
+                                                                                     "requiredStoryFlagId":  "",
+                                                                                     "grantedStoryFlagId":  "experience_miner_spirit_ignored",
+                                                                                     "effectKind":  "none",
+                                                                                     "effectValue":  ""
+                                                                                 }
+                                                                             ]
+                                                             },
+                                "event_miner_spirit_return":  {
+                                                                  "id":  "event_miner_spirit_return",
+                                                                  "name":  "塌井再会",
+                                                                  "sceneId":  "scene_old_mine_miner_spirit_002",
+                                                                  "actIndex":  2,
+                                                                  "critical":  true,
+                                                                  "requiredStoryFlagId":  "",
+                                                                  "choices":  [
+                                                                                  {
+                                                                                      "choiceId":  "choice_spirit_listen",
+                                                                                      "label":  "听它说完",
+                                                                                      "description":  "从残缺记忆中取得回锋剑阵",
+                                                                                      "requiredStoryFlagId":  "experience_miner_spirit_helped",
+                                                                                      "grantedStoryFlagId":  "experience_miner_spirit_returned",
+                                                                                      "effectKind":  "learn_technique",
+                                                                                      "effectValue":  "returning_array"
+                                                                                  },
+                                                                                  {
+                                                                                      "choiceId":  "choice_spirit_command",
+                                                                                      "label":  "命它引路",
+                                                                                      "description":  "强迫受缚矿灵打开隐路",
+                                                                                      "requiredStoryFlagId":  "experience_miner_spirit_bound",
+                                                                                      "grantedStoryFlagId":  "experience_miner_spirit_returned",
+                                                                                      "effectKind":  "reveal_hidden",
+                                                                                      "effectValue":  "hidden_contract_cache"
+                                                                                  },
+                                                                                  {
+                                                                                      "choiceId":  "choice_spirit_take_ash",
+                                                                                      "label":  "炼尽余烬",
+                                                                                      "description":  "从残余精魄中稳固煞契",
+                                                                                      "requiredStoryFlagId":  "experience_miner_spirit_refined",
+                                                                                      "grantedStoryFlagId":  "experience_miner_spirit_returned",
+                                                                                      "effectKind":  "artifact_refine",
+                                                                                      "effectValue":  "1"
+                                                                                  },
+                                                                                  {
+                                                                                      "choiceId":  "choice_spirit_pass",
+                                                                                      "label":  "仍不回应",
+                                                                                      "description":  "保留距离继续深入",
+                                                                                      "requiredStoryFlagId":  "experience_miner_spirit_ignored",
+                                                                                      "grantedStoryFlagId":  "experience_miner_spirit_returned",
+                                                                                      "effectKind":  "heal",
+                                                                                      "effectValue":  "6"
+                                                                                  }
+                                                                              ]
+                                                              },
+                                "event_thunder_vein":  {
+                                                           "id":  "event_thunder_vein",
+                                                           "name":  "井底雷髓",
+                                                           "sceneId":  "scene_old_mine_thunder_vein_001",
+                                                           "actIndex":  2,
+                                                           "critical":  false,
+                                                           "requiredStoryFlagId":  "",
+                                                           "choices":  [
+                                                                           {
+                                                                               "choiceId":  "choice_thunder_understand",
+                                                                               "label":  "引雷入脉",
+                                                                               "description":  "承受雷光以记住其运行",
+                                                                               "requiredStoryFlagId":  "",
+                                                                               "grantedStoryFlagId":  "experience_thunder_vein_touched",
+                                                                               "effectKind":  "learn_technique",
+                                                                               "effectValue":  "thunder_sword"
+                                                                           }
+                                                                       ]
+                                                       },
+                                "event_sword_furnace_contract":  {
+                                                                     "id":  "event_sword_furnace_contract",
+                                                                     "name":  "剑炉断契",
+                                                                     "sceneId":  "scene_old_mine_sword_furnace_001",
+                                                                     "actIndex":  3,
+                                                                     "critical":  true,
+                                                                     "requiredStoryFlagId":  "experience_old_contract_truth",
+                                                                     "choices":  [
+                                                                                     {
+                                                                                         "choiceId":  "choice_contract_break",
+                                                                                         "label":  "断去旧契",
+                                                                                         "description":  "让剑炉与矿灵都脱离祖契",
+                                                                                         "requiredStoryFlagId":  "experience_old_contract_truth",
+                                                                                         "grantedStoryFlagId":  "experience_old_contract_broken",
+                                                                                         "effectKind":  "boss_modifier",
+                                                                                         "effectValue":  "contract_spike_weakened"
+                                                                                     },
+                                                                                     {
+                                                                                         "choiceId":  "choice_contract_claim",
+                                                                                         "label":  "炼契入剑",
+                                                                                         "description":  "把契文并入残剑胚换取开锋",
+                                                                                         "requiredStoryFlagId":  "experience_old_contract_truth",
+                                                                                         "grantedStoryFlagId":  "experience_old_contract_claimed",
+                                                                                         "effectKind":  "artifact_refine",
+                                                                                         "effectValue":  "1"
+                                                                                     }
+                                                                                 ]
+                                                                 },
+                                "event_old_contract_trace":  {
+                                                                 "id":  "event_old_contract_trace",
+                                                                 "name":  "矿壁旧契",
+                                                                 "sceneId":  "scene_old_mine_contract_wall_001",
+                                                                 "actIndex":  1,
+                                                                 "critical":  true,
+                                                                 "requiredStoryFlagId":  "",
+                                                                 "choices":  [
+                                                                                 {
+                                                                                     "choiceId":  "choice_contract_read",
+                                                                                     "label":  "拓下契文",
+                                                                                     "description":  "记住祖辈留在矿中的债",
+                                                                                     "requiredStoryFlagId":  "",
+                                                                                     "grantedStoryFlagId":  "discovery_old_mine_contract",
+                                                                                     "effectKind":  "discovery",
+                                                                                     "effectValue":  "discovery_old_mine_contract"
+                                                                                 },
+                                                                                 {
+                                                                                     "choiceId":  "choice_contract_burn",
+                                                                                     "label":  "烧去表层契纸",
+                                                                                     "description":  "恢复气血但失去一条直接线索",
+                                                                                     "requiredStoryFlagId":  "",
+                                                                                     "grantedStoryFlagId":  "",
+                                                                                     "effectKind":  "heal",
+                                                                                     "effectValue":  "12"
+                                                                                 }
+                                                                             ]
+                                                             },
+                                "event_old_contract_truth":  {
+                                                                 "id":  "event_old_contract_truth",
+                                                                 "name":  "祭炼真相",
+                                                                 "sceneId":  "scene_old_mine_contract_truth_001",
+                                                                 "actIndex":  2,
+                                                                 "critical":  true,
+                                                                 "requiredStoryFlagId":  "",
+                                                                 "choices":  [
+                                                                                 {
+                                                                                     "choiceId":  "choice_truth_accept",
+                                                                                     "label":  "记下真相",
+                                                                                     "description":  "承认旁支取剑之路来自旧契",
+                                                                                     "requiredStoryFlagId":  "",
+                                                                                     "grantedStoryFlagId":  "experience_old_contract_truth",
+                                                                                     "effectKind":  "discovery",
+                                                                                     "effectValue":  "discovery_old_mine_contract"
+                                                                                 }
+                                                                             ]
+                                                             }
+                            },
+                 "storyFlags":  {
+                                    "experience_miner_spirit_returned":  {
+                                                                             "id":  "experience_miner_spirit_returned",
+                                                                             "category":  "npc",
+                                                                             "description":  "矿灵在塌井再次现身",
+                                                                             "persistsBetweenRuns":  false
+                                                                         },
+                                    "experience_contract_nail_taken":  {
+                                                                           "id":  "experience_contract_nail_taken",
+                                                                           "category":  "growth",
+                                                                           "description":  "曾拔取朱砂契钉",
+                                                                           "persistsBetweenRuns":  false
+                                                                       },
+                                    "experience_foundation_sword_tempered":  {
+                                                                                 "id":  "experience_foundation_sword_tempered",
+                                                                                 "category":  "growth",
+                                                                                 "description":  "曾以剑意淬炼筑基经脉",
+                                                                                 "persistsBetweenRuns":  false
+                                                                             },
+                                    "discovery_old_mine_contract":  {
+                                                                        "id":  "discovery_old_mine_contract",
+                                                                        "category":  "lore",
+                                                                        "description":  "旧矿契文见闻",
+                                                                        "persistsBetweenRuns":  true
+                                                                    },
+                                    "experience_miner_spirit_refined":  {
+                                                                            "id":  "experience_miner_spirit_refined",
+                                                                            "category":  "npc",
+                                                                            "description":  "曾击杀并炼化矿灵",
+                                                                            "persistsBetweenRuns":  false
+                                                                        },
+                                    "experience_old_contract_truth":  {
+                                                                          "id":  "experience_old_contract_truth",
+                                                                          "category":  "story",
+                                                                          "description":  "已知旁支旧契真相",
+                                                                          "persistsBetweenRuns":  false
+                                                                      },
+                                    "experience_thunder_vein_touched":  {
+                                                                            "id":  "experience_thunder_vein_touched",
+                                                                            "category":  "growth",
+                                                                            "description":  "在塌井深处引雷入剑",
+                                                                            "persistsBetweenRuns":  false
+                                                                        },
+                                    "experience_miner_spirit_ignored":  {
+                                                                            "id":  "experience_miner_spirit_ignored",
+                                                                            "category":  "npc",
+                                                                            "description":  "曾无视矿灵求援",
+                                                                            "persistsBetweenRuns":  false
+                                                                        },
+                                    "experience_old_contract_claimed":  {
+                                                                            "id":  "experience_old_contract_claimed",
+                                                                            "category":  "ending",
+                                                                            "description":  "将旧契炼入本命法器",
+                                                                            "persistsBetweenRuns":  false
+                                                                        },
+                                    "experience_old_contract_broken":  {
+                                                                           "id":  "experience_old_contract_broken",
+                                                                           "category":  "ending",
+                                                                           "description":  "在剑炉断去旧契",
+                                                                           "persistsBetweenRuns":  false
+                                                                       },
+                                    "experience_entered_old_mine":  {
+                                                                        "id":  "experience_entered_old_mine",
+                                                                        "category":  "journey",
+                                                                        "description":  "已踏入旧矿地窟",
+                                                                        "persistsBetweenRuns":  false
+                                                                    },
+                                    "experience_sword_force_refined":  {
+                                                                           "id":  "experience_sword_force_refined",
+                                                                           "category":  "growth",
+                                                                           "description":  "曾以气血强炼残剑胚",
+                                                                           "persistsBetweenRuns":  false
+                                                                       },
+                                    "experience_miner_spirit_bound":  {
+                                                                          "id":  "experience_miner_spirit_bound",
+                                                                          "category":  "npc",
+                                                                          "description":  "曾以残剑胚束缚矿灵",
+                                                                          "persistsBetweenRuns":  false
+                                                                      },
+                                    "experience_ironback_beast_essence":  {
+                                                                              "id":  "experience_ironback_beast_essence",
+                                                                              "category":  "growth",
+                                                                              "description":  "取得铁脊矿兽精髓",
+                                                                              "persistsBetweenRuns":  false
+                                                                          },
+                                    "experience_miner_spirit_helped":  {
+                                                                           "id":  "experience_miner_spirit_helped",
+                                                                           "category":  "npc",
+                                                                           "description":  "曾替矿灵解开一段契索",
+                                                                           "persistsBetweenRuns":  false
+                                                                       },
+                                    "discovery_xuantie_sword_puppet":  {
+                                                                           "id":  "discovery_xuantie_sword_puppet",
+                                                                           "category":  "lore",
+                                                                           "description":  "玄铁镇矿剑傀见闻",
+                                                                           "persistsBetweenRuns":  true
+                                                                       }
+                                },
                  "gongfas":  {
                                  "gongfa_sword_heart_resonance":  {
                                                                       "id":  "gongfa_sword_heart_resonance",
@@ -3004,66 +4204,6 @@
                                                                      }
                                         },
                  "enemies":  {
-                                 "enemy_blood_wraith":  {
-                                                            "id":  "enemy_blood_wraith",
-                                                            "name":  "血影残魂",
-                                                            "battleRole":  "normal",
-                                                            "isBoss":  false,
-                                                            "maxHealth":  180,
-                                                            "baseDamageProfile":  "normal_layer_1",
-                                                            "notes":  "首层普通敌人模板目标 50 至 80 秒",
-                                                            "bossPhases":  [
-
-                                                                           ]
-                                                        },
-                                 "enemy_herb_forest_entry":  {
-                                                                 "id":  "enemy_herb_forest_entry",
-                                                                 "name":  "药谷雾林遭遇",
-                                                                 "battleRole":  "normal",
-                                                                 "isBoss":  false,
-                                                                 "maxHealth":  95,
-                                                                 "baseDamageProfile":  "opening_battle",
-                                                                 "notes":  "未开放首境兼容模板",
-                                                                 "bossPhases":  [
-
-                                                                                ]
-                                                             },
-                                 "enemy_thunder_marsh_entry":  {
-                                                                   "id":  "enemy_thunder_marsh_entry",
-                                                                   "name":  "雷泽浅滩遭遇",
-                                                                   "battleRole":  "normal",
-                                                                   "isBoss":  false,
-                                                                   "maxHealth":  110,
-                                                                   "baseDamageProfile":  "opening_battle",
-                                                                   "notes":  "未开放首境兼容模板",
-                                                                   "bossPhases":  [
-
-                                                                                  ]
-                                                               },
-                                 "enemy_collapsed_well_guard":  {
-                                                                    "id":  "enemy_collapsed_well_guard",
-                                                                    "name":  "塌井守卫",
-                                                                    "battleRole":  "elite",
-                                                                    "isBoss":  false,
-                                                                    "maxHealth":  250,
-                                                                    "baseDamageProfile":  "elite_layer_1",
-                                                                    "notes":  "第一层冒险路线精英目标 80 至 110 秒",
-                                                                    "bossPhases":  [
-
-                                                                                   ]
-                                                                },
-                                 "enemy_thunder_general":  {
-                                                               "id":  "enemy_thunder_general",
-                                                               "name":  "雷纹妖将",
-                                                               "battleRole":  "normal",
-                                                               "isBoss":  false,
-                                                               "maxHealth":  180,
-                                                               "baseDamageProfile":  "normal_layer_1",
-                                                               "notes":  "首层普通敌人模板目标 50 至 80 秒",
-                                                               "bossPhases":  [
-
-                                                                              ]
-                                                           },
                                  "enemy_ancestral_vault_entry":  {
                                                                      "id":  "enemy_ancestral_vault_entry",
                                                                      "name":  "旧库门前遭遇",
@@ -3088,6 +4228,78 @@
 
                                                                                    ]
                                                                 },
+                                 "target_xuantie_armor":  {
+                                                              "id":  "target_xuantie_armor",
+                                                              "name":  "玄铁甲片",
+                                                              "battleRole":  "boss_part",
+                                                              "isBoss":  false,
+                                                              "maxHealth":  1368,
+                                                              "baseDamageProfile":  "boss_part_armor",
+                                                              "notes":  "剑傀第一阶段可锁部位",
+                                                              "bossPhases":  [
+
+                                                                             ]
+                                                          },
+                                 "enemy_blood_wraith":  {
+                                                            "id":  "enemy_blood_wraith",
+                                                            "name":  "血影残魂",
+                                                            "battleRole":  "normal",
+                                                            "isBoss":  false,
+                                                            "maxHealth":  180,
+                                                            "baseDamageProfile":  "normal_layer_1",
+                                                            "notes":  "首层普通敌人模板目标 50 至 80 秒",
+                                                            "bossPhases":  [
+
+                                                                           ]
+                                                        },
+                                 "enemy_old_mine_wraith":  {
+                                                               "id":  "enemy_old_mine_wraith",
+                                                               "name":  "塌井残魂",
+                                                               "battleRole":  "normal",
+                                                               "isBoss":  false,
+                                                               "maxHealth":  230,
+                                                               "baseDamageProfile":  "normal_act_2",
+                                                               "notes":  "第二幕普通多目标主位",
+                                                               "bossPhases":  [
+
+                                                                              ]
+                                                           },
+                                 "enemy_thunder_cliff_guard":  {
+                                                                   "id":  "enemy_thunder_cliff_guard",
+                                                                   "name":  "雷崖执兵",
+                                                                   "battleRole":  "elite",
+                                                                   "isBoss":  false,
+                                                                   "maxHealth":  1100,
+                                                                   "baseDamageProfile":  "elite_layer_2",
+                                                                   "notes":  "第二层高压战目标 80 至 110 秒",
+                                                                   "bossPhases":  [
+
+                                                                                  ]
+                                                               },
+                                 "enemy_old_mine_entry":  {
+                                                              "id":  "enemy_old_mine_entry",
+                                                              "name":  "旧矿入口遭遇",
+                                                              "battleRole":  "normal",
+                                                              "isBoss":  false,
+                                                              "maxHealth":  105,
+                                                              "baseDamageProfile":  "opening_battle",
+                                                              "notes":  "入旧矿首战目标 30 至 45 秒",
+                                                              "bossPhases":  [
+
+                                                                             ]
+                                                          },
+                                 "enemy_calamity_gatekeeper":  {
+                                                                   "id":  "enemy_calamity_gatekeeper",
+                                                                   "name":  "劫前守门",
+                                                                   "battleRole":  "elite",
+                                                                   "isBoss":  false,
+                                                                   "maxHealth":  1600,
+                                                                   "baseDamageProfile":  "elite_layer_3",
+                                                                   "notes":  "第三层高奖精英目标 80 至 110 秒",
+                                                                   "bossPhases":  [
+
+                                                                                  ]
+                                                               },
                                  "enemy_rift_sword_fiend":  {
                                                                 "id":  "enemy_rift_sword_fiend",
                                                                 "name":  "裂空剑煞",
@@ -3100,28 +4312,61 @@
 
                                                                                ]
                                                             },
-                                 "enemy_trade_road_entry":  {
-                                                                "id":  "enemy_trade_road_entry",
-                                                                "name":  "荒谷驿路遭遇",
-                                                                "battleRole":  "normal",
-                                                                "isBoss":  false,
-                                                                "maxHealth":  95,
-                                                                "baseDamageProfile":  "opening_battle",
-                                                                "notes":  "未开放首境兼容模板",
-                                                                "bossPhases":  [
-
-                                                                               ]
-                                                            },
-                                 "enemy_thunder_cliff_guard":  {
-                                                                   "id":  "enemy_thunder_cliff_guard",
-                                                                   "name":  "雷崖执兵",
-                                                                   "battleRole":  "elite",
+                                 "enemy_thunder_marsh_entry":  {
+                                                                   "id":  "enemy_thunder_marsh_entry",
+                                                                   "name":  "雷泽浅滩遭遇",
+                                                                   "battleRole":  "normal",
                                                                    "isBoss":  false,
-                                                                   "maxHealth":  1100,
-                                                                   "baseDamageProfile":  "elite_layer_2",
-                                                                   "notes":  "第二层高压战目标 80 至 110 秒",
+                                                                   "maxHealth":  110,
+                                                                   "baseDamageProfile":  "opening_battle",
+                                                                   "notes":  "未开放首境兼容模板",
                                                                    "bossPhases":  [
 
+                                                                                  ]
+                                                               },
+                                 "enemy_sword_furnace_guard":  {
+                                                                   "id":  "enemy_sword_furnace_guard",
+                                                                   "name":  "封契剑影",
+                                                                   "battleRole":  "normal",
+                                                                   "isBoss":  false,
+                                                                   "maxHealth":  285,
+                                                                   "baseDamageProfile":  "normal_act_3",
+                                                                   "notes":  "筑基后多目标验证战主位",
+                                                                   "bossPhases":  [
+
+                                                                                  ]
+                                                               },
+                                 "enemy_ironback_mine_beast":  {
+                                                                   "id":  "enemy_ironback_mine_beast",
+                                                                   "name":  "铁脊矿兽",
+                                                                   "battleRole":  "mini_boss",
+                                                                   "isBoss":  true,
+                                                                   "maxHealth":  920,
+                                                                   "baseDamageProfile":  "mini_boss_act_1",
+                                                                   "notes":  "第一幕怪兽型小 Boss",
+                                                                   "bossPhases":  [
+                                                                                      {
+                                                                                          "phaseId":  "ironback_charge",
+                                                                                          "phaseOrder":  1,
+                                                                                          "name":  "铁脊冲阵",
+                                                                                          "healthRatioMax":  1,
+                                                                                          "intentText":  "铁脊压低，冲撞当前锁定修士",
+                                                                                          "chargeTurn":  false,
+                                                                                          "baseDamage":  13,
+                                                                                          "shockApply":  0,
+                                                                                          "notes":  "矿兽常态"
+                                                                                      },
+                                                                                      {
+                                                                                          "phaseId":  "ore_frenzy",
+                                                                                          "phaseOrder":  2,
+                                                                                          "name":  "矿髓暴走",
+                                                                                          "healthRatioMax":  0.42,
+                                                                                          "intentText":  "震落矿石并连续扑击",
+                                                                                          "chargeTurn":  true,
+                                                                                          "baseDamage":  20,
+                                                                                          "shockApply":  0,
+                                                                                          "notes":  "矿兽低血阶段"
+                                                                                      }
                                                                                   ]
                                                                },
                                  "enemy_tianjie_avatar":  {
@@ -3168,66 +4413,66 @@
                                                                                  }
                                                                              ]
                                                           },
-                                 "enemy_talisman_debt_wraith":  {
-                                                                    "id":  "enemy_talisman_debt_wraith",
-                                                                    "name":  "符债残影",
-                                                                    "battleRole":  "normal",
+                                 "enemy_thunder_general":  {
+                                                               "id":  "enemy_thunder_general",
+                                                               "name":  "雷纹妖将",
+                                                               "battleRole":  "normal",
+                                                               "isBoss":  false,
+                                                               "maxHealth":  180,
+                                                               "baseDamageProfile":  "normal_layer_1",
+                                                               "notes":  "首层普通敌人模板目标 50 至 80 秒",
+                                                               "bossPhases":  [
+
+                                                                              ]
+                                                           },
+                                 "enemy_collapsed_well_guard":  {
+                                                                    "id":  "enemy_collapsed_well_guard",
+                                                                    "name":  "塌井守卫",
+                                                                    "battleRole":  "elite",
                                                                     "isBoss":  false,
-                                                                    "maxHealth":  190,
-                                                                    "baseDamageProfile":  "normal_layer_1",
-                                                                    "notes":  "第一层构筑路线验证战目标 50 至 80 秒",
+                                                                    "maxHealth":  250,
+                                                                    "baseDamageProfile":  "elite_layer_1",
+                                                                    "notes":  "第一层冒险路线精英目标 80 至 110 秒",
                                                                     "bossPhases":  [
 
                                                                                    ]
                                                                 },
-                                 "enemy_calamity_guard":  {
-                                                              "id":  "enemy_calamity_guard",
-                                                              "name":  "劫云守卫",
-                                                              "battleRole":  "normal",
-                                                              "isBoss":  false,
-                                                              "maxHealth":  650,
-                                                              "baseDamageProfile":  "normal_layer_2",
-                                                              "notes":  "第二层普通战目标 50 至 80 秒",
-                                                              "bossPhases":  [
+                                 "enemy_herb_forest_entry":  {
+                                                                 "id":  "enemy_herb_forest_entry",
+                                                                 "name":  "药谷雾林遭遇",
+                                                                 "battleRole":  "normal",
+                                                                 "isBoss":  false,
+                                                                 "maxHealth":  95,
+                                                                 "baseDamageProfile":  "opening_battle",
+                                                                 "notes":  "未开放首境兼容模板",
+                                                                 "bossPhases":  [
 
-                                                                             ]
-                                                          },
-                                 "enemy_cloud_spirit":  {
-                                                            "id":  "enemy_cloud_spirit",
-                                                            "name":  "云海妖灵",
-                                                            "battleRole":  "normal",
-                                                            "isBoss":  false,
-                                                            "maxHealth":  170,
-                                                            "baseDamageProfile":  "normal_layer_1",
-                                                            "notes":  "首层普通敌人模板目标 50 至 80 秒",
-                                                            "bossPhases":  [
+                                                                                ]
+                                                             },
+                                 "enemy_furnace_construct":  {
+                                                                 "id":  "enemy_furnace_construct",
+                                                                 "name":  "炉心构造体",
+                                                                 "battleRole":  "support",
+                                                                 "isBoss":  false,
+                                                                 "maxHealth":  215,
+                                                                 "baseDamageProfile":  "support_act_3",
+                                                                 "notes":  "第三幕多目标后位",
+                                                                 "bossPhases":  [
 
-                                                                           ]
-                                                        },
-                                 "enemy_mine_ember":  {
-                                                          "id":  "enemy_mine_ember",
-                                                          "name":  "矿口余烬",
-                                                          "battleRole":  "normal",
-                                                          "isBoss":  false,
-                                                          "maxHealth":  175,
-                                                          "baseDamageProfile":  "normal_layer_1",
-                                                          "notes":  "第一层稳定路线目标 50 至 80 秒",
-                                                          "bossPhases":  [
+                                                                                ]
+                                                             },
+                                 "enemy_collapsed_wraith":  {
+                                                                "id":  "enemy_collapsed_wraith",
+                                                                "name":  "塌井残魂",
+                                                                "battleRole":  "support",
+                                                                "isBoss":  false,
+                                                                "maxHealth":  145,
+                                                                "baseDamageProfile":  "support_act_2",
+                                                                "notes":  "第二幕多目标支援位",
+                                                                "bossPhases":  [
 
-                                                                         ]
-                                                      },
-                                 "enemy_well_bottom_shadow":  {
-                                                                  "id":  "enemy_well_bottom_shadow",
-                                                                  "name":  "井底邪影",
-                                                                  "battleRole":  "elite",
-                                                                  "isBoss":  false,
-                                                                  "maxHealth":  285,
-                                                                  "baseDamageProfile":  "elite_layer_1",
-                                                                  "notes":  "第一层冒险路线第二精英目标 80 至 110 秒",
-                                                                  "bossPhases":  [
-
-                                                                                 ]
-                                                              },
+                                                                               ]
+                                                            },
                                  "enemy_demon_tower_entry":  {
                                                                  "id":  "enemy_demon_tower_entry",
                                                                  "name":  "妖塔外层遭遇",
@@ -3240,30 +4485,251 @@
 
                                                                                 ]
                                                              },
-                                 "enemy_calamity_gatekeeper":  {
-                                                                   "id":  "enemy_calamity_gatekeeper",
-                                                                   "name":  "劫前守门",
-                                                                   "battleRole":  "elite",
+                                 "enemy_sword_eating_mine_spirit":  {
+                                                                        "id":  "enemy_sword_eating_mine_spirit",
+                                                                        "name":  "吞剑矿魈",
+                                                                        "battleRole":  "mini_boss",
+                                                                        "isBoss":  true,
+                                                                        "maxHealth":  1350,
+                                                                        "baseDamageProfile":  "mini_boss_act_2",
+                                                                        "notes":  "第二幕怪兽型小 Boss",
+                                                                        "bossPhases":  [
+                                                                                           {
+                                                                                               "phaseId":  "sword_gnaw",
+                                                                                               "phaseOrder":  1,
+                                                                                               "name":  "吞剑啮灵",
+                                                                                               "healthRatioMax":  1,
+                                                                                               "intentText":  "啃食飞剑余势并反噬灵气",
+                                                                                               "chargeTurn":  false,
+                                                                                               "baseDamage":  16,
+                                                                                               "shockApply":  0,
+                                                                                               "notes":  "矿魈常态"
+                                                                                           },
+                                                                                           {
+                                                                                               "phaseId":  "hollow_howl",
+                                                                                               "phaseOrder":  2,
+                                                                                               "name":  "空井魈啸",
+                                                                                               "healthRatioMax":  0.48,
+                                                                                               "intentText":  "召来吞剑幼魈并压迫回灵",
+                                                                                               "chargeTurn":  true,
+                                                                                               "baseDamage":  24,
+                                                                                               "shockApply":  0,
+                                                                                               "notes":  "矿魈低血阶段"
+                                                                                           }
+                                                                                       ]
+                                                                    },
+                                 "enemy_well_bottom_shadow":  {
+                                                                  "id":  "enemy_well_bottom_shadow",
+                                                                  "name":  "井底邪影",
+                                                                  "battleRole":  "elite",
+                                                                  "isBoss":  false,
+                                                                  "maxHealth":  285,
+                                                                  "baseDamageProfile":  "elite_layer_1",
+                                                                  "notes":  "第一层冒险路线第二精英目标 80 至 110 秒",
+                                                                  "bossPhases":  [
+
+                                                                                 ]
+                                                              },
+                                 "enemy_calamity_guard":  {
+                                                              "id":  "enemy_calamity_guard",
+                                                              "name":  "劫云守卫",
+                                                              "battleRole":  "normal",
+                                                              "isBoss":  false,
+                                                              "maxHealth":  650,
+                                                              "baseDamageProfile":  "normal_layer_2",
+                                                              "notes":  "第二层普通战目标 50 至 80 秒",
+                                                              "bossPhases":  [
+
+                                                                             ]
+                                                          },
+                                 "target_contract_spike":  {
+                                                               "id":  "target_contract_spike",
+                                                               "name":  "朱砂契钉",
+                                                               "battleRole":  "boss_part",
+                                                               "isBoss":  false,
+                                                               "maxHealth":  864,
+                                                               "baseDamageProfile":  "boss_part_contract",
+                                                               "notes":  "剑傀第二阶段可锁部位",
+                                                               "bossPhases":  [
+
+                                                                              ]
+                                                           },
+                                 "enemy_trade_road_entry":  {
+                                                                "id":  "enemy_trade_road_entry",
+                                                                "name":  "荒谷驿路遭遇",
+                                                                "battleRole":  "normal",
+                                                                "isBoss":  false,
+                                                                "maxHealth":  95,
+                                                                "baseDamageProfile":  "opening_battle",
+                                                                "notes":  "未开放首境兼容模板",
+                                                                "bossPhases":  [
+
+                                                                               ]
+                                                            },
+                                 "enemy_contract_sword_shadow":  {
+                                                                     "id":  "enemy_contract_sword_shadow",
+                                                                     "name":  "封契剑影",
+                                                                     "battleRole":  "support",
+                                                                     "isBoss":  false,
+                                                                     "maxHealth":  185,
+                                                                     "baseDamageProfile":  "support_act_3",
+                                                                     "notes":  "第三幕多目标支援位",
+                                                                     "bossPhases":  [
+
+                                                                                    ]
+                                                                 },
+                                 "target_sword_furnace_core":  {
+                                                                   "id":  "target_sword_furnace_core",
+                                                                   "name":  "剑炉核心",
+                                                                   "battleRole":  "boss_part",
                                                                    "isBoss":  false,
-                                                                   "maxHealth":  1600,
-                                                                   "baseDamageProfile":  "elite_layer_3",
-                                                                   "notes":  "第三层高奖精英目标 80 至 110 秒",
+                                                                   "maxHealth":  1368,
+                                                                   "baseDamageProfile":  "boss_part_core",
+                                                                   "notes":  "剑傀第三阶段可锁部位",
                                                                    "bossPhases":  [
 
                                                                                   ]
                                                                },
-                                 "enemy_old_mine_entry":  {
-                                                              "id":  "enemy_old_mine_entry",
-                                                              "name":  "旧矿入口遭遇",
-                                                              "battleRole":  "normal",
+                                 "enemy_contract_midge":  {
+                                                              "id":  "enemy_contract_midge",
+                                                              "name":  "契屑矿蜉",
+                                                              "battleRole":  "support",
                                                               "isBoss":  false,
-                                                              "maxHealth":  105,
-                                                              "baseDamageProfile":  "opening_battle",
-                                                              "notes":  "入旧矿首战目标 30 至 45 秒",
+                                                              "maxHealth":  95,
+                                                              "baseDamageProfile":  "support_act_1",
+                                                              "notes":  "第一幕多目标支援位",
                                                               "bossPhases":  [
 
                                                                              ]
-                                                          }
+                                                          },
+                                 "enemy_young_sword_eater":  {
+                                                                 "id":  "enemy_young_sword_eater",
+                                                                 "name":  "吞剑幼魈",
+                                                                 "battleRole":  "support",
+                                                                 "isBoss":  false,
+                                                                 "maxHealth":  165,
+                                                                 "baseDamageProfile":  "support_act_2",
+                                                                 "notes":  "第二幕多目标后位",
+                                                                 "bossPhases":  [
+
+                                                                                ]
+                                                             },
+                                 "enemy_xuantie_mine_sword_puppet":  {
+                                                                         "id":  "enemy_xuantie_mine_sword_puppet",
+                                                                         "name":  "玄铁镇矿剑傀",
+                                                                         "battleRole":  "boss",
+                                                                         "isBoss":  true,
+                                                                         "maxHealth":  3600,
+                                                                         "baseDamageProfile":  "boss_sword_puppet",
+                                                                         "notes":  "旧矿纵切最终 Boss",
+                                                                         "bossPhases":  [
+                                                                                            {
+                                                                                                "phaseId":  "xuantie_armor",
+                                                                                                "phaseOrder":  1,
+                                                                                                "name":  "玄铁甲片",
+                                                                                                "healthRatioMax":  1,
+                                                                                                "intentText":  "甲片闭合，剑傀以重剑横扫",
+                                                                                                "chargeTurn":  false,
+                                                                                                "baseDamage":  18,
+                                                                                                "shockApply":  0,
+                                                                                                "notes":  "先破玄铁甲片"
+                                                                                            },
+                                                                                            {
+                                                                                                "phaseId":  "contract_spike",
+                                                                                                "phaseOrder":  2,
+                                                                                                "name":  "朱砂契钉",
+                                                                                                "healthRatioMax":  0.62,
+                                                                                                "intentText":  "契钉显形，旧契抽取气血",
+                                                                                                "chargeTurn":  true,
+                                                                                                "baseDamage":  23,
+                                                                                                "shockApply":  0,
+                                                                                                "notes":  "甲片破后契钉可锁定"
+                                                                                            },
+                                                                                            {
+                                                                                                "phaseId":  "sword_furnace_core",
+                                                                                                "phaseOrder":  3,
+                                                                                                "name":  "剑炉核心",
+                                                                                                "healthRatioMax":  0.28,
+                                                                                                "intentText":  "核心暴露，炉火催动终局斩击",
+                                                                                                "chargeTurn":  true,
+                                                                                                "baseDamage":  31,
+                                                                                                "shockApply":  0,
+                                                                                                "notes":  "最终阶段"
+                                                                                            }
+                                                                                        ]
+                                                                     },
+                                 "enemy_mine_ember":  {
+                                                          "id":  "enemy_mine_ember",
+                                                          "name":  "矿口余烬",
+                                                          "battleRole":  "normal",
+                                                          "isBoss":  false,
+                                                          "maxHealth":  175,
+                                                          "baseDamageProfile":  "normal_layer_1",
+                                                          "notes":  "第一层稳定路线目标 50 至 80 秒",
+                                                          "bossPhases":  [
+
+                                                                         ]
+                                                      },
+                                 "enemy_sword_furnace_elite":  {
+                                                                   "id":  "enemy_sword_furnace_elite",
+                                                                   "name":  "炉心构造体",
+                                                                   "battleRole":  "elite",
+                                                                   "isBoss":  false,
+                                                                   "maxHealth":  460,
+                                                                   "baseDamageProfile":  "elite_act_3",
+                                                                   "notes":  "第三幕剑炉精英主位",
+                                                                   "bossPhases":  [
+
+                                                                                  ]
+                                                               },
+                                 "enemy_old_mine_contract_guard":  {
+                                                                       "id":  "enemy_old_mine_contract_guard",
+                                                                       "name":  "契骨矿卒",
+                                                                       "battleRole":  "elite",
+                                                                       "isBoss":  false,
+                                                                       "maxHealth":  330,
+                                                                       "baseDamageProfile":  "elite_act_1",
+                                                                       "notes":  "第一幕矿契守卫与多目标精英主位",
+                                                                       "bossPhases":  [
+
+                                                                                      ]
+                                                                   },
+                                 "enemy_shallow_mine_beast":  {
+                                                                  "id":  "enemy_shallow_mine_beast",
+                                                                  "name":  "浅道矿兽",
+                                                                  "battleRole":  "support",
+                                                                  "isBoss":  false,
+                                                                  "maxHealth":  120,
+                                                                  "baseDamageProfile":  "support_act_1",
+                                                                  "notes":  "第一幕多目标后位",
+                                                                  "bossPhases":  [
+
+                                                                                 ]
+                                                              },
+                                 "enemy_talisman_debt_wraith":  {
+                                                                    "id":  "enemy_talisman_debt_wraith",
+                                                                    "name":  "符债残影",
+                                                                    "battleRole":  "normal",
+                                                                    "isBoss":  false,
+                                                                    "maxHealth":  190,
+                                                                    "baseDamageProfile":  "normal_layer_1",
+                                                                    "notes":  "第一层构筑路线验证战目标 50 至 80 秒",
+                                                                    "bossPhases":  [
+
+                                                                                   ]
+                                                                },
+                                 "enemy_cloud_spirit":  {
+                                                            "id":  "enemy_cloud_spirit",
+                                                            "name":  "云海妖灵",
+                                                            "battleRole":  "normal",
+                                                            "isBoss":  false,
+                                                            "maxHealth":  170,
+                                                            "baseDamageProfile":  "normal_layer_1",
+                                                            "notes":  "首层普通敌人模板目标 50 至 80 秒",
+                                                            "bossPhases":  [
+
+                                                                           ]
+                                                        }
                              },
                  "rewardPriorities":  {
                                           "card_reward_wildcard":  {

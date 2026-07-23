@@ -21,6 +21,7 @@ namespace PathOfTenThousandWays.Demo.EditorTools
         private const string ActiveKey = "PathOfTenThousandWays.PostBattleCapture.Active";
         private const string StageKey = "PathOfTenThousandWays.PostBattleCapture.Stage";
         private const string OpeningBattleOnlyKey = "PathOfTenThousandWays.PostBattleCapture.OpeningBattleOnly";
+        private const string JourneyFlowKey = "PathOfTenThousandWays.PostBattleCapture.JourneyFlow";
         private const int SettleFrames = 18;
         private const int CaptureWidth = 1920;
         private const int CaptureHeight = 1080;
@@ -42,6 +43,7 @@ namespace PathOfTenThousandWays.Demo.EditorTools
         {
             EditorPrefs.SetBool(ActiveKey, true);
             EditorPrefs.SetBool(OpeningBattleOnlyKey, false);
+            EditorPrefs.SetBool(JourneyFlowKey, false);
             EditorPrefs.SetInt(StageKey, 0);
             waitFrames = 0;
             victoryReadyPolls = 0;
@@ -54,6 +56,20 @@ namespace PathOfTenThousandWays.Demo.EditorTools
         {
             EditorPrefs.SetBool(ActiveKey, true);
             EditorPrefs.SetBool(OpeningBattleOnlyKey, true);
+            EditorPrefs.SetBool(JourneyFlowKey, false);
+            EditorPrefs.SetInt(StageKey, 0);
+            waitFrames = 0;
+            victoryReadyPolls = 0;
+            EditorApplication.update -= UpdateCapture;
+            EditorApplication.update += UpdateCapture;
+            EditorApplication.isPlaying = true;
+        }
+
+        public static void CaptureJourney()
+        {
+            EditorPrefs.SetBool(ActiveKey, true);
+            EditorPrefs.SetBool(OpeningBattleOnlyKey, false);
+            EditorPrefs.SetBool(JourneyFlowKey, true);
             EditorPrefs.SetInt(StageKey, 0);
             waitFrames = 0;
             victoryReadyPolls = 0;
@@ -112,6 +128,11 @@ namespace PathOfTenThousandWays.Demo.EditorTools
                 if (EditorPrefs.GetBool(OpeningBattleOnlyKey, false))
                 {
                     UpdateOpeningBattleCapture(controller);
+                    return;
+                }
+                if (EditorPrefs.GetBool(JourneyFlowKey, false))
+                {
+                    UpdateJourneyCapture(controller);
                     return;
                 }
 
@@ -310,6 +331,273 @@ namespace PathOfTenThousandWays.Demo.EditorTools
                 default:
                     throw new InvalidOperationException("Unknown opening battle capture stage: " + stage);
             }
+        }
+
+        private static void UpdateJourneyCapture(DemoGameController controller)
+        {
+            int stage = EditorPrefs.GetInt(StageKey, 0);
+            switch (stage)
+            {
+                case 0:
+                    BeginCapture("journey_home.png");
+                    break;
+                case 1:
+                    controller.BeginOpeningStory();
+                    RefreshJourneyView();
+                    BeginCapture("journey_opening_story.png");
+                    break;
+                case 2:
+                    if (!controller.CompleteOpeningStory())
+                    {
+                        throw new InvalidOperationException("Opening story did not reach the region choice.");
+                    }
+                    RefreshJourneyView();
+                    BeginCapture("journey_region_choice.png");
+                    break;
+                case 3:
+                    if (!DemoConfigRepository.TryGetRegion("region_old_mine", out DemoRegionDefinition oldMine)
+                        || !controller.BeginConfiguredJourney(oldMine, 42017))
+                    {
+                        throw new InvalidOperationException("The deterministic old mine journey could not begin: " + controller.JourneyError);
+                    }
+                    RefreshJourneyView();
+                    BeginCapture("journey_act1_map.png");
+                    break;
+                case 4:
+                    SelectCurrentJourneyFrontier(controller);
+                    RefreshJourneyView();
+                    BeginCapture("journey_entry_scene.png");
+                    break;
+                case 5:
+                    AdvanceJourneyUntil(controller, node => node.ContentId == "event_miner_spirit_first");
+                    RefreshJourneyView();
+                    BeginCapture("journey_miner_spirit_event.png");
+                    break;
+                case 6:
+                    CompleteJourneyScene(controller, "choice_miner_spirit_help");
+                    AdvanceJourneyUntil(controller, node => node.ActIndex == 1 && node.IsCombat
+                        && node.Type != DemoJourneyNodeType.MiniBoss);
+                    controller.BeginCurrentEncounter();
+                    RefreshBattleViews();
+                    BeginCapture("journey_battle_multi_1920x1080.png");
+                    break;
+                case 7:
+                    BeginCapture("journey_battle_multi_1280x720.png", 1280, 720);
+                    break;
+                case 8:
+                    CompleteCurrentBattle(controller, true);
+                    AdvanceJourneyUntil(controller, node => node.Type == DemoJourneyNodeType.MiniBoss
+                        && node.ActIndex == 1);
+                    controller.BeginCurrentEncounter();
+                    RefreshBattleViews();
+                    BeginCapture("journey_miniboss_ironback.png");
+                    break;
+                case 9:
+                    CompleteCurrentBattle(controller, true);
+                    AdvanceJourneyUntil(controller, node => node.Type == DemoJourneyNodeType.MiniBoss
+                        && node.ActIndex == 2);
+                    controller.BeginCurrentEncounter();
+                    RefreshBattleViews();
+                    BeginCapture("journey_miniboss_sword_eating_xiao.png");
+                    break;
+                case 10:
+                    CompleteCurrentBattle(controller, true);
+                    AdvanceJourneyUntil(controller, node => node.Type == DemoJourneyNodeType.Breakthrough);
+                    RefreshJourneyView();
+                    BeginCapture("journey_breakthrough.png");
+                    break;
+                case 11:
+                    CompleteJourneyScene(controller, "foundation_stable");
+                    RefreshJourneyView();
+                    BeginCapture("journey_act3_map.png");
+                    break;
+                case 12:
+                    AdvanceJourneyUntil(controller, node => node.ActIndex == 3
+                        && node.Type == DemoJourneyNodeType.Battle);
+                    controller.BeginCurrentEncounter();
+                    RefreshBattleViews();
+                    BeginCapture("journey_battle_foundation_multi.png");
+                    break;
+                case 13:
+                    CompleteCurrentBattle(controller, true);
+                    AdvanceJourneyUntil(controller, node => node.Type == DemoJourneyNodeType.Boss);
+                    RefreshJourneyView();
+                    BeginCapture("journey_boss_gate.png");
+                    break;
+                case 14:
+                    controller.BeginCurrentEncounter();
+                    StartJourneySwordPuppetPreview(controller);
+                    BeginCapture("journey_boss_armor.png");
+                    break;
+                case 15:
+                    PlayJourneyBossPartBreak(controller, DemoBattleState.BossPhaseXuantieContractSpike);
+                    BeginCapture("journey_boss_contract_spike.png");
+                    break;
+                case 16:
+                    PlayJourneyBossPartBreak(controller, DemoBattleState.BossPhaseXuantieCore);
+                    BeginCapture("journey_boss_core.png");
+                    break;
+                case 17:
+                    SetPrivateField(controller, "battleResultHandled", false);
+                    if (!controller.Battle.TryPlayCard(0)
+                        || controller.Battle.Phase != DemoBattlePhase.Won)
+                    {
+                        throw new InvalidOperationException("The deterministic sword puppet core did not resolve.");
+                    }
+                    InvokePrivate(controller, "HandleBattleWon", null);
+                    RefreshJourneyView();
+                    BeginCapture("journey_run_result.png");
+                    break;
+                case 18:
+                    Debug.Log("Journey commercial flow screenshot check passed.");
+                    EditorPrefs.SetInt(StageKey, 99);
+                    EditorPrefs.SetBool(JourneyFlowKey, false);
+                    EditorApplication.isPlaying = false;
+                    break;
+                default:
+                    throw new InvalidOperationException("Unknown journey capture stage: " + stage);
+            }
+        }
+
+        private static void AdvanceJourneyUntil(
+            DemoGameController controller,
+            Func<DemoJourneyNode, bool> predicate)
+        {
+            int guard = 96;
+            while (guard-- > 0)
+            {
+                if (controller.HasBattle)
+                {
+                    CompleteCurrentBattle(controller, true);
+                    continue;
+                }
+
+                if (controller.FlowPhase == DemoFlowPhase.NodeScene
+                    || controller.FlowPhase == DemoFlowPhase.Breakthrough)
+                {
+                    CompleteJourneyScene(controller);
+                    continue;
+                }
+
+                if (controller.FlowPhase == DemoFlowPhase.EncounterIntro
+                    || controller.FlowPhase == DemoFlowPhase.BossGate)
+                {
+                    DemoJourneyNode pending = controller.PendingJourneyNode;
+                    if (pending != null && predicate(pending)) return;
+                    controller.BeginCurrentEncounter();
+                    CompleteCurrentBattle(controller, true);
+                    continue;
+                }
+
+                if (controller.FlowPhase != DemoFlowPhase.JourneyMap
+                    || controller.JourneySnapshot == null
+                    || controller.JourneyGraph == null)
+                {
+                    throw new InvalidOperationException("Journey traversal stopped in " + controller.FlowPhase + ".");
+                }
+
+                List<DemoJourneyNode> frontier = controller.JourneySnapshot.ReachableNodeIds
+                    .Select(id => controller.JourneyGraph.TryGetNode(id, out DemoJourneyNode node) ? node : null)
+                    .Where(node => node != null)
+                    .ToList();
+                DemoJourneyNode next = frontier.FirstOrDefault(predicate) ?? frontier.FirstOrDefault();
+                if (next == null || !controller.SelectJourneyNode(next.NodeId))
+                {
+                    throw new InvalidOperationException("Journey traversal could not select its next frontier node: " + controller.JourneyError);
+                }
+                if (predicate(next)) return;
+            }
+
+            throw new InvalidOperationException("Journey traversal exceeded its deterministic guard.");
+        }
+
+        private static void SelectCurrentJourneyFrontier(DemoGameController controller)
+        {
+            string nodeId = controller.JourneySnapshot?.ReachableNodeIds?.FirstOrDefault();
+            if (string.IsNullOrEmpty(nodeId) || !controller.SelectJourneyNode(nodeId))
+            {
+                throw new InvalidOperationException("The journey map had no selectable frontier.");
+            }
+        }
+
+        private static void CompleteJourneyScene(DemoGameController controller, string preferredChoiceId = null)
+        {
+            IReadOnlyList<DemoJourneyChoice> choices = controller.CurrentJourneyChoices;
+            DemoJourneyChoice choice = choices.FirstOrDefault(item => string.Equals(
+                    item.ChoiceId,
+                    preferredChoiceId,
+                    StringComparison.Ordinal))
+                ?? choices.FirstOrDefault(item => item.IsRecommended)
+                ?? choices.FirstOrDefault();
+            if (choice == null || !controller.ChooseJourneyOption(choice.ChoiceId))
+            {
+                throw new InvalidOperationException("Journey scene had no committable choice: " + controller.JourneyError);
+            }
+        }
+
+        private static void StartJourneySwordPuppetPreview(DemoGameController controller)
+        {
+            DemoCard breakPart = new DemoCard
+            {
+                Id = "capture_break_sword_puppet_part",
+                Name = "断契试剑",
+                Type = DemoCardType.Attack,
+                Style = DemoSwordStyle.Wanjian,
+                Cost = 0,
+                Damage = 160
+            };
+            controller.Battle.StartBattle(new DemoBattleSetup
+            {
+                EnemyId = "enemy_xuantie_mine_sword_puppet",
+                EnemyName = "玄铁镇矿剑傀",
+                IsBoss = true,
+                Enemies = new[]
+                {
+                    new DemoBattleEnemySetup { CombatantId = "capture_puppet_armor", DefinitionId = "target_xuantie_armor", Name = "玄铁甲片", PositionId = "boss_upper_armor", Depth = 0, MaxHealth = 120, ThreatPriority = 5 },
+                    new DemoBattleEnemySetup { CombatantId = "capture_puppet_spike", DefinitionId = "target_contract_spike", Name = "朱砂契钉", PositionId = "boss_contract_spike", Depth = 1, MaxHealth = 120, ThreatPriority = 4 },
+                    new DemoBattleEnemySetup { CombatantId = "capture_puppet_core", DefinitionId = "target_sword_furnace_core", Name = "剑炉核心", PositionId = "boss_furnace_core", Depth = 2, MaxHealth = 120, ThreatPriority = 3 }
+                },
+                Deck = new[] { breakPart, breakPart, breakPart },
+                PlayerMaxHealth = 84,
+                PlayerHealth = 84,
+                InitialEnergy = 3,
+                MaxEnergy = 7,
+                InitialHandSize = 3,
+                HandLimit = 6,
+                DrawIntervalSeconds = 100f,
+                FlyingSwordIntervalSeconds = 100f,
+                IntroSeconds = 0f,
+                RandomSeed = 42017
+            });
+            SetPrivateField(controller, "battleResultHandled", false);
+            SetPrivateField(controller, "battleOutcomeDelay", 0f);
+            RefreshBattleViews();
+        }
+
+        private static void PlayJourneyBossPartBreak(
+            DemoGameController controller,
+            string expectedPhaseId)
+        {
+            if (!controller.Battle.TryPlayCard(0)
+                || !string.Equals(controller.Battle.BossPhaseId, expectedPhaseId, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException("Sword puppet preview did not reach phase " + expectedPhaseId + ".");
+            }
+            RefreshBattleViews();
+        }
+
+        private static void RefreshJourneyView()
+        {
+            DemoCommercialJourneyView view = UnityEngine.Object.FindAnyObjectByType<DemoCommercialJourneyView>(FindObjectsInactive.Include);
+            view?.RefreshNow();
+        }
+
+        private static void RefreshBattleViews()
+        {
+            DemoBattleSceneView battleScene = UnityEngine.Object.FindAnyObjectByType<DemoBattleSceneView>(FindObjectsInactive.Include);
+            DemoBattleHudView battleHud = UnityEngine.Object.FindAnyObjectByType<DemoBattleHudView>(FindObjectsInactive.Include);
+            battleScene?.RefreshForCurrentBattle(false);
+            battleHud?.RefreshNow();
         }
 
         private static void HoverOpeningBattleCard()

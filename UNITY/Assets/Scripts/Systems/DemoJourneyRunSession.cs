@@ -35,6 +35,7 @@ namespace PathOfTenThousandWays.Demo.Systems
         public IReadOnlyList<string> PendingMetaDiscoveryIds => pendingMetaDiscoveryIds;
         public DemoRunBuildSnapshot Build { get; set; }
         public DemoRunRealmSnapshot Realm { get; set; }
+        public string SelectedChoiceId { get; set; } = string.Empty;
         public bool GrantMinerSpiritLife { get; set; }
         public int BattlesWonDelta { get; set; }
         public int MiniBossesDefeatedDelta { get; set; }
@@ -137,8 +138,12 @@ namespace PathOfTenThousandWays.Demo.Systems
                 CurrentNodeId = start.NodeId,
                 LastCommittedNodeId = string.Empty,
                 ResolvedGraphNodeSnapshotIds = GetGraphNodeIds(journeyGraph),
+                ResolvedGraphNodes = DemoJourneyGraphSnapshotCodec.CaptureNodes(journeyGraph),
+                ResolvedGraphEdges = DemoJourneyGraphSnapshotCodec.CaptureEdges(journeyGraph),
                 CompletedNodeIds = new List<string>(),
-                ReachableNodeIds = journeyGraph.GetReachableNodeIds(new string[0]).ToList(),
+                ReachableNodeIds = journeyGraph.GetReachableNodeIds(
+                    new string[0],
+                    new string[0]).ToList(),
                 Build = CloneBuild(options.Build),
                 Realm = CloneRealm(options.Realm),
                 MaxHealth = options.MaxHealth,
@@ -345,7 +350,8 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
 
             IReadOnlyList<string> nextReachable = graph.GetReachableNodeIds(
-                checkpoint.CompletedNodeIds.Concat(new[] { current.NodeId }));
+                checkpoint.CompletedNodeIds.Concat(new[] { current.NodeId }),
+                checkpoint.ExperienceFlagIds);
             string nextPhase = current.Type == DemoJourneyNodeType.Boss
                 ? DemoRunFlowPhaseId.RunResult
                 : DemoRunFlowPhaseId.JourneyMap;
@@ -360,7 +366,17 @@ namespace PathOfTenThousandWays.Demo.Systems
                 return false;
             }
 
+            if (!string.IsNullOrWhiteSpace(outcome.SelectedChoiceId))
+            {
+                AddUnique(
+                    transaction.Staged.ChosenJourneyChoiceIds,
+                    current.NodeId + "|" + outcome.SelectedChoiceId);
+            }
+
             ApplyOutcome(transaction.Staged, outcome);
+            transaction.Staged.ReachableNodeIds = graph.GetReachableNodeIds(
+                transaction.Staged.CompletedNodeIds,
+                transaction.Staged.ExperienceFlagIds).ToList();
             if (!HasStableIdentity(transaction.Staged, checkpoint))
             {
                 error = "A node outcome changed stable run or graph identity.";
@@ -575,6 +591,11 @@ namespace PathOfTenThousandWays.Demo.Systems
                 error = "Checkpoint graph snapshot does not match the active journey graph.";
                 return false;
             }
+            if (!DemoJourneyGraphSnapshotCodec.Matches(journeyGraph, save))
+            {
+                error = "Checkpoint graph structure does not match the active journey graph.";
+                return false;
+            }
 
             DemoJourneyNode current;
             if (!journeyGraph.TryGetNode(save.CurrentNodeId, out current) || current.ActIndex != save.ActIndex)
@@ -583,7 +604,9 @@ namespace PathOfTenThousandWays.Demo.Systems
                 return false;
             }
 
-            IReadOnlyList<string> expectedReachable = journeyGraph.GetReachableNodeIds(save.CompletedNodeIds);
+            IReadOnlyList<string> expectedReachable = journeyGraph.GetReachableNodeIds(
+                save.CompletedNodeIds,
+                save.ExperienceFlagIds);
             if (!new HashSet<string>(expectedReachable, StringComparer.Ordinal)
                 .SetEquals(save.ReachableNodeIds))
             {
@@ -745,7 +768,8 @@ namespace PathOfTenThousandWays.Demo.Systems
                 && string.Equals(left.MapAlgorithmVersion, right.MapAlgorithmVersion, StringComparison.Ordinal)
                 && string.Equals(left.RegionId, right.RegionId, StringComparison.Ordinal)
                 && new HashSet<string>(left.ResolvedGraphNodeSnapshotIds, StringComparer.Ordinal)
-                    .SetEquals(right.ResolvedGraphNodeSnapshotIds);
+                    .SetEquals(right.ResolvedGraphNodeSnapshotIds)
+                && DemoJourneyGraphSnapshotCodec.MatchesGraphSnapshots(left, right);
         }
 
         private static bool SameCheckpointIdentity(DemoRunSaveV2 left, DemoRunSaveV2 right)
@@ -793,7 +817,32 @@ namespace PathOfTenThousandWays.Demo.Systems
                 InnateArtifactId = source.InnateArtifactId ?? string.Empty,
                 InnateArtifactRefinementStage = source.InnateArtifactRefinementStage,
                 TechniqueIds = source.TechniqueIds == null ? new List<string>() : source.TechniqueIds.ToList(),
-                AcquiredArtifactIds = source.AcquiredArtifactIds == null ? new List<string>() : source.AcquiredArtifactIds.ToList()
+                AcquiredArtifactIds = source.AcquiredArtifactIds == null ? new List<string>() : source.AcquiredArtifactIds.ToList(),
+                TechniqueStates = source.TechniqueStates == null
+                    ? new List<DemoRunTechniqueSnapshot>()
+                    : source.TechniqueStates
+                        .Where(item => item != null)
+                        .Select(item => new DemoRunTechniqueSnapshot
+                        {
+                            DefinitionId = item.DefinitionId ?? string.Empty,
+                            Level = item.Level,
+                            SourceNodeId = item.SourceNodeId ?? string.Empty,
+                            SourceEventId = item.SourceEventId ?? string.Empty,
+                            VariantId = item.VariantId ?? string.Empty
+                        })
+                        .ToList(),
+                MindMethodBranchId = source.MindMethodBranchId ?? string.Empty,
+                MindMethodGrantedTechniqueIds = source.MindMethodGrantedTechniqueIds == null
+                    ? new List<string>()
+                    : source.MindMethodGrantedTechniqueIds.ToList(),
+                InnateArtifactBearerDefinitionId = source.InnateArtifactBearerDefinitionId ?? string.Empty,
+                InnateArtifactBearerVisualId = source.InnateArtifactBearerVisualId ?? string.Empty,
+                InnateArtifactAttackVariantIds = source.InnateArtifactAttackVariantIds == null
+                    ? new List<string>()
+                    : source.InnateArtifactAttackVariantIds.ToList(),
+                InnateArtifactCooldownRemaining = source.InnateArtifactCooldownRemaining,
+                BonusEnergyCapacity = source.BonusEnergyCapacity,
+                BonusPermanentSwords = source.BonusPermanentSwords
             };
         }
 

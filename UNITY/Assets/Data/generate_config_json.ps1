@@ -96,6 +96,20 @@ function Build-Config {
         techniques = Read-CsvFile (Join-Path $RootDir "techniques.csv")
         bearers = Read-CsvFile (Join-Path $RootDir "bearers.csv")
         startingPracticePackages = Read-CsvFile (Join-Path $RootDir "starting_practice_packages.csv")
+        innateArtifacts = Read-CsvFile (Join-Path $RootDir "innate_artifacts.csv")
+        innateArtifactStages = Read-CsvFile (Join-Path $RootDir "innate_artifact_stages.csv")
+        mindMethods = Read-CsvFile (Join-Path $RootDir "mind_methods.csv")
+        mindMethodLevels = Read-CsvFile (Join-Path $RootDir "mind_method_levels.csv")
+        realmBreakthroughs = Read-CsvFile (Join-Path $RootDir "realm_breakthroughs.csv")
+        foundationRules = Read-CsvFile (Join-Path $RootDir "foundation_rules.csv")
+        encounterGroups = Read-CsvFile (Join-Path $RootDir "encounter_groups.csv")
+        encounterGroupMembers = Read-CsvFile (Join-Path $RootDir "encounter_group_members.csv")
+        mapTemplates = Read-CsvFile (Join-Path $RootDir "map_templates.csv")
+        mapTemplateNodes = Read-CsvFile (Join-Path $RootDir "map_template_nodes.csv")
+        mapTemplateEdges = Read-CsvFile (Join-Path $RootDir "map_template_edges.csv")
+        events = Read-CsvFile (Join-Path $RootDir "events.csv")
+        eventChoices = Read-CsvFile (Join-Path $RootDir "event_choices.csv")
+        storyFlags = Read-CsvFile (Join-Path $RootDir "story_flags.csv")
         gongfas = Read-CsvFile (Join-Path $RootDir "gongfas.csv")
         artifacts = Read-CsvFile (Join-Path $RootDir "artifacts.csv")
         relics = Read-CsvFile (Join-Path $RootDir "relics.csv")
@@ -331,6 +345,149 @@ function Build-Config {
         }
     }
 
+    $innateArtifactById = @{}
+    foreach ($artifact in $csv.innateArtifacts) {
+        $innateArtifactById[$artifact.artifact_id] = [ordered]@{
+            id = $artifact.artifact_id
+            name = $artifact.name
+            bearerDefinitionId = $artifact.bearer_definition_id
+            visualResourceKey = $artifact.visual_resource_key
+            baseCooldown = [double]$artifact.base_cooldown
+            stages = @($csv.innateArtifactStages | Where-Object { $_.artifact_id -eq $artifact.artifact_id } | Sort-Object { [int]$_.stage } | ForEach-Object {
+                [ordered]@{
+                    stage = [int]$_.stage
+                    name = $_.name
+                    baseDamage = [int]$_.base_damage
+                    cooldown = [double]$_.cooldown
+                    attackVariantId = $_.attack_variant_id
+                    rulesText = $_.rules_text
+                }
+            })
+        }
+    }
+
+    $mindMethodById = @{}
+    foreach ($method in $csv.mindMethods) {
+        $mindMethodById[$method.method_id] = [ordered]@{
+            id = $method.method_id
+            name = $method.name
+            grantedTechniqueId = $method.granted_technique_id
+            levels = @($csv.mindMethodLevels | Where-Object { $_.method_id -eq $method.method_id } | Sort-Object { [int]$_.level } | ForEach-Object {
+                [ordered]@{
+                    level = [int]$_.level
+                    energyRegenMultiplier = [double]$_.energy_regen_multiplier
+                    recoveryAmount = [int]$_.recovery_amount
+                    artifactCooldownMultiplier = [double]$_.artifact_cooldown_multiplier
+                    rulesText = $_.rules_text
+                }
+            })
+        }
+    }
+
+    $realmBreakthroughById = @{}
+    foreach ($breakthrough in $csv.realmBreakthroughs) {
+        $realmBreakthroughById[$breakthrough.breakthrough_id] = [ordered]@{
+            id = $breakthrough.breakthrough_id
+            fromRealmId = $breakthrough.from_realm_id
+            toRealmId = $breakthrough.to_realm_id
+            maxEnergy = [int]$breakthrough.max_energy
+            energyRegenMultiplier = [double]$breakthrough.energy_regen_multiplier
+            techniquePowerMultiplier = [double]$breakthrough.technique_power_multiplier
+            requiredNodeType = $breakthrough.required_node_type
+            sceneId = $breakthrough.scene_id
+        }
+    }
+
+    $foundationRuleById = @{}
+    foreach ($rule in $csv.foundationRules) {
+        $foundationRuleById[$rule.foundation_rule_id] = [ordered]@{
+            id = $rule.foundation_rule_id
+            name = $rule.name
+            requiredStoryFlagId = $rule.required_story_flag_id
+            ruleKind = $rule.rule_kind
+            ruleValue = [double]$rule.rule_value
+            rulesText = $rule.rules_text
+            visualTag = $rule.visual_tag
+        }
+    }
+
+    $encounterGroupById = @{}
+    foreach ($group in $csv.encounterGroups) {
+        $encounterGroupById[$group.group_id] = [ordered]@{
+            id = $group.group_id
+            name = $group.name
+            actIndex = [int]$group.act_index
+            encounterRole = $group.encounter_role
+            members = @($csv.encounterGroupMembers | Where-Object { $_.group_id -eq $group.group_id } | Sort-Object { [int]$_.slot } | ForEach-Object {
+                [ordered]@{
+                    slot = [int]$_.slot
+                    enemyId = $_.enemy_id
+                    positionId = $_.position_id
+                    threatPriority = [int]$_.threat_priority
+                    requiredForVictory = [System.Convert]::ToBoolean($_.required_for_victory)
+                }
+            })
+        }
+    }
+
+    $mapTemplateById = @{}
+    foreach ($template in $csv.mapTemplates) {
+        $mapTemplateById[$template.template_id] = [ordered]@{
+            id = $template.template_id
+            regionId = $template.region_id
+            actCount = [int]$template.act_count
+            standardDepthCount = [int]$template.standard_depth_count
+            nodes = @($csv.mapTemplateNodes | Where-Object { $_.template_id -eq $template.template_id } | ForEach-Object {
+                [ordered]@{
+                    slotId = $_.slot_id
+                    actIndex = [int]$_.act_index
+                    depthIndex = [int]$_.depth_index
+                    laneIndex = [int]$_.lane_index
+                    allowedNodeTypes = $_.allowed_node_types
+                    requiredContentId = $_.required_content_id
+                    requiredStoryFlagId = $_.required_story_flag_id
+                    hidden = [System.Convert]::ToBoolean($_.is_hidden)
+                }
+            })
+            edges = @($csv.mapTemplateEdges | Where-Object { $_.template_id -eq $template.template_id } | ForEach-Object {
+                [ordered]@{ fromSlotId = $_.from_slot_id; toSlotId = $_.to_slot_id }
+            })
+        }
+    }
+
+    $eventById = @{}
+    foreach ($event in $csv.events) {
+        $eventById[$event.event_id] = [ordered]@{
+            id = $event.event_id
+            name = $event.name
+            sceneId = $event.scene_id
+            actIndex = [int]$event.act_index
+            critical = [System.Convert]::ToBoolean($event.is_critical)
+            requiredStoryFlagId = $event.required_story_flag_id
+            choices = @($csv.eventChoices | Where-Object { $_.event_id -eq $event.event_id } | ForEach-Object {
+                [ordered]@{
+                    choiceId = $_.choice_id
+                    label = $_.label
+                    description = $_.description
+                    requiredStoryFlagId = $_.required_story_flag_id
+                    grantedStoryFlagId = $_.granted_story_flag_id
+                    effectKind = $_.effect_kind
+                    effectValue = $_.effect_value
+                }
+            })
+        }
+    }
+
+    $storyFlagById = @{}
+    foreach ($flag in $csv.storyFlags) {
+        $storyFlagById[$flag.story_flag_id] = [ordered]@{
+            id = $flag.story_flag_id
+            category = $flag.category
+            description = $flag.description
+            persistsBetweenRuns = [System.Convert]::ToBoolean($flag.persists_between_runs)
+        }
+    }
+
     $gongfaById = @{}
     foreach ($gongfa in $csv.gongfas) {
         $gongfaById[$gongfa.gongfa_id] = [ordered]@{
@@ -460,6 +617,15 @@ function Build-Config {
     Assert-UniqueColumn $csv.techniques "technique_id" "techniques.csv"
     Assert-UniqueColumn $csv.bearers "bearer_id" "bearers.csv"
     Assert-UniqueColumn $csv.startingPracticePackages "package_id" "starting_practice_packages.csv"
+    Assert-UniqueColumn $csv.innateArtifacts "artifact_id" "innate_artifacts.csv"
+    Assert-UniqueColumn $csv.mindMethods "method_id" "mind_methods.csv"
+    Assert-UniqueColumn $csv.realmBreakthroughs "breakthrough_id" "realm_breakthroughs.csv"
+    Assert-UniqueColumn $csv.foundationRules "foundation_rule_id" "foundation_rules.csv"
+    Assert-UniqueColumn $csv.encounterGroups "group_id" "encounter_groups.csv"
+    Assert-UniqueColumn $csv.mapTemplates "template_id" "map_templates.csv"
+    Assert-UniqueColumn $csv.events "event_id" "events.csv"
+    Assert-UniqueColumn $csv.eventChoices "choice_id" "event_choices.csv"
+    Assert-UniqueColumn $csv.storyFlags "story_flag_id" "story_flags.csv"
     Assert-UniqueColumn $csv.gongfas "gongfa_id" "gongfas.csv"
     Assert-UniqueColumn $csv.artifacts "artifact_id" "artifacts.csv"
     Assert-UniqueColumn $csv.relics "relic_id" "relics.csv"
@@ -477,6 +643,14 @@ function Build-Config {
     $techniqueIds = @($csv.techniques.technique_id)
     $bearerIds = @($csv.bearers.bearer_id)
     $startingPracticePackageIds = @($csv.startingPracticePackages.package_id)
+    $innateArtifactIds = @($csv.innateArtifacts.artifact_id)
+    $mindMethodIds = @($csv.mindMethods.method_id)
+    $breakthroughIds = @($csv.realmBreakthroughs.breakthrough_id)
+    $foundationRuleIds = @($csv.foundationRules.foundation_rule_id)
+    $encounterGroupIds = @($csv.encounterGroups.group_id)
+    $mapTemplateIds = @($csv.mapTemplates.template_id)
+    $eventIds = @($csv.events.event_id)
+    $storyFlagIds = @($csv.storyFlags.story_flag_id)
     $gongfaIds = @($csv.gongfas.gongfa_id)
     $artifactIds = @($csv.artifacts.artifact_id)
     $relicIds = @($csv.relics.relic_id)
@@ -510,6 +684,7 @@ function Build-Config {
         Assert-Reference $package.core_practice_id $practiceIds "starting_practice_packages[$($package.package_id)].core_practice_id"
         Assert-Reference $package.primary_technique_id $techniqueIds "starting_practice_packages[$($package.package_id)].primary_technique_id"
         Assert-Reference $package.bearer_definition_id $bearerIds "starting_practice_packages[$($package.package_id)].bearer_definition_id"
+        Assert-Reference $package.innate_artifact_id $innateArtifactIds "starting_practice_packages[$($package.package_id)].innate_artifact_id"
 
         $activeTechniqueIds = @($package.active_technique_ids -split "\|" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
         if ($activeTechniqueIds.Count -ne 2) {
@@ -524,6 +699,67 @@ function Build-Config {
         if ($activeTechniqueIds -notcontains $practice.granted_technique_id -or $activeTechniqueIds -notcontains $package.primary_technique_id) {
             throw "starting_practice_packages[$($package.package_id)] must contain the practice-granted and primary techniques."
         }
+    }
+
+    foreach ($artifact in $csv.innateArtifacts) {
+        Assert-Reference $artifact.bearer_definition_id $bearerIds "innate_artifacts[$($artifact.artifact_id)].bearer_definition_id"
+        $stages = @($csv.innateArtifactStages | Where-Object { $_.artifact_id -eq $artifact.artifact_id })
+        if ($stages.Count -lt 1) { throw "innate_artifacts[$($artifact.artifact_id)] must define at least one stage." }
+    }
+    foreach ($stage in $csv.innateArtifactStages) {
+        Assert-Reference $stage.artifact_id $innateArtifactIds "innate_artifact_stages.artifact_id"
+    }
+    foreach ($method in $csv.mindMethods) {
+        Assert-Reference $method.granted_technique_id $techniqueIds "mind_methods[$($method.method_id)].granted_technique_id"
+        if (@($csv.mindMethodLevels | Where-Object { $_.method_id -eq $method.method_id }).Count -lt 1) {
+            throw "mind_methods[$($method.method_id)] must define at least one level."
+        }
+    }
+    foreach ($level in $csv.mindMethodLevels) {
+        Assert-Reference $level.method_id $mindMethodIds "mind_method_levels.method_id"
+    }
+    foreach ($rule in $csv.foundationRules) {
+        Assert-Reference $rule.required_story_flag_id $storyFlagIds "foundation_rules[$($rule.foundation_rule_id)].required_story_flag_id" -AllowEmpty
+    }
+    foreach ($group in $csv.encounterGroups) {
+        if (@($csv.encounterGroupMembers | Where-Object { $_.group_id -eq $group.group_id }).Count -lt 1) {
+            throw "encounter_groups[$($group.group_id)] must define at least one member."
+        }
+    }
+    foreach ($member in $csv.encounterGroupMembers) {
+        Assert-Reference $member.group_id $encounterGroupIds "encounter_group_members.group_id"
+        Assert-Reference $member.enemy_id $enemyIds "encounter_group_members[$($member.group_id):$($member.slot)].enemy_id"
+    }
+    foreach ($template in $csv.mapTemplates) {
+        Assert-Reference $template.region_id $regionIds "map_templates[$($template.template_id)].region_id"
+        $nodes = @($csv.mapTemplateNodes | Where-Object { $_.template_id -eq $template.template_id })
+        $nodeIds = @($nodes.slot_id)
+        if ($nodes.Count -lt ([int]$template.act_count * [int]$template.standard_depth_count)) {
+            throw "map_templates[$($template.template_id)] does not provide all standard depths."
+        }
+        foreach ($edge in @($csv.mapTemplateEdges | Where-Object { $_.template_id -eq $template.template_id })) {
+            Assert-Reference $edge.from_slot_id $nodeIds "map_template_edges.from_slot_id"
+            Assert-Reference $edge.to_slot_id $nodeIds "map_template_edges.to_slot_id"
+        }
+    }
+    foreach ($node in $csv.mapTemplateNodes) {
+        Assert-Reference $node.template_id $mapTemplateIds "map_template_nodes.template_id"
+        Assert-Reference $node.required_story_flag_id $storyFlagIds "map_template_nodes[$($node.slot_id)].required_story_flag_id" -AllowEmpty
+        if ($node.required_content_id -like "event_*") { Assert-Reference $node.required_content_id $eventIds "map_template_nodes[$($node.slot_id)].required_content_id" }
+        if ($node.required_content_id -like "encounter_*") { Assert-Reference $node.required_content_id $encounterGroupIds "map_template_nodes[$($node.slot_id)].required_content_id" }
+        if ($node.required_content_id -like "breakthrough_*") { Assert-Reference $node.required_content_id $breakthroughIds "map_template_nodes[$($node.slot_id)].required_content_id" }
+    }
+    foreach ($event in $csv.events) {
+        Assert-Reference $event.required_story_flag_id $storyFlagIds "events[$($event.event_id)].required_story_flag_id" -AllowEmpty
+        if (@($csv.eventChoices | Where-Object { $_.event_id -eq $event.event_id }).Count -lt 1) {
+            throw "events[$($event.event_id)] must define at least one choice."
+        }
+    }
+    foreach ($choice in $csv.eventChoices) {
+        Assert-Reference $choice.event_id $eventIds "event_choices[$($choice.choice_id)].event_id"
+        Assert-Reference $choice.required_story_flag_id $storyFlagIds "event_choices[$($choice.choice_id)].required_story_flag_id" -AllowEmpty
+        Assert-Reference $choice.granted_story_flag_id $storyFlagIds "event_choices[$($choice.choice_id)].granted_story_flag_id" -AllowEmpty
+        if ($choice.effect_kind -eq "learn_technique") { Assert-Reference $choice.effect_value $techniqueIds "event_choices[$($choice.choice_id)].effect_value" }
     }
 
     foreach ($node in $csv.routePlanNodes) {
@@ -617,6 +853,14 @@ function Build-Config {
             techniques = $techniqueById
             bearers = $bearerById
             startingPracticePackages = $startingPracticePackageById
+            innateArtifacts = $innateArtifactById
+            mindMethods = $mindMethodById
+            realmBreakthroughs = $realmBreakthroughById
+            foundationRules = $foundationRuleById
+            encounterGroups = $encounterGroupById
+            mapTemplates = $mapTemplateById
+            events = $eventById
+            storyFlags = $storyFlagById
             gongfas = $gongfaById
             artifacts = $artifactById
             relics = $relicById

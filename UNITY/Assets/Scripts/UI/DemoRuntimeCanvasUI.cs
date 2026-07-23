@@ -454,15 +454,14 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             switch (phase)
             {
+                case DemoFlowPhase.OpeningStory:
+                case DemoFlowPhase.RegionChoice:
                 case DemoFlowPhase.JourneyMap:
                 case DemoFlowPhase.NodeScene:
                 case DemoFlowPhase.Breakthrough:
                 case DemoFlowPhase.EncounterIntro:
-                case DemoFlowPhase.RewardChoice:
-                case DemoFlowPhase.RouteChoice:
-                case DemoFlowPhase.Training:
-                case DemoFlowPhase.Preparation:
                 case DemoFlowPhase.BossGate:
+                case DemoFlowPhase.BattleOutcome:
                 case DemoFlowPhase.RunResult:
                     return true;
                 default:
@@ -901,9 +900,10 @@ namespace PathOfTenThousandWays.Demo.UI
             homeStartButtonText.color = HomeButtonInk;
             homeStartButtonText.text = "开始新局";
             homeStartButtonText.transform.SetAsLastSibling();
-            homeStartButton.onClick.AddListener(OnUtilityButtonClicked);
+            homeStartButton.onClick.AddListener(OnStartRunClicked);
 
             homeContinueButton = CreateHomeSecondaryMenuItem(parent, "HomeContinueEntry", "尚未立道", new Vector2(112f, -156f), out homeContinueButtonText);
+            homeContinueButton.onClick.AddListener(OnContinueRunClicked);
             homeCodexButton = CreateHomeSecondaryMenuItem(parent, "HomeCodexEntry", "流派图鉴", new Vector2(112f, -224f), out homeCodexButtonText);
             homeSettingsButton = CreateHomeSecondaryMenuItem(parent, "HomeSettingsEntry", "设置", new Vector2(112f, -292f), out homeSettingsButtonText);
             homeCodexButton.onClick.AddListener(() => ShowHomeModal("流派图鉴", BuildHomeCodexText()));
@@ -2177,8 +2177,8 @@ namespace PathOfTenThousandWays.Demo.UI
             if (postBattleTrailText != null)
             {
                 postBattleTrailText.text = IsRouteChoiceScreen()
-                    ? "所往  ·  入场首战  ·  首战所得  ·  择前路"
-                    : "所往  ·  入场首战  ·  战后所得";
+                    ? "所往  ·  入矿  ·  因果抉择  ·  深入旧矿"
+                    : "所往  ·  入矿  ·  战痕归卷";
             }
 
             RefreshRewardHeaderStyle();
@@ -2212,7 +2212,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (controller.HasRunResult)
             {
-                battleStateText.text = controller.RunSummary.Victory ? "天劫已渡，道途已成。" : "此世止步，道基归卷。";
+                battleStateText.text = controller.RunSummary.Victory ? "剑傀已止，旧契归卷。" : "此世止步，道基归卷。";
                 battleStateText.color = controller.RunSummary.Victory
                     ? new Color(0.95f, 0.84f, 0.45f, 1f)
                     : new Color(0.82f, 0.38f, 0.34f, 1f);
@@ -2358,7 +2358,8 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (homeStartButton != null)
             {
-                homeStartButton.gameObject.SetActive(showStartHome && !showingBattle && !showingRewards && controller.CanAdvanceUtilityNode);
+                homeStartButton.gameObject.SetActive(showStartHome && !showingBattle && !showingRewards);
+                homeStartButton.interactable = true;
             }
 
             if (homeStartButtonText != null)
@@ -2366,19 +2367,16 @@ namespace PathOfTenThousandWays.Demo.UI
                 homeStartButtonText.text = "开始新局";
             }
 
-            bool hasContinuableRun = HasContinuableRun();
             if (homeContinueButton != null)
             {
-                homeContinueButton.gameObject.SetActive(false);
-                homeContinueButton.interactable = hasContinuableRun;
+                homeContinueButton.gameObject.SetActive(showStartHome && !showingBattle && !showingRewards);
+                homeContinueButton.interactable = true;
             }
 
             if (homeContinueButtonText != null)
             {
-                homeContinueButtonText.text = hasContinuableRun ? "继续悟道" : "尚未立道";
-                homeContinueButtonText.color = hasContinuableRun
-                    ? new Color(0.24f, 0.23f, 0.19f, 0.88f)
-                    : new Color(0.46f, 0.44f, 0.38f, 0.54f);
+                homeContinueButtonText.text = "继续悟道";
+                homeContinueButtonText.color = new Color(0.24f, 0.23f, 0.19f, 0.88f);
             }
 
             if (homeCodexButton != null)
@@ -3194,6 +3192,21 @@ namespace PathOfTenThousandWays.Demo.UI
             controller.AdvanceUtilityNode();
         }
 
+        private void OnStartRunClicked()
+        {
+            HideHomeModal();
+            controller.BeginOpeningStory();
+        }
+
+        private void OnContinueRunClicked()
+        {
+            HideHomeModal();
+            if (!controller.TryResumeConfiguredJourney())
+            {
+                ShowHomeModal("暂无可续道途", "此地没有可读取的旅程记录。可从一段新的旧矿因果开始。 ");
+            }
+        }
+
         private void OnRewardRerollClicked()
         {
             controller?.RerollCurrentRewards();
@@ -3593,11 +3606,11 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (controller.Battle.Phase == DemoBattlePhase.Intro)
             {
-                return controller.Battle.IsBossBattle ? "天劫正在聚形，留意第一道雷意。" : "双方入阵，斗法即将开始。";
+                return controller.Battle.IsBossBattle ? "镇矿剑傀正在苏醒，留意它对飞剑循环的封锁。" : "双方入阵，斗法即将开始。";
             }
 
             return controller.Battle.IsBossBattle
-                ? "天劫压上中天，读条结束前完成应对。"
+                ? "剑炉杀势压上中天，读条结束前完成应对。"
                 : "灵气、飞剑与敌方意图正在持续演算。";
         }        private string BuildTopBarSummary()
         {
@@ -3633,7 +3646,7 @@ namespace PathOfTenThousandWays.Demo.UI
             if (controller.IsRunComplete)
             {
                 return controller.RunSummary != null && controller.RunSummary.Victory
-                    ? "天劫已渡：回看本局是如何从定根脚、所携、所往，一路走到收束成型。"
+                    ? "剑傀已止：回看本局如何从定根脚、承本命、入旧矿，一路走到道途成型。"
                     : "此世止步：回看路线、构筑里程碑与最后一场失利，明确下一世先补什么。";
             }
 
@@ -3824,7 +3837,7 @@ namespace PathOfTenThousandWays.Demo.UI
             string intent = controller.Battle.IsBossBattle
                 ? controller.Battle.BossIntentText
                 : controller.Battle.EnemyIntentText;
-            return $"{(controller.Battle.IsBossBattle ? "天劫预警" : "敌方意图")}：{intent} · {Mathf.Max(0f, controller.Battle.EnemyIntentRemaining):0.0}s";
+            return $"{(controller.Battle.IsBossBattle ? "剑炉预警" : "敌方意图")}：{intent} · {Mathf.Max(0f, controller.Battle.EnemyIntentRemaining):0.0}s";
         }
         private string BuildCompactNodeMapSummary()
         {
@@ -3857,7 +3870,7 @@ namespace PathOfTenThousandWays.Demo.UI
             return
                 $"抵达  第 {summary.ReachedLayer} 层  ·  胜战  {summary.BattlesWon} 场\n" +
                 $"最大飞剑  {summary.MaxSwordCount}  ·  最高爆发  {summary.HighestBurstDamage}\n" +
-                $"Boss  {(summary.DefeatedBoss ? "天劫化身已破" : "未能击破")}";
+                $"Boss  {(summary.DefeatedBoss ? "镇矿剑傀已破" : "未能击破")}";
         }
 
         private string BuildResultNodeBuildSummary()
@@ -4022,7 +4035,7 @@ namespace PathOfTenThousandWays.Demo.UI
             if (controller.IsRunComplete)
             {
                 return
-                    "道劫　天劫已渡\n" +
+                    "道劫　旧契已断\n" +
                     "证道　可再证新道\n" +
                     "回看　道途已收束\n" +
                     "起势　根脚再定\n" +
@@ -7610,7 +7623,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (hasBoss)
             {
-                return "直面天劫：少一层缓冲，换更快结局。";
+                return "直面剑炉：少一层缓冲，换更快抵达镇矿剑傀。";
             }
 
             if (battleCount >= 2)

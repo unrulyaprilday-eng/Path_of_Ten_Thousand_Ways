@@ -1,0 +1,17 @@
+story_flag_id,category,description,persists_between_runs
+experience_entered_old_mine,journey,已踏入旧矿地窟,false
+experience_miner_spirit_helped,npc,曾替矿灵解开一段契索,false
+experience_miner_spirit_bound,npc,曾以残剑胚束缚矿灵,false
+experience_miner_spirit_refined,npc,曾击杀并炼化矿灵,false
+experience_miner_spirit_ignored,npc,曾无视矿灵求援,false
+experience_miner_spirit_returned,npc,矿灵在塌井再次现身,false
+experience_ironback_beast_essence,growth,取得铁脊矿兽精髓,false
+experience_thunder_vein_touched,growth,在塌井深处引雷入剑,false
+experience_foundation_sword_tempered,growth,曾以剑意淬炼筑基经脉,false
+experience_contract_nail_taken,growth,曾拔取朱砂契钉,false
+experience_sword_force_refined,growth,曾以气血强炼残剑胚,false
+experience_old_contract_truth,story,已知旁支旧契真相,false
+experience_old_contract_broken,ending,在剑炉断去旧契,false
+experience_old_contract_claimed,ending,将旧契炼入本命法器,false
+discovery_old_mine_contract,lore,旧矿契文见闻,true
+discovery_xuantie_sword_puppet,lore,玄铁镇矿剑傀见闻,true

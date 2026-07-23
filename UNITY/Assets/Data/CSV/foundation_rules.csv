@@ -1,0 +1,6 @@
+foundation_rule_id,name,required_story_flag_id,rule_kind,rule_value,rules_text,visual_tag
+foundation_stable,稳固道基,,opening_energy,1,开战额外获得一点灵力,ink_white
+foundation_sword_bone,剑骨道基,experience_ironback_beast_essence,sword_power,0.18,本命法器与剑诀伤害提高百分之十八,jade_sword
+foundation_clear_spirit,清灵道基,experience_miner_spirit_helped,retarget_refund,1,每场首次击杀后立刻返还一点灵力,jade_breath
+foundation_thunder_meridian,雷脉道基,experience_thunder_vein_touched,chain_bonus,1,感电命中额外跳向一个合法目标,lightning_white
+foundation_baleful_contract,煞契道基,experience_miner_spirit_bound,blood_contract,0.12,失去气血时为残剑胚积蓄朱砂剑痕,cinnabar_contract

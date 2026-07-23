@@ -1,3 +1,4 @@
+using System;
 using PathOfTenThousandWays.Demo.Cards;
 
 namespace PathOfTenThousandWays.Demo.Battle
@@ -13,6 +14,7 @@ namespace PathOfTenThousandWays.Demo.Battle
         BossCharge,
         EnemyAttack,
         Victory,
+        TargetDefeated,
         Defeat
     }
 
@@ -23,6 +25,9 @@ namespace PathOfTenThousandWays.Demo.Battle
         public DemoBattlePresentationStepType Type;
         public DemoSwordStyle Style;
         public string SourceId;
+        public string SourceCombatantId;
+        public string TargetCombatantId;
+        public string[] AffectedTargetIds;
         public string Label;
         public int Damage;
         public int HitCount;
@@ -38,28 +43,40 @@ namespace PathOfTenThousandWays.Demo.Battle
             {
                 Type = DemoBattlePresentationStepType.BattleStart,
                 SourceId = sourceId,
+                SourceCombatantId = sourceId,
+                TargetCombatantId = "player",
                 Style = DemoSwordStyle.General,
                 Label = enemyName,
                 IsBossAction = isBoss
             };
         }
 
-        public static DemoBattlePresentationStep PhaseShift(string label)
+        public static DemoBattlePresentationStep PhaseShift(string label, string targetCombatantId = null)
         {
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.PhaseShift,
                 Label = label,
+                TargetCombatantId = targetCombatantId,
+                AffectedTargetIds = string.IsNullOrEmpty(targetCombatantId) ? null : new[] { targetCombatantId },
                 IsBossAction = true
             };
         }
 
-        public static DemoBattlePresentationStep Card(DemoCard card, int damage)
+        public static DemoBattlePresentationStep Card(
+            DemoCard card,
+            int damage,
+            string sourceCombatantId = "player",
+            string targetCombatantId = null,
+            string[] affectedTargetIds = null)
         {
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.CardCast,
                 SourceId = card.Id,
+                SourceCombatantId = sourceCombatantId,
+                TargetCombatantId = targetCombatantId,
+                AffectedTargetIds = affectedTargetIds,
                 Style = card.Style,
                 Label = card.Name,
                 Damage = damage,
@@ -86,7 +103,9 @@ namespace PathOfTenThousandWays.Demo.Battle
             DemoSwordStyle style,
             int swordCount,
             int damage,
-            bool triggerShock)
+            bool triggerShock,
+            string targetCombatantId = null,
+            string[] affectedTargetIds = null)
         {
             string labelPrefix = style == DemoSwordStyle.Thunder
                 ? "雷剑"
@@ -98,6 +117,9 @@ namespace PathOfTenThousandWays.Demo.Battle
             {
                 Type = DemoBattlePresentationStepType.SwordVolley,
                 SourceId = "auto_sword_volley",
+                SourceCombatantId = "player",
+                TargetCombatantId = targetCombatantId,
+                AffectedTargetIds = affectedTargetIds,
                 Style = style,
                 Label = swordCount <= 1 ? $"1 把{labelPrefix}试锋" : $"{swordCount} 把{labelPrefix}齐发",
                 Damage = damage,
@@ -130,6 +152,8 @@ namespace PathOfTenThousandWays.Demo.Battle
             {
                 Type = DemoBattlePresentationStepType.EnemyAttack,
                 SourceId = sourceId,
+                SourceCombatantId = sourceId,
+                TargetCombatantId = "player",
                 Style = DemoSwordStyle.General,
                 Label = enemyName,
                 Damage = damage,
@@ -139,12 +163,14 @@ namespace PathOfTenThousandWays.Demo.Battle
             };
         }
 
-        public static DemoBattlePresentationStep Charge(string label, int playerShockDelta)
+        public static DemoBattlePresentationStep Charge(string label, int playerShockDelta, string sourceCombatantId = null)
         {
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.BossCharge,
                 SourceId = "boss_charge",
+                SourceCombatantId = sourceCombatantId,
+                TargetCombatantId = "player",
                 Label = label,
                 IsBossAction = true,
                 TriggerShock = playerShockDelta > 0,
@@ -152,12 +178,15 @@ namespace PathOfTenThousandWays.Demo.Battle
             };
         }
 
-        public static DemoBattlePresentationStep Victory()
+        public static DemoBattlePresentationStep Victory(string defeatedTargetId = null)
         {
             return new DemoBattlePresentationStep
             {
                 Type = DemoBattlePresentationStepType.Victory,
                 SourceId = "battle_victory",
+                SourceCombatantId = "player",
+                TargetCombatantId = defeatedTargetId,
+                AffectedTargetIds = string.IsNullOrEmpty(defeatedTargetId) ? null : new[] { defeatedTargetId },
                 Label = "剑光破局"
             };
         }
@@ -169,6 +198,20 @@ namespace PathOfTenThousandWays.Demo.Battle
                 Type = DemoBattlePresentationStepType.Defeat,
                 SourceId = "battle_defeat",
                 Label = "道心受创"
+            };
+        }
+
+        public static DemoBattlePresentationStep TargetDefeated(string targetCombatantId, string label)
+        {
+            return new DemoBattlePresentationStep
+            {
+                Type = DemoBattlePresentationStepType.TargetDefeated,
+                SourceId = "target_defeated",
+                SourceCombatantId = "player",
+                TargetCombatantId = targetCombatantId,
+                AffectedTargetIds = string.IsNullOrEmpty(targetCombatantId) ? null : new[] { targetCombatantId },
+                Label = label,
+                HeavyImpact = true
             };
         }
     }

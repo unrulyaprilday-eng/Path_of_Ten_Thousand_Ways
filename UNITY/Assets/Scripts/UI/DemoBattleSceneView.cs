@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using PathOfTenThousandWays.Demo.Battle;
 using PathOfTenThousandWays.Demo.Cards;
 using PathOfTenThousandWays.Demo.Map;
@@ -23,9 +24,11 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string OpeningBattleFarResourcePath = "Art/Scenes/scene_battle_old_mine_opening_far_002";
         private const string OpeningBattleMidResourcePath = "Art/Scenes/scene_battle_old_mine_opening_mid_002";
         private const string OpeningBattleNearResourcePath = "Art/Scenes/scene_battle_old_mine_opening_near_002";
-        private const string PlayerCharacterResourcePath = "Art/Characters/char_player_sword_cultivator_battle_002";
+        private const string PlayerCharacterResourcePath = "Art/Characters/char_player_sword_cultivator_battle_005";
         private const string EnemyWraithResourcePath = "Art/Characters/char_enemy_tribulation_wraith_battle_002";
-        private const string OpeningPlayerResourcePath = "Art/Characters/char_player_sword_cultivator_battle_003";
+        private const string IronbackMineBeastResourcePath = "Art/Characters/char_enemy_ironback_mine_beast_001";
+        private const string SwordEatingMineXiaoResourcePath = "Art/Characters/char_enemy_sword_eating_mine_xiao_001";
+        private const string OpeningPlayerResourcePath = "Art/Characters/char_player_sword_cultivator_battle_005";
         private const string OpeningEnemyResourcePath = "Art/Characters/char_enemy_old_mine_wraith_battle_003";
         private const string PlayerPortraitResourcePath = "Art/Characters/char_player_sword_cultivator_portrait_002";
         private const string VfxFlyingSwordResourcePath = "Art/VFX/vfx_flying_sword_001";
@@ -38,8 +41,8 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string OpeningCloudResourcePath = "Art/VFX/vfx_opening_cloud_draw_001";
         private const string OpeningPlayerBearerResourcePath = "Art/VFX/vfx_opening_player_bearer_001";
         private const string OpeningEnemyBearerResourcePath = "Art/VFX/vfx_opening_enemy_bearer_001";
-        private const string BossPortraitResourcePath = "Art/Boss/boss_tianjie_halfbody_001";
-        private const string BossPortraitFallbackResourcePath = "Art/Boss/boss_tianjie_halfbody_002";
+        private const string BossPortraitResourcePath = "Art/Boss/boss_xuantie_mine_sword_puppet_001";
+        private const string BossPortraitFallbackResourcePath = "Art/Boss/boss_xuantie_mine_sword_puppet_001";
         private const string BattleHeaderRibbonResourcePath = "Art/UI/ui_battle_header_ribbon_001";
         private const string BattleStatusBrushResourcePath = "Art/UI/ui_battle_status_brush_002";
         private const string BattleStatusPlateResourcePath = "Art/UI/ui_battle_status_plate_001";
@@ -70,6 +73,8 @@ namespace PathOfTenThousandWays.Demo.UI
         private static Sprite cachedOldMineCombatNearSprite;
         private static Sprite cachedPlayerCharacterSprite;
         private static Sprite cachedEnemyWraithSprite;
+        private static Sprite cachedIronbackMineBeastSprite;
+        private static Sprite cachedSwordEatingMineXiaoSprite;
         private static Sprite cachedOpeningPlayerSprite;
         private static Sprite cachedOpeningEnemySprite;
         private static Sprite cachedPlayerPortraitSprite;
@@ -115,6 +120,18 @@ namespace PathOfTenThousandWays.Demo.UI
             public Color BaseColor;
         }
 
+        private sealed class EnemyActorVisual
+        {
+            public string CombatantId;
+            public int Depth;
+            public RectTransform Root;
+            public RectTransform Body;
+            public RectTransform Sword;
+            public Text NameText;
+            public Text IntentText;
+            public Image LockMark;
+        }
+
         private enum EncounterVisualTier
         {
             Minor,
@@ -138,6 +155,8 @@ namespace PathOfTenThousandWays.Demo.UI
         private Sprite battlePhaseSealSprite;
         private Sprite playerCharacterSprite;
         private Sprite enemyWraithSprite;
+        private Sprite ironbackMineBeastSprite;
+        private Sprite swordEatingMineXiaoSprite;
         private Sprite playerPortraitSprite;
         private Sprite vfxFlyingSwordSprite;
         private Sprite vfxSwordSlashSprite;
@@ -181,6 +200,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private RectTransform regionCloudA;
         private RectTransform regionCloudB;
         private RectTransform enemyRoot;
+        private readonly Dictionary<string, EnemyActorVisual> enemyActors = new Dictionary<string, EnemyActorVisual>();
         private RectTransform enemyPlatformSword;
         private RectTransform enemySword;
         private RectTransform enemyBody;
@@ -299,6 +319,8 @@ namespace PathOfTenThousandWays.Demo.UI
             enemyWraithSprite = openingBattle
                 ? LoadSceneLayerSprite(ref cachedOpeningEnemySprite, OpeningEnemyResourcePath)
                 : LoadSceneLayerSprite(ref cachedEnemyWraithSprite, EnemyWraithResourcePath);
+            ironbackMineBeastSprite = LoadSceneLayerSprite(ref cachedIronbackMineBeastSprite, IronbackMineBeastResourcePath);
+            swordEatingMineXiaoSprite = LoadSceneLayerSprite(ref cachedSwordEatingMineXiaoSprite, SwordEatingMineXiaoResourcePath);
             playerPortraitSprite = LoadSceneLayerSprite(ref cachedPlayerPortraitSprite, PlayerPortraitResourcePath);
             vfxFlyingSwordSprite = openingBattle
                 ? LoadSceneLayerSprite(ref cachedOpeningSwordSprite, OpeningSwordResourcePath)
@@ -359,6 +381,7 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             SetCombatVisualState(true);
+            RefreshEnemyActors();
 
             if (sequenceCoroutine == null &&
                 controller.Battle.TryConsumePresentationStep(out DemoBattlePresentationStep presentationStep))
@@ -586,11 +609,17 @@ namespace PathOfTenThousandWays.Demo.UI
         }
         private void CreateActors()
         {
+            enemyActors.Clear();
             Vector2 playerAnchor = GetPlayerAnchor();
-            Vector2 enemyAnchor = GetEnemyAnchor();
+            DemoCombatTarget primaryTarget = controller != null && controller.HasBattle
+                ? controller.Battle.Enemies.FirstOrDefault(target => target != null)
+                : null;
+            Vector2 enemyAnchor = GetEnemyAnchor(primaryTarget?.Depth ?? 0);
             bool openingBattle = IsOpeningBattlePage();
-            bool useBossCombatArt = controller != null && controller.HasBattle && controller.Battle.IsBossBattle && bossPortraitSprite != null;
-            Sprite enemyCombatSprite = useBossCombatArt ? bossPortraitSprite : enemyWraithSprite;
+            EncounterVisualTier visualTier = GetEncounterVisualTier();
+            bool useBossCombatArt = visualTier == EncounterVisualTier.FinalBoss && bossPortraitSprite != null;
+            bool useMiniBossScale = visualTier == EncounterVisualTier.MiniBoss && IsMiniBossDefinition(primaryTarget?.DefinitionId);
+            Sprite enemyCombatSprite = ResolveEnemyCombatSprite(primaryTarget, useBossCombatArt);
 
             playerRoot = CreateEntity(
                 "PlayerRoot",
@@ -600,15 +629,15 @@ namespace PathOfTenThousandWays.Demo.UI
                 string.Empty,
                 true,
                 true);
-            playerRoot.sizeDelta = openingBattle ? new Vector2(700f, 500f) : new Vector2(600f, 420f);
+            playerRoot.sizeDelta = openingBattle ? new Vector2(620f, 555f) : new Vector2(570f, 520f);
             playerSword = playerRoot.Find("Sword") as RectTransform;
             playerBody = ApplyEntitySprite(
                 playerRoot,
                 playerCharacterSprite,
-                openingBattle ? new Vector2(620f, 420f) : new Vector2(560f, 320f),
-                openingBattle ? new Vector2(-18f, 40f) : new Vector2(-20f, 20f));
+                openingBattle ? new Vector2(545f, 545f) : new Vector2(500f, 500f),
+                openingBattle ? new Vector2(-16f, 34f) : new Vector2(-18f, 22f));
             CreatePlayerWindPresentation();
-            ApplySwordSprite(playerSword, true);
+            SetEntitySwordVisible(playerSword, playerCharacterSprite == null, true);
 
             enemyRoot = CreateEntity(
                 "EnemyRoot",
@@ -618,19 +647,27 @@ namespace PathOfTenThousandWays.Demo.UI
                 string.Empty,
                 false,
                 false);
-            enemyRoot.sizeDelta = openingBattle ? new Vector2(580f, 460f) : new Vector2(520f, 400f);
+            enemyRoot.sizeDelta = useBossCombatArt
+                ? new Vector2(760f, 700f)
+                : useMiniBossScale
+                    ? new Vector2(650f, 540f)
+                    : openingBattle ? new Vector2(580f, 460f) : new Vector2(330f, 300f);
             enemySword = enemyRoot.Find("Sword") as RectTransform;
             enemyBody = ApplyEntitySprite(
                 enemyRoot,
                 enemyCombatSprite,
                 useBossCombatArt
-                    ? new Vector2(560f, 390f)
-                    : openingBattle ? new Vector2(555f, 400f) : new Vector2(600f, 372f),
+                    ? new Vector2(650f, 650f)
+                    : useMiniBossScale
+                        ? new Vector2(600f, 500f)
+                        : openingBattle ? new Vector2(555f, 400f) : new Vector2(300f, 275f),
                 useBossCombatArt
-                    ? new Vector2(-12f, 54f)
-                    : openingBattle ? new Vector2(0f, -16f) : new Vector2(-8f, 70f));
+                    ? new Vector2(0f, -44f)
+                    : useMiniBossScale
+                        ? new Vector2(0f, 12f)
+                        : openingBattle ? new Vector2(0f, -16f) : new Vector2(-4f, 32f));
             CreateEnemyGroundPresentation();
-            ApplySwordSprite(enemySword, false);
+            SetEntitySwordVisible(enemySword, enemyCombatSprite == null, false);
 
             enemyAuraImage = FindEntityImage(enemyRoot, "Aura");
             enemySwordImage = FindEntityImage(enemyRoot, "Sword");
@@ -638,6 +675,172 @@ namespace PathOfTenThousandWays.Demo.UI
             enemyBodyImage = enemyBody != null ? enemyBody.GetComponent<Image>() : null;
             Transform enemyLabel = enemyRoot.Find("Label");
             enemyLabelText = enemyLabel != null ? enemyLabel.GetComponent<Text>() : null;
+            if (enemyLabelText != null)
+            {
+                enemyLabelText.gameObject.SetActive(false);
+            }
+
+            RegisterEnemyActor(primaryTarget, enemyRoot, enemyBody, enemySword, 0);
+            if (controller != null && controller.HasBattle && visualTier != EncounterVisualTier.FinalBoss)
+            {
+                for (int i = 1; i < controller.Battle.Enemies.Count && i < 3; i++)
+                {
+                    DemoCombatTarget target = controller.Battle.Enemies[i];
+                    if (target == null)
+                    {
+                        continue;
+                    }
+
+                    Vector2 anchor = GetEnemyAnchor(target.Depth);
+                    RectTransform root = CreateEntity(
+                        "EnemyRoot_" + target.CombatantId,
+                        anchor,
+                        new Color(0.90f, 0.93f, 0.94f, 1f),
+                        new Color(0.50f, 0.74f, 0.92f, 1f),
+                        string.Empty,
+                        false,
+                        false);
+                    float depthScale = i == 1 ? 1f : 0.84f;
+                    root.sizeDelta = new Vector2(270f, 250f) * depthScale;
+                    RectTransform sword = root.Find("Sword") as RectTransform;
+                    Sprite targetSprite = ResolveEnemyCombatSprite(target, false);
+                    RectTransform body = ApplyEntitySprite(
+                        root,
+                        targetSprite,
+                        new Vector2(240f, 225f) * depthScale,
+                        new Vector2(0f, 24f));
+                    SetEntitySwordVisible(sword, targetSprite == null, false);
+                    RegisterEnemyActor(target, root, body, sword, i);
+                }
+            }
+        }
+
+        private Sprite ResolveEnemyCombatSprite(DemoCombatTarget target, bool useBossCombatArt)
+        {
+            if (useBossCombatArt)
+            {
+                return bossPortraitSprite;
+            }
+
+            string definitionId = target?.DefinitionId ?? string.Empty;
+            if (definitionId.IndexOf("ironback_mine_beast", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || definitionId.IndexOf("shallow_mine_beast", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return ironbackMineBeastSprite != null ? ironbackMineBeastSprite : enemyWraithSprite;
+            }
+
+            if (definitionId.IndexOf("sword_eating_mine_spirit", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || definitionId.IndexOf("young_sword_eater", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return swordEatingMineXiaoSprite != null ? swordEatingMineXiaoSprite : enemyWraithSprite;
+            }
+
+            return enemyWraithSprite;
+        }
+
+        private static bool IsMiniBossDefinition(string definitionId)
+        {
+            return !string.IsNullOrEmpty(definitionId)
+                && (definitionId.IndexOf("ironback_mine_beast", System.StringComparison.OrdinalIgnoreCase) >= 0
+                    || definitionId.IndexOf("sword_eating_mine_spirit", System.StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private void SetEntitySwordVisible(RectTransform swordRect, bool visible, bool isPlayer)
+        {
+            if (swordRect == null)
+            {
+                return;
+            }
+
+            swordRect.gameObject.SetActive(visible);
+            if (visible)
+            {
+                ApplySwordSprite(swordRect, isPlayer);
+            }
+        }
+
+        private void RegisterEnemyActor(
+            DemoCombatTarget target,
+            RectTransform actorRoot,
+            RectTransform actorBody,
+            RectTransform actorSword,
+            int index)
+        {
+            if (actorRoot == null)
+            {
+                return;
+            }
+
+            string combatantId = target?.CombatantId ?? (index == 0 ? "encounter_enemy_primary" : "encounter_enemy_" + index);
+            Image hitArea = actorRoot.GetComponent<Image>();
+            if (hitArea != null)
+            {
+                hitArea.raycastTarget = true;
+                Button button = actorRoot.gameObject.AddComponent<Button>();
+                button.targetGraphic = hitArea;
+                string capturedId = combatantId;
+                button.onClick.AddListener(() => LockEnemyTarget(capturedId));
+            }
+
+            Image lockMark = CreateImage("TargetLock", actorRoot, new Color(0.35f, 0.83f, 0.72f, 0.92f));
+            lockMark.sprite = whiteSprite;
+            lockMark.type = Image.Type.Simple;
+            lockMark.raycastTarget = false;
+            lockMark.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            lockMark.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            lockMark.rectTransform.sizeDelta = new Vector2(68f, 5f);
+            float lockMarkHeight = GetEncounterVisualTier() == EncounterVisualTier.FinalBoss ? 0.12f : 0.34f;
+            lockMark.rectTransform.anchoredPosition = new Vector2(0f, actorRoot.sizeDelta.y * lockMarkHeight);
+
+            bool showWorldCaption = GetEncounterVisualTier() != EncounterVisualTier.FinalBoss;
+            float captionY = -actorRoot.sizeDelta.y * 0.42f;
+            float captionWidth = Mathf.Min(250f, actorRoot.sizeDelta.x * 0.90f);
+            Image caption = CreateImage("TargetCaption", actorRoot, new Color(0.025f, 0.045f, 0.044f, 0.58f));
+            caption.raycastTarget = false;
+            caption.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            caption.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            caption.rectTransform.sizeDelta = new Vector2(captionWidth, 50f);
+            caption.rectTransform.anchoredPosition = new Vector2(0f, captionY);
+            caption.gameObject.SetActive(showWorldCaption);
+
+            Text name = CreateText("TargetName", actorRoot, 15, FontStyle.Bold, TextAnchor.MiddleCenter, HudPaper);
+            name.raycastTarget = false;
+            name.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            name.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            name.rectTransform.sizeDelta = new Vector2(captionWidth - 12f, 24f);
+            name.rectTransform.anchoredPosition = new Vector2(0f, captionY + 11f);
+            name.gameObject.SetActive(showWorldCaption);
+
+            Text intent = CreateText("CompactIntent", actorRoot, 12, FontStyle.Bold, TextAnchor.MiddleCenter, HudMist);
+            intent.raycastTarget = false;
+            intent.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            intent.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            intent.rectTransform.sizeDelta = new Vector2(captionWidth - 12f, 22f);
+            intent.rectTransform.anchoredPosition = new Vector2(0f, captionY - 12f);
+            intent.gameObject.SetActive(showWorldCaption);
+
+            enemyActors[combatantId] = new EnemyActorVisual
+            {
+                CombatantId = combatantId,
+                Depth = target?.Depth ?? index,
+                Root = actorRoot,
+                Body = actorBody,
+                Sword = actorSword,
+                NameText = name,
+                IntentText = intent,
+                LockMark = lockMark
+            };
+        }
+
+        private void LockEnemyTarget(string combatantId)
+        {
+            if (controller == null || !controller.HasBattle)
+            {
+                return;
+            }
+
+            controller.Battle.LockTarget(combatantId);
+            RefreshEnemyActors();
         }
 
         private void CreatePlayerWindPresentation()
@@ -647,15 +850,15 @@ namespace PathOfTenThousandWays.Demo.UI
                 ? openingPlayerBearerSprite != null
                     ? openingPlayerBearerSprite
                     : openingGuardSprite != null ? openingGuardSprite : openingCloudSprite
-                : vfxFlyingSwordSprite;
+                : vfxSwordSlashSprite;
             Sprite windSprite = openingBattle && openingCloudSprite != null ? openingCloudSprite : vfxSwordSlashSprite;
             playerPlatformSword = CreateWindSprite(
                 "PlayerPlatformSword",
                 supportSprite,
-                openingBattle ? new Vector2(440f, 142f) : new Vector2(380f, 108f),
-                openingBattle ? new Vector2(-16f, -135f) : new Vector2(-20f, -120f),
-                openingBattle ? new Color(0.12f, 0.14f, 0.13f, 0.32f) : new Color(0.66f, 0.84f, 0.90f, 0.92f),
-                openingBattle ? 0f : -4f,
+                openingBattle ? new Vector2(440f, 142f) : new Vector2(390f, 96f),
+                openingBattle ? new Vector2(-16f, -135f) : new Vector2(-24f, -124f),
+                openingBattle ? new Color(0.12f, 0.14f, 0.13f, 0.32f) : new Color(0.08f, 0.18f, 0.17f, 0.42f),
+                openingBattle ? 0f : -2f,
                 1);
 
             playerHairTrailA = CreateWindSprite(
@@ -689,7 +892,7 @@ namespace PathOfTenThousandWays.Demo.UI
             bool openingBattle = IsOpeningBattlePage();
             Sprite supportSprite = openingBattle
                 ? openingEnemyBearerSprite != null ? openingEnemyBearerSprite : vfxImpactInkBurstSprite != null ? vfxImpactInkBurstSprite : openingCloudSprite
-                : vfxFlyingSwordSprite;
+                : vfxImpactInkBurstSprite != null ? vfxImpactInkBurstSprite : vfxSwordSlashSprite;
             bool hasSwordArt = supportSprite != null;
             Image image = CreateImage(
                 "EnemyPlatformSword",
@@ -697,8 +900,8 @@ namespace PathOfTenThousandWays.Demo.UI
                 hasSwordArt
                     ? openingBattle
                         ? new Color(0.16f, 0.17f, 0.16f, 0.30f)
-                        : new Color(0.46f, 0.68f, 0.78f, 0.62f)
-                    : new Color(0.38f, 0.62f, 0.70f, 0.24f));
+                        : new Color(0.08f, 0.13f, 0.12f, 0.34f)
+                    : new Color(0.12f, 0.18f, 0.17f, 0.22f));
             image.sprite = hasSwordArt ? supportSprite : whiteSprite;
             image.type = Image.Type.Simple;
             image.preserveAspect = true;
@@ -710,9 +913,9 @@ namespace PathOfTenThousandWays.Demo.UI
             enemyPlatformSword.pivot = new Vector2(0.5f, 0.5f);
             enemyPlatformSword.sizeDelta = openingBattle
                 ? new Vector2(430f, 154f)
-                : hasSwordArt ? new Vector2(410f, 112f) : new Vector2(300f, 10f);
-            enemyPlatformSword.anchoredPosition = openingBattle ? new Vector2(2f, -142f) : new Vector2(18f, -70f);
-            enemyPlatformSword.localRotation = Quaternion.Euler(0f, 0f, openingBattle ? 0f : 4f);
+                : hasSwordArt ? new Vector2(330f, 94f) : new Vector2(260f, 10f);
+            enemyPlatformSword.anchoredPosition = openingBattle ? new Vector2(2f, -142f) : new Vector2(4f, -88f);
+            enemyPlatformSword.localRotation = Quaternion.Euler(0f, 0f, openingBattle ? 0f : 1f);
             enemyPlatformSword.SetSiblingIndex(Mathf.Clamp(1, 0, enemyRoot.childCount - 1));
         }
         private RectTransform CreateWindSprite(string name, Sprite sprite, Vector2 size, Vector2 position, Color color, float rotation, int siblingIndex)
@@ -1198,6 +1401,27 @@ namespace PathOfTenThousandWays.Demo.UI
             }
         }
 
+        private EnemyActorVisual ResolveEnemyActor(string combatantId)
+        {
+            if (!string.IsNullOrWhiteSpace(combatantId)
+                && enemyActors.TryGetValue(combatantId, out EnemyActorVisual exact))
+            {
+                return exact;
+            }
+
+            if (controller != null && controller.HasBattle)
+            {
+                string currentId = controller.Battle.LockedTargetId;
+                if (!string.IsNullOrWhiteSpace(currentId)
+                    && enemyActors.TryGetValue(currentId, out EnemyActorVisual locked))
+                {
+                    return locked;
+                }
+            }
+
+            return enemyActors.Values.FirstOrDefault();
+        }
+
         private IEnumerator PlayCardCast(DemoBattlePresentationStep step)
         {
             if (step.SourceId == "guard_step")
@@ -1213,6 +1437,8 @@ namespace PathOfTenThousandWays.Demo.UI
             }
 
             Color styleColor = GetStyleColor(step.Style);
+            EnemyActorVisual targetActor = ResolveEnemyActor(step.TargetCombatantId);
+            RectTransform targetSword = targetActor?.Sword ?? enemySword;
             StartCoroutine(SpawnInkWash(
                 playerRoot.anchoredPosition + GetCardCastWashOffset(step.Style),
                 GetCardCastWashSize(step),
@@ -1225,7 +1451,7 @@ namespace PathOfTenThousandWays.Demo.UI
             for (int i = 0; i < visualHits; i++)
             {
                 Vector2 start = GetSwordTip(playerSword, true) + GetCardCastStartOffset(step, i, visualHits);
-                Vector2 end = GetSwordTip(enemySword, false) + GetCardCastEndOffset(step, i, visualHits);
+                Vector2 end = GetSwordTip(targetSword, false) + GetCardCastEndOffset(step, i, visualHits);
                 yield return AnimateSwordFlight(start, end, styleColor, GetFlightDuration(step, false), GetFlightThickness(step, false), step.Style, i);
 
                 if (step.Style == DemoSwordStyle.Thunder)
@@ -1270,6 +1496,8 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private IEnumerator PlaySwordVolley(DemoBattlePresentationStep step)
         {
+            EnemyActorVisual targetActor = ResolveEnemyActor(step.TargetCombatantId);
+            RectTransform targetSword = targetActor?.Sword ?? enemySword;
             StartCoroutine(SpawnInkWash(
                 ScenePoint(0.48f, 0.48f),
                 GetVolleyWashSize(step),
@@ -1282,7 +1510,7 @@ namespace PathOfTenThousandWays.Demo.UI
             for (int i = 0; i < visualHits; i++)
             {
                 Vector2 start = GetSwordTip(playerSword, true) + GetVolleyStartOffset(step, i, visualHits);
-                Vector2 end = GetSwordTip(enemySword, false) + GetVolleyEndOffset(step, i, visualHits);
+                Vector2 end = GetSwordTip(targetSword, false) + GetVolleyEndOffset(step, i, visualHits);
                 StartCoroutine(AnimateSwordFlight(start, end, GetVolleyFlightColor(step), GetFlightDuration(step, true), GetFlightThickness(step, true), step.Style, i));
 
                 if (step.Style == DemoSwordStyle.Thunder && (i % 2 == 0 || i == visualHits - 1))
@@ -1309,14 +1537,17 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private IEnumerator PlayEnemyAttack(DemoBattlePresentationStep step)
         {
+            EnemyActorVisual sourceActor = ResolveEnemyActor(step.SourceCombatantId);
+            RectTransform sourceRoot = sourceActor?.Root ?? enemyRoot;
+            RectTransform sourceSword = sourceActor?.Sword ?? enemySword;
             StartCoroutine(SpawnInkWash(
-                enemyRoot.anchoredPosition + new Vector2(14f, 18f),
+                sourceRoot.anchoredPosition + new Vector2(14f, 18f),
                 step.HeavyImpact ? 124f : 92f,
                 new Color(0.64f, 0.28f, 0.26f, 0.24f),
                 0.30f));
-            yield return AnimateScalePunch(enemyRoot, new Vector3(1.08f, 1.08f, 1f), 0.10f);
+            yield return AnimateScalePunch(sourceRoot, new Vector3(1.08f, 1.08f, 1f), 0.10f);
 
-            Vector2 start = GetSwordTip(enemySword, false);
+            Vector2 start = GetSwordTip(sourceSword, false);
             Vector2 end = GetSwordTip(playerSword, true);
             Color strikeColor = step.IsBossAction ? new Color(0.85f, 0.50f, 0.35f, 0.95f) : new Color(0.63f, 0.32f, 0.33f, 0.90f);
             yield return AnimateSwordFlight(start, end, strikeColor, step.IsBossAction ? 0.24f : 0.19f, step.IsBossAction ? 18f : 12f);
@@ -1327,14 +1558,16 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private IEnumerator PlayBossCharge(DemoBattlePresentationStep step)
         {
+            EnemyActorVisual sourceActor = ResolveEnemyActor(step.SourceCombatantId);
+            RectTransform sourceRoot = sourceActor?.Root ?? enemyRoot;
             phaseText.text = "蓄势";
             StartCoroutine(BrushWipe(new Color(0.38f, 0.48f, 0.65f, 0.22f), 0.22f));
-            yield return AnimateScalePunch(enemyRoot, new Vector3(1.16f, 1.16f, 1f), 0.18f);
+            yield return AnimateScalePunch(sourceRoot, new Vector3(1.16f, 1.16f, 1f), 0.18f);
 
             for (int i = 0; i < 3; i++)
             {
                 StartCoroutine(SpawnTransientMark(
-                    enemyRoot.anchoredPosition + new Vector2(-10f + i * 12f, 24f + i * 8f),
+                    sourceRoot.anchoredPosition + new Vector2(-10f + i * 12f, 24f + i * 8f),
                     new Vector2(88f, 4f),
                     new Color(0.66f, 0.84f, 1f, 0.45f),
                     0.22f,
@@ -1344,7 +1577,7 @@ namespace PathOfTenThousandWays.Demo.UI
             for (int i = 0; i < 2; i++)
             {
                 StartCoroutine(SpawnInkWash(
-                    enemyRoot.anchoredPosition + new Vector2(-16f + i * 22f, 42f),
+                    sourceRoot.anchoredPosition + new Vector2(-16f + i * 22f, 42f),
                     108f,
                     new Color(0.50f, 0.70f, 0.92f, 0.22f),
                     0.28f));
@@ -1362,6 +1595,8 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private IEnumerator PlayPhaseShift(DemoBattlePresentationStep step)
         {
+            EnemyActorVisual targetActor = ResolveEnemyActor(step.TargetCombatantId);
+            RectTransform targetRoot = targetActor?.Root ?? enemyRoot;
             phaseText.text = step.Label;
             Color color = new Color(0.60f, 0.78f, 1f, 0.16f);
             StartCoroutine(BrushWipe(new Color(0.08f, 0.10f, 0.13f, 0.26f), 0.30f));
@@ -1369,7 +1604,7 @@ namespace PathOfTenThousandWays.Demo.UI
             {
                 flashOverlay.color = color;
                 StartCoroutine(SpawnTransientMark(
-                    enemyRoot.anchoredPosition + new Vector2(-20f + i * 20f, 44f),
+                    targetRoot.anchoredPosition + new Vector2(-20f + i * 20f, 44f),
                     new Vector2(118f, 6f),
                     new Color(0.72f, 0.86f, 1f, 0.40f),
                     0.18f,
@@ -1449,8 +1684,11 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private IEnumerator PlayHitOnEnemy(DemoBattlePresentationStep step)
         {
+            EnemyActorVisual targetActor = ResolveEnemyActor(step.TargetCombatantId);
+            RectTransform targetRoot = targetActor?.Root ?? enemyRoot;
+            RectTransform targetBody = targetActor?.Body ?? enemyBody;
             StartCoroutine(SpawnInkWash(
-                enemyRoot.anchoredPosition + new Vector2(10f, 26f),
+                targetRoot.anchoredPosition + new Vector2(10f, 26f),
                 GetImpactWashSize(step),
                 GetImpactColor(step),
                 step.HeavyImpact ? 0.34f : 0.24f));
@@ -1458,19 +1696,19 @@ namespace PathOfTenThousandWays.Demo.UI
             {
                 StartCoroutine(SpawnSpriteMark(
                     vfxSwordSlashSprite,
-                    enemyRoot.anchoredPosition + new Vector2(10f, 24f),
+                    targetRoot.anchoredPosition + new Vector2(10f, 24f),
                     new Vector2(step.HeavyImpact ? 176f : 132f, step.HeavyImpact ? 116f : 86f),
                     new Color(1f, 0.96f, 0.84f, step.HeavyImpact ? 0.88f : 0.70f),
                     step.HeavyImpact ? 0.28f : 0.20f,
                     -18f));
             }
 
-            yield return FlashTarget(enemyBody, GetImpactColor(step), GetImpactScale(step), GetImpactPush(step), false);
+            yield return FlashTarget(targetBody, GetImpactColor(step), GetImpactScale(step), GetImpactPush(step), false);
 
             if (step.Style == DemoSwordStyle.Thunder)
             {
                 StartCoroutine(SpawnTransientMark(
-                    enemyRoot.anchoredPosition + new Vector2(2f, 26f),
+                    targetRoot.anchoredPosition + new Vector2(2f, 26f),
                     new Vector2(step.HeavyImpact ? 72f : 56f, step.HeavyImpact ? 72f : 56f),
                     new Color(0.54f, 0.78f, 1f, 0.18f),
                     0.16f,
@@ -1480,24 +1718,24 @@ namespace PathOfTenThousandWays.Demo.UI
             if (step.TriggerShock)
             {
                 StartCoroutine(SpawnTransientMark(
-                    enemyRoot.anchoredPosition + new Vector2(0f, 30f),
+                    targetRoot.anchoredPosition + new Vector2(0f, 30f),
                     new Vector2(58f, 58f),
                     new Color(0.52f, 0.78f, 1f, 0.38f),
                     0.18f,
                     34f));
-                StartCoroutine(SpawnLightningFork(enemyRoot.anchoredPosition + new Vector2(-16f, 44f), 3, 0.18f));
+                StartCoroutine(SpawnLightningFork(targetRoot.anchoredPosition + new Vector2(-16f, 44f), 3, 0.18f));
             }
 
             if (step.TriggerBleed)
             {
                 StartCoroutine(SpawnTransientMark(
-                    enemyRoot.anchoredPosition + new Vector2(6f, 14f),
+                    targetRoot.anchoredPosition + new Vector2(6f, 14f),
                     new Vector2(74f, 8f),
                     new Color(0.80f, 0.24f, 0.26f, 0.48f),
                     0.22f,
                     -22f));
                 StartCoroutine(SpawnDelayedTransientMark(
-                    enemyRoot.anchoredPosition + new Vector2(-4f, 10f),
+                    targetRoot.anchoredPosition + new Vector2(-4f, 10f),
                     new Vector2(82f, 5f),
                     new Color(0.54f, 0.10f, 0.12f, 0.30f),
                     0.04f,
@@ -1508,13 +1746,13 @@ namespace PathOfTenThousandWays.Demo.UI
             if (step.Style == DemoSwordStyle.General || step.Style == DemoSwordStyle.Wanjian)
             {
                 StartCoroutine(SpawnTransientMark(
-                    enemyRoot.anchoredPosition + new Vector2(14f, 22f),
+                    targetRoot.anchoredPosition + new Vector2(14f, 22f),
                     new Vector2(step.HeavyImpact ? 126f : 92f, 5f),
                     new Color(0.92f, 0.88f, 0.76f, 0.28f),
                     0.20f,
                     -18f));
                 StartCoroutine(SpawnDelayedTransientMark(
-                    enemyRoot.anchoredPosition + new Vector2(10f, 18f),
+                    targetRoot.anchoredPosition + new Vector2(10f, 18f),
                     new Vector2(step.HeavyImpact ? 88f : 64f, 3f),
                     new Color(0.96f, 0.93f, 0.86f, 0.22f),
                     0.03f,
@@ -1525,7 +1763,7 @@ namespace PathOfTenThousandWays.Demo.UI
             if (step.Style == DemoSwordStyle.Blood)
             {
                 StartCoroutine(SpawnTransientMark(
-                    enemyRoot.anchoredPosition + new Vector2(10f, 18f),
+                    targetRoot.anchoredPosition + new Vector2(10f, 18f),
                     new Vector2(step.HeavyImpact ? 96f : 74f, 7f),
                     new Color(0.86f, 0.24f, 0.28f, 0.30f),
                     0.24f,
@@ -1534,10 +1772,10 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (step.HeavyImpact)
             {
-                StartCoroutine(SpawnEmberBurst(enemyRoot.anchoredPosition + new Vector2(6f, 12f), 5));
+                StartCoroutine(SpawnEmberBurst(targetRoot.anchoredPosition + new Vector2(6f, 12f), 5));
             }
 
-            SpawnPopup(enemyRoot.anchoredPosition + new Vector2(18f, 54f), "-" + step.Damage, GetImpactColor(step));
+            SpawnPopup(targetRoot.anchoredPosition + new Vector2(18f, 54f), "-" + step.Damage, GetImpactColor(step));
         }
 
         private IEnumerator AnimateSwordFlight(
@@ -1955,6 +2193,32 @@ namespace PathOfTenThousandWays.Demo.UI
                     0f,
                     0f,
                     openingBattle ? Mathf.Sin(elapsed * 0.9f) * 0.6f : 4f + Mathf.Sin(elapsed * 1.1f) * 1.2f);
+            }
+
+            foreach (EnemyActorVisual actor in enemyActors.Values)
+            {
+                if (actor == null || actor.Root == null || ReferenceEquals(actor.Root, enemyRoot))
+                {
+                    continue;
+                }
+
+                Vector2 actorAnchor = GetEnemyAnchor(actor.Depth);
+                float phase = 0.8f + actor.Depth * 0.73f;
+                actor.Root.anchoredPosition = ScenePoint(actorAnchor.x, actorAnchor.y)
+                    + new Vector2(
+                        Mathf.Sin(elapsed * (0.92f + actor.Depth * 0.05f) + phase) * enemyHorizontalDrift,
+                        Mathf.Sin(elapsed * (1.42f + actor.Depth * 0.07f) + phase) * enemyVerticalDrift);
+                actor.Root.localRotation = Quaternion.Euler(
+                    0f,
+                    0f,
+                    Mathf.Sin(elapsed * 1.05f + phase) * enemyTiltWave + enemyTiltBase);
+                if (actor.Sword != null)
+                {
+                    actor.Sword.localRotation = Quaternion.Euler(
+                        0f,
+                        0f,
+                        Mathf.Sin(elapsed * 1.9f + phase) * enemySwordWave + enemySwordBase);
+                }
             }
 
             for (int i = 0; i < ambientDrifts.Count; i++)
@@ -2394,6 +2658,60 @@ namespace PathOfTenThousandWays.Demo.UI
             enemyRoot.localScale = Vector3.one * GetEncounterScale(encounterTier);
         }
 
+        private void RefreshEnemyActors()
+        {
+            if (controller == null || !controller.HasBattle)
+            {
+                return;
+            }
+
+            string lockedId = controller.Battle.LockedTargetId;
+            foreach (EnemyActorVisual actor in enemyActors.Values)
+            {
+                if (actor == null || actor.Root == null)
+                {
+                    continue;
+                }
+
+                DemoCombatTarget target = controller.Battle.FindTarget(actor.CombatantId);
+                bool visible = target != null && target.IsActive && !target.IsDead;
+                actor.Root.gameObject.SetActive(visible);
+                if (!visible)
+                {
+                    continue;
+                }
+
+                bool locked = string.Equals(lockedId, actor.CombatantId, System.StringComparison.Ordinal);
+                if (actor.LockMark != null)
+                {
+                    actor.LockMark.gameObject.SetActive(locked);
+                    actor.LockMark.color = locked
+                        ? new Color(0.35f, 0.88f, 0.74f, 0.96f)
+                        : new Color(0.35f, 0.88f, 0.74f, 0f);
+                }
+
+                if (actor.NameText != null)
+                {
+                    actor.NameText.text = $"{target.Combatant.Name}  {target.Health}/{target.Combatant.MaxHealth}";
+                    actor.NameText.color = locked ? HudJade : HudPaper;
+                }
+
+                if (actor.IntentText != null)
+                {
+                    DemoIntentState intent = target.Intent;
+                    actor.IntentText.text = intent != null && intent.IsPending
+                        ? $"{intent.DisplayText}  {Mathf.Max(0f, intent.RemainingSeconds):0.0}s"
+                        : "气机未显";
+                    actor.IntentText.color = intent != null && intent.RemainingSeconds <= 1.5f
+                        ? HudCrimson
+                        : HudMist;
+                }
+
+                actor.Root.localScale = Vector3.one * GetEncounterScale(GetEncounterVisualTier())
+                    * (locked ? 1.035f : 1f);
+            }
+        }
+
         private void UpdateHudPanels()
         {
             if (controller == null || controller.Battle.Player == null || controller.Battle.Enemy == null)
@@ -2465,7 +2783,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 intent = GetEncounterIntentText(GetEncounterVisualTier());
             }
 
-            return $"{(controller.Battle.IsBossBattle ? "天劫预警" : "敌方意图")}：{intent} · {Mathf.Max(0f, controller.Battle.EnemyIntentRemaining):0.0}s";
+            return $"{(controller.Battle.IsBossBattle ? "剑傀机括" : "敌方意图")}：{intent} · {Mathf.Max(0f, controller.Battle.EnemyIntentRemaining):0.0}s";
         }
 
         private void UpdateIdleStage()
@@ -2490,7 +2808,13 @@ namespace PathOfTenThousandWays.Demo.UI
         {
             bool showIdleOverlay = ShouldShowIdlePanel();
             playerRoot.gameObject.SetActive(activeBattle);
-            enemyRoot.gameObject.SetActive(activeBattle);
+            foreach (EnemyActorVisual actor in enemyActors.Values)
+            {
+                if (actor?.Root != null)
+                {
+                    actor.Root.gameObject.SetActive(activeBattle);
+                }
+            }
             playerStatusPanel.gameObject.SetActive(false);
             enemyStatusPanel.gameObject.SetActive(false);
             roundStatusPanel.gameObject.SetActive(false);
@@ -2530,7 +2854,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoNodeType.Training:
                     return "修炼节点：功法与法器正在改写规则";
                 case DemoNodeType.Shop:
-                    return "Boss 前整备：把最后的爆发窗口留给天劫";
+                    return "剑炉前整备：把最后的爆发窗口留给镇矿剑傀";
                 case DemoNodeType.Victory:
                 case DemoNodeType.Result:
                     return controller.RunSummary != null && controller.RunSummary.Victory
@@ -2554,7 +2878,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case DemoNodeType.Training:
                     return "补主修之外的缺口，让飞剑、状态和终结技开始联动。";
                 case DemoNodeType.Shop:
-                    return "天劫前先补续航或神通上限，别让最后一轮只剩挨打。";
+                    return "剑炉前先补续航或法诀上限，别让最后一轮只剩挨打。";
                 case DemoNodeType.Victory:
                 case DemoNodeType.Result:
                     return controller.RunSummary != null && controller.RunSummary.Victory
@@ -2853,7 +3177,7 @@ namespace PathOfTenThousandWays.Demo.UI
             string intent = controller != null && controller.Battle != null ? controller.Battle.BossIntentText : string.Empty;
             if (string.IsNullOrEmpty(intent))
             {
-                return "天威将落";
+                return "剑炉机括蓄势";
             }
 
             int separator = intent.IndexOf('：');
@@ -2952,6 +3276,11 @@ namespace PathOfTenThousandWays.Demo.UI
         private Sprite LoadBattleBackgroundSprite()
         {
             string resourcePath = ResolveBattleBackgroundResourcePath();
+            if (resourcePath == OldMineCombatFarResourcePath)
+            {
+                return LoadSceneLayerSprite(ref cachedOldMineCombatFarSprite, resourcePath);
+            }
+
             if (resourcePath == BattleThunderMarshEntryResourcePath)
             {
                 return LoadSceneLayerSprite(ref cachedBattleThunderMarshEntrySprite, resourcePath);
@@ -2968,7 +3297,9 @@ namespace PathOfTenThousandWays.Demo.UI
         private bool IsUsingRegionBattleBackground()
         {
             string resourcePath = ResolveBattleBackgroundResourcePath();
-            return resourcePath == BattleThunderMarshEntryResourcePath || resourcePath == BattleOldMineEntryResourcePath;
+            return resourcePath == BattleThunderMarshEntryResourcePath
+                || resourcePath == BattleOldMineEntryResourcePath
+                || resourcePath == OldMineCombatFarResourcePath;
         }
 
         private string ResolveBattleBackgroundResourcePath()
@@ -2981,7 +3312,9 @@ namespace PathOfTenThousandWays.Demo.UI
 
             if (ContainsAny(regionKey, "region_old_mine", "old_mine", "mine"))
             {
-                return BattleOldMineEntryResourcePath;
+                return controller != null && controller.HasBattle
+                    ? OldMineCombatFarResourcePath
+                    : BattleOldMineEntryResourcePath;
             }
 
             return BattleBackgroundResourcePath;
@@ -3566,9 +3899,21 @@ namespace PathOfTenThousandWays.Demo.UI
                 return EncounterVisualTier.Minor;
             }
 
-            if (controller.Battle.IsBossBattle || controller.Run.Map.CurrentNode.Type == DemoNodeType.Boss)
+            string primaryDefinitionId = controller.Battle.Enemies
+                .Where(target => target != null)
+                .Select(target => target.DefinitionId)
+                .FirstOrDefault() ?? controller.Battle.EnemyId ?? string.Empty;
+            bool finalBoss = primaryDefinitionId.IndexOf("xuantie", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || controller.Battle.Enemies.Any(target => target != null
+                    && target.DefinitionId.IndexOf("target_", System.StringComparison.OrdinalIgnoreCase) == 0);
+            if (finalBoss || controller.Run.Map.CurrentNode.Type == DemoNodeType.Boss)
             {
                 return EncounterVisualTier.FinalBoss;
+            }
+
+            if (IsMiniBossDefinition(primaryDefinitionId) || controller.Battle.IsBossBattle)
+            {
+                return EncounterVisualTier.MiniBoss;
             }
 
             DemoMapNode currentNode = controller.Run.Map.CurrentNode;
@@ -3596,7 +3941,9 @@ namespace PathOfTenThousandWays.Demo.UI
                 && (nodeName.Contains("守门")
                     || nodeName.Contains("守卫")
                     || nodeName.Contains("执兵")
-                    || nodeName.Contains("试炼"));
+                    || nodeName.Contains("试炼")
+                    || nodeName.Contains("矿兽")
+                    || nodeName.Contains("矿魈"));
         }
 
         private static string GetEncounterTierLabel(EncounterVisualTier tier)
@@ -3623,7 +3970,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case EncounterVisualTier.MiniBoss:
                     return "守关压迫：先破势再爆发";
                 case EncounterVisualTier.FinalBoss:
-                    return "天劫压境：检验整局构筑";
+                    return "剑傀压境：检验整局构筑";
                 default:
                     return "常规斗法：试锋与补节奏";
             }
@@ -3638,7 +3985,7 @@ namespace PathOfTenThousandWays.Demo.UI
                 case EncounterVisualTier.MiniBoss:
                     return "守关压迫：检验构筑成型";
                 case EncounterVisualTier.FinalBoss:
-                    return "天劫压境：等爆发窗口";
+                    return "剑傀压境：等爆发窗口";
                 default:
                     return "常规斗法：试锋补节奏";
             }
@@ -3797,11 +4144,11 @@ namespace PathOfTenThousandWays.Demo.UI
             switch (phase)
             {
                 case DemoBossPhase.ThunderCloud:
-                    return "雷云";
+                    return "甲片";
                 case DemoBossPhase.SoulLock:
-                    return "锁魂";
+                    return "契钉";
                 case DemoBossPhase.CalamityDescends:
-                    return "天劫";
+                    return "核心";
                 default:
                     return "无";
             }
@@ -3815,7 +4162,19 @@ namespace PathOfTenThousandWays.Demo.UI
 
         private Vector2 GetEnemyAnchor()
         {
+            return GetEnemyAnchor(0);
+        }
+
+        private Vector2 GetEnemyAnchor(int depth)
+        {
             EncounterVisualTier tier = GetEncounterVisualTier();
+            if (tier == EncounterVisualTier.MiniBoss)
+            {
+                return depth > 0
+                    ? new Vector2(0.88f, 0.72f)
+                    : new Vector2(0.64f, 0.60f);
+            }
+
             DemoBattleVisualTier layoutTier;
             switch (tier)
             {
@@ -3833,7 +4192,7 @@ namespace PathOfTenThousandWays.Demo.UI
                     break;
             }
 
-            DemoNormalizedPoint anchor = DemoBattleLayoutContract.EnemyAnchor(layoutTier);
+            DemoNormalizedPoint anchor = DemoBattleLayoutContract.EnemyAnchor(layoutTier, depth);
             return new Vector2(anchor.X, anchor.Y);
         }
     }

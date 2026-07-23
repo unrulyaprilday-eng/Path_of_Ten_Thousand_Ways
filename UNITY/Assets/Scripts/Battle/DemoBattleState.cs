@@ -70,6 +70,13 @@ namespace PathOfTenThousandWays.Demo.Battle
     public sealed class DemoBattleState
     {
         private const float TimerEpsilon = 0.0001f;
+        public const string BossPhaseNone = "none";
+        public const string BossPhaseXuantieArmor = "xuantie_armor";
+        public const string BossPhaseXuantieContractSpike = "xuantie_contract_spike";
+        public const string BossPhaseXuantieCore = "xuantie_core";
+        public const string BossPhaseLegacyThunderCloud = "legacy_thunder_cloud";
+        public const string BossPhaseLegacySoulLock = "legacy_soul_lock";
+        public const string BossPhaseLegacyCalamity = "legacy_calamity";
 
         private sealed class TemporarySwordBatch
         {
@@ -85,10 +92,14 @@ namespace PathOfTenThousandWays.Demo.Battle
         private readonly List<DemoGongfaType> activeGongfas = new List<DemoGongfaType>();
         private readonly HashSet<string> activeRelics = new HashSet<string>();
         private readonly List<DemoCombatTarget> enemies = new List<DemoCombatTarget>();
+        private readonly List<string> lastResolvedTargetIds = new List<string>();
+        private readonly List<DemoBattlePresentationStep> pendingAfterAttackPresentations = new List<DemoBattlePresentationStep>();
 
         private DemoBattleSetup setup;
         private DemoTargetResolver targetResolver;
         private bool isBossBattle;
+        private bool isSwordPuppetBoss;
+        private string bossPhaseId = BossPhaseNone;
         private bool calamityCharged;
         private bool mirrorAvailable;
         private bool heartMirrorUsed;
@@ -137,7 +148,8 @@ namespace PathOfTenThousandWays.Demo.Battle
             }
         }
         public DemoBattlePhase Phase { get; private set; } = DemoBattlePhase.Intro;
-        public DemoBossPhase BossPhase { get; private set; }
+        public string BossPhaseId => bossPhaseId;
+        public DemoBossPhase BossPhase => GetLegacyBossPhase(bossPhaseId);
         public DemoBattleLog Log { get; } = new DemoBattleLog();
 
         public List<DemoCard> Deck { get; } = new List<DemoCard>();
@@ -161,11 +173,11 @@ namespace PathOfTenThousandWays.Demo.Battle
         public float FlyingSwordInterval => setup == null
             ? 0f
             : Math.Max(TimerEpsilon, setup.FlyingSwordIntervalSeconds);
-        public float EnemyIntentRemaining => enemyIntentRemaining;
-        public float EnemyIntentDuration => enemyIntentDuration;
-        public float EnemyIntentProgress => enemyIntentDuration <= TimerEpsilon
+        public float EnemyIntentRemaining => GetSelectedIntent()?.RemainingSeconds ?? 0f;
+        public float EnemyIntentDuration => GetSelectedIntent()?.DurationSeconds ?? 0f;
+        public float EnemyIntentProgress => EnemyIntentDuration <= TimerEpsilon
             ? 0f
-            : Math.Max(0f, Math.Min(1f, 1f - enemyIntentRemaining / enemyIntentDuration));
+            : Math.Max(0f, Math.Min(1f, 1f - EnemyIntentRemaining / EnemyIntentDuration));
         public float ElapsedSeconds { get; private set; }
         public int VolleysFired { get; private set; }
         public int CardsPlayed { get; private set; }
@@ -196,12 +208,13 @@ namespace PathOfTenThousandWays.Demo.Battle
             targetResolver = null;
             setup = null;
             Phase = DemoBattlePhase.Intro;
-            BossPhase = DemoBossPhase.None;
+            bossPhaseId = BossPhaseNone;
             PhaseTimer = 0f;
             EnemyIntentText = string.Empty;
             BossIntentText = string.Empty;
             EnemyId = string.Empty;
             isBossBattle = false;
+            isSwordPuppetBoss = false;
             calamityCharged = false;
             mirrorAvailable = false;
             heartMirrorUsed = false;
@@ -248,6 +261,8 @@ namespace PathOfTenThousandWays.Demo.Battle
             activeRelics.Clear();
             presentationQueue.Clear();
             operationPresentationSteps.Clear();
+            lastResolvedTargetIds.Clear();
+            pendingAfterAttackPresentations.Clear();
 
             if (clearLog)
             {
@@ -275,6 +290,11 @@ namespace PathOfTenThousandWays.Demo.Battle
             Player.Health = Math.Min(Player.MaxHealth, Math.Max(1, battleSetup.PlayerHealth));
 
             AddConfiguredEnemies(battleSetup);
+            isSwordPuppetBoss = battleSetup.IsBoss && IsSwordPuppetTargetSet(enemies);
+            if (isSwordPuppetBoss)
+            {
+                InitializeSwordPuppetTargets();
+            }
             targetResolver = new DemoTargetResolver(enemies);
             EnemyId = enemies[0].CombatantId;
 
@@ -332,7 +352,9 @@ namespace PathOfTenThousandWays.Demo.Battle
             }
 
             isBossBattle = battleSetup.IsBoss;
-            BossPhase = isBossBattle ? DemoBossPhase.ThunderCloud : DemoBossPhase.None;
+            bossPhaseId = isSwordPuppetBoss
+                ? BossPhaseXuantieArmor
+                : isBossBattle ? BossPhaseLegacyThunderCloud : BossPhaseNone;
             mirrorAvailable = HasArtifact(DemoArtifactType.HaotianMirror);
             spiritTalismanAvailable = HasRelic("聚灵符");
             firstFlyingSwordPlayed = false;
@@ -355,25 +377,45 @@ namespace PathOfTenThousandWays.Demo.Battle
 
             drawRemaining = Math.Max(TimerEpsilon, battleSetup.DrawIntervalSeconds);
             volleyRemaining = Math.Max(TimerEpsilon, battleSetup.FlyingSwordIntervalSeconds);
-            ConfigureNextEnemyIntent();
+            ConfigureAllEnemyIntents();
 
             introRemaining = Math.Max(0f, battleSetup.IntroSeconds);
             Phase = introRemaining > TimerEpsilon ? DemoBattlePhase.Intro : DemoBattlePhase.Running;
-            PhaseTimer = Phase == DemoBattlePhase.Intro ? introRemaining : enemyIntentRemaining;
-            Log.Add(isBossBattle ? "天劫化身显现，劫云开始聚拢。" : $"{Enemy.Name} 拦路，斗法持续演算。");
-            Emit(DemoBattlePresentationStep.BattleStart(Enemy.Name, isBossBattle, EnemyId));
+            PhaseTimer = Phase == DemoBattlePhase.Intro ? introRemaining : EnemyIntentRemaining;
+            DemoCombatTarget openingTarget = ResolveCurrentTargetNode();
+            string openingName = openingTarget?.Combatant?.Name ?? battleSetup.EnemyName;
+            Log.Add(isSwordPuppetBoss
+                ? "玄铁镇矿剑傀自封契中苏醒，甲片封住剑炉核心。"
+                : isBossBattle ? "守关强敌现身，斗法气机骤紧。" : $"{openingName} 拦路，斗法持续演算。");
+            Emit(DemoBattlePresentationStep.BattleStart(
+                openingName,
+                isBossBattle,
+                openingTarget?.CombatantId ?? EnemyId));
             PublishPresentationOperation();
         }
 
         public bool LockTarget(string combatantId)
         {
-            return targetResolver != null && targetResolver.LockTarget(combatantId);
+            bool locked = targetResolver != null && targetResolver.LockTarget(combatantId);
+            SyncLegacyIntentView();
+            return locked;
         }
 
         public DemoCombatant ResolveAutoTarget()
         {
             DemoCombatTarget target = targetResolver == null ? null : targetResolver.ResolveAutoTarget();
             return target == null ? null : target.Combatant;
+        }
+
+        public DemoCombatTarget ResolveCurrentTargetNode()
+        {
+            return targetResolver == null ? null : targetResolver.ResolveAutoTarget();
+        }
+
+        public DemoCombatTarget FindTarget(string combatantId)
+        {
+            return enemies.FirstOrDefault(target => target != null
+                && string.Equals(target.CombatantId, combatantId, StringComparison.Ordinal));
         }
 
         private void AddConfiguredEnemies(DemoBattleSetup battleSetup)
@@ -490,7 +532,7 @@ namespace PathOfTenThousandWays.Demo.Battle
                 if (introRemaining <= TimerEpsilon)
                 {
                     Phase = DemoBattlePhase.Running;
-                    PhaseTimer = enemyIntentRemaining;
+                    PhaseTimer = EnemyIntentRemaining;
                     Log.Add("双方气机相接，半实时斗法开始。");
                 }
             }
@@ -544,18 +586,32 @@ namespace PathOfTenThousandWays.Demo.Battle
 
             int damage = ResolveCard(card);
             TrackDamage(damage);
-            Emit(DemoBattlePresentationStep.Card(card, damage));
+            string primaryTargetId = lastResolvedTargetIds.FirstOrDefault() ?? LockedTargetId;
+            Emit(DemoBattlePresentationStep.Card(
+                card,
+                damage,
+                "player",
+                primaryTargetId,
+                lastResolvedTargetIds.ToArray()));
+            FlushAfterAttackPresentations();
 
-            if (!Enemy.IsDead && !Player.IsDead && mirrorAvailable && IsMirrorTarget(card))
+            if (ResolveCurrentTargetNode() != null && !Player.IsDead && mirrorAvailable && IsMirrorTarget(card))
             {
                 mirrorAvailable = false;
                 Log.Add($"昊天镜映照 {card.Name}，再次结算。");
                 int mirroredDamage = ResolveCard(card, true);
                 TrackDamage(mirroredDamage);
-                DemoBattlePresentationStep mirrorStep = DemoBattlePresentationStep.Card(card, mirroredDamage);
+                primaryTargetId = lastResolvedTargetIds.FirstOrDefault() ?? LockedTargetId;
+                DemoBattlePresentationStep mirrorStep = DemoBattlePresentationStep.Card(
+                    card,
+                    mirroredDamage,
+                    "player",
+                    primaryTargetId,
+                    lastResolvedTargetIds.ToArray());
                 mirrorStep.Label = $"昊天镜·{card.Name}";
                 mirrorStep.HeavyImpact = true;
                 Emit(mirrorStep);
+                FlushAfterAttackPresentations();
             }
 
             DiscardPile.Add(card);
@@ -604,7 +660,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             {
                 float step = remaining;
                 step = Math.Min(step, Math.Max(0f, volleyRemaining));
-                step = Math.Min(step, Math.Max(0f, enemyIntentRemaining));
+                step = Math.Min(step, Math.Max(0f, GetNextEnemyIntentRemaining()));
                 if (Hand.Count < HandLimit)
                 {
                     step = Math.Min(step, Math.Max(0f, drawRemaining));
@@ -630,9 +686,9 @@ namespace PathOfTenThousandWays.Demo.Battle
                     resolvedEvent = true;
                 }
 
-                if (Phase == DemoBattlePhase.Running && enemyIntentRemaining <= TimerEpsilon)
+                if (Phase == DemoBattlePhase.Running && HasReadyEnemyIntent())
                 {
-                    ResolveEnemyIntent();
+                    ResolveReadyEnemyIntents();
                     resolvedEvent = true;
                 }
 
@@ -654,7 +710,16 @@ namespace PathOfTenThousandWays.Demo.Battle
         {
             ElapsedSeconds += deltaTime;
             volleyRemaining = Math.Max(0f, volleyRemaining - deltaTime);
-            enemyIntentRemaining = Math.Max(0f, enemyIntentRemaining - deltaTime);
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                DemoCombatTarget target = enemies[i];
+                if (target == null || !target.IsActive || target.IsDead || target.Intent == null || !target.Intent.IsPending)
+                {
+                    continue;
+                }
+
+                target.Intent.RemainingSeconds = Math.Max(0f, target.Intent.RemainingSeconds - deltaTime);
+            }
             if (Hand.Count < HandLimit)
             {
                 drawRemaining = Math.Max(0f, drawRemaining - deltaTime);
@@ -673,7 +738,8 @@ namespace PathOfTenThousandWays.Demo.Battle
                 energyValue = Math.Min(MaxEnergy, energyValue + regenerativeTime * EnergyRegenerationPerSecond);
             }
 
-            PhaseTimer = enemyIntentRemaining;
+            SyncLegacyIntentView();
+            PhaseTimer = EnemyIntentRemaining;
         }
 
         private void ResolveTimedDraw()
@@ -705,7 +771,15 @@ namespace PathOfTenThousandWays.Demo.Battle
             {
                 int swordDamage = ResolveFlyingSwords(out bool shockTriggered);
                 TrackDamage(swordDamage);
-                Emit(DemoBattlePresentationStep.SwordVolley(GetVolleyStyle(), swordCount, swordDamage, shockTriggered));
+                string targetId = lastResolvedTargetIds.FirstOrDefault() ?? LockedTargetId;
+                Emit(DemoBattlePresentationStep.SwordVolley(
+                    GetVolleyStyle(),
+                    swordCount,
+                    swordDamage,
+                    shockTriggered,
+                    targetId,
+                    lastResolvedTargetIds.ToArray()));
+                FlushAfterAttackPresentations();
             }
 
             thunderSealActive = false;
@@ -715,27 +789,53 @@ namespace PathOfTenThousandWays.Demo.Battle
             CheckForBattleResult();
         }
 
-        private void ResolveEnemyIntent()
+        private void ResolveReadyEnemyIntents()
         {
             if (Player.Shock > 0)
             {
                 Player.Shock = Math.Max(0, Player.Shock - 1);
             }
 
-            EnemyActionCount++;
-            Round = EnemyActionCount;
-            DemoBattlePresentationStep step = isBossBattle ? ResolveBossIntent() : ResolveNormalEnemyIntent();
-            Emit(step);
-            CheckForBattleResult();
+            DemoCombatTarget[] ready = enemies
+                .Where(target => target != null
+                    && target.IsActive
+                    && !target.IsDead
+                    && target.Intent != null
+                    && target.Intent.IsPending
+                    && target.Intent.RemainingSeconds <= TimerEpsilon)
+                .OrderBy(target => target.Depth)
+                .ThenBy(target => target.PositionId, StringComparer.Ordinal)
+                .ToArray();
 
-            if (Phase == DemoBattlePhase.Running)
+            for (int i = 0; i < ready.Length && Phase == DemoBattlePhase.Running; i++)
             {
-                ConfigureNextEnemyIntent();
+                DemoCombatTarget source = ready[i];
+                EnemyActionCount++;
+                Round = EnemyActionCount;
+                DemoBattlePresentationStep step = isSwordPuppetBoss
+                    ? ResolveSwordPuppetIntent(source)
+                    : isBossBattle ? ResolveLegacyBossIntent(source) : ResolveNormalEnemyIntent(source);
+                Emit(step);
+                CheckForBattleResult();
+                if (Phase == DemoBattlePhase.Running && source.IsActive && !source.IsDead)
+                {
+                    ConfigureEnemyIntent(source);
+                }
             }
+
+            SyncLegacyIntentView();
         }
 
         private int ResolveCard(DemoCard card, bool mirrored = false)
         {
+            DemoCombatTarget primaryTarget = ResolveCurrentTargetNode();
+            DemoCombatant enemy = primaryTarget?.Combatant;
+            lastResolvedTargetIds.Clear();
+            if (enemy == null)
+            {
+                return 0;
+            }
+
             int damage = card.Damage;
             int block = card.Block;
             int swordIntent = card.SwordIntent;
@@ -784,9 +884,9 @@ namespace PathOfTenThousandWays.Demo.Battle
                 firstFlyingSwordPlayed = true;
             }
 
-            if (card.Style == DemoSwordStyle.Blood && Enemy.Bleed > 0)
+            if (card.Style == DemoSwordStyle.Blood && enemy.Bleed > 0)
             {
-                damage += Enemy.Bleed / 2;
+                damage += enemy.Bleed / 2;
             }
 
             if (card.ConsumeAllSwordIntent)
@@ -807,7 +907,7 @@ namespace PathOfTenThousandWays.Demo.Battle
             if (damage > 0)
             {
                 damage = ApplyBloodOrbBonus(damage, $"{logPrefix}{card.Name}");
-                damage = Enemy.TakeDamage(damage);
+                damage = ResolvePlayerDamageAgainstTargets(card, primaryTarget, damage);
                 Log.Add($"{logPrefix}{card.Name} 造成 {damage} 点伤害。");
             }
 
@@ -826,14 +926,21 @@ namespace PathOfTenThousandWays.Demo.Battle
             if (shock > 0)
             {
                 int extraShock = HasArtifact(DemoArtifactType.ThunderSeal) ? 2 : 0;
-                Enemy.Shock += shock + extraShock;
-                Log.Add($"{logPrefix}敌人感电 +{shock + extraShock}。");
+                IReadOnlyList<DemoCombatTarget> shockTargets = ResolveEffectTargets(primaryTarget, card.Style == DemoSwordStyle.Thunder);
+                for (int i = 0; i < shockTargets.Count; i++)
+                {
+                    shockTargets[i].Combatant.Shock += shock + extraShock;
+                }
+                Log.Add($"{logPrefix}{shockTargets.Count} 个目标感电 +{shock + extraShock}。");
             }
 
             if (bleed > 0)
             {
-                Enemy.Bleed += bleed;
-                Log.Add($"{logPrefix}敌人流血 +{bleed}。");
+                if (!primaryTarget.IsDead)
+                {
+                    primaryTarget.Combatant.Bleed += bleed;
+                    Log.Add($"{logPrefix}{primaryTarget.Combatant.Name} 流血 +{bleed}。");
+                }
             }
 
             if (temporarySwords > 0)
@@ -874,10 +981,19 @@ namespace PathOfTenThousandWays.Demo.Battle
 
         private int ResolveFlyingSwords(out bool shockTriggered)
         {
+            DemoCombatTarget primaryTarget = ResolveCurrentTargetNode();
+            DemoCombatant enemy = primaryTarget?.Combatant;
+            lastResolvedTargetIds.Clear();
+            if (enemy == null)
+            {
+                shockTriggered = false;
+                return 0;
+            }
+
             int swordCount = TotalSwords;
             int swordDamage = swordCount * 3;
             shockTriggered = false;
-            int shockBeforeTrigger = Enemy.Shock;
+            int shockBeforeTrigger = enemy.Shock;
 
             if (Player.SwordIntent >= 3)
             {
@@ -892,22 +1008,22 @@ namespace PathOfTenThousandWays.Demo.Battle
 
             if (HasGongfa(DemoGongfaType.LightningMeridians))
             {
-                Enemy.Shock += 2;
+                enemy.Shock += 2;
                 Log.Add("引雷入窍先行为敌身覆雷，感电 +2。");
             }
 
-            if (Enemy.Shock > 0)
+            if (enemy.Shock > 0)
             {
                 if (thunderSealActive)
                 {
-                    int storedThunder = Math.Max(4, Enemy.Shock / 2 + 1);
+                    int storedThunder = Math.Max(4, enemy.Shock / 2 + 1);
                     deferredThunderBonusDamage += storedThunder;
-                    Enemy.Shock += 2;
+                    enemy.Shock += 2;
                     Log.Add($"封雷匣将雷意继续压入敌躯，本次齐射不引爆，并为下次雷击蓄下 {storedThunder} 点天罚。");
                 }
                 else
                 {
-                    int shockDamage = Math.Max(1, Enemy.Shock / 2);
+                    int shockDamage = Math.Max(1, enemy.Shock / 2);
                     if (HasArtifact(DemoArtifactType.ThunderSeal))
                     {
                         shockDamage += 4;
@@ -933,23 +1049,23 @@ namespace PathOfTenThousandWays.Demo.Battle
                         Log.Add("九霄雷印震开覆雷，再降下 6 点雷击。");
                     }
                     swordDamage += shockDamage;
-                    Enemy.Shock = Math.Max(0, Enemy.Shock - 2);
+                    enemy.Shock = Math.Max(0, enemy.Shock - 2);
                     shockTriggered = true;
                     Log.Add($"感电被飞剑引爆，追加 {shockDamage} 伤害。");
                 }
             }
 
-            if (Enemy.Bleed > 0)
+            if (enemy.Bleed > 0)
             {
                 if (HasRelic("血剑胚"))
                 {
-                    Enemy.Bleed += 2;
+                    enemy.Bleed += 2;
                     Log.Add("血剑胚浸染剑锋，额外施加 2 层流血。");
                 }
 
                 if (HasGongfa(DemoGongfaType.BloodFiendCanon))
                 {
-                    int bloodBonus = Math.Max(2, Enemy.Bleed / 2);
+                    int bloodBonus = Math.Max(2, enemy.Bleed / 2);
                     swordDamage += bloodBonus;
                     Player.Heal(2);
                     Log.Add($"血煞经借血催锋，齐射追加 {bloodBonus} 伤害并回复 2 点生命。");
@@ -957,23 +1073,27 @@ namespace PathOfTenThousandWays.Demo.Battle
             }
 
             swordDamage = ApplyBloodOrbBonus(swordDamage, "飞剑齐发");
-            int dealt = Enemy.TakeDamage(swordDamage);
+            int dealt = ResolveVolleyDamageAgainstTargets(primaryTarget, swordDamage, GetVolleyStyle());
             int totalDamage = dealt;
             Log.Add($"{swordCount} 把飞剑自动攻击，造成 {dealt} 点伤害。");
 
-            if (!Enemy.IsDead && HasRelic("万剑剑匣") && random.NextDouble() < 0.35d)
+            if (!primaryTarget.IsDead && HasRelic("万剑剑匣") && random.NextDouble() < 0.35d)
             {
                 int echoDamage = ApplyBloodOrbBonus(Math.Max(6, swordCount * 2), "万剑剑匣");
-                int echoed = Enemy.TakeDamage(echoDamage);
+                int echoed = ApplyDamageToTarget(primaryTarget, echoDamage, DemoDamageType.Sword, "wanjian_sword_box");
                 totalDamage += echoed;
                 Log.Add($"万剑剑匣牵动归锋，再追斩 {echoed} 点伤害。");
             }
 
-            int bleedDamage = Enemy.TickBleed();
+            int bleedDamage = primaryTarget.IsDead ? 0 : enemy.TickBleed();
             if (bleedDamage > 0)
             {
                 totalDamage += bleedDamage;
                 Log.Add($"流血造成 {bleedDamage} 伤害。");
+                if (primaryTarget.IsDead)
+                {
+                    RegisterTargetDefeated(primaryTarget);
+                }
 
                 if (HasGongfa(DemoGongfaType.BloodRefiningBody))
                 {
@@ -983,26 +1103,28 @@ namespace PathOfTenThousandWays.Demo.Battle
                 }
             }
 
-            if (!Enemy.IsDead && HasGongfa(DemoGongfaType.WanjianReturn) && (Player.SwordIntent >= 4 || swordCount >= 5))
+            if (ResolveCurrentTargetNode() != null && HasGongfa(DemoGongfaType.WanjianReturn) && (Player.SwordIntent >= 4 || swordCount >= 5))
             {
                 int returnDamage = ApplyBloodOrbBonus(Math.Max(8, swordCount * 2), "万剑归宗");
-                int returned = Enemy.TakeDamage(returnDamage);
+                int returned = ApplyAreaDamage(returnDamage, DemoDamageType.Sword, "wanjian_return", 0.65f);
                 totalDamage += returned;
                 Log.Add($"万剑归宗回潮，再次斩出 {returned} 点伤害。");
             }
 
-            if (!Enemy.IsDead && HasGongfa(DemoGongfaType.HeavenlyThunderEdict) && shockTriggered)
+            DemoCombatTarget followupTarget = ResolveCurrentTargetNode();
+            if (followupTarget != null && HasGongfa(DemoGongfaType.HeavenlyThunderEdict) && shockTriggered)
             {
                 int thunderDamage = ApplyBloodOrbBonus(10, "九天引雷");
-                int dealtThunder = Enemy.TakeDamage(thunderDamage);
+                int dealtThunder = ApplyChainDamage(followupTarget, thunderDamage, "heavenly_thunder_edict", 3);
                 totalDamage += dealtThunder;
                 Log.Add($"九天引雷落下天罚，追加 {dealtThunder} 点伤害。");
             }
 
-            if (!Enemy.IsDead && HasGongfa(DemoGongfaType.BloodPrisonExecution) && Enemy.Bleed >= 8)
+            followupTarget = ResolveCurrentTargetNode();
+            if (followupTarget != null && HasGongfa(DemoGongfaType.BloodPrisonExecution) && followupTarget.Combatant.Bleed >= 8)
             {
-                int bloodPrisonDamage = ApplyBloodOrbBonus(12 + Enemy.Bleed / 2, "血狱断生");
-                int dealtBloodPrison = Enemy.TakeDamage(bloodPrisonDamage);
+                int bloodPrisonDamage = ApplyBloodOrbBonus(12 + followupTarget.Combatant.Bleed / 2, "血狱断生");
+                int dealtBloodPrison = ApplyDamageToTarget(followupTarget, bloodPrisonDamage, DemoDamageType.Sword, "blood_prison_execution");
                 totalDamage += dealtBloodPrison;
                 Player.Heal(4);
                 Log.Add($"血狱断生收束残血，追加 {dealtBloodPrison} 点伤害并回复 4 点生命。");
@@ -1027,30 +1149,32 @@ namespace PathOfTenThousandWays.Demo.Battle
             return gainedIntent;
         }
 
-        private DemoBattlePresentationStep ResolveNormalEnemyIntent()
+        private DemoBattlePresentationStep ResolveNormalEnemyIntent(DemoCombatTarget source)
         {
             int damage = 7 + Math.Min(3, Math.Max(0, EnemyActionCount - 1) / 3);
-            int dealt = ApplyIncomingDamage(damage, Enemy.Name, false, out bool gourdTriggered);
-            Log.Add($"{Enemy.Name} 读条完成，造成 {dealt} 点伤害。");
-            DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy(Enemy.Name, dealt, false, EnemyId);
+            string sourceName = source?.Combatant?.Name ?? "矿中妖物";
+            int dealt = ApplyIncomingDamage(damage, sourceName, false, out bool gourdTriggered);
+            Log.Add($"{sourceName} 读条完成，造成 {dealt} 点伤害。");
+            DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy(sourceName, dealt, false, source?.CombatantId);
             if (gourdTriggered)
             {
-                step.Label = $"{Enemy.Name} / 葫芦收煞";
+                step.Label = $"{sourceName} / 葫芦收煞";
             }
             return step;
         }
 
-        private DemoBattlePresentationStep ResolveBossIntent()
+        private DemoBattlePresentationStep ResolveLegacyBossIntent(DemoCombatTarget source)
         {
-            switch (BossPhase)
+            string sourceId = source?.CombatantId ?? EnemyId;
+            switch (bossPhaseId)
             {
-                case DemoBossPhase.ThunderCloud:
+                case BossPhaseLegacyThunderCloud:
                 {
                     int damage = 6 + Math.Min(2, Math.Max(0, EnemyActionCount - 1) / 5);
                     int dealt = ApplyIncomingDamage(damage, "雷云压境", true, out bool gourdTriggered);
                     Player.Shock += 1;
                     Log.Add($"雷云压境造成 {dealt} 伤害并施加 1 感电。");
-                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("雷云压境", dealt, true, EnemyId);
+                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("雷云压境", dealt, true, sourceId);
                     step.TriggerShock = true;
                     step.PlayerShockDelta = 1;
                     if (gourdTriggered)
@@ -1059,14 +1183,14 @@ namespace PathOfTenThousandWays.Demo.Battle
                     }
                     return step;
                 }
-                case DemoBossPhase.SoulLock:
+                case BossPhaseLegacySoulLock:
                 {
                     int damage = 8 + Math.Min(2, Math.Max(0, EnemyActionCount - 1) / 6) + (Player.Shock >= 3 ? 1 : 0);
                     int dealt = ApplyIncomingDamage(damage, "天雷锁魂", true, out bool gourdTriggered);
                     Player.Shock += 2;
                     energyRegenerationSuppressedRemaining = Math.Max(energyRegenerationSuppressedRemaining, 2f);
                     Log.Add($"天雷锁魂造成 {dealt} 伤害、施加 2 感电，并压制灵气恢复 2 秒。");
-                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("天雷锁魂", dealt, true, EnemyId);
+                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("天雷锁魂", dealt, true, sourceId);
                     step.TriggerShock = true;
                     step.PlayerShockDelta = 2;
                     if (gourdTriggered)
@@ -1075,15 +1199,16 @@ namespace PathOfTenThousandWays.Demo.Battle
                     }
                     return step;
                 }
-                case DemoBossPhase.CalamityDescends:
+                case BossPhaseLegacyCalamity:
                 {
                     if (!calamityCharged)
                     {
                         calamityCharged = true;
                         Player.Shock += 1;
                         Log.Add("天劫化身开始蓄雷，短读条结束后将降下重击。");
-                        RefreshIntentText();
-                        return DemoBattlePresentationStep.Charge("天劫蓄雷", 1);
+                        ConfigureEnemyIntent(source);
+                        SyncLegacyIntentView();
+                        return DemoBattlePresentationStep.Charge("天劫蓄雷", 1, sourceId);
                     }
 
                     int damage = 12 + Math.Min(2, Math.Max(0, EnemyActionCount - 1) / 8) + Math.Min(2, Player.Shock);
@@ -1091,7 +1216,7 @@ namespace PathOfTenThousandWays.Demo.Battle
                     Player.Shock += 1;
                     calamityCharged = false;
                     Log.Add($"天劫降临造成 {dealt} 伤害并施加 1 感电。");
-                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("天劫降临", dealt, true, EnemyId);
+                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("天劫降临", dealt, true, sourceId);
                     step.TriggerShock = true;
                     step.PlayerShockDelta = 1;
                     step.HeavyImpact = true;
@@ -1102,27 +1227,122 @@ namespace PathOfTenThousandWays.Demo.Battle
                     return step;
                 }
                 default:
-                    return DemoBattlePresentationStep.Enemy(Enemy.Name, 0, true, EnemyId);
+                    return DemoBattlePresentationStep.Enemy(source?.Combatant?.Name ?? "守关强敌", 0, true, sourceId);
             }
         }
 
-        private void ConfigureNextEnemyIntent()
+        private DemoBattlePresentationStep ResolveSwordPuppetIntent(DemoCombatTarget source)
         {
-            if (isBossBattle)
+            string sourceId = source?.CombatantId ?? EnemyId;
+            switch (bossPhaseId)
             {
-                switch (BossPhase)
+                case BossPhaseXuantieArmor:
                 {
-                    case DemoBossPhase.ThunderCloud:
-                        enemyIntentDuration = 6.5f;
+                    int dealt = ApplyIncomingDamage(7, "玄铁镇压", true, out bool gourdTriggered);
+                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("玄铁镇压", dealt, true, sourceId);
+                    if (gourdTriggered)
+                    {
+                        step.Label = "玄铁镇压 / 葫芦收煞";
+                    }
+                    return step;
+                }
+                case BossPhaseXuantieContractSpike:
+                {
+                    int dealt = ApplyIncomingDamage(9, "残契缚剑", true, out bool gourdTriggered);
+                    energyRegenerationSuppressedRemaining = Math.Max(energyRegenerationSuppressedRemaining, 1.5f);
+                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("残契缚剑", dealt, true, sourceId);
+                    step.TriggerBleed = true;
+                    if (gourdTriggered)
+                    {
+                        step.Label = "残契缚剑 / 葫芦收煞";
+                    }
+                    return step;
+                }
+                case BossPhaseXuantieCore:
+                {
+                    if (!calamityCharged)
+                    {
+                        calamityCharged = true;
+                        return DemoBattlePresentationStep.Charge("剑炉开膛", 0, sourceId);
+                    }
+
+                    calamityCharged = false;
+                    int dealt = ApplyIncomingDamage(13, "镇矿重斩", true, out bool gourdTriggered);
+                    DemoBattlePresentationStep step = DemoBattlePresentationStep.Enemy("镇矿重斩", dealt, true, sourceId);
+                    step.HeavyImpact = true;
+                    if (gourdTriggered)
+                    {
+                        step.Label = "镇矿重斩 / 葫芦收煞";
+                    }
+                    return step;
+                }
+                default:
+                    return DemoBattlePresentationStep.Enemy(source?.Combatant?.Name ?? "玄铁镇矿剑傀", 0, true, sourceId);
+            }
+        }
+
+        private void ConfigureAllEnemyIntents()
+        {
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                DemoCombatTarget target = enemies[i];
+                if (target != null && target.IsActive && !target.IsDead)
+                {
+                    ConfigureEnemyIntent(target);
+                }
+            }
+            SyncLegacyIntentView();
+        }
+
+        private void ConfigureEnemyIntent(DemoCombatTarget target)
+        {
+            if (target == null || !target.IsActive || target.IsDead)
+            {
+                return;
+            }
+
+            float duration;
+            string behaviorId;
+            string displayText;
+            if (isSwordPuppetBoss)
+            {
+                switch (bossPhaseId)
+                {
+                    case BossPhaseXuantieContractSpike:
+                        duration = 5.4f;
+                        behaviorId = "residual_contract_bind";
+                        displayText = "残契缚剑：压制回灵并扰乱飞剑";
                         break;
-                    case DemoBossPhase.SoulLock:
-                        enemyIntentDuration = 5.5f;
-                        break;
-                    case DemoBossPhase.CalamityDescends:
-                        enemyIntentDuration = calamityCharged ? 3.5f : 5f;
+                    case BossPhaseXuantieCore:
+                        duration = calamityCharged ? 3.6f : 5.2f;
+                        behaviorId = calamityCharged ? "mine_suppression_cleave" : "sword_furnace_charge";
+                        displayText = calamityCharged ? "镇矿重斩：短读条重击" : "剑炉开膛：核心正在蓄势";
                         break;
                     default:
-                        enemyIntentDuration = 6f;
+                        duration = 6.2f;
+                        behaviorId = "black_iron_suppression";
+                        displayText = "玄铁镇压：甲片将迎面砸落";
+                        break;
+                }
+            }
+            else if (isBossBattle)
+            {
+                switch (bossPhaseId)
+                {
+                    case BossPhaseLegacySoulLock:
+                        duration = 5.5f;
+                        behaviorId = "legacy_soul_lock";
+                        displayText = "锁魂重击：高压伤害并压制回灵";
+                        break;
+                    case BossPhaseLegacyCalamity:
+                        duration = calamityCharged ? 3.5f : 5f;
+                        behaviorId = "legacy_calamity";
+                        displayText = calamityCharged ? "短读条重击" : "守关强敌正在蓄势";
+                        break;
+                    default:
+                        duration = 6.5f;
+                        behaviorId = "legacy_boss_pressure";
+                        displayText = "守关压制：稳定压迫气血";
                         break;
                 }
             }
@@ -1130,76 +1350,356 @@ namespace PathOfTenThousandWays.Demo.Battle
             {
                 float min = Math.Max(TimerEpsilon, setup.EnemyIntentMinSeconds);
                 float max = Math.Max(min, setup.EnemyIntentMaxSeconds);
-                enemyIntentDuration = min + (float)random.NextDouble() * (max - min);
+                duration = min + (float)random.NextDouble() * (max - min) + target.Depth * 0.28f;
+                behaviorId = "enemy_basic_attack";
+                displayText = $"{target.Combatant.Name} 正在酝酿下一击";
             }
 
-            enemyIntentRemaining = enemyIntentDuration;
-            PhaseTimer = enemyIntentRemaining;
-            RefreshIntentText();
+            target.Intent = new DemoIntentState
+            {
+                BehaviorId = behaviorId,
+                TargetCombatantId = "player",
+                DurationSeconds = duration,
+                RemainingSeconds = duration,
+                DisplayText = displayText,
+                IsPending = true,
+                IsKnown = true,
+                ThreatPriority = target.ThreatPriority
+            };
         }
 
-        private void RefreshIntentText()
+        private DemoIntentState GetSelectedIntent()
         {
-            if (!isBossBattle)
-            {
-                EnemyIntentText = Enemy == null ? string.Empty : $"{Enemy.Name} 正在酝酿下一击";
-                BossIntentText = string.Empty;
-                return;
-            }
+            return ResolveCurrentTargetNode()?.Intent;
+        }
 
-            switch (BossPhase)
-            {
-                case DemoBossPhase.ThunderCloud:
-                    EnemyIntentText = "雷云压境：稳定压血，施加轻度感电。";
-                    break;
-                case DemoBossPhase.SoulLock:
-                    EnemyIntentText = "天雷锁魂：高压伤害，并短暂压制灵气恢复。";
-                    break;
-                case DemoBossPhase.CalamityDescends:
-                    EnemyIntentText = calamityCharged
-                        ? "天劫降临：短读条重击，此刻是爆发斩杀窗口。"
-                        : "天劫蓄雷：完成蓄势后进入短读条重击。";
-                    break;
-                default:
-                    EnemyIntentText = string.Empty;
-                    break;
-            }
+        private void SyncLegacyIntentView()
+        {
+            DemoIntentState intent = GetSelectedIntent();
+            enemyIntentDuration = intent?.DurationSeconds ?? 0f;
+            enemyIntentRemaining = intent?.RemainingSeconds ?? 0f;
+            EnemyIntentText = intent?.DisplayText ?? string.Empty;
+            BossIntentText = isBossBattle ? EnemyIntentText : string.Empty;
+        }
 
-            BossIntentText = EnemyIntentText;
+        private float GetNextEnemyIntentRemaining()
+        {
+            float next = enemies
+                .Where(target => target != null && target.IsActive && !target.IsDead
+                    && target.Intent != null && target.Intent.IsPending)
+                .Select(target => target.Intent.RemainingSeconds)
+                .DefaultIfEmpty(float.PositiveInfinity)
+                .Min();
+            return float.IsPositiveInfinity(next) ? 60f : next;
+        }
+
+        private bool HasReadyEnemyIntent()
+        {
+            return enemies.Any(target => target != null && target.IsActive && !target.IsDead
+                && target.Intent != null && target.Intent.IsPending
+                && target.Intent.RemainingSeconds <= TimerEpsilon);
         }
 
         private void TryAddBossPhaseShift()
         {
-            if (!isBossBattle || Enemy == null || Enemy.IsDead)
+            if (!isBossBattle || isSwordPuppetBoss)
             {
                 return;
             }
 
-            DemoBossPhase nextPhase = GetBossPhaseForHealth(Enemy.Health, Enemy.MaxHealth);
-            if (nextPhase == BossPhase)
+            DemoCombatTarget target = ResolveCurrentTargetNode();
+            if (target == null || target.IsDead)
             {
                 return;
             }
 
-            BossPhase = nextPhase;
+            string nextPhase = GetLegacyBossPhaseIdForHealth(target.Health, target.Combatant.MaxHealth);
+            if (nextPhase == bossPhaseId)
+            {
+                return;
+            }
+
+            bossPhaseId = nextPhase;
             calamityCharged = false;
-            string label = BossPhase == DemoBossPhase.SoulLock
+            string label = bossPhaseId == BossPhaseLegacySoulLock
                 ? "雷云翻涌，天雷锁魂"
                 : "劫云尽开，天劫降临";
             Log.Add(label);
-            Emit(DemoBattlePresentationStep.PhaseShift(label));
-            ConfigureNextEnemyIntent();
+            Emit(DemoBattlePresentationStep.PhaseShift(label, target.CombatantId));
+            ConfigureEnemyIntent(target);
+            SyncLegacyIntentView();
         }
 
-        private static DemoBossPhase GetBossPhaseForHealth(int health, int maxHealth)
+        private static string GetLegacyBossPhaseIdForHealth(int health, int maxHealth)
         {
             float ratio = maxHealth <= 0 ? 0f : (float)health / maxHealth;
             if (ratio <= 0.35f)
             {
-                return DemoBossPhase.CalamityDescends;
+                return BossPhaseLegacyCalamity;
             }
 
-            return ratio <= 0.7f ? DemoBossPhase.SoulLock : DemoBossPhase.ThunderCloud;
+            return ratio <= 0.7f ? BossPhaseLegacySoulLock : BossPhaseLegacyThunderCloud;
+        }
+
+        private static DemoBossPhase GetLegacyBossPhase(string phaseId)
+        {
+            switch (phaseId)
+            {
+                case BossPhaseLegacySoulLock:
+                case BossPhaseXuantieContractSpike:
+                    return DemoBossPhase.SoulLock;
+                case BossPhaseLegacyCalamity:
+                case BossPhaseXuantieCore:
+                    return DemoBossPhase.CalamityDescends;
+                case BossPhaseLegacyThunderCloud:
+                case BossPhaseXuantieArmor:
+                    return DemoBossPhase.ThunderCloud;
+                default:
+                    return DemoBossPhase.None;
+            }
+        }
+
+        private static bool IsSwordPuppetTargetSet(IEnumerable<DemoCombatTarget> targets)
+        {
+            return targets != null && targets.Any(target => target != null
+                && (ContainsOrdinal(target.PositionId, "boss_upper_armor")
+                    || ContainsOrdinal(target.PositionId, "boss_contract_spike")
+                    || ContainsOrdinal(target.PositionId, "boss_furnace_core")
+                    || ContainsOrdinal(target.DefinitionId, "xuantie_mine_sword_puppet")));
+        }
+
+        private static bool ContainsOrdinal(string value, string fragment)
+        {
+            return !string.IsNullOrEmpty(value)
+                && value.IndexOf(fragment, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private void InitializeSwordPuppetTargets()
+        {
+            DemoCombatTarget armor = enemies.FirstOrDefault(IsArmorTarget) ?? enemies.FirstOrDefault();
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                DemoCombatTarget target = enemies[i];
+                bool active = ReferenceEquals(target, armor);
+                target.IsActive = active;
+                target.CanLock = active;
+                target.Intent = DemoIntentState.None;
+            }
+        }
+
+        private static bool IsArmorTarget(DemoCombatTarget target)
+        {
+            return target != null && (ContainsOrdinal(target.PositionId, "armor")
+                || ContainsOrdinal(target.CombatantId, "armor"));
+        }
+
+        private static bool IsContractSpikeTarget(DemoCombatTarget target)
+        {
+            return target != null && (ContainsOrdinal(target.PositionId, "contract_spike")
+                || ContainsOrdinal(target.CombatantId, "contract_spike"));
+        }
+
+        private static bool IsCoreTarget(DemoCombatTarget target)
+        {
+            return target != null && (ContainsOrdinal(target.PositionId, "core")
+                || ContainsOrdinal(target.CombatantId, "core"));
+        }
+
+        private int ResolvePlayerDamageAgainstTargets(DemoCard card, DemoCombatTarget primaryTarget, int amount)
+        {
+            if (card.Style == DemoSwordStyle.Wanjian || card.ConsumeAllSwordIntent)
+            {
+                return ApplyAreaDamage(amount, DemoDamageType.Sword, card.Id, 0.65f, primaryTarget);
+            }
+
+            if (card.Style == DemoSwordStyle.Thunder && ActiveEnemyCount > 1)
+            {
+                return ApplyChainDamage(primaryTarget, amount, card.Id, 3);
+            }
+
+            return ApplyDamageToTarget(primaryTarget, amount, DemoDamageType.Sword, card.Id);
+        }
+
+        private int ResolveVolleyDamageAgainstTargets(DemoCombatTarget primaryTarget, int amount, DemoSwordStyle style)
+        {
+            if (style == DemoSwordStyle.Wanjian && ActiveEnemyCount > 1)
+            {
+                return ApplyAreaDamage(amount, DemoDamageType.Sword, "auto_sword_volley", 0.58f, primaryTarget);
+            }
+
+            if (style == DemoSwordStyle.Thunder && ActiveEnemyCount > 1)
+            {
+                return ApplyChainDamage(primaryTarget, amount, "auto_thunder_sword_volley", 3);
+            }
+
+            return ApplyDamageToTarget(primaryTarget, amount, DemoDamageType.Sword, "auto_sword_volley");
+        }
+
+        private int ApplyAreaDamage(
+            int amount,
+            DemoDamageType damageType,
+            string effectId,
+            float secondaryScale,
+            DemoCombatTarget primaryTarget = null)
+        {
+            DemoCombatTarget primary = primaryTarget ?? ResolveCurrentTargetNode();
+            IReadOnlyList<DemoCombatTarget> active = targetResolver?.QueryTargets(DemoTargetQuery.ActiveLockable())
+                ?? Array.Empty<DemoCombatTarget>();
+            int total = 0;
+            for (int i = 0; i < active.Count; i++)
+            {
+                DemoCombatTarget target = active[i];
+                int targetAmount = ReferenceEquals(target, primary)
+                    ? amount
+                    : Math.Max(1, (int)Math.Round(amount * secondaryScale));
+                total += ApplyDamageToTarget(target, targetAmount, damageType, effectId, true, i);
+            }
+            return total;
+        }
+
+        private int ApplyChainDamage(DemoCombatTarget primaryTarget, int amount, string effectId, int maxTargets)
+        {
+            if (primaryTarget == null)
+            {
+                return 0;
+            }
+
+            DemoChainContext chain = new DemoChainContext();
+            List<DemoCombatTarget> ordered = new List<DemoCombatTarget> { primaryTarget };
+            ordered.AddRange((targetResolver?.QueryTargets(DemoTargetQuery.ActiveLockable())
+                    ?? Array.Empty<DemoCombatTarget>())
+                .Where(target => !ReferenceEquals(target, primaryTarget))
+                .OrderBy(target => Math.Abs(target.Depth - primaryTarget.Depth))
+                .ThenBy(target => target.PositionId, StringComparer.Ordinal));
+
+            int total = 0;
+            int chainIndex = 0;
+            for (int i = 0; i < ordered.Count && chainIndex < Math.Max(1, maxTargets); i++)
+            {
+                DemoCombatTarget target = ordered[i];
+                if (!chain.TryVisit(target.CombatantId))
+                {
+                    continue;
+                }
+
+                int targetAmount = chainIndex == 0
+                    ? amount
+                    : Math.Max(1, (int)Math.Round(amount * (chainIndex == 1 ? 0.60f : 0.40f)));
+                total += ApplyDamageToTarget(target, targetAmount, DemoDamageType.Lightning, effectId, false, chainIndex);
+                chainIndex++;
+            }
+            return total;
+        }
+
+        private int ApplyDamageToTarget(
+            DemoCombatTarget target,
+            int amount,
+            DemoDamageType damageType,
+            string effectId,
+            bool isArea = false,
+            int chainIndex = 0)
+        {
+            if (target == null || !target.IsActive || target.IsDead || amount <= 0)
+            {
+                return 0;
+            }
+
+            DemoDamageRequest request = new DemoDamageRequest(
+                "player",
+                target.CombatantId,
+                amount,
+                damageType,
+                effectId,
+                isArea,
+                chainIndex);
+            DemoDamageResult result = DemoDamageResult.Apply(request, target);
+            if (result.AppliedAmount > 0 && !lastResolvedTargetIds.Contains(target.CombatantId))
+            {
+                lastResolvedTargetIds.Add(target.CombatantId);
+            }
+            if (result.WasKilled)
+            {
+                RegisterTargetDefeated(target);
+            }
+            return result.HealthDamage;
+        }
+
+        private void RegisterTargetDefeated(DemoCombatTarget target)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            target.IsActive = false;
+            target.CanLock = false;
+            target.Intent = DemoIntentState.None;
+            pendingAfterAttackPresentations.Add(DemoBattlePresentationStep.TargetDefeated(
+                target.CombatantId,
+                target.Combatant?.Name ?? "破敌"));
+
+            if (!isSwordPuppetBoss)
+            {
+                targetResolver?.ResolveAutoTarget();
+                SyncLegacyIntentView();
+                return;
+            }
+
+            DemoCombatTarget next = null;
+            string nextPhase = bossPhaseId;
+            string phaseLabel = string.Empty;
+            if (IsArmorTarget(target))
+            {
+                next = enemies.FirstOrDefault(IsContractSpikeTarget);
+                nextPhase = BossPhaseXuantieContractSpike;
+                phaseLabel = "甲片崩落，朱砂契钉显形";
+            }
+            else if (IsContractSpikeTarget(target))
+            {
+                next = enemies.FirstOrDefault(IsCoreTarget);
+                nextPhase = BossPhaseXuantieCore;
+                phaseLabel = "残契断裂，青绿剑炉核心暴露";
+            }
+
+            if (next != null && !next.IsDead)
+            {
+                bossPhaseId = nextPhase;
+                calamityCharged = false;
+                next.IsActive = true;
+                next.CanLock = true;
+                ConfigureEnemyIntent(next);
+                targetResolver?.ClearLock();
+                targetResolver?.ResolveAutoTarget();
+                pendingAfterAttackPresentations.Add(DemoBattlePresentationStep.PhaseShift(
+                    phaseLabel,
+                    next.CombatantId));
+                Log.Add(phaseLabel);
+            }
+            SyncLegacyIntentView();
+        }
+
+        private IReadOnlyList<DemoCombatTarget> ResolveEffectTargets(DemoCombatTarget primaryTarget, bool spread)
+        {
+            if (!spread || lastResolvedTargetIds.Count <= 1)
+            {
+                return primaryTarget != null && primaryTarget.IsActive && !primaryTarget.IsDead
+                    ? new[] { primaryTarget }
+                    : Array.Empty<DemoCombatTarget>();
+            }
+
+            return lastResolvedTargetIds
+                .Select(FindTarget)
+                .Where(target => target != null && target.IsActive && !target.IsDead)
+                .ToArray();
+        }
+
+        private void FlushAfterAttackPresentations()
+        {
+            for (int i = 0; i < pendingAfterAttackPresentations.Count; i++)
+            {
+                Emit(pendingAfterAttackPresentations[i]);
+            }
+            pendingAfterAttackPresentations.Clear();
         }
 
         private void CheckForBattleResult()
@@ -1232,7 +1732,12 @@ namespace PathOfTenThousandWays.Demo.Battle
             if (result == DemoBattlePhase.Won)
             {
                 Log.Add("剑光破敌，战斗胜利。");
-                Emit(DemoBattlePresentationStep.Victory());
+                string defeatedTargetId = enemies
+                    .Where(target => target != null && target.IsDead)
+                    .OrderByDescending(target => target.Depth)
+                    .Select(target => target.CombatantId)
+                    .FirstOrDefault();
+                Emit(DemoBattlePresentationStep.Victory(defeatedTargetId));
             }
             else
             {

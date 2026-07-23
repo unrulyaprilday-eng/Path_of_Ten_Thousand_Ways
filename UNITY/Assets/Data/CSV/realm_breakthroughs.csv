@@ -1,0 +1,2 @@
+breakthrough_id,from_realm_id,to_realm_id,max_energy,energy_regen_multiplier,technique_power_multiplier,required_node_type,scene_id
+breakthrough_qi_to_foundation,realm_qi_refining,realm_foundation,6,1.25,1.18,Breakthrough,scene_old_mine_spirit_eye

@@ -1,0 +1,10 @@
+group_id,name,act_index,encounter_role
+encounter_act1_patrol,浅层契骨巡队,1,battle
+encounter_act1_elite,矿契守卫群,1,elite
+encounter_act1_miniboss,铁脊矿兽巢,1,mini_boss
+encounter_act2_wraiths,塌井残魂群,2,battle
+encounter_act2_elite,吞剑群落,2,elite
+encounter_act2_miniboss,吞剑矿魈巢,2,mini_boss
+encounter_act3_furnace,封契剑影阵,3,battle
+encounter_act3_elite,炉心构造阵,3,elite
+encounter_act3_boss,玄铁镇矿剑傀,3,boss

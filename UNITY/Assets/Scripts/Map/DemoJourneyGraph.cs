@@ -28,6 +28,8 @@ namespace PathOfTenThousandWays.Demo.Map
         public DemoJourneyNodeType Type { get; }
         public string ContentId { get; }
         public string Name { get; }
+        public string RequiredStoryFlagId { get; }
+        public bool IsHidden { get; }
 
         public bool IsCombat
         {
@@ -46,7 +48,8 @@ namespace PathOfTenThousandWays.Demo.Map
             {
                 return Type == DemoJourneyNodeType.Cultivation
                     || Type == DemoJourneyNodeType.Refinement
-                    || Type == DemoJourneyNodeType.Secret;
+                    || Type == DemoJourneyNodeType.Secret
+                    || Type == DemoJourneyNodeType.Story;
             }
         }
 
@@ -57,7 +60,9 @@ namespace PathOfTenThousandWays.Demo.Map
             int laneIndex,
             DemoJourneyNodeType type,
             string contentId,
-            string name)
+            string name,
+            string requiredStoryFlagId = null,
+            bool isHidden = false)
         {
             NodeId = nodeId ?? string.Empty;
             ActIndex = actIndex;
@@ -66,6 +71,8 @@ namespace PathOfTenThousandWays.Demo.Map
             Type = type;
             ContentId = contentId ?? string.Empty;
             Name = name ?? string.Empty;
+            RequiredStoryFlagId = requiredStoryFlagId ?? string.Empty;
+            IsHidden = isHidden;
         }
     }
 
@@ -154,8 +161,8 @@ namespace PathOfTenThousandWays.Demo.Map
                     1,
                     new[] { DemoJourneyNodeType.Start },
                     new[] { DemoJourneyNodeType.Battle, DemoJourneyNodeType.Event },
-                    new[] { DemoJourneyNodeType.Event, DemoJourneyNodeType.Secret },
-                    new[] { DemoJourneyNodeType.Cultivation, DemoJourneyNodeType.Refinement },
+                    new[] { DemoJourneyNodeType.Story },
+                    new[] { DemoJourneyNodeType.Battle, DemoJourneyNodeType.Cultivation, DemoJourneyNodeType.Event, DemoJourneyNodeType.Secret },
                     new[] { DemoJourneyNodeType.Battle, DemoJourneyNodeType.Elite },
                     new[] { DemoJourneyNodeType.Event, DemoJourneyNodeType.Secret, DemoJourneyNodeType.Story },
                     new[] { DemoJourneyNodeType.Refinement, DemoJourneyNodeType.Cultivation },
@@ -164,21 +171,21 @@ namespace PathOfTenThousandWays.Demo.Map
                     2,
                     new[] { DemoJourneyNodeType.Story },
                     new[] { DemoJourneyNodeType.Battle, DemoJourneyNodeType.Elite },
-                    new[] { DemoJourneyNodeType.Event, DemoJourneyNodeType.Secret },
-                    new[] { DemoJourneyNodeType.Battle, DemoJourneyNodeType.Elite },
+                    new[] { DemoJourneyNodeType.Story },
+                    new[] { DemoJourneyNodeType.Battle, DemoJourneyNodeType.Elite, DemoJourneyNodeType.Event, DemoJourneyNodeType.Secret },
                     new[] { DemoJourneyNodeType.Story, DemoJourneyNodeType.Cultivation },
                     new[] { DemoJourneyNodeType.Battle, DemoJourneyNodeType.Event },
-                    new[] { DemoJourneyNodeType.Refinement, DemoJourneyNodeType.Cultivation },
+                    new[] { DemoJourneyNodeType.Story },
                     new[] { DemoJourneyNodeType.MiniBoss }),
                 new DemoJourneyActTemplate(
                     3,
-                    new[] { DemoJourneyNodeType.Breakthrough, DemoJourneyNodeType.Cultivation },
+                    new[] { DemoJourneyNodeType.Breakthrough },
                     new[] { DemoJourneyNodeType.Battle, DemoJourneyNodeType.Elite },
                     new[] { DemoJourneyNodeType.Event, DemoJourneyNodeType.Secret },
                     new[] { DemoJourneyNodeType.Battle, DemoJourneyNodeType.Elite },
-                    new[] { DemoJourneyNodeType.Story, DemoJourneyNodeType.Event },
+                    new[] { DemoJourneyNodeType.Secret, DemoJourneyNodeType.Cultivation, DemoJourneyNodeType.Event },
                     new[] { DemoJourneyNodeType.Refinement, DemoJourneyNodeType.Cultivation },
-                    new[] { DemoJourneyNodeType.Refinement, DemoJourneyNodeType.Cultivation },
+                    new[] { DemoJourneyNodeType.Story },
                     new[] { DemoJourneyNodeType.Boss })
             });
         }
@@ -257,8 +264,16 @@ namespace PathOfTenThousandWays.Demo.Map
             return result;
         }
 
-        // Returns the current frontier after the supplied completed node IDs.
+        // A completed branch closes its siblings. Only the deepest completed
+        // position may expose a new frontier; earlier forks never reopen.
         public IReadOnlyList<string> GetReachableNodeIds(IEnumerable<string> completedNodeIds)
+        {
+            return GetReachableNodeIds(completedNodeIds, Array.Empty<string>());
+        }
+
+        public IReadOnlyList<string> GetReachableNodeIds(
+            IEnumerable<string> completedNodeIds,
+            IEnumerable<string> experienceFlagIds)
         {
             HashSet<string> completed = new HashSet<string>(StringComparer.Ordinal);
             if (completedNodeIds != null)
@@ -273,24 +288,44 @@ namespace PathOfTenThousandWays.Demo.Map
             }
 
             HashSet<string> frontier = new HashSet<string>(StringComparer.Ordinal);
+            HashSet<string> experienceFlags = new HashSet<string>(
+                experienceFlagIds ?? Array.Empty<string>(),
+                StringComparer.Ordinal);
             if (completed.Count == 0)
             {
-                frontier.Add(StartNodeId);
+                if (CanReveal(StartNodeId, experienceFlags)) frontier.Add(StartNodeId);
             }
             else
             {
+                int deepestProgress = int.MinValue;
                 foreach (string completedId in completed)
                 {
-                    List<string> outgoing;
-                    if (!outgoingById.TryGetValue(completedId, out outgoing))
+                    DemoJourneyNode completedNode;
+                    if (TryGetNode(completedId, out completedNode))
+                    {
+                        deepestProgress = Math.Max(
+                            deepestProgress,
+                            completedNode.ActIndex * 100 + completedNode.DepthIndex);
+                    }
+                }
+
+                foreach (string completedId in completed)
+                {
+                    DemoJourneyNode completedNode;
+                    if (!TryGetNode(completedId, out completedNode)
+                        || completedNode.ActIndex * 100 + completedNode.DepthIndex != deepestProgress)
                     {
                         continue;
                     }
 
+                    List<string> outgoing;
+                    if (!outgoingById.TryGetValue(completedId, out outgoing)) continue;
                     for (int i = 0; i < outgoing.Count; i++)
                     {
                         string candidate = outgoing[i];
-                        if (!completed.Contains(candidate) && reachableNodeIds.Contains(candidate))
+                        if (!completed.Contains(candidate)
+                            && reachableNodeIds.Contains(candidate)
+                            && CanReveal(candidate, experienceFlags))
                         {
                             frontier.Add(candidate);
                         }
@@ -301,6 +336,14 @@ namespace PathOfTenThousandWays.Demo.Map
             List<string> result = new List<string>(frontier);
             result.Sort(StringComparer.Ordinal);
             return result;
+        }
+
+        private bool CanReveal(string nodeId, ISet<string> experienceFlags)
+        {
+            return TryGetNode(nodeId, out DemoJourneyNode node)
+                && (!node.IsHidden
+                    || (!string.IsNullOrWhiteSpace(node.RequiredStoryFlagId)
+                        && experienceFlags.Contains(node.RequiredStoryFlagId)));
         }
 
         public IReadOnlyList<DemoJourneyNode> GetActNodes(int actIndex)
@@ -336,12 +379,14 @@ namespace PathOfTenThousandWays.Demo.Map
             int startCount = 0;
             int bossCount = 0;
             int miniBossCount = 0;
+            int breakthroughCount = 0;
             for (int i = 0; i < nodes.Count; i++)
             {
                 DemoJourneyNode node = nodes[i];
                 if (node.Type == DemoJourneyNodeType.Start) startCount++;
                 if (node.Type == DemoJourneyNodeType.Boss) bossCount++;
                 if (node.Type == DemoJourneyNodeType.MiniBoss) miniBossCount++;
+                if (node.Type == DemoJourneyNodeType.Breakthrough) breakthroughCount++;
                 if (!reachableNodeIds.Contains(node.NodeId)) issues.Add("Unreachable node: " + node.NodeId);
                 if (node.Type != DemoJourneyNodeType.Boss && GetOutgoingNodeIds(node.NodeId).Count == 0)
                 {
@@ -352,6 +397,13 @@ namespace PathOfTenThousandWays.Demo.Map
             if (startCount != 1) issues.Add("Graph must contain exactly one Start node.");
             if (bossCount != 1) issues.Add("Graph must contain exactly one Boss node.");
             if (miniBossCount != 2) issues.Add("Graph must contain one MiniBoss in acts one and two.");
+            if (breakthroughCount != 1
+                || !nodes.Exists(node => node.ActIndex == 3
+                    && node.DepthIndex == 0
+                    && node.Type == DemoJourneyNodeType.Breakthrough))
+            {
+                issues.Add("Graph must contain one mandatory Breakthrough at the start of act three.");
+            }
 
             for (int act = 1; act <= 3; act++)
             {
@@ -577,38 +629,47 @@ namespace PathOfTenThousandWays.Demo.Map
                 }
 
                 List<List<DemoJourneyNode>> actLayers = new List<List<DemoJourneyNode>>();
-                int previousCombatRun = 0;
                 for (int depth = 0; depth < act.NodeTypesByDepth.Count; depth++)
                 {
                     DemoJourneyNodeType[] choices = act.NodeTypesByDepth[depth];
                     if (choices == null || choices.Length == 0) throw new InvalidOperationException("Journey depth has no node choices.");
-                    DemoJourneyNodeType selectedType = choices[random.Next(choices.Length)];
-                    if (selectedType == DemoJourneyNodeType.Battle || selectedType == DemoJourneyNodeType.Elite)
-                    {
-                        if (previousCombatRun >= 2)
-                        {
-                            selectedType = DemoJourneyNodeType.Event;
-                        }
-                        previousCombatRun++;
-                    }
-                    else
-                    {
-                        previousCombatRun = 0;
-                    }
-
-                    int laneCount = depth == 0 || depth == 7 ? 1 : 1 + random.Next(3);
+                    int laneCount = depth == 0 || depth == 7 || IsCriticalStoryDepth(actIndex, depth)
+                        ? 1
+                        : 2 + random.Next(2);
                     List<DemoJourneyNode> layer = new List<DemoJourneyNode>();
                     for (int lane = 0; lane < laneCount; lane++)
                     {
+                        DemoJourneyNodeType selectedType = SelectNodeTypeForLane(
+                            choices,
+                            random,
+                            actIndex,
+                            depth,
+                            lane);
                         string nodeId = "journey_s" + seed + "_a" + actIndex + "_d" + depth + "_l" + lane;
-                        string typeKey = selectedType.ToString().ToLowerInvariant();
-                        string contentId = "old_mine_act" + actIndex + "_" + typeKey + "_d" + depth;
-                        string name = "Act " + actIndex + " " + typeKey;
+                        ContentIdentity identity = ResolveContentIdentity(actIndex, depth, lane, selectedType);
+                        string contentId = identity.Id;
+                        string name = identity.Name;
                         DemoJourneyNode node = new DemoJourneyNode(nodeId, actIndex, depth, lane, selectedType, contentId, name);
                         nodes.Add(node);
                         layer.Add(node);
                     }
                     actLayers.Add(layer);
+                }
+                if (actIndex == 3)
+                {
+                    List<DemoJourneyNode> hiddenLayer = actLayers[5];
+                    DemoJourneyNode hiddenNode = new DemoJourneyNode(
+                        "journey_s" + seed + "_a3_d5_hidden_contract",
+                        3,
+                        5,
+                        hiddenLayer.Count,
+                        DemoJourneyNodeType.Secret,
+                        "hidden_contract_cache",
+                        "契炉暗仓",
+                        "experience_miner_spirit_bound",
+                        true);
+                    nodes.Add(hiddenNode);
+                    hiddenLayer.Add(hiddenNode);
                 }
                 layers.Add(actLayers);
             }
@@ -628,6 +689,93 @@ namespace PathOfTenThousandWays.Demo.Map
             }
 
             return new DemoJourneyGraph(seed, layers[0][0][0].NodeId, nodes, edges);
+        }
+
+        private static DemoJourneyNodeType SelectNodeTypeForLane(
+            DemoJourneyNodeType[] choices,
+            DeterministicRandom random,
+            int actIndex,
+            int depth,
+            int lane)
+        {
+            if (choices.Length == 1)
+            {
+                return choices[0];
+            }
+
+            bool fixedStory = IsCriticalStoryDepth(actIndex, depth);
+            if (fixedStory)
+            {
+                for (int i = 0; i < choices.Length; i++)
+                {
+                    if (choices[i] == DemoJourneyNodeType.Story)
+                    {
+                        return DemoJourneyNodeType.Story;
+                    }
+                }
+            }
+
+            int offset = random.Next(choices.Length);
+            return choices[(offset + lane) % choices.Length];
+        }
+
+        private static ContentIdentity ResolveContentIdentity(
+            int actIndex,
+            int depth,
+            int lane,
+            DemoJourneyNodeType type)
+        {
+            if (type == DemoJourneyNodeType.Start)
+                return new ContentIdentity("story_old_mine_entry", "残照矿门");
+            if (type == DemoJourneyNodeType.Breakthrough)
+                return new ContentIdentity("breakthrough_qi_to_foundation", "旧矿灵眼");
+            if (type == DemoJourneyNodeType.Boss)
+                return new ContentIdentity("encounter_act3_boss", "玄铁镇矿剑傀");
+            if (type == DemoJourneyNodeType.MiniBoss)
+                return actIndex == 1
+                    ? new ContentIdentity("encounter_act1_miniboss", "铁脊矿兽巢")
+                    : new ContentIdentity("encounter_act2_miniboss", "吞剑矿魈壁窟");
+            if (actIndex == 1 && depth == 2 && type == DemoJourneyNodeType.Story)
+                return new ContentIdentity("event_miner_spirit_first", "契索下的微光");
+            if (actIndex == 1 && depth == 5 && type == DemoJourneyNodeType.Story)
+                return new ContentIdentity("event_old_contract_trace", "旁支矿印");
+            if (actIndex == 2 && depth == 0 && type == DemoJourneyNodeType.Story)
+                return new ContentIdentity("story_collapsed_well_entry", "塌井下层");
+            if (actIndex == 2 && depth == 2 && type == DemoJourneyNodeType.Story)
+                return new ContentIdentity("event_miner_spirit_return", "塌井再会");
+            if (actIndex == 2 && depth == 6 && type == DemoJourneyNodeType.Story)
+                return new ContentIdentity("event_old_contract_truth", "祭炼真相");
+            if (actIndex == 3 && depth == 6 && type == DemoJourneyNodeType.Story)
+                return new ContentIdentity("event_sword_furnace_contract", "剑炉断契");
+
+            string[] battleNames = actIndex == 1
+                ? new[] { "碎轨伏影", "契屑巢穴", "浅层矿卒" }
+                : actIndex == 2
+                    ? new[] { "悬桥残魂", "吞剑伏巢", "塌井守卫" }
+                    : new[] { "封契剑影", "炉心构造阵", "玄铁巡傀" };
+            string[] eventNames = actIndex == 1
+                ? new[] { "矿工遗骨", "断壁剑痕", "废炉余温" }
+                : actIndex == 2
+                    ? new[] { "井底雷髓", "矿灵暗径", "旧账石室" }
+                    : new[] { "炉壁铭文", "残契回声", "剑胚静台" };
+            bool combat = type == DemoJourneyNodeType.Battle || type == DemoJourneyNodeType.Elite;
+            string name = (combat ? battleNames : eventNames)[(depth + lane) % 3];
+            string id = "old_mine_a" + actIndex + "_d" + depth + "_l" + lane + "_" + type.ToString().ToLowerInvariant();
+            return new ContentIdentity(id, name);
+        }
+
+        private struct ContentIdentity
+        {
+            public string Id;
+            public string Name;
+            public ContentIdentity(string id, string name) { Id = id; Name = name; }
+        }
+
+        private static bool IsCriticalStoryDepth(int actIndex, int depth)
+        {
+            return (actIndex == 1 && depth == 2)
+                || (actIndex == 2 && (depth == 0 || depth == 2 || depth == 6))
+                || (actIndex == 3 && (depth == 0 || depth == 6));
         }
 
         private static void AddCompleteLayerEdges(

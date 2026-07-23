@@ -16,7 +16,7 @@ namespace PathOfTenThousandWays.Demo.UI
         private const string IntentStripResourcePath = "Art/UI/ui_battle_intent_strip_002";
         private const string CommandSurfaceResourcePath = "Art/UI/ui_battle_command_surface_001";
         private const string CardFrameResourcePath = "Art/UI/ui_battle_card_frame_003";
-        private static readonly Color Paper = new Color(0.93f, 0.90f, 0.82f, 1f);
+        private static readonly Color Paper = new Color(0.93f, 0.95f, 0.94f, 1f);
         private static readonly Color Mist = new Color(0.68f, 0.71f, 0.69f, 1f);
         private static readonly Color Gold = new Color(0.80f, 0.67f, 0.40f, 1f);
         private static readonly Color Jade = new Color(0.31f, 0.62f, 0.60f, 1f);
@@ -92,7 +92,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             enemyNameText.text = battle.Enemy.Name;
             enemyHealthText.text = $"{battle.Enemy.Health} / {battle.Enemy.MaxHealth}";
-            enemyStateText.text = $"感电 {battle.Enemy.Shock}   流血 {battle.Enemy.Bleed}";
+            enemyStateText.text = $"锁定 · 敌 {battle.ActiveEnemyCount}   感电 {battle.Enemy.Shock}   流血 {battle.Enemy.Bleed}";
             SetFill(enemyHealthFill, battle.Enemy.Health / (float)Mathf.Max(1, battle.Enemy.MaxHealth));
 
             phaseText.text = battle.Phase == DemoBattlePhase.Intro
@@ -103,7 +103,7 @@ namespace PathOfTenThousandWays.Demo.UI
             encounterText.text = battle.IsOpeningBattlePacing
                 ? "旧矿地窟 · 入场试锋"
                 : battle.IsBossBattle
-                    ? "第三层 · 天劫化身"
+                    ? "第三幕 · 玄铁镇矿剑傀"
                     : $"第 {controller.Run.Map.CurrentNode.Layer} 层 · {controller.Run.Map.CurrentNode.Name}";
             bool intentWarning = battle.Phase == DemoBattlePhase.Running
                 && battle.EnemyIntentProgress >= 0.82f
@@ -134,7 +134,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             bool timeActive = battle.Phase == DemoBattlePhase.Intro || battle.Phase == DemoBattlePhase.Running;
             bool terminal = battle.Phase == DemoBattlePhase.Won || battle.Phase == DemoBattlePhase.Lost;
-            commandSurface.sizeDelta = new Vector2(1920f, terminal ? 124f : 276f);
+            commandSurface.sizeDelta = new Vector2(1100f, terminal ? 118f : 230f);
             energyCluster.gameObject.SetActive(!terminal);
             handRoot.gameObject.SetActive(!terminal);
             resultBanner.gameObject.SetActive(terminal);
@@ -243,15 +243,15 @@ namespace PathOfTenThousandWays.Demo.UI
         private void BuildCommandSurface(RectTransform root)
         {
             commandSurface = CreateFixedPanel(
-                root, "CommandSurface", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-                Vector2.zero, new Vector2(1920f, 276f), new Color(0.035f, 0.04f, 0.038f, 0.78f));
+                root, "CommandSurface", new Vector2(0.60f, 0f), new Vector2(0.5f, 0f),
+                new Vector2(0f, 8f), new Vector2(1100f, 230f), new Color(0.035f, 0.04f, 0.038f, 0.64f));
             ApplyOptionalSurface(commandSurface, CommandSurfaceResourcePath);
             CreatePanel(commandSurface, "TopWash", new Vector2(0f, 0.86f), Vector2.one, new Color(0.17f, 0.16f, 0.13f, 0.16f));
             CreatePanel(commandSurface, "TopRule", new Vector2(0f, 0.98f), Vector2.one, new Color(Gold.r, Gold.g, Gold.b, 0.36f));
 
             energyCluster = CreateFixedPanel(
                 commandSurface, "EnergyCluster", new Vector2(0f, 0f), new Vector2(0f, 0f),
-                new Vector2(48f, 22f), new Vector2(236f, 198f), Color.clear);
+                new Vector2(24f, 18f), new Vector2(170f, 176f), Color.clear);
             Text energyTitle = CreateText(energyCluster, "Title", titleFont, 18, FontStyle.Bold, TextAnchor.UpperLeft, Gold);
             SetAnchors(energyTitle.rectTransform, new Vector2(0.08f, 0.74f), new Vector2(0.50f, 0.94f));
             energyTitle.text = "牌序";
@@ -271,7 +271,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             handRoot = CreateFixedPanel(
                 commandSurface, "Hand", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-                new Vector2(-14f, 8f), new Vector2(1080f, 258f), Color.clear);
+                new Vector2(20f, 6f), new Vector2(740f, 216f), Color.clear);
             handRoot.GetComponent<Image>().raycastTarget = false;
 
             resultBanner = CreateFixedPanel(
@@ -285,7 +285,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             cardDetailPanel = CreateFixedPanel(
                 root, "CardDetail", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-                new Vector2(0f, 292f), new Vector2(500f, 94f), new Color(0.045f, 0.05f, 0.048f, 0.94f));
+                new Vector2(0f, 260f), new Vector2(500f, 94f), new Color(0.045f, 0.05f, 0.048f, 0.94f));
             CreateBorder(cardDetailPanel, new Color(Gold.r, Gold.g, Gold.b, 0.38f), 1.5f);
             cardDetailTitle = CreateText(cardDetailPanel, "Title", titleFont, 19, FontStyle.Bold, TextAnchor.UpperLeft, Gold);
             SetAnchors(cardDetailTitle.rectTransform, new Vector2(0.045f, 0.58f), new Vector2(0.95f, 0.92f));
@@ -297,7 +297,7 @@ namespace PathOfTenThousandWays.Demo.UI
 
             RectTransform controls = CreateFixedPanel(
                 commandSurface, "Controls", new Vector2(1f, 0f), new Vector2(1f, 0f),
-                new Vector2(-48f, 28f), new Vector2(186f, 96f), Color.clear);
+                new Vector2(-28f, 28f), new Vector2(186f, 96f), Color.clear);
             controls.GetComponent<Image>().raycastTarget = false;
             pauseButton = CreateControlButton(controls, "Pause", new Vector2(0f, 0f), out pauseText);
             speedButton = CreateControlButton(controls, "Speed", new Vector2(96f, 0f), out speedText);
@@ -325,9 +325,9 @@ namespace PathOfTenThousandWays.Demo.UI
                 return;
             }
 
-            const float cardWidth = 175f;
-            const float cardHeight = 245f;
-            float step = count <= 1 ? 0f : Mathf.Min(194f, (1000f - cardWidth) / (count - 1));
+            const float cardWidth = 136f;
+            const float cardHeight = 196f;
+            float step = count <= 1 ? 0f : Mathf.Min(146f, (704f - cardWidth) / (count - 1));
             float center = (count - 1) * 0.5f;
             bool cardsCanBePlayed = battle.Phase == DemoBattlePhase.Running && controller.BattleSpeed > 0.01f;
 

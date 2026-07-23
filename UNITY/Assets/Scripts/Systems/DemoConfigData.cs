@@ -47,6 +47,14 @@ namespace PathOfTenThousandWays.Demo.Systems
         public Dictionary<string, DemoTechniqueConfig> Techniques { get; set; } = new Dictionary<string, DemoTechniqueConfig>();
         public Dictionary<string, DemoBearerConfig> Bearers { get; set; } = new Dictionary<string, DemoBearerConfig>();
         public Dictionary<string, DemoStartingPracticePackageConfig> StartingPracticePackages { get; set; } = new Dictionary<string, DemoStartingPracticePackageConfig>();
+        public Dictionary<string, DemoInnateArtifactConfig> InnateArtifacts { get; set; } = new Dictionary<string, DemoInnateArtifactConfig>();
+        public Dictionary<string, DemoMindMethodConfig> MindMethods { get; set; } = new Dictionary<string, DemoMindMethodConfig>();
+        public Dictionary<string, DemoRealmBreakthroughConfig> RealmBreakthroughs { get; set; } = new Dictionary<string, DemoRealmBreakthroughConfig>();
+        public Dictionary<string, DemoFoundationRuleConfig> FoundationRules { get; set; } = new Dictionary<string, DemoFoundationRuleConfig>();
+        public Dictionary<string, DemoEncounterGroupConfig> EncounterGroups { get; set; } = new Dictionary<string, DemoEncounterGroupConfig>();
+        public Dictionary<string, DemoMapTemplateConfig> MapTemplates { get; set; } = new Dictionary<string, DemoMapTemplateConfig>();
+        public Dictionary<string, DemoEventConfig> Events { get; set; } = new Dictionary<string, DemoEventConfig>();
+        public Dictionary<string, DemoStoryFlagConfig> StoryFlags { get; set; } = new Dictionary<string, DemoStoryFlagConfig>();
         public Dictionary<string, DemoGongfaConfig> Gongfas { get; set; } = new Dictionary<string, DemoGongfaConfig>();
         public Dictionary<string, DemoArtifactConfig> Artifacts { get; set; } = new Dictionary<string, DemoArtifactConfig>();
         public Dictionary<string, DemoRelicConfig> Relics { get; set; } = new Dictionary<string, DemoRelicConfig>();
@@ -217,6 +225,142 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string BearerDefinitionId { get; set; }
         public bool IsAvailable { get; set; }
         public List<string> ActiveTechniqueIds { get; set; } = new List<string>();
+    }
+
+    public sealed class DemoInnateArtifactConfig
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string BearerDefinitionId { get; set; }
+        public string VisualResourceKey { get; set; }
+        public float BaseCooldown { get; set; }
+        public List<DemoInnateArtifactStageConfig> Stages { get; set; } = new List<DemoInnateArtifactStageConfig>();
+    }
+
+    public sealed class DemoInnateArtifactStageConfig
+    {
+        public int Stage { get; set; }
+        public string Name { get; set; }
+        public int BaseDamage { get; set; }
+        public float Cooldown { get; set; }
+        public string AttackVariantId { get; set; }
+        public string RulesText { get; set; }
+    }
+
+    public sealed class DemoMindMethodConfig
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string GrantedTechniqueId { get; set; }
+        public List<DemoMindMethodLevelConfig> Levels { get; set; } = new List<DemoMindMethodLevelConfig>();
+    }
+
+    public sealed class DemoMindMethodLevelConfig
+    {
+        public int Level { get; set; }
+        public float EnergyRegenMultiplier { get; set; }
+        public int RecoveryAmount { get; set; }
+        public float ArtifactCooldownMultiplier { get; set; }
+        public string RulesText { get; set; }
+    }
+
+    public sealed class DemoRealmBreakthroughConfig
+    {
+        public string Id { get; set; }
+        public string FromRealmId { get; set; }
+        public string ToRealmId { get; set; }
+        public int MaxEnergy { get; set; }
+        public float EnergyRegenMultiplier { get; set; }
+        public float TechniquePowerMultiplier { get; set; }
+        public string RequiredNodeType { get; set; }
+        public string SceneId { get; set; }
+    }
+
+    public sealed class DemoFoundationRuleConfig
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string RequiredStoryFlagId { get; set; }
+        public string RuleKind { get; set; }
+        public double RuleValue { get; set; }
+        public string RulesText { get; set; }
+        public string VisualTag { get; set; }
+    }
+
+    public sealed class DemoEncounterGroupConfig
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public int ActIndex { get; set; }
+        public string EncounterRole { get; set; }
+        public List<DemoEncounterGroupMemberConfig> Members { get; set; } = new List<DemoEncounterGroupMemberConfig>();
+    }
+
+    public sealed class DemoEncounterGroupMemberConfig
+    {
+        public int Slot { get; set; }
+        public string EnemyId { get; set; }
+        public string PositionId { get; set; }
+        public int ThreatPriority { get; set; }
+        public bool RequiredForVictory { get; set; }
+    }
+
+    public sealed class DemoMapTemplateConfig
+    {
+        public string Id { get; set; }
+        public string RegionId { get; set; }
+        public int ActCount { get; set; }
+        public int StandardDepthCount { get; set; }
+        public List<DemoMapTemplateNodeConfig> Nodes { get; set; } = new List<DemoMapTemplateNodeConfig>();
+        public List<DemoMapTemplateEdgeConfig> Edges { get; set; } = new List<DemoMapTemplateEdgeConfig>();
+    }
+
+    public sealed class DemoMapTemplateNodeConfig
+    {
+        public string SlotId { get; set; }
+        public int ActIndex { get; set; }
+        public int DepthIndex { get; set; }
+        public int LaneIndex { get; set; }
+        public string AllowedNodeTypes { get; set; }
+        public string RequiredContentId { get; set; }
+        public string RequiredStoryFlagId { get; set; }
+        public bool Hidden { get; set; }
+    }
+
+    public sealed class DemoMapTemplateEdgeConfig
+    {
+        public string FromSlotId { get; set; }
+        public string ToSlotId { get; set; }
+    }
+
+    public sealed class DemoEventConfig
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string SceneId { get; set; }
+        public int ActIndex { get; set; }
+        public bool Critical { get; set; }
+        public string RequiredStoryFlagId { get; set; }
+        public List<DemoEventChoiceConfig> Choices { get; set; } = new List<DemoEventChoiceConfig>();
+    }
+
+    public sealed class DemoEventChoiceConfig
+    {
+        public string ChoiceId { get; set; }
+        public string Label { get; set; }
+        public string Description { get; set; }
+        public string RequiredStoryFlagId { get; set; }
+        public string GrantedStoryFlagId { get; set; }
+        public string EffectKind { get; set; }
+        public string EffectValue { get; set; }
+    }
+
+    public sealed class DemoStoryFlagConfig
+    {
+        public string Id { get; set; }
+        public string Category { get; set; }
+        public string Description { get; set; }
+        public bool PersistsBetweenRuns { get; set; }
     }
 
     public sealed class DemoGongfaConfig

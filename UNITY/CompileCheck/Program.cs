@@ -18,6 +18,7 @@ namespace PathOfTenThousandWays.CompileCheck
             {
                 VerifyOpeningVesselFlow();
                 VerifyStartingPracticePackageContract();
+                VerifyJourneyContentConfig();
                 VerifyBattleLayoutContract();
                 VerifyDeterministicJourneyGraph();
                 VerifyRunSaveContract();
@@ -149,6 +150,89 @@ namespace PathOfTenThousandWays.CompileCheck
                 "Energy growth must sit above the command surface.");
         }
 
+        private static void VerifyJourneyContentConfig()
+        {
+            Require(
+                DemoConfigRepository.TryGetInnateArtifact(
+                    "artifact_broken_sword_embryo",
+                    out DemoInnateArtifactConfig innateArtifact),
+                "The configured innate sword embryo must load.");
+            Require(innateArtifact.Stages.Count >= 3 && innateArtifact.BaseCooldown > 0f,
+                "The innate sword embryo must have staged cooldown-driven growth.");
+            Require(
+                DemoConfigRepository.TryGetMindMethod(
+                    "practice_branch_breathing",
+                    out DemoMindMethodConfig mindMethod),
+                "The opening mind method must load.");
+            Require(mindMethod.Levels.Count >= 3
+                && mindMethod.GrantedTechniqueId == "technique_breathing_recovery",
+                "The opening mind method must carry its recovery technique and level rules.");
+            Require(
+                DemoConfigRepository.TryGetRealmBreakthrough(
+                    "breakthrough_qi_to_foundation",
+                    out DemoRealmBreakthroughConfig breakthrough),
+                "The story breakthrough must load.");
+            Require(breakthrough.TechniquePowerMultiplier > 1f
+                && breakthrough.EnergyRegenMultiplier > 1f,
+                "Foundation establishment must improve both technique power and energy flow.");
+
+            string[] foundationRules =
+            {
+                "foundation_stable",
+                "foundation_sword_bone",
+                "foundation_clear_spirit",
+                "foundation_thunder_meridian",
+                "foundation_baleful_contract"
+            };
+            foreach (string ruleId in foundationRules)
+            {
+                Require(DemoConfigRepository.TryGetFoundationRule(ruleId, out _),
+                    "Missing foundation rule: " + ruleId);
+            }
+
+            string[] encounterGroups =
+            {
+                "encounter_act1_patrol",
+                "encounter_act1_elite",
+                "encounter_act1_miniboss",
+                "encounter_act2_wraiths",
+                "encounter_act2_elite",
+                "encounter_act2_miniboss",
+                "encounter_act3_furnace",
+                "encounter_act3_elite",
+                "encounter_act3_boss"
+            };
+            foreach (string encounterId in encounterGroups)
+            {
+                Require(
+                    DemoConfigRepository.TryGetEncounterGroup(
+                        encounterId,
+                        out DemoEncounterGroupConfig group)
+                    && group.Members.Count >= 2
+                    && group.Members.Count <= 3,
+                    "Encounter group must contain 2-3 configured targets: " + encounterId);
+            }
+
+            Require(
+                DemoConfigRepository.TryGetMapTemplate(
+                    "map_old_mine_three_act",
+                    out DemoMapTemplateConfig mapTemplate)
+                && mapTemplate.ActCount == 3
+                && mapTemplate.StandardDepthCount == 8,
+                "The old mine map template must define three eight-depth acts.");
+            Require(
+                DemoConfigRepository.TryGetEvent(
+                    "event_miner_spirit_first",
+                    out DemoEventConfig minerSpirit)
+                && minerSpirit.Choices.Count == 4,
+                "The first miner spirit event must expose four concrete fates.");
+            Require(
+                DemoConfigRepository.TryGetStoryFlag(
+                    "experience_miner_spirit_helped",
+                    out _),
+                "The miner spirit outcome must resolve to a configured story flag.");
+        }
+
         private static void VerifyMultiTargetCombatContracts()
         {
             DemoCombatTarget first = new DemoCombatTarget(
@@ -275,6 +359,83 @@ namespace PathOfTenThousandWays.CompileCheck
             Require(battle.Phase == DemoBattlePhase.Running, "Battle must continue while one required target remains.");
             Require(battle.LockTarget("runtime_c") && battle.TryPlayCard(0), "The final required target must remain playable.");
             Require(battle.Phase == DemoBattlePhase.Won, "Battle must end only after every required target is defeated.");
+
+            DemoBattleState independentIntents = new DemoBattleState();
+            independentIntents.StartBattle(new DemoBattleSetup
+            {
+                Enemies = new[]
+                {
+                    new DemoBattleEnemySetup { CombatantId = "intent_a", DefinitionId = "a", PositionId = "front", Depth = 0, MaxHealth = 999 },
+                    new DemoBattleEnemySetup { CombatantId = "intent_b", DefinitionId = "b", PositionId = "middle", Depth = 1, MaxHealth = 999 },
+                    new DemoBattleEnemySetup { CombatantId = "intent_c", DefinitionId = "c", PositionId = "rear", Depth = 2, MaxHealth = 999 }
+                },
+                Deck = Array.Empty<DemoCard>(),
+                PlayerMaxHealth = 100,
+                PlayerHealth = 100,
+                IntroSeconds = 0f,
+                DrawIntervalSeconds = 99f,
+                FlyingSwordIntervalSeconds = 99f,
+                EnemyIntentMinSeconds = 10f,
+                EnemyIntentMaxSeconds = 10f,
+                RandomSeed = 23
+            });
+            independentIntents.ClearPresentationSteps();
+            foreach (DemoCombatTarget target in independentIntents.Enemies)
+            {
+                target.Intent.RemainingSeconds = 0.1f;
+                target.Intent.DurationSeconds = 0.1f;
+            }
+            independentIntents.Tick(0.2f);
+            Require(independentIntents.EnemyActionCount == 3,
+                "Every ready enemy must resolve its own intent in the same realtime tick.");
+            HashSet<string> intentSources = new HashSet<string>(
+                independentIntents.ConsumePresentationSteps()
+                    .Where(step => step.Type == DemoBattlePresentationStepType.EnemyAttack)
+                    .Select(step => step.SourceCombatantId),
+                StringComparer.Ordinal);
+            Require(intentSources.SetEquals(new[] { "intent_a", "intent_b", "intent_c" }),
+                "Enemy presentations must preserve the independent source combatant ID.");
+
+            DemoCard breakPart = new DemoCard
+            {
+                Id = "break_boss_part",
+                Name = "断契试剑",
+                Type = DemoCardType.Attack,
+                Style = DemoSwordStyle.General,
+                Cost = 0,
+                Damage = 10
+            };
+            DemoBattleState swordPuppet = new DemoBattleState();
+            swordPuppet.StartBattle(new DemoBattleSetup
+            {
+                EnemyId = "enemy_xuantie_mine_sword_puppet",
+                IsBoss = true,
+                Enemies = new[]
+                {
+                    new DemoBattleEnemySetup { CombatantId = "puppet_armor", DefinitionId = "target_xuantie_armor", PositionId = "boss_upper_armor", Depth = 0, MaxHealth = 5 },
+                    new DemoBattleEnemySetup { CombatantId = "puppet_spike", DefinitionId = "target_contract_spike", PositionId = "boss_contract_spike", Depth = 1, MaxHealth = 5 },
+                    new DemoBattleEnemySetup { CombatantId = "puppet_core", DefinitionId = "target_sword_furnace_core", PositionId = "boss_furnace_core", Depth = 2, MaxHealth = 5 }
+                },
+                Deck = new[] { breakPart, breakPart, breakPart },
+                InitialHandSize = 3,
+                HandLimit = 3,
+                InitialEnergy = 3,
+                IntroSeconds = 0f,
+                RandomSeed = 29
+            });
+            Require(swordPuppet.ActiveEnemyCount == 1
+                && swordPuppet.BossPhaseId == DemoBattleState.BossPhaseXuantieArmor,
+                "The sword puppet must open with only its armor target exposed.");
+            Require(swordPuppet.TryPlayCard(0)
+                && swordPuppet.BossPhaseId == DemoBattleState.BossPhaseXuantieContractSpike
+                && swordPuppet.LockedTargetId == "puppet_spike",
+                "Breaking armor must expose and retarget the cinnabar contract spike.");
+            Require(swordPuppet.TryPlayCard(0)
+                && swordPuppet.BossPhaseId == DemoBattleState.BossPhaseXuantieCore
+                && swordPuppet.LockedTargetId == "puppet_core",
+                "Breaking the contract spike must expose and retarget the sword furnace core.");
+            Require(swordPuppet.TryPlayCard(0) && swordPuppet.Phase == DemoBattlePhase.Won,
+                "Breaking the exposed sword furnace core must complete the final Boss battle.");
         }
 
         private static void VerifyDeterministicJourneyGraph()
@@ -295,6 +456,44 @@ namespace PathOfTenThousandWays.CompileCheck
                     $"Journey seed {seed} must contain two MiniBoss nodes.");
                 Require(graph.Nodes.Count(node => node.Type == DemoJourneyNodeType.Boss) == 1,
                     $"Journey seed {seed} must contain one final Boss node.");
+                Require(graph.Nodes.Single(node => node.ActIndex == 1 && node.DepthIndex == 2).ContentId
+                        == "event_miner_spirit_first",
+                    $"Journey seed {seed} must place the first miner spirit event in act one.");
+                Require(graph.Nodes.Single(node => node.ActIndex == 2 && node.DepthIndex == 2).ContentId
+                        == "event_miner_spirit_return",
+                    $"Journey seed {seed} must revisit the miner spirit in act two.");
+                Require(graph.Nodes.Single(node => node.ActIndex == 2 && node.DepthIndex == 6).ContentId
+                        == "event_old_contract_truth",
+                    $"Journey seed {seed} must reveal the old contract before the second gate.");
+                Require(graph.Nodes.Single(node => node.ActIndex == 3 && node.DepthIndex == 0).Type
+                        == DemoJourneyNodeType.Breakthrough,
+                    $"Journey seed {seed} must enter act three through the story breakthrough.");
+                Require(graph.Nodes.Single(node => node.ActIndex == 3 && node.DepthIndex == 6).ContentId
+                        == "event_sword_furnace_contract",
+                    $"Journey seed {seed} must settle the sword furnace contract before the Boss.");
+                DemoJourneyNode hiddenContract = graph.Nodes.Single(node => node.IsHidden);
+                DemoJourneyNode beforeHidden = graph.Nodes.First(node => node.ActIndex == 3 && node.DepthIndex == 4);
+                Require(!graph.GetReachableNodeIds(new[] { beforeHidden.NodeId }).Contains(hiddenContract.NodeId),
+                    $"Journey seed {seed} must keep the contract cache hidden without its concrete cause.");
+                Require(graph.GetReachableNodeIds(
+                        new[] { beforeHidden.NodeId },
+                        new[] { "experience_miner_spirit_bound" })
+                    .Contains(hiddenContract.NodeId),
+                    $"Journey seed {seed} must reveal the contract cache after binding the miner spirit.");
+
+                for (int act = 1; act <= 3; act++)
+                {
+                    Require(graph.GetActNodes(act)
+                        .GroupBy(node => node.DepthIndex)
+                        .Any(layer => layer.Count() > 1
+                            && layer.Select(node => node.Type).Distinct().Count() > 1),
+                        $"Journey seed {seed} act {act} must offer at least one structurally different branch.");
+                    int combatDepths = graph.GetActNodes(act)
+                        .GroupBy(node => node.DepthIndex)
+                        .Count(layer => layer.Any(node => node.IsCombat));
+                    Require(combatDepths >= 3 && combatDepths <= 5,
+                        $"Journey seed {seed} act {act} must stay near the intended combat/event split.");
+                }
 
                 for (int act = 1; act <= 3; act++)
                 {
@@ -311,13 +510,35 @@ namespace PathOfTenThousandWays.CompileCheck
                     $"Journey seed {seed} must show preparation immediately before the Boss.");
                 Require(graph.GetReachableNodeIds(Array.Empty<string>()).SequenceEqual(new[] { graph.StartNodeId }),
                     $"Journey seed {seed} initial frontier must contain only Start.");
+
+                IReadOnlyList<string> firstFrontier = graph.GetReachableNodeIds(new[] { graph.StartNodeId });
+                string selectedBranch = firstFrontier[0];
+                IReadOnlyList<string> nextFrontier = graph.GetReachableNodeIds(new[] { graph.StartNodeId, selectedBranch });
+                Require(firstFrontier.Skip(1).All(sibling => !nextFrontier.Contains(sibling)),
+                    $"Journey seed {seed} must close unchosen sibling nodes after committing a branch.");
+
+                DemoRunSaveV2 graphSnapshot = new DemoRunSaveV2
+                {
+                    ResolvedGraphNodes = DemoJourneyGraphSnapshotCodec.CaptureNodes(graph),
+                    ResolvedGraphEdges = DemoJourneyGraphSnapshotCodec.CaptureEdges(graph)
+                };
+                Require(
+                    DemoJourneyGraphSnapshotCodec.TryRestore(
+                        seed,
+                        graphSnapshot.ResolvedGraphNodes,
+                        graphSnapshot.ResolvedGraphEdges,
+                        out DemoJourneyGraph restored,
+                        out string restoreError),
+                    restoreError);
+                Require(JourneyFingerprint(restored) == JourneyFingerprint(graph),
+                    $"Journey seed {seed} full graph snapshot must round-trip exactly.");
             }
         }
 
         private static string JourneyFingerprint(DemoJourneyGraph graph)
         {
             string nodes = string.Join("|", graph.Nodes.Select(node =>
-                $"{node.NodeId}:{node.ActIndex}:{node.DepthIndex}:{node.LaneIndex}:{node.Type}:{node.ContentId}"));
+                $"{node.NodeId}:{node.ActIndex}:{node.DepthIndex}:{node.LaneIndex}:{node.Type}:{node.ContentId}:{node.RequiredStoryFlagId}:{node.IsHidden}"));
             string edges = string.Join("|", graph.Edges.Select(edge => $"{edge.FromNodeId}>{edge.ToNodeId}"));
             return nodes + "||" + edges;
         }

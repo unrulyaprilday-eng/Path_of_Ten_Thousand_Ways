@@ -40,6 +40,7 @@ namespace PathOfTenThousandWays.Demo.Systems
         private DemoMapNode pendingEncounter;
         private DemoJourneyNode pendingJourneyNode;
         private DemoJourneyNode activeJourneyBattleNode;
+        private readonly List<DemoJourneyChoice> currentJourneyChoices = new List<DemoJourneyChoice>();
         private DemoJourneyRunSession journeySession;
         private IDemoRunSaveStore journeySaveStore;
         private string journeyError = string.Empty;
@@ -68,6 +69,7 @@ namespace PathOfTenThousandWays.Demo.Systems
         public DemoRunSaveV2 JourneySnapshot => journeySession?.Snapshot;
         public bool HasJourneySession => journeySession != null;
         public string JourneyError => journeyError;
+        public IReadOnlyList<DemoJourneyChoice> CurrentJourneyChoices => currentJourneyChoices;
         public bool HasPendingEncounter => pendingEncounter != null;
         public bool CanBackOpening => run.Map.CurrentNode.Type == DemoNodeType.Start
             && FlowPhase != DemoFlowPhase.Home;
@@ -209,18 +211,83 @@ namespace PathOfTenThousandWays.Demo.Systems
                 ResetRun();
             }
 
-            PrepareOpeningChoices();
+            BeginOpeningStory();
         }
 
         public void StartNextRun()
         {
             ResetRun();
-            PrepareOpeningChoices();
+            BeginOpeningStory();
         }
 
         public void ReturnHome()
         {
             ResetRun();
+        }
+
+        public void BeginOpeningStory()
+        {
+            currentRewards.Clear();
+            currentJourneyChoices.Clear();
+            currentRewardContext = null;
+            journeyError = string.Empty;
+            openingStage = DemoOpeningStage.SelectRoot;
+            SetFlowPhase(DemoFlowPhase.OpeningStory);
+        }
+
+        public bool CompleteOpeningStory()
+        {
+            if (FlowPhase != DemoFlowPhase.OpeningStory)
+            {
+                return false;
+            }
+
+            DemoRootDefinition root = DemoConfigRepository.GetRootsForOpening(16)
+                .FirstOrDefault(candidate => candidate != null
+                    && candidate.IsAvailable
+                    && string.Equals(candidate.Id, "root_branch", StringComparison.OrdinalIgnoreCase));
+            if (root == null)
+            {
+                journeyError = "世家旁支根脚配置缺失。";
+                return false;
+            }
+
+            DemoJourneyVesselDefinition vessel = DemoConfigRepository.GetJourneyVesselsForRoot(
+                    root.Id,
+                    16,
+                    false)
+                .FirstOrDefault(candidate => candidate != null
+                    && candidate.IsAvailable
+                    && string.Equals(candidate.Id, "vessel_branch_sword_embryo", StringComparison.OrdinalIgnoreCase));
+            if (vessel == null)
+            {
+                journeyError = "残剑胚开局配置缺失。";
+                return false;
+            }
+
+            run.SetRoot(root);
+            run.SetVessel(vessel);
+            DemoStartingPracticePackageDefinition package = run.OpeningSelection.StartingPracticePackage;
+            if (package != null)
+            {
+                run.InnateArtifact.BearerVisualId = package.BearerDefinitionId;
+                if (DemoConfigRepository.TryGetCorePractice(
+                        package.CorePracticeId,
+                        out DemoCorePracticeDefinition practice))
+                {
+                    AddUnique(run.CorePractice.GrantedTechniqueIds, practice.GrantedTechniqueId);
+                }
+            }
+            openingStage = DemoOpeningStage.SelectOpeningScene;
+            currentRewards = BuildOpeningSceneChoices(vessel);
+            if (currentRewards.Count == 0)
+            {
+                journeyError = "可进入的旧矿境域配置缺失。";
+                return false;
+            }
+
+            SetFlowPhase(DemoFlowPhase.RegionChoice);
+            return true;
         }
 
         public void BeginCurrentEncounter()
@@ -248,7 +315,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
 
             int seed = rootSeed ?? CreateJourneySeed();
-            DemoJourneyGraph graph = DemoJourneyGraphGenerator.Generate(seed);
+            DemoJourneyGraph graph = DemoJourneyGraphGenerator.Generate(seed, ResolveJourneyMapTemplate());
             journeySaveStore = new DemoFileRunSaveStore(
                 Application.persistentDataPath,
                 JourneySaveSlotName);
@@ -271,6 +338,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             battle.ClearBattle(true);
             currentRewards.Clear();
             currentRewardContext = null;
+            currentJourneyChoices.Clear();
             SetFlowPhase(DemoFlowPhase.JourneyMap);
             return true;
         }
@@ -288,7 +356,25 @@ namespace PathOfTenThousandWays.Demo.Systems
                 return false;
             }
 
-            DemoJourneyGraph graph = DemoJourneyGraphGenerator.Generate(saved.RootSeed);
+            DemoJourneyGraph graph;
+            if (saved.ResolvedGraphNodes.Count > 0)
+            {
+                if (!DemoJourneyGraphSnapshotCodec.TryRestore(
+                        saved.RootSeed,
+                        saved.ResolvedGraphNodes,
+                        saved.ResolvedGraphEdges,
+                        out graph,
+                        out journeyError))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                // Compatibility path for checkpoints created before full graph
+                // snapshots were added to the V2 contract.
+                graph = DemoJourneyGraphGenerator.Generate(saved.RootSeed, ResolveJourneyMapTemplate());
+            }
             if (!DemoJourneyRunSession.TryRestore(
                     graph,
                     store,
@@ -310,6 +396,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             journeySession.Graph.TryGetNode(snapshot.CurrentNodeId, out pendingJourneyNode);
             activeJourneyBattleNode = null;
             pendingEncounter = null;
+            currentJourneyChoices.Clear();
             if (snapshot.FlowPhaseId == DemoRunFlowPhaseId.EncounterIntro && pendingJourneyNode != null)
             {
                 pendingEncounter = ToLegacyEncounterNode(pendingJourneyNode, snapshot.PendingEncounterId);
@@ -319,10 +406,12 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
             else if (snapshot.FlowPhaseId == DemoRunFlowPhaseId.Breakthrough && pendingJourneyNode != null)
             {
+                currentJourneyChoices.AddRange(BuildJourneyChoices(pendingJourneyNode, snapshot));
                 SetFlowPhase(DemoFlowPhase.Breakthrough);
             }
             else if (snapshot.FlowPhaseId == DemoRunFlowPhaseId.NodeScene && pendingJourneyNode != null)
             {
+                currentJourneyChoices.AddRange(BuildJourneyChoices(pendingJourneyNode, snapshot));
                 SetFlowPhase(DemoFlowPhase.NodeScene);
             }
             else
@@ -331,6 +420,52 @@ namespace PathOfTenThousandWays.Demo.Systems
                 SetFlowPhase(DemoFlowPhase.JourneyMap);
             }
             return true;
+        }
+
+        private static DemoJourneyMapTemplate ResolveJourneyMapTemplate()
+        {
+            DemoJourneyMapTemplate fallback = DemoJourneyMapTemplate.Default();
+            if (!DemoConfigRepository.TryGetMapTemplate(
+                    "map_old_mine_three_act",
+                    out DemoMapTemplateConfig configured)
+                || configured.Nodes == null)
+            {
+                return fallback;
+            }
+
+            List<DemoJourneyActTemplate> acts = new List<DemoJourneyActTemplate>();
+            for (int actIndex = 1; actIndex <= 3; actIndex++)
+            {
+                DemoJourneyNodeType[][] depths = new DemoJourneyNodeType[8][];
+                for (int depthIndex = 0; depthIndex < depths.Length; depthIndex++)
+                {
+                    List<DemoJourneyNodeType> nodeTypes = new List<DemoJourneyNodeType>();
+                    foreach (DemoMapTemplateNodeConfig slot in configured.Nodes
+                        .Where(item => item != null
+                            && item.ActIndex == actIndex
+                            && item.DepthIndex == depthIndex
+                            && !item.Hidden))
+                    {
+                        string[] values = (slot.AllowedNodeTypes ?? string.Empty)
+                            .Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                        for (int i = 0; i < values.Length; i++)
+                        {
+                            if (Enum.TryParse(values[i], true, out DemoJourneyNodeType nodeType)
+                                && !nodeTypes.Contains(nodeType))
+                            {
+                                nodeTypes.Add(nodeType);
+                            }
+                        }
+                    }
+
+                    depths[depthIndex] = nodeTypes.Count > 0
+                        ? nodeTypes.ToArray()
+                        : fallback.Acts[actIndex - 1].NodeTypesByDepth[depthIndex];
+                }
+                acts.Add(new DemoJourneyActTemplate(actIndex, depths));
+            }
+
+            return new DemoJourneyMapTemplate(acts);
         }
 
         public bool SelectJourneyNode(string nodeId)
@@ -343,6 +478,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
 
             pendingJourneyNode = node;
+            currentJourneyChoices.Clear();
             if (node.IsCombat)
             {
                 string encounterId = ResolveJourneyEncounterId(node);
@@ -374,6 +510,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
 
             battle.ClearBattle();
+            currentJourneyChoices.AddRange(BuildJourneyChoices(node, journeySession.Snapshot));
             SetFlowPhase(node.Type == DemoJourneyNodeType.Breakthrough
                 ? DemoFlowPhase.Breakthrough
                 : DemoFlowPhase.NodeScene);
@@ -387,18 +524,51 @@ namespace PathOfTenThousandWays.Demo.Systems
                 return false;
             }
 
-            ApplyJourneyNodeImmediateEffect(pendingJourneyNode);
-            DemoJourneyNodeOutcome outcome = BuildJourneyNodeOutcome(pendingJourneyNode, false);
+            if (currentJourneyChoices.Count != 1)
+            {
+                journeyError = currentJourneyChoices.Count == 0
+                    ? "此处没有可结算的场景选择。"
+                    : "请先选择此处的修行或因果结果。";
+                return false;
+            }
+
+            return ChooseJourneyOption(currentJourneyChoices[0].ChoiceId);
+        }
+
+        public bool ChooseJourneyOption(string choiceId)
+        {
+            if (journeySession == null
+                || pendingJourneyNode == null
+                || pendingJourneyNode.IsCombat
+                || string.IsNullOrWhiteSpace(choiceId))
+            {
+                return false;
+            }
+
+            DemoJourneyChoice choice = currentJourneyChoices.FirstOrDefault(candidate =>
+                string.Equals(candidate.ChoiceId, choiceId, StringComparison.Ordinal));
+            if (choice == null)
+            {
+                journeyError = "当前场景不存在该选择。";
+                return false;
+            }
+
+            DemoJourneyNodeOutcome outcome = BuildJourneyChoiceOutcome(
+                pendingJourneyNode,
+                choice,
+                journeySession.Snapshot);
             if (!journeySession.TryCompleteCurrentNode(
                     outcome,
-                    out _,
+                    out DemoRunSaveV2 committed,
                     out journeyError))
             {
                 return false;
             }
 
+            RestoreRunFromJourneySnapshot(committed);
             pendingJourneyNode = null;
             pendingEncounter = null;
+            currentJourneyChoices.Clear();
             SetFlowPhase(DemoFlowPhase.JourneyMap);
             return true;
         }
@@ -407,6 +577,20 @@ namespace PathOfTenThousandWays.Demo.Systems
         {
             if (!CanBackOpening)
             {
+                return;
+            }
+
+            if (FlowPhase == DemoFlowPhase.RegionChoice)
+            {
+                run.SetRoot(null);
+                currentRewards.Clear();
+                BeginOpeningStory();
+                return;
+            }
+
+            if (FlowPhase == DemoFlowPhase.OpeningStory)
+            {
+                ReturnHome();
                 return;
             }
 
@@ -643,7 +827,11 @@ namespace PathOfTenThousandWays.Demo.Systems
         private void StartBattle(DemoMapNode node)
         {
             DemoEnemyDefinition enemy = ResolveEnemy(node);
-            bool boss = node.Type == DemoNodeType.Boss || (enemy != null && enemy.IsBoss);
+            bool journeyMiniBoss = activeJourneyBattleNode != null
+                && activeJourneyBattleNode.Type == DemoJourneyNodeType.MiniBoss;
+            bool boss = activeJourneyBattleNode != null
+                ? activeJourneyBattleNode.Type == DemoJourneyNodeType.Boss
+                : node.Type == DemoNodeType.Boss || (enemy != null && enemy.IsBoss);
             bool openingBattle = string.Equals(node.NodeId, "node_opening_battle", StringComparison.OrdinalIgnoreCase);
             IReadOnlyList<DemoBattleEnemySetup> journeyEnemies = activeJourneyBattleNode == null
                 ? null
@@ -655,9 +843,29 @@ namespace PathOfTenThousandWays.Demo.Systems
             battleResultHandled = false;
             battleOutcomeDelay = 0f;
             BattleSpeed = 1f;
+            string foundationRuleId = run.Realm.FoundationRuleId ?? string.Empty;
+            int maxEnergy = run.Realm.Stage >= 2 ? 7 : 5;
+            int initialEnergy = run.Realm.Stage >= 2 ? 4 : 3;
+            float energyRegeneration = (run.Realm.Stage >= 2 ? 1.25f : 1f)
+                + 0.08f * Mathf.Max(0, run.CorePractice.Level - 1);
+            int bonusPermanentSwords = run.BonusPermanentSwords;
+            float flyingSwordInterval = Mathf.Max(
+                1.45f,
+                2.2f - 0.12f * Mathf.Max(0, run.InnateArtifact.RefinementStage - 1));
+            if (string.Equals(foundationRuleId, "foundation_clear_spirit", StringComparison.Ordinal))
+            {
+                energyRegeneration += 0.25f;
+                initialEnergy++;
+            }
+            else if (string.Equals(foundationRuleId, "foundation_sword_bone", StringComparison.Ordinal))
+            {
+                flyingSwordInterval = Mathf.Max(1.25f, flyingSwordInterval - 0.18f);
+                bonusPermanentSwords++;
+            }
+
             battle.StartBattle(new DemoBattleSetup
             {
-                Deck = run.Deck,
+                Deck = BuildBattleTechniqueDeck(),
                 Enemies = journeyEnemies,
                 Artifacts = run.Artifacts,
                 Gongfas = run.GetLearnedGongfas().ToList(),
@@ -670,15 +878,15 @@ namespace PathOfTenThousandWays.Demo.Systems
                 IsBoss = boss,
                 IsOpeningBattle = openingBattle,
                 BonusEnergyCapacity = run.BonusEnergy,
-                BonusPermanentSwords = run.BonusPermanentSwords,
-                MaxEnergy = run.Realm.Stage >= 2 ? 6 : 5,
-                InitialEnergy = 3,
-                EnergyRegenerationPerSecond = run.Realm.Stage >= 2 ? 1.25f : 1f,
+                BonusPermanentSwords = bonusPermanentSwords,
+                MaxEnergy = maxEnergy,
+                InitialEnergy = initialEnergy,
+                EnergyRegenerationPerSecond = energyRegeneration,
                 HandLimit = 6,
                 InitialHandSize = 2,
-                FlyingSwordIntervalSeconds = Mathf.Max(1.55f, 2.2f - 0.12f * Mathf.Max(0, run.InnateArtifact.RefinementStage - 1)),
-                EnemyIntentMinSeconds = boss ? 5f : IsElite(enemy) ? 4.8f : 5.8f,
-                EnemyIntentMaxSeconds = boss ? 6f : IsElite(enemy) ? 5.6f : 7f,
+                FlyingSwordIntervalSeconds = flyingSwordInterval,
+                EnemyIntentMinSeconds = boss ? 5f : journeyMiniBoss ? 4.8f : IsElite(enemy) ? 4.8f : 5.8f,
+                EnemyIntentMaxSeconds = boss ? 6f : journeyMiniBoss ? 5.8f : IsElite(enemy) ? 5.6f : 7f,
                 RandomSeed = journeySession?.Snapshot.PendingEncounterSeed
                     ?? (1000 + run.BattlesWon * 37 + node.Layer * 101)
             });
@@ -704,6 +912,88 @@ namespace PathOfTenThousandWays.Demo.Systems
                 && string.Equals(enemy.BattleRole, "elite", System.StringComparison.OrdinalIgnoreCase);
         }
 
+        private IReadOnlyList<DemoCard> BuildBattleTechniqueDeck()
+        {
+            float realmCoefficient = run.Realm.Stage >= 2 ? 1.25f : 1f;
+            string foundationRuleId = run.Realm.FoundationRuleId ?? string.Empty;
+            List<DemoCard> result = new List<DemoCard>();
+            foreach (DemoCard source in run.Deck)
+            {
+                if (source == null)
+                {
+                    continue;
+                }
+
+                DemoCard card = source.Clone();
+                bool changed = false;
+                if (realmCoefficient > 1f)
+                {
+                    if (card.Damage > 0)
+                    {
+                        card.Damage = Mathf.CeilToInt(card.Damage * realmCoefficient);
+                        changed = true;
+                    }
+                    if (card.Block > 0)
+                    {
+                        card.Block = Mathf.CeilToInt(card.Block * realmCoefficient);
+                        changed = true;
+                    }
+                }
+
+                if (string.Equals(foundationRuleId, "foundation_stable", StringComparison.Ordinal))
+                {
+                    if (card.Block > 0)
+                    {
+                        card.Block += 2;
+                        changed = true;
+                    }
+                }
+                else if (string.Equals(foundationRuleId, "foundation_sword_bone", StringComparison.Ordinal))
+                {
+                    if (card.Damage > 0
+                        && (card.Type == DemoCardType.FlyingSword || card.Style == DemoSwordStyle.Wanjian))
+                    {
+                        card.Damage = Mathf.CeilToInt(card.Damage * 1.12f);
+                        changed = true;
+                    }
+                }
+                else if (string.Equals(foundationRuleId, "foundation_clear_spirit", StringComparison.Ordinal))
+                {
+                    if (card.Type == DemoCardType.Resource)
+                    {
+                        card.EnergyGain += 1;
+                        card.Block += 2;
+                        changed = true;
+                    }
+                }
+                else if (string.Equals(foundationRuleId, "foundation_thunder_meridian", StringComparison.Ordinal))
+                {
+                    if (card.Damage > 0)
+                    {
+                        card.Shock += 1;
+                        changed = true;
+                    }
+                }
+                else if (string.Equals(foundationRuleId, "foundation_baleful_contract", StringComparison.Ordinal))
+                {
+                    if (card.Damage > 0)
+                    {
+                        card.Damage = Mathf.CeilToInt(card.Damage * 1.25f);
+                        card.SelfDamage += 1;
+                        changed = true;
+                    }
+                }
+
+                if (changed)
+                {
+                    card.RulesOverride = string.Empty;
+                }
+                result.Add(card);
+            }
+
+            return result;
+        }
+
         private void HandleBattleWon()
         {
             if (battleResultHandled || !HasBattle)
@@ -719,11 +1009,10 @@ namespace PathOfTenThousandWays.Demo.Systems
                 lastReachedLayer = (completedJourneyBattle.ActIndex - 1) * 8
                     + completedJourneyBattle.DepthIndex + 1;
                 bool defeatedJourneyBoss = completedJourneyBattle.Type == DemoJourneyNodeType.Boss;
-                run.CurrentHealth = battle.Player.Health;
-                run.RecordBattleVictory(battle.MaxSwordsReached, battle.HighestBurstDamage);
                 DemoJourneyNodeOutcome journeyOutcome = BuildJourneyNodeOutcome(
                     completedJourneyBattle,
                     true);
+                journeyOutcome.CurrentHealth = battle.Player.Health;
                 journeyOutcome.BattlesWonDelta = 1;
                 journeyOutcome.MaxSwordCount = battle.MaxSwordsReached;
                 journeyOutcome.HighestBurstDamage = battle.HighestBurstDamage;
@@ -734,13 +1023,14 @@ namespace PathOfTenThousandWays.Demo.Systems
 
                 if (!journeySession.TryCompleteCurrentNode(
                         journeyOutcome,
-                        out _,
+                        out DemoRunSaveV2 committed,
                         out journeyError))
                 {
                     battleResultHandled = false;
                     return;
                 }
 
+                RestoreRunFromJourneySnapshot(committed);
                 battle.ClearBattle();
                 activeJourneyBattleNode = null;
                 pendingJourneyNode = null;
@@ -1178,6 +1468,7 @@ namespace PathOfTenThousandWays.Demo.Systems
             run = new DemoRunState();
             runSummary = null;
             currentRewards.Clear();
+            currentJourneyChoices.Clear();
             currentRewardContext = null;
             awaitingBattleReward = false;
             battleResultHandled = false;
@@ -1491,7 +1782,6 @@ namespace PathOfTenThousandWays.Demo.Systems
 
         private DemoJourneyRunSessionOptions BuildJourneySessionOptions(DemoRegionDefinition region, int seed)
         {
-            DemoStartingPracticePackageDefinition package = run.OpeningSelection.StartingPracticePackage;
             return new DemoJourneyRunSessionOptions
             {
                 RunId = "old_mine_" + seed + "_" + DateTime.UtcNow.Ticks,
@@ -1499,19 +1789,7 @@ namespace PathOfTenThousandWays.Demo.Systems
                 ContentVersion = JourneyContentVersion,
                 MapAlgorithmVersion = JourneyMapAlgorithmVersion,
                 RegionId = region.Id,
-                Build = new DemoRunBuildSnapshot
-                {
-                    StartingPracticePackageId = package?.Id ?? string.Empty,
-                    MindMethodId = run.CorePractice.DefinitionId,
-                    MindMethodLevel = Math.Max(1, run.CorePractice.Level),
-                    InnateArtifactId = run.InnateArtifact.DefinitionId,
-                    InnateArtifactRefinementStage = Math.Max(1, run.InnateArtifact.RefinementStage),
-                    TechniqueIds = run.Deck
-                        .Where(card => card != null && !string.IsNullOrWhiteSpace(card.Id))
-                        .Select(card => card.Id)
-                        .Distinct(StringComparer.Ordinal)
-                        .ToList()
-                },
+                Build = BuildPracticeSnapshot(),
                 Realm = BuildRealmSnapshot(),
                 MaxHealth = run.MaxHealth,
                 CurrentHealth = run.CurrentHealth
@@ -1539,13 +1817,41 @@ namespace PathOfTenThousandWays.Demo.Systems
                 StartingPracticePackageId = run.OpeningSelection.StartingPracticePackage?.Id ?? string.Empty,
                 MindMethodId = run.CorePractice.DefinitionId,
                 MindMethodLevel = Math.Max(1, run.CorePractice.Level),
+                MindMethodBranchId = run.CorePractice.BranchId,
+                MindMethodGrantedTechniqueIds = run.CorePractice.GrantedTechniqueIds
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .Distinct(StringComparer.Ordinal)
+                    .ToList(),
                 InnateArtifactId = run.InnateArtifact.DefinitionId,
                 InnateArtifactRefinementStage = Math.Max(1, run.InnateArtifact.RefinementStage),
-                TechniqueIds = run.Deck
-                    .Where(card => card != null && !string.IsNullOrWhiteSpace(card.Id))
-                    .Select(card => card.Id)
+                InnateArtifactBearerDefinitionId = run.InnateArtifact.BearerDefinitionId,
+                InnateArtifactBearerVisualId = run.InnateArtifact.BearerVisualId,
+                InnateArtifactAttackVariantIds = run.InnateArtifact.AttackVariantIds
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .Distinct(StringComparer.Ordinal)
+                    .ToList(),
+                InnateArtifactCooldownRemaining = Mathf.Max(0f, run.InnateArtifact.CooldownRemaining),
+                BonusEnergyCapacity = Math.Max(0, run.BonusEnergy),
+                BonusPermanentSwords = Math.Max(0, run.BonusPermanentSwords),
+                TechniqueIds = run.Techniques
+                    .Where(item => item != null && !string.IsNullOrWhiteSpace(item.DefinitionId))
+                    .Select(item => item.DefinitionId)
                     .Distinct(StringComparer.Ordinal)
                     .Take(9)
+                    .ToList(),
+                TechniqueStates = run.Techniques
+                    .Where(item => item != null && !string.IsNullOrWhiteSpace(item.DefinitionId))
+                    .GroupBy(item => item.DefinitionId, StringComparer.Ordinal)
+                    .Select(group => group.First())
+                    .Take(9)
+                    .Select(item => new DemoRunTechniqueSnapshot
+                    {
+                        DefinitionId = item.DefinitionId,
+                        Level = Math.Max(1, item.Level),
+                        SourceNodeId = item.SourceNodeId,
+                        SourceEventId = item.SourceEventId,
+                        VariantId = item.VariantId
+                    })
                     .ToList()
             };
         }
@@ -1553,6 +1859,41 @@ namespace PathOfTenThousandWays.Demo.Systems
         private void RestoreRunFromJourneySnapshot(DemoRunSaveV2 snapshot)
         {
             run.RestoreJourneyState(snapshot);
+            snapshot.Normalize();
+            run.CorePractice.BranchId = snapshot.Build.MindMethodBranchId;
+            run.CorePractice.GrantedTechniqueIds.Clear();
+            run.CorePractice.GrantedTechniqueIds.AddRange(snapshot.Build.MindMethodGrantedTechniqueIds);
+            run.InnateArtifact.BearerDefinitionId = snapshot.Build.InnateArtifactBearerDefinitionId;
+            run.InnateArtifact.BearerVisualId = snapshot.Build.InnateArtifactBearerVisualId;
+            run.InnateArtifact.CooldownRemaining = snapshot.Build.InnateArtifactCooldownRemaining;
+            run.InnateArtifact.AttackVariantIds.Clear();
+            run.InnateArtifact.AttackVariantIds.AddRange(snapshot.Build.InnateArtifactAttackVariantIds);
+            run.BonusEnergy = Math.Max(0, snapshot.Build.BonusEnergyCapacity);
+            run.BonusPermanentSwords = Math.Max(0, snapshot.Build.BonusPermanentSwords);
+
+            if (!string.IsNullOrWhiteSpace(snapshot.Build.StartingPracticePackageId)
+                && DemoConfigRepository.TryGetStartingPracticePackage(
+                    snapshot.Build.StartingPracticePackageId,
+                    out DemoStartingPracticePackageDefinition package))
+            {
+                run.OpeningSelection.StartingPracticePackage = package;
+            }
+
+            foreach (DemoRunTechniqueSnapshot technique in snapshot.Build.TechniqueStates)
+            {
+                DemoTechniqueState state = run.Techniques.FirstOrDefault(item =>
+                    item != null
+                    && string.Equals(item.DefinitionId, technique.DefinitionId, StringComparison.Ordinal));
+                if (state == null)
+                {
+                    continue;
+                }
+
+                state.Level = Math.Max(1, technique.Level);
+                state.SourceNodeId = technique.SourceNodeId;
+                state.SourceEventId = technique.SourceEventId;
+                state.VariantId = technique.VariantId;
+            }
         }
 
         private string ResolveJourneyEncounterId(DemoJourneyNode node)
@@ -1612,6 +1953,38 @@ namespace PathOfTenThousandWays.Demo.Systems
             DemoJourneyNode node,
             DemoEnemyDefinition primary)
         {
+            string groupId = ResolveJourneyEncounterGroupId(node);
+            if (DemoConfigRepository.TryGetEncounterGroup(groupId, out DemoEncounterGroupConfig configuredGroup))
+            {
+                List<DemoBattleEnemySetup> configuredEnemies = new List<DemoBattleEnemySetup>();
+                foreach (DemoEncounterGroupMemberConfig member in configuredGroup.Members
+                    .Where(item => item != null)
+                    .OrderBy(item => item.Slot))
+                {
+                    if (!DemoConfigRepository.TryGetEnemyById(member.EnemyId, out DemoEnemyDefinition definition))
+                    {
+                        continue;
+                    }
+
+                    configuredEnemies.Add(new DemoBattleEnemySetup
+                    {
+                        CombatantId = groupId + "_slot_" + member.Slot,
+                        DefinitionId = definition.Id,
+                        Name = definition.Name,
+                        PositionId = member.PositionId,
+                        Depth = Math.Max(0, member.Slot - 1),
+                        MaxHealth = Math.Max(1, definition.MaxHealth),
+                        ThreatPriority = member.ThreatPriority,
+                        RequiredForVictory = member.RequiredForVictory
+                    });
+                }
+
+                if (configuredEnemies.Count > 0)
+                {
+                    return configuredEnemies;
+                }
+            }
+
             int baseHealth = primary?.MaxHealth ?? (node.Type == DemoJourneyNodeType.Boss ? 3200 : 130 + node.ActIndex * 55);
             string baseId = primary?.Id ?? ResolveJourneyEncounterId(node);
             string baseName = primary?.Name ?? node.Name;
@@ -1678,6 +2051,25 @@ namespace PathOfTenThousandWays.Demo.Systems
             return enemies;
         }
 
+        private static string ResolveJourneyEncounterGroupId(DemoJourneyNode node)
+        {
+            if (node == null) return "encounter_act1_patrol";
+            if (node.Type == DemoJourneyNodeType.Boss) return "encounter_act3_boss";
+            if (node.Type == DemoJourneyNodeType.MiniBoss)
+            {
+                return node.ActIndex == 1 ? "encounter_act1_miniboss" : "encounter_act2_miniboss";
+            }
+            if (node.Type == DemoJourneyNodeType.Elite)
+            {
+                return node.ActIndex == 1
+                    ? "encounter_act1_elite"
+                    : node.ActIndex == 2 ? "encounter_act2_elite" : "encounter_act3_elite";
+            }
+            return node.ActIndex == 1
+                ? "encounter_act1_patrol"
+                : node.ActIndex == 2 ? "encounter_act2_wraiths" : "encounter_act3_furnace";
+        }
+
         private static string BuildJourneySupportEnemyName(int actIndex, int index)
         {
             if (actIndex == 1)
@@ -1691,6 +2083,539 @@ namespace PathOfTenThousandWays.Demo.Systems
             }
 
             return index == 1 ? "封契剑影" : "炉心构造体";
+        }
+
+        private static IReadOnlyList<DemoJourneyChoice> BuildJourneyChoices(
+            DemoJourneyNode node,
+            DemoRunSaveV2 snapshot)
+        {
+            List<DemoJourneyChoice> choices = new List<DemoJourneyChoice>();
+            if (node == null || snapshot == null)
+            {
+                return choices;
+            }
+
+            HashSet<string> experiences = new HashSet<string>(
+                snapshot.ExperienceFlagIds ?? new List<string>(),
+                StringComparer.Ordinal);
+            switch (node.Type)
+            {
+                case DemoJourneyNodeType.Start:
+                    choices.Add(new DemoJourneyChoice(
+                        "enter_old_mine",
+                        DemoJourneyChoiceKind.Continue,
+                        "循残契入矿",
+                        "让残剑胚牵引腕上旧痕，踏入旧矿第一段废道。",
+                        "记录进入旧矿，并显出浅层第一批路径。",
+                        isRecommended: true));
+                    break;
+
+                case DemoJourneyNodeType.Event:
+                case DemoJourneyNodeType.Story:
+                    if (TryBuildConfiguredEventChoices(node, experiences, choices))
+                    {
+                        break;
+                    }
+
+                    if (node.ActIndex == 1)
+                    {
+                        choices.Add(new DemoJourneyChoice(
+                            "inspect_mine_contract",
+                            DemoJourneyChoiceKind.Story,
+                            "拓下旁支矿印",
+                            "比对腕上旧痕与矿工刻下的旁支族印。",
+                            "取得矿契线索，满足剑骨筑基的一项经历。",
+                            isRecommended: true));
+                        choices.Add(new DemoJourneyChoice(
+                            "aid_miner_remnant",
+                            DemoJourneyChoiceKind.Story,
+                            "替残魂收拢遗骨",
+                            "暂缓深入，为无名矿工完成一段未竟之事。",
+                            "恢复气血并记录矿工见证。"));
+                        choices.Add(new DemoJourneyChoice(
+                            "take_contract_nail",
+                            DemoJourneyChoiceKind.Story,
+                            "拔走朱砂契钉",
+                            "将仍带煞意的契钉收入残剑胚旁。",
+                            "本命法器获得煞性素材，同时留下危险因果。"));
+                    }
+                    else if (node.ActIndex == 2)
+                    {
+                        choices.Add(new DemoJourneyChoice(
+                            "witness_old_contract",
+                            DemoJourneyChoiceKind.Story,
+                            "留下旧契见证",
+                            "记下旁支和矿工被迫维护剑傀的完整证词。",
+                            "最终结算可选择公开旧契，并削弱剑傀契钉。",
+                            isRecommended: true));
+                        choices.Add(new DemoJourneyChoice(
+                            "burn_old_contract",
+                            DemoJourneyChoiceKind.Story,
+                            "焚毁残契",
+                            "当场斩断能够继续驱使旁支的契文。",
+                            "关闭继承路线，获得断契经历。"));
+                        choices.Add(new DemoJourneyChoice(
+                            "inherit_old_contract",
+                            DemoJourneyChoiceKind.Story,
+                            "篡改并继承残契",
+                            "把剑傀控制权写向自己，承担其后续反噬。",
+                            "强化煞契规则，并开启高风险结局。"));
+                    }
+                    else
+                    {
+                        choices.Add(new DemoJourneyChoice(
+                            "continue_sword_furnace",
+                            DemoJourneyChoiceKind.Story,
+                            "循炉壁剑痕深入",
+                            "以已得经历辨认剑炉内层的运行顺序。",
+                            "记录剑炉见闻并继续接近镇矿剑傀。",
+                            isRecommended: true));
+                    }
+                    break;
+
+                case DemoJourneyNodeType.Cultivation:
+                    choices.Add(new DemoJourneyChoice(
+                        "cultivate_breathing",
+                        DemoJourneyChoiceKind.Cultivation,
+                        "循旁支吐纳法静修",
+                        "以当前心法梳理旧矿浊气，让循环更绵长。",
+                        "心法升一阶并恢复气血。",
+                        isRecommended: true));
+                    choices.Add(new DemoJourneyChoice(
+                        "comprehend_sword_mark",
+                        DemoJourneyChoiceKind.Cultivation,
+                        "承受断壁剑意",
+                        "让残剑胚复现石壁上的一段运剑痕迹。",
+                        "悟得或参悟一门本幕剑诀。"));
+                    choices.Add(new DemoJourneyChoice(
+                        "temper_foundation_source",
+                        DemoJourneyChoiceKind.Cultivation,
+                        "以剑意淬炼经脉",
+                        "不追求新术，专注为筑基稳住剑脉。",
+                        "记录剑脉淬炼，解锁剑骨筑基。"));
+                    break;
+
+                case DemoJourneyNodeType.Secret:
+                    choices.Add(new DemoJourneyChoice(
+                        "learn_hidden_art",
+                        DemoJourneyChoiceKind.Secret,
+                        "参悟封室残卷",
+                        "拆开矿图后的封室，补全与本幕相合的一门剑诀。",
+                        "悟得一门场景法诀。",
+                        isRecommended: true));
+                    choices.Add(new DemoJourneyChoice(
+                        "take_thunder_vein",
+                        DemoJourneyChoiceKind.Secret,
+                        "引青雷入剑",
+                        "冒险触碰青绿矿脉中的冷白雷痕。",
+                        "记录雷脉经历并获得雷剑变化。"));
+                    choices.Add(new DemoJourneyChoice(
+                        "seal_secret_chamber",
+                        DemoJourneyChoiceKind.Secret,
+                        "封回秘室",
+                        "不取其中禁物，只带走足以证明旧事的刻录。",
+                        "恢复少量气血并记录见闻。"));
+                    break;
+
+                case DemoJourneyNodeType.Refinement:
+                    choices.Add(new DemoJourneyChoice(
+                        "warm_refine_sword",
+                        DemoJourneyChoiceKind.Refinement,
+                        "温养残剑胚",
+                        "借废炉余温缓慢重整剑胚纹理。",
+                        "本命法器炼形提升，自动攻击冷却缩短。",
+                        isRecommended: true));
+                    choices.Add(new DemoJourneyChoice(
+                        "split_sword_embryo",
+                        DemoJourneyChoiceKind.Refinement,
+                        "分化剑胚",
+                        "把一缕剑质炼成可随本体齐射的分光。",
+                        "获得分化变体和一把常驻飞剑。"));
+                    choices.Add(new DemoJourneyChoice(
+                        "force_refine_sword",
+                        DemoJourneyChoiceKind.Refinement,
+                        "以气血强炼",
+                        "用自身精血压过炉中杂质，换取更快成形。",
+                        "损失气血，本命法器连续提升两阶并留下煞痕。"));
+                    break;
+
+                case DemoJourneyNodeType.Breakthrough:
+                    choices.Add(new DemoJourneyChoice(
+                        "foundation_stable",
+                        DemoJourneyChoiceKind.Breakthrough,
+                        "稳固筑基",
+                        "以旁支吐纳法守住经脉，完成不依赖特殊媒介的突破。",
+                        "灵力循环与法诀威力统一提升；溢出灵力转为少量护体。",
+                        "foundation_stable",
+                        true));
+                    if (experiences.Contains("experience_mine_contract_clue")
+                        || experiences.Contains("experience_ironback_beast_defeated")
+                        || experiences.Contains("experience_foundation_sword_tempered")
+                        || snapshot.Build.InnateArtifactRefinementStage >= 2)
+                    {
+                        choices.Add(new DemoJourneyChoice(
+                            "foundation_sword_bone",
+                            DemoJourneyChoiceKind.Breakthrough,
+                            "剑骨道基",
+                            "以剑痕、本命剑和守关经历重塑经脉。",
+                            "本命法器齐射更快，剑诀获得额外通用成长。",
+                            "foundation_sword_bone"));
+                    }
+                    if (experiences.Contains("experience_miner_spirit_helped"))
+                    {
+                        choices.Add(new DemoJourneyChoice(
+                            "foundation_clear_spirit",
+                            DemoJourneyChoiceKind.Breakthrough,
+                            "清灵道基",
+                            "借矿灵归还的清气洗去旧矿浊息。",
+                            "灵力恢复提高，吐纳归息额外获得护体。",
+                            "foundation_clear_spirit"));
+                    }
+                    if (experiences.Contains("experience_thunder_vein_touched")
+                        || experiences.Contains("experience_secret_act_2"))
+                    {
+                        choices.Add(new DemoJourneyChoice(
+                            "foundation_thunder_meridian",
+                            DemoJourneyChoiceKind.Breakthrough,
+                            "雷脉道基",
+                            "引矿脉残雷贯通剑路，以雷性承担突破风险。",
+                            "攻击法诀附加感电，雷剑在多目标间更容易起势。",
+                            "foundation_thunder_meridian"));
+                    }
+                    if (experiences.Contains("experience_miner_spirit_bound")
+                        || experiences.Contains("experience_miner_spirit_refined")
+                        || experiences.Contains("experience_contract_nail_taken")
+                        || experiences.Contains("experience_sword_force_refined"))
+                    {
+                        choices.Add(new DemoJourneyChoice(
+                            "foundation_baleful_contract",
+                            DemoJourneyChoiceKind.Breakthrough,
+                            "煞契道基",
+                            "以契钉、矿灵或强炼留下的煞意强行贯脉。",
+                            "法诀伤害显著提高，但部分术式会反噬气血。",
+                            "foundation_baleful_contract"));
+                    }
+                    break;
+
+                default:
+                    choices.Add(new DemoJourneyChoice(
+                        "continue_journey",
+                        DemoJourneyChoiceKind.Continue,
+                        "继续深入",
+                        "完成此处必要交互，沿新显出的墨迹前行。",
+                        "结算节点并保存当前一世。",
+                        isRecommended: true));
+                    break;
+            }
+
+            return choices;
+        }
+
+        private static bool TryBuildConfiguredEventChoices(
+            DemoJourneyNode node,
+            ISet<string> experiences,
+            ICollection<DemoJourneyChoice> destination)
+        {
+            if (node == null
+                || !DemoConfigRepository.TryGetEvent(node.ContentId, out DemoEventConfig configured)
+                || (!string.IsNullOrWhiteSpace(configured.RequiredStoryFlagId)
+                    && !experiences.Contains(configured.RequiredStoryFlagId)))
+            {
+                return false;
+            }
+
+            bool first = true;
+            foreach (DemoEventChoiceConfig configuredChoice in configured.Choices ?? new List<DemoEventChoiceConfig>())
+            {
+                if (configuredChoice == null
+                    || (!string.IsNullOrWhiteSpace(configuredChoice.RequiredStoryFlagId)
+                        && !experiences.Contains(configuredChoice.RequiredStoryFlagId)))
+                {
+                    continue;
+                }
+
+                destination.Add(new DemoJourneyChoice(
+                    configuredChoice.ChoiceId,
+                    DemoJourneyChoiceKind.Story,
+                    configuredChoice.Label,
+                    configuredChoice.Description,
+                    DescribeConfiguredEventEffect(configuredChoice),
+                    isRecommended: first));
+                first = false;
+            }
+
+            return !first;
+        }
+
+        private static string DescribeConfiguredEventEffect(DemoEventChoiceConfig choice)
+        {
+            switch (choice.EffectKind ?? string.Empty)
+            {
+                case "heal": return "恢复气血，并留下这次选择的具体经历。";
+                case "artifact_refine": return "残剑胚炼形提升，自动攻击随之强化。";
+                case "learn_technique": return "从此处悟得一门有明确来历的法诀。";
+                case "reveal_hidden": return "因既有因果显出一条原本不可见的暗路。";
+                case "discovery": return "记入旧矿见闻，并改变后续真相与结局判断。";
+                case "boss_modifier": return "改变玄铁镇矿剑傀战中的一项阶段规则。";
+                default: return "保留这次选择的经历，后续人物与结局会据此回应。";
+            }
+        }
+
+        private static bool HasMinerSpiritFate(ISet<string> experiences)
+        {
+            return experiences.Contains("experience_miner_spirit_helped")
+                || experiences.Contains("experience_miner_spirit_bound")
+                || experiences.Contains("experience_miner_spirit_refined")
+                || experiences.Contains("experience_miner_spirit_ignored");
+        }
+
+        private DemoJourneyNodeOutcome BuildJourneyChoiceOutcome(
+            DemoJourneyNode node,
+            DemoJourneyChoice choice,
+            DemoRunSaveV2 stableSnapshot)
+        {
+            DemoRunSaveV2 candidate = stableSnapshot.DeepClone();
+            DemoRunBuildSnapshot build = candidate.Build;
+            DemoRunRealmSnapshot realm = candidate.Realm;
+            DemoJourneyNodeOutcome outcome = new DemoJourneyNodeOutcome
+            {
+                SelectedChoiceId = choice.ChoiceId,
+                CurrentHealth = candidate.CurrentHealth,
+                MaxHealth = candidate.MaxHealth
+            };
+
+            if (!TryApplyConfiguredEventChoice(node, choice, candidate, outcome))
+            {
+                switch (choice.ChoiceId)
+                {
+                case "enter_old_mine":
+                    outcome.AddExperienceFlag("experience_entered_old_mine");
+                    break;
+                case "inspect_mine_contract":
+                    outcome.AddExperienceFlag("experience_mine_contract_clue");
+                    break;
+                case "aid_miner_remnant":
+                    outcome.AddExperienceFlag("experience_miner_remnant_aided");
+                    candidate.CurrentHealth = Math.Min(candidate.MaxHealth, candidate.CurrentHealth + 10);
+                    break;
+                case "take_contract_nail":
+                    outcome.AddExperienceFlag("experience_contract_nail_taken");
+                    AddUnique(build.InnateArtifactAttackVariantIds, "variant_contract_nail");
+                    break;
+                case "miner_spirit_help":
+                    outcome.AddExperienceFlag("experience_miner_spirit_helped");
+                    outcome.AddPendingMetaDiscovery("discovery_miner_spirit");
+                    outcome.GrantMinerSpiritLife = true;
+                    candidate.CurrentHealth = Math.Min(candidate.MaxHealth, candidate.CurrentHealth + 8);
+                    break;
+                case "miner_spirit_bind":
+                    outcome.AddExperienceFlag("experience_miner_spirit_bound");
+                    build.InnateArtifactRefinementStage++;
+                    AddUnique(build.InnateArtifactAttackVariantIds, "variant_bound_miner_spirit");
+                    break;
+                case "miner_spirit_refine":
+                    outcome.AddExperienceFlag("experience_miner_spirit_refined");
+                    AddTechniqueToBuild(build, "blood_sword", node.NodeId, choice.ChoiceId);
+                    break;
+                case "miner_spirit_ignore":
+                    outcome.AddExperienceFlag("experience_miner_spirit_ignored");
+                    break;
+                case "witness_old_contract":
+                    outcome.AddExperienceFlag("experience_old_contract_witnessed");
+                    break;
+                case "burn_old_contract":
+                    outcome.AddExperienceFlag("experience_old_contract_burned");
+                    break;
+                case "inherit_old_contract":
+                    outcome.AddExperienceFlag("experience_old_contract_inherited");
+                    break;
+                case "cultivate_breathing":
+                    build.MindMethodLevel++;
+                    build.MindMethodBranchId = build.MindMethodLevel >= 2 ? "mind_branch_long_breath" : build.MindMethodBranchId;
+                    candidate.CurrentHealth = Math.Min(candidate.MaxHealth, candidate.CurrentHealth + 10);
+                    break;
+                case "comprehend_sword_mark":
+                    AddTechniqueToBuild(
+                        build,
+                        node.ActIndex == 1 ? "sword_focus" : node.ActIndex == 2 ? "returning_array" : "wanjian_burst",
+                        node.NodeId,
+                        choice.ChoiceId);
+                    outcome.AddExperienceFlag("experience_sword_mark_act_" + node.ActIndex);
+                    break;
+                case "temper_foundation_source":
+                    outcome.AddExperienceFlag("experience_foundation_sword_tempered");
+                    break;
+                case "learn_hidden_art":
+                    AddTechniqueToBuild(
+                        build,
+                        node.ActIndex == 1 ? "summon_sword" : node.ActIndex == 2 ? "sword_rain" : "sword_tide",
+                        node.NodeId,
+                        choice.ChoiceId);
+                    outcome.AddExperienceFlag("experience_secret_act_" + node.ActIndex);
+                    break;
+                case "take_thunder_vein":
+                    AddTechniqueToBuild(build, "thunder_sword", node.NodeId, choice.ChoiceId);
+                    outcome.AddExperienceFlag("experience_thunder_vein_touched");
+                    break;
+                case "seal_secret_chamber":
+                    outcome.AddExperienceFlag("experience_secret_sealed_act_" + node.ActIndex);
+                    outcome.AddPendingMetaDiscovery("discovery_old_mine_secret_act_" + node.ActIndex);
+                    candidate.CurrentHealth = Math.Min(candidate.MaxHealth, candidate.CurrentHealth + 6);
+                    break;
+                case "warm_refine_sword":
+                    build.InnateArtifactRefinementStage++;
+                    AddUnique(build.InnateArtifactAttackVariantIds, "variant_warm_refined");
+                    candidate.CurrentHealth = Math.Min(candidate.MaxHealth, candidate.CurrentHealth + 6);
+                    break;
+                case "split_sword_embryo":
+                    build.InnateArtifactRefinementStage++;
+                    build.BonusPermanentSwords++;
+                    AddUnique(build.InnateArtifactAttackVariantIds, "variant_sword_split");
+                    break;
+                case "force_refine_sword":
+                    build.InnateArtifactRefinementStage += 2;
+                    candidate.CurrentHealth = Math.Max(1, candidate.CurrentHealth - 12);
+                    AddUnique(build.InnateArtifactAttackVariantIds, "variant_blood_refined");
+                    outcome.AddExperienceFlag("experience_sword_force_refined");
+                    break;
+                case "foundation_stable":
+                case "foundation_sword_bone":
+                case "foundation_clear_spirit":
+                case "foundation_thunder_meridian":
+                case "foundation_baleful_contract":
+                    realm.RealmId = "realm_foundation_establishment";
+                    realm.Stage = 2;
+                    realm.FoundationRuleId = choice.FoundationRuleId;
+                    AddUnique(realm.BreakthroughSourceIds, node.ContentId);
+                    candidate.MaxHealth += 12;
+                    candidate.CurrentHealth = candidate.MaxHealth;
+                    build.BonusEnergyCapacity++;
+                    outcome.AddExperienceFlag("experience_foundation_established");
+                    outcome.AddExperienceFlag("experience_" + choice.FoundationRuleId);
+                    break;
+                }
+            }
+
+            build.Normalize();
+            realm.Normalize();
+            outcome.Build = build;
+            outcome.Realm = realm;
+            outcome.CurrentHealth = candidate.CurrentHealth;
+            outcome.MaxHealth = candidate.MaxHealth;
+            outcome.ConsumeUniqueContent(node.ContentId);
+            return outcome;
+        }
+
+        private static bool TryApplyConfiguredEventChoice(
+            DemoJourneyNode node,
+            DemoJourneyChoice selected,
+            DemoRunSaveV2 candidate,
+            DemoJourneyNodeOutcome outcome)
+        {
+            if (node == null
+                || selected == null
+                || !DemoConfigRepository.TryGetEvent(node.ContentId, out DemoEventConfig configured))
+            {
+                return false;
+            }
+
+            DemoEventChoiceConfig choice = (configured.Choices ?? new List<DemoEventChoiceConfig>())
+                .FirstOrDefault(item => item != null
+                    && string.Equals(item.ChoiceId, selected.ChoiceId, StringComparison.Ordinal));
+            if (choice == null)
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(choice.GrantedStoryFlagId))
+            {
+                outcome.AddExperienceFlag(choice.GrantedStoryFlagId);
+            }
+
+            int amount;
+            switch (choice.EffectKind ?? string.Empty)
+            {
+                case "heal":
+                    if (int.TryParse(choice.EffectValue, out amount))
+                    {
+                        candidate.CurrentHealth = Math.Min(candidate.MaxHealth, candidate.CurrentHealth + amount);
+                    }
+                    break;
+                case "artifact_refine":
+                    amount = 1;
+                    int.TryParse(choice.EffectValue, out amount);
+                    candidate.Build.InnateArtifactRefinementStage += Math.Max(1, amount);
+                    break;
+                case "learn_technique":
+                    AddTechniqueToBuild(candidate.Build, choice.EffectValue, node.NodeId, choice.ChoiceId);
+                    break;
+                case "reveal_hidden":
+                    outcome.AddPendingMetaDiscovery("discovery_" + choice.EffectValue);
+                    break;
+                case "discovery":
+                    outcome.AddPendingMetaDiscovery(choice.EffectValue);
+                    break;
+                case "boss_modifier":
+                    outcome.AddExperienceFlag("experience_boss_modifier_" + choice.EffectValue);
+                    break;
+            }
+
+            if (string.Equals(choice.GrantedStoryFlagId, "experience_miner_spirit_helped", StringComparison.Ordinal))
+            {
+                outcome.GrantMinerSpiritLife = true;
+                outcome.AddPendingMetaDiscovery("discovery_miner_spirit");
+            }
+            else if (string.Equals(choice.GrantedStoryFlagId, "experience_miner_spirit_bound", StringComparison.Ordinal))
+            {
+                AddUnique(candidate.Build.InnateArtifactAttackVariantIds, "variant_bound_miner_spirit");
+            }
+
+            return true;
+        }
+
+        private static void AddTechniqueToBuild(
+            DemoRunBuildSnapshot build,
+            string techniqueId,
+            string sourceNodeId,
+            string sourceEventId)
+        {
+            if (build == null
+                || string.IsNullOrWhiteSpace(techniqueId)
+                || !DemoConfigRepository.TryCreateCard(techniqueId, out _))
+            {
+                return;
+            }
+
+            build.Normalize();
+            DemoRunTechniqueSnapshot existing = build.TechniqueStates.FirstOrDefault(item =>
+                item != null && string.Equals(item.DefinitionId, techniqueId, StringComparison.OrdinalIgnoreCase));
+            if (existing != null)
+            {
+                existing.Level++;
+                return;
+            }
+
+            if (build.TechniqueIds.Count >= 9)
+            {
+                return;
+            }
+
+            build.TechniqueIds.Add(techniqueId);
+            build.TechniqueStates.Add(new DemoRunTechniqueSnapshot
+            {
+                DefinitionId = techniqueId,
+                Level = 1,
+                SourceNodeId = sourceNodeId ?? string.Empty,
+                SourceEventId = sourceEventId ?? string.Empty
+            });
+        }
+
+        private static void AddUnique(ICollection<string> destination, string id)
+        {
+            if (destination != null && !string.IsNullOrWhiteSpace(id) && !destination.Contains(id))
+            {
+                destination.Add(id);
+            }
         }
 
         private void ApplyJourneyNodeImmediateEffect(DemoJourneyNode node)
@@ -1816,7 +2741,6 @@ namespace PathOfTenThousandWays.Demo.Systems
                         ? "experience_ironback_beast_defeated"
                         : "experience_sword_eater_defeated";
                     outcome.AddExperienceFlag(flag);
-                    run.Story.AddExperience(flag);
                 }
             }
             return outcome;

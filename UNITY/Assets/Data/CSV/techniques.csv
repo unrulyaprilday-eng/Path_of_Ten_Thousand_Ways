@@ -1,3 +1,10 @@
 technique_id,name,kind,source_story_id,rules_text,visual_tag
 technique_breathing_recovery,吐纳归息,HeartFormula,opening_story_branch_ancestral_vault,"调息恢复并稳定灵气循环",jade_breath
 technique_incomplete_sword_scroll,残卷御剑式,SwordArt,opening_story_branch_ancestral_vault,"主动催动残剑胚并积累剑意",diagonal_sword
+sword_focus,凝剑诀,HeartFormula,event_shallow_sword_mark,"凝神收束剑意并强化下一轮御剑",jade_focus
+summon_sword,御剑诀,SwordArt,event_hidden_sword_cave,"增添一柄常驻飞剑并缩短齐射间隔",diagonal_sword
+sword_rain,剑雨横空,SwordArt,event_collapsed_well_echo,"对多个目标落下斜向剑雨",fan_sword
+returning_array,回锋剑阵,SwordArt,event_miner_spirit_return,"飞剑回旋并再次命中锁定目标",returning_arc
+wanjian_burst,万剑诀,SwordArt,event_sword_furnace_insight,"消耗剑意向右上扇形爆发",fan_sword
+thunder_sword,雷剑,SwordArt,event_thunder_vein,"飞剑命中时在不同目标间引出雷链",lightning_zigzag
+blood_sword,血剑胚,ForbiddenArt,event_contract_refinement,"以气血换取朱砂剑痕与高额单体伤害",cinnabar_hook

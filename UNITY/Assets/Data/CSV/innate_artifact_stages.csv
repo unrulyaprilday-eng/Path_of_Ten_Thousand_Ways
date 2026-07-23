@@ -1,0 +1,4 @@
+artifact_id,stage,name,base_damage,cooldown,attack_variant_id,rules_text
+artifact_broken_sword_embryo,1,残胚初鸣,8,3.8,broken_sword_single,按冷却自动斩向锁定目标
+artifact_broken_sword_embryo,2,矿火炼形,11,3.3,broken_sword_return,命中后留下一道回锋墨痕
+artifact_broken_sword_embryo,3,剑炉开锋,15,2.9,broken_sword_fan,齐射末端向邻近目标分出一剑

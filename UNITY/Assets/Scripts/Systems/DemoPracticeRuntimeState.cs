@@ -4,18 +4,64 @@ using System.Linq;
 
 namespace PathOfTenThousandWays.Demo.Systems
 {
+    public enum DemoJourneyChoiceKind
+    {
+        Continue,
+        Story,
+        Cultivation,
+        Secret,
+        Refinement,
+        Breakthrough
+    }
+
+    [Serializable]
+    public sealed class DemoJourneyChoice
+    {
+        public string ChoiceId { get; }
+        public DemoJourneyChoiceKind Kind { get; }
+        public string Title { get; }
+        public string Description { get; }
+        public string Consequence { get; }
+        public string FoundationRuleId { get; }
+        public bool IsRecommended { get; }
+
+        public DemoJourneyChoice(
+            string choiceId,
+            DemoJourneyChoiceKind kind,
+            string title,
+            string description,
+            string consequence,
+            string foundationRuleId = null,
+            bool isRecommended = false)
+        {
+            ChoiceId = choiceId ?? string.Empty;
+            Kind = kind;
+            Title = title ?? string.Empty;
+            Description = description ?? string.Empty;
+            Consequence = consequence ?? string.Empty;
+            FoundationRuleId = foundationRuleId ?? string.Empty;
+            IsRecommended = isRecommended;
+        }
+    }
+
     [Serializable]
     public sealed class DemoCorePracticeState
     {
         public string DefinitionId = string.Empty;
         public int Level = 1;
+        public string BranchId = string.Empty;
+        public List<string> GrantedTechniqueIds = new List<string>();
 
         public DemoCorePracticeState Clone()
         {
             return new DemoCorePracticeState
             {
                 DefinitionId = DefinitionId ?? string.Empty,
-                Level = Math.Max(1, Level)
+                Level = Math.Max(1, Level),
+                BranchId = BranchId ?? string.Empty,
+                GrantedTechniqueIds = GrantedTechniqueIds == null
+                    ? new List<string>()
+                    : GrantedTechniqueIds.Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.Ordinal).ToList()
             };
         }
     }
@@ -26,6 +72,8 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string DefinitionId = string.Empty;
         public int Level = 1;
         public string SourceNodeId = string.Empty;
+        public string SourceEventId = string.Empty;
+        public string VariantId = string.Empty;
 
         public DemoTechniqueState Clone()
         {
@@ -33,7 +81,9 @@ namespace PathOfTenThousandWays.Demo.Systems
             {
                 DefinitionId = DefinitionId ?? string.Empty,
                 Level = Math.Max(1, Level),
-                SourceNodeId = SourceNodeId ?? string.Empty
+                SourceNodeId = SourceNodeId ?? string.Empty,
+                SourceEventId = SourceEventId ?? string.Empty,
+                VariantId = VariantId ?? string.Empty
             };
         }
     }
@@ -44,6 +94,9 @@ namespace PathOfTenThousandWays.Demo.Systems
         public string DefinitionId = string.Empty;
         public int RefinementStage = 1;
         public string BearerDefinitionId = string.Empty;
+        public string BearerVisualId = string.Empty;
+        public float CooldownRemaining;
+        public List<string> AttackVariantIds = new List<string>();
 
         public DemoInnateArtifactState Clone()
         {
@@ -51,7 +104,12 @@ namespace PathOfTenThousandWays.Demo.Systems
             {
                 DefinitionId = DefinitionId ?? string.Empty,
                 RefinementStage = Math.Max(1, RefinementStage),
-                BearerDefinitionId = BearerDefinitionId ?? string.Empty
+                BearerDefinitionId = BearerDefinitionId ?? string.Empty,
+                BearerVisualId = BearerVisualId ?? string.Empty,
+                CooldownRemaining = Math.Max(0f, CooldownRemaining),
+                AttackVariantIds = AttackVariantIds == null
+                    ? new List<string>()
+                    : AttackVariantIds.Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.Ordinal).ToList()
             };
         }
     }

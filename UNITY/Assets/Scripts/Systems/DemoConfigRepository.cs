@@ -119,6 +119,120 @@ namespace PathOfTenThousandWays.Demo.Systems
             return false;
         }
 
+        public static bool TryGetInnateArtifact(string artifactId, out DemoInnateArtifactConfig artifact)
+        {
+            EnsureLoaded();
+            if (!string.IsNullOrEmpty(artifactId)
+                && config?.Demo?.InnateArtifacts != null
+                && config.Demo.InnateArtifacts.TryGetValue(artifactId, out artifact))
+            {
+                return artifact != null;
+            }
+
+            artifact = null;
+            return false;
+        }
+
+        public static bool TryGetMindMethod(string methodId, out DemoMindMethodConfig method)
+        {
+            EnsureLoaded();
+            if (!string.IsNullOrEmpty(methodId)
+                && config?.Demo?.MindMethods != null
+                && config.Demo.MindMethods.TryGetValue(methodId, out method))
+            {
+                return method != null;
+            }
+
+            method = null;
+            return false;
+        }
+
+        public static bool TryGetFoundationRule(string ruleId, out DemoFoundationRuleConfig rule)
+        {
+            EnsureLoaded();
+            if (!string.IsNullOrEmpty(ruleId)
+                && config?.Demo?.FoundationRules != null
+                && config.Demo.FoundationRules.TryGetValue(ruleId, out rule))
+            {
+                return rule != null;
+            }
+
+            rule = null;
+            return false;
+        }
+
+        public static bool TryGetRealmBreakthrough(
+            string breakthroughId,
+            out DemoRealmBreakthroughConfig breakthrough)
+        {
+            EnsureLoaded();
+            if (!string.IsNullOrEmpty(breakthroughId)
+                && config?.Demo?.RealmBreakthroughs != null
+                && config.Demo.RealmBreakthroughs.TryGetValue(breakthroughId, out breakthrough))
+            {
+                return breakthrough != null;
+            }
+
+            breakthrough = null;
+            return false;
+        }
+
+        public static bool TryGetEncounterGroup(string groupId, out DemoEncounterGroupConfig group)
+        {
+            EnsureLoaded();
+            if (!string.IsNullOrEmpty(groupId)
+                && config?.Demo?.EncounterGroups != null
+                && config.Demo.EncounterGroups.TryGetValue(groupId, out group))
+            {
+                return group != null;
+            }
+
+            group = null;
+            return false;
+        }
+
+        public static bool TryGetMapTemplate(string templateId, out DemoMapTemplateConfig template)
+        {
+            EnsureLoaded();
+            if (!string.IsNullOrEmpty(templateId)
+                && config?.Demo?.MapTemplates != null
+                && config.Demo.MapTemplates.TryGetValue(templateId, out template))
+            {
+                return template != null;
+            }
+
+            template = null;
+            return false;
+        }
+
+        public static bool TryGetEvent(string eventId, out DemoEventConfig eventConfig)
+        {
+            EnsureLoaded();
+            if (!string.IsNullOrEmpty(eventId)
+                && config?.Demo?.Events != null
+                && config.Demo.Events.TryGetValue(eventId, out eventConfig))
+            {
+                return eventConfig != null;
+            }
+
+            eventConfig = null;
+            return false;
+        }
+
+        public static bool TryGetStoryFlag(string flagId, out DemoStoryFlagConfig storyFlag)
+        {
+            EnsureLoaded();
+            if (!string.IsNullOrEmpty(flagId)
+                && config?.Demo?.StoryFlags != null
+                && config.Demo.StoryFlags.TryGetValue(flagId, out storyFlag))
+            {
+                return storyFlag != null;
+            }
+
+            storyFlag = null;
+            return false;
+        }
+
         public static List<DemoRootDefinition> GetDefaultRoots(int maxCount)
         {
             EnsureLoaded();
@@ -1065,6 +1179,14 @@ namespace PathOfTenThousandWays.Demo.Systems
             runtime.Techniques = ReadObjectMap(raw, "techniques", ParseTechniqueConfig);
             runtime.Bearers = ReadObjectMap(raw, "bearers", ParseBearerConfig);
             runtime.StartingPracticePackages = ReadObjectMap(raw, "startingPracticePackages", ParseStartingPracticePackageConfig);
+            runtime.InnateArtifacts = ReadObjectMap(raw, "innateArtifacts", ParseInnateArtifactConfig);
+            runtime.MindMethods = ReadObjectMap(raw, "mindMethods", ParseMindMethodConfig);
+            runtime.RealmBreakthroughs = ReadObjectMap(raw, "realmBreakthroughs", ParseRealmBreakthroughConfig);
+            runtime.FoundationRules = ReadObjectMap(raw, "foundationRules", ParseFoundationRuleConfig);
+            runtime.EncounterGroups = ReadObjectMap(raw, "encounterGroups", ParseEncounterGroupConfig);
+            runtime.MapTemplates = ReadObjectMap(raw, "mapTemplates", ParseMapTemplateConfig);
+            runtime.Events = ReadObjectMap(raw, "events", ParseEventConfig);
+            runtime.StoryFlags = ReadObjectMap(raw, "storyFlags", ParseStoryFlagConfig);
             runtime.Gongfas = ReadObjectMap(raw, "gongfas", ParseGongfaConfig);
             runtime.Artifacts = ReadObjectMap(raw, "artifacts", ParseArtifactConfig);
             runtime.Relics = ReadObjectMap(raw, "relics", ParseRelicConfig);
@@ -1382,6 +1504,198 @@ namespace PathOfTenThousandWays.Demo.Systems
                 BearerDefinitionId = GetString(raw, "bearerDefinitionId"),
                 IsAvailable = GetBool(raw, "isAvailable"),
                 ActiveTechniqueIds = ReadStringList(GetArray(raw, "activeTechniqueIds"))
+            };
+        }
+
+        private static DemoInnateArtifactConfig ParseInnateArtifactConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoInnateArtifactConfig
+            {
+                Id = GetString(raw, "id", key),
+                Name = GetString(raw, "name"),
+                BearerDefinitionId = GetString(raw, "bearerDefinitionId"),
+                VisualResourceKey = GetString(raw, "visualResourceKey"),
+                BaseCooldown = (float)GetDouble(raw, "baseCooldown"),
+                Stages = ReadObjectList(raw, "stages", ParseInnateArtifactStageConfig)
+            };
+        }
+
+        private static DemoInnateArtifactStageConfig ParseInnateArtifactStageConfig(Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoInnateArtifactStageConfig
+            {
+                Stage = GetInt(raw, "stage"),
+                Name = GetString(raw, "name"),
+                BaseDamage = GetInt(raw, "baseDamage"),
+                Cooldown = (float)GetDouble(raw, "cooldown"),
+                AttackVariantId = GetString(raw, "attackVariantId"),
+                RulesText = GetString(raw, "rulesText")
+            };
+        }
+
+        private static DemoMindMethodConfig ParseMindMethodConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoMindMethodConfig
+            {
+                Id = GetString(raw, "id", key),
+                Name = GetString(raw, "name"),
+                GrantedTechniqueId = GetString(raw, "grantedTechniqueId"),
+                Levels = ReadObjectList(raw, "levels", ParseMindMethodLevelConfig)
+            };
+        }
+
+        private static DemoMindMethodLevelConfig ParseMindMethodLevelConfig(Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoMindMethodLevelConfig
+            {
+                Level = GetInt(raw, "level"),
+                EnergyRegenMultiplier = (float)GetDouble(raw, "energyRegenMultiplier", 1d),
+                RecoveryAmount = GetInt(raw, "recoveryAmount"),
+                ArtifactCooldownMultiplier = (float)GetDouble(raw, "artifactCooldownMultiplier", 1d),
+                RulesText = GetString(raw, "rulesText")
+            };
+        }
+
+        private static DemoRealmBreakthroughConfig ParseRealmBreakthroughConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoRealmBreakthroughConfig
+            {
+                Id = GetString(raw, "id", key),
+                FromRealmId = GetString(raw, "fromRealmId"),
+                ToRealmId = GetString(raw, "toRealmId"),
+                MaxEnergy = GetInt(raw, "maxEnergy"),
+                EnergyRegenMultiplier = (float)GetDouble(raw, "energyRegenMultiplier", 1d),
+                TechniquePowerMultiplier = (float)GetDouble(raw, "techniquePowerMultiplier", 1d),
+                RequiredNodeType = GetString(raw, "requiredNodeType"),
+                SceneId = GetString(raw, "sceneId")
+            };
+        }
+
+        private static DemoFoundationRuleConfig ParseFoundationRuleConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoFoundationRuleConfig
+            {
+                Id = GetString(raw, "id", key),
+                Name = GetString(raw, "name"),
+                RequiredStoryFlagId = GetString(raw, "requiredStoryFlagId"),
+                RuleKind = GetString(raw, "ruleKind"),
+                RuleValue = GetDouble(raw, "ruleValue"),
+                RulesText = GetString(raw, "rulesText"),
+                VisualTag = GetString(raw, "visualTag")
+            };
+        }
+
+        private static DemoEncounterGroupConfig ParseEncounterGroupConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoEncounterGroupConfig
+            {
+                Id = GetString(raw, "id", key),
+                Name = GetString(raw, "name"),
+                ActIndex = GetInt(raw, "actIndex"),
+                EncounterRole = GetString(raw, "encounterRole"),
+                Members = ReadObjectList(raw, "members", ParseEncounterGroupMemberConfig)
+            };
+        }
+
+        private static DemoEncounterGroupMemberConfig ParseEncounterGroupMemberConfig(Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoEncounterGroupMemberConfig
+            {
+                Slot = GetInt(raw, "slot"),
+                EnemyId = GetString(raw, "enemyId"),
+                PositionId = GetString(raw, "positionId"),
+                ThreatPriority = GetInt(raw, "threatPriority"),
+                RequiredForVictory = GetBool(raw, "requiredForVictory")
+            };
+        }
+
+        private static DemoMapTemplateConfig ParseMapTemplateConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoMapTemplateConfig
+            {
+                Id = GetString(raw, "id", key),
+                RegionId = GetString(raw, "regionId"),
+                ActCount = GetInt(raw, "actCount"),
+                StandardDepthCount = GetInt(raw, "standardDepthCount"),
+                Nodes = ReadObjectList(raw, "nodes", ParseMapTemplateNodeConfig),
+                Edges = ReadObjectList(raw, "edges", ParseMapTemplateEdgeConfig)
+            };
+        }
+
+        private static DemoMapTemplateNodeConfig ParseMapTemplateNodeConfig(Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoMapTemplateNodeConfig
+            {
+                SlotId = GetString(raw, "slotId"),
+                ActIndex = GetInt(raw, "actIndex"),
+                DepthIndex = GetInt(raw, "depthIndex"),
+                LaneIndex = GetInt(raw, "laneIndex"),
+                AllowedNodeTypes = GetString(raw, "allowedNodeTypes"),
+                RequiredContentId = GetString(raw, "requiredContentId"),
+                RequiredStoryFlagId = GetString(raw, "requiredStoryFlagId"),
+                Hidden = GetBool(raw, "hidden")
+            };
+        }
+
+        private static DemoMapTemplateEdgeConfig ParseMapTemplateEdgeConfig(Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoMapTemplateEdgeConfig
+            {
+                FromSlotId = GetString(raw, "fromSlotId"),
+                ToSlotId = GetString(raw, "toSlotId")
+            };
+        }
+
+        private static DemoEventConfig ParseEventConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoEventConfig
+            {
+                Id = GetString(raw, "id", key),
+                Name = GetString(raw, "name"),
+                SceneId = GetString(raw, "sceneId"),
+                ActIndex = GetInt(raw, "actIndex"),
+                Critical = GetBool(raw, "critical"),
+                RequiredStoryFlagId = GetString(raw, "requiredStoryFlagId"),
+                Choices = ReadObjectList(raw, "choices", ParseEventChoiceConfig)
+            };
+        }
+
+        private static DemoEventChoiceConfig ParseEventChoiceConfig(Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoEventChoiceConfig
+            {
+                ChoiceId = GetString(raw, "choiceId"),
+                Label = GetString(raw, "label"),
+                Description = GetString(raw, "description"),
+                RequiredStoryFlagId = GetString(raw, "requiredStoryFlagId"),
+                GrantedStoryFlagId = GetString(raw, "grantedStoryFlagId"),
+                EffectKind = GetString(raw, "effectKind"),
+                EffectValue = GetString(raw, "effectValue")
+            };
+        }
+
+        private static DemoStoryFlagConfig ParseStoryFlagConfig(string key, Dictionary<string, object> raw)
+        {
+            if (raw == null) return null;
+            return new DemoStoryFlagConfig
+            {
+                Id = GetString(raw, "id", key),
+                Category = GetString(raw, "category"),
+                Description = GetString(raw, "description"),
+                PersistsBetweenRuns = GetBool(raw, "persistsBetweenRuns")
             };
         }
 
